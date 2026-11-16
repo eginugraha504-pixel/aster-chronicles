@@ -1088,6 +1088,8 @@ i.on{display:inline-block;width:9px;height:9px;border-radius:50%;background:#3ad
 @keyframes stFade{to{opacity:1}}
 @keyframes stPetal{0%{opacity:0;transform:translate(0,0) rotate(0)}10%{opacity:.85}90%{opacity:.7}100%{opacity:0;transform:translate(-60px,110vh) rotate(540deg)}}
 @media (prefers-reduced-motion:reduce){#stLogo,#studio .stline,#stDisc{animation:none;opacity:1;transform:none;filter:none;width:auto}#studio .stline{width:72%}#studio .stpetal{display:none}}
+#stTap{margin:26px 0 0;font:700 12px/1 var(--fb,system-ui),system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#b8231e;opacity:0;animation:stFade .5s ease-out forwards,stBlink 1.6s ease-in-out .5s infinite}
+@keyframes stBlink{0%,100%{opacity:1}50%{opacity:.35}}
 
 /* ==== css/skin.css ==== */
 /* =====================================================================
@@ -4278,32 +4280,41 @@ async function voice(k){if(!voxOn()||!voxHas(k))return;const tk=++VOX.tk;
    Lagu ditanam oleh tools/build.py dari src/audio/<kunci>.mp3 -> MUSIC_SRC.
      login : "Eternal Sky" — layar judul/login setelah splash studio (loop), memudar saat masuk game.
      game  : "Starbound Prologue" — di dalam game setelah login (loop), sedikit lebih pelan.
-   Diputar lewat <audio> + Web Audio (MediaElementSource -> gain) supaya volume & fade
-   tetap berfungsi di iOS (volume <audio> di iOS tidak bisa diubah langsung).
-   iOS/Chrome baru mengizinkan suara setelah sentuhan pertama: kalau belum boleh,
-   permintaan disimpan (BGM.want) dan diputar oleh audUnlock() di systems/platform.js.
+   iOS hanya mengizinkan <audio> diputar lewat kode kalau elemen itu SUDAH pernah
+   diputar di dalam sebuah sentuhan. Karena itu dipakai SATU elemen <audio> bersama
+   untuk semua lagu, dan bgmPrime() "memancingnya" (putar tanpa suara lalu jeda) pada
+   sentuhan pertama mana pun — termasuk saat splash studio (dipanggil audUnlock()).
+   Volume & fade lewat Web Audio (MediaElementSource -> gain) karena volume <audio>
+   tidak bisa diubah di iOS. Permintaan sebelum sentuhan pertama disimpan di BGM.want.
    Pengaturan: S.music (true/false, bawaan hidup).
    ===================================================================== */
-const BGM={el:null,key:null,gain:null,want:null,tm:0};
-const bgmOn=()=>typeof S!=='undefined'&&S&&S.music!==false;
+const BGM={el:null,key:null,gain:null,want:null,tm:0,primed:false,url:{}};
+const bgmOn=()=>typeof S==='undefined'||!S||S.music!==false;
 const BGM_VOL={login:.55,game:.4};  // volume per lagu
 const bgmV=k=>BGM_VOL[k]??.5;
-function bgmEl(k){if(BGM.el&&BGM.key===k)return BGM.el;
- if(BGM.el){const o=BGM.el;clearTimeout(BGM.tm);setTimeout(()=>{try{o.pause()}catch(e){}},50)}
+function bgmUrl(k){if(BGM.url[k])return BGM.url[k];
  const bin=atob(MUSIC_SRC[k].split(',')[1]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
- const el=new Audio(URL.createObjectURL(new Blob([u],{type:'audio/mpeg'})));el.loop=true;el.preload='auto';el.setAttribute('playsinline','');
- BGM.el=el;BGM.key=k;BGM.gain=null;
- try{const A=audInit(),src=A.createMediaElementSource(el),g=A.createGain();g.gain.value=0;src.connect(g);g.connect(A.destination);BGM.gain=g}catch(e){el.volume=0}
+ return BGM.url[k]=URL.createObjectURL(new Blob([u],{type:'audio/mpeg'}))}
+function bgmElem(){if(BGM.el)return BGM.el;const el=new Audio();el.loop=true;el.preload='auto';el.setAttribute('playsinline','');BGM.el=el;
+ try{const A=audInit(),src=A.createMediaElementSource(el),g=A.createGain();g.gain.value=0;src.connect(g);g.connect(A.destination);BGM.gain=g}catch(e){}
  return el}
-function bgmFade(to,sec){clearTimeout(BGM.tm);if(BGM.gain){const A=AUD.ctx,g=BGM.gain.gain;g.cancelScheduledValues(A.currentTime);g.setValueAtTime(g.value,A.currentTime);g.linearRampToValueAtTime(to,A.currentTime+sec)}
+// panggil DI DALAM sentuhan: membuka izin putar elemen <audio> di iOS
+function bgmPrime(){if(BGM.primed||typeof MUSIC_SRC==='undefined')return;const k=BGM.want||'login';if(!MUSIC_SRC[k])return;
+ const el=bgmElem();if(BGM.key!==k){el.src=bgmUrl(k);BGM.key=k}
+ if(BGM.gain)BGM.gain.gain.value=0;else el.volume=0;
+ const p=el.play();BGM.primed=true;
+ if(p&&p.then)p.then(()=>{if(!BGM.want||!bgmOn())el.pause();else bgmPlay(BGM.want)}).catch(()=>{BGM.primed=false})}
+function bgmFade(to,sec){clearTimeout(BGM.tm);if(BGM.gain&&AUD.ctx){const A=AUD.ctx,g=BGM.gain.gain;g.cancelScheduledValues(A.currentTime);g.setValueAtTime(g.value,A.currentTime);g.linearRampToValueAtTime(to,A.currentTime+sec)}
  else if(BGM.el){try{BGM.el.volume=to}catch(e){}}}
-function bgmPlay(k){BGM.want=k;if(!bgmOn()||typeof MUSIC_SRC==='undefined'||!MUSIC_SRC[k])return;
- try{const A=audInit();if(A.state!=='running')return;  // tunggu sentuhan pertama (audUnlock memanggil lagi)
-  const el=bgmEl(k);if(!el.paused){bgmFade(bgmV(k),.8);return}
+function bgmPlay(k){BGM.want=k;if(!bgmOn()||typeof MUSIC_SRC==='undefined'||!MUSIC_SRC[k]||!BGM.primed)return;  // belum ada sentuhan: tunggu bgmPrime
+ try{const A=audInit();if(A.state!=='running')A.resume().catch(()=>{});
+  const el=bgmElem();
+  if(BGM.key!==k){if(BGM.gain)BGM.gain.gain.value=0;el.src=bgmUrl(k);BGM.key=k}
+  else if(!el.paused){bgmFade(bgmV(k),.8);return}
   el.play().then(()=>bgmFade(bgmV(k),1.6)).catch(()=>{})}catch(e){}}
-function bgmStop(sec=1.2){BGM.want=null;BGM.next=null;if(!BGM.el||BGM.el.paused)return;bgmFade(0,sec);const el=BGM.el;BGM.tm=setTimeout(()=>{try{el.pause()}catch(e){}},sec*1000+80)}
-// dipanggil audUnlock setelah sentuhan: lanjutkan musik yang tertunda
-function bgmResume(){if(BGM.want&&(!BGM.el||BGM.el.paused))bgmPlay(BGM.want)}
+function bgmStop(sec=1.2){BGM.want=null;if(!BGM.el||BGM.el.paused)return;bgmFade(0,sec);const el=BGM.el;BGM.tm=setTimeout(()=>{if(!BGM.want)try{el.pause()}catch(e){}},sec*1000+80)}
+// dipanggil audUnlock setelah sentuhan: pancing elemen lalu lanjutkan musik yang tertunda
+function bgmResume(){if(!BGM.primed){bgmPrime();return}if(BGM.want&&(!BGM.el||BGM.el.paused))bgmPlay(BGM.want)}
 document.addEventListener('visibilitychange',()=>{if(!BGM.el)return;if(document.hidden){if(!BGM.el.paused)BGM.el.pause()}else if(BGM.want)bgmPlay(BGM.want)});
 // musik sesuai layar saat ini (dipakai tombol Musik di Pengaturan)
 const bgmScene=()=>{const L=document.getElementById('login');return L&&L.classList.contains('on')?'login':'game'};
@@ -4329,7 +4340,8 @@ function audSession(){if(AUD.sess)return;AUD.sess=1;
  try{const sr=8000,n=800,b=new ArrayBuffer(44+n*2),v=new DataView(b),w=(o,t)=>{for(let i=0;i<t.length;i++)v.setUint8(o+i,t.charCodeAt(i))};
   w(0,'RIFF');v.setUint32(4,36+n*2,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n*2,true);
   const el=new Audio(URL.createObjectURL(new Blob([b],{type:'audio/wav'})));el.loop=true;el.setAttribute('playsinline','');el.volume=.01;el.play().catch(()=>{AUD.sess=0});AUD.sil=el}catch(e){}}
-function audUnlock(){try{if(typeof S==='undefined'||!S)return;audSession();const A=audInit();const bg=()=>{if(typeof bgmResume==='function')bgmResume()};if(A.state!=='running')A.resume().then(bg).catch(()=>{});else bg();
+function audUnlock(){try{AUD.gest=true;audSession();const A=audInit();if(A.state!=='running')A.resume().catch(()=>{});
+ if(typeof bgmResume==='function')bgmResume();  // sinkron di dalam sentuhan: wajib untuk iOS
  if(!AUD.unlocked){const b=A.createBuffer(1,1,22050),s=A.createBufferSource();s.buffer=b;s.connect(A.destination);s.start(0);AUD.unlocked=true}}catch(e){}}
 ['touchend','pointerup','keydown'].forEach(t=>document.addEventListener(t,audUnlock,{passive:true}));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&AUD.ctx&&AUD.ctx.state!=='running')AUD.ctx.resume().catch(()=>{})});
@@ -5167,12 +5179,16 @@ function bootTip(){const e=document.getElementById('bootTip');if(!e)return;e.cla
 
 /* ---------------- splash studio HUN2 STUDIO (paling awal, sebelum loading & login) ----------------
    Markup statis #studio ada di index.html (logo ditanam saat build) sehingga langsung tampil.
-   Tampil ±3 dtk sejak halaman dibuka (loading tetap berjalan di belakang), ketuk untuk lewati. */
+   Tampil ±3 dtk sejak halaman dibuka (loading tetap berjalan di belakang), ketuk untuk lewati.
+   Kalau belum pernah disentuh, splash menunggu satu ketukan ("Ketuk untuk melanjutkan"):
+   iOS mewajibkan sentuhan sebelum suara boleh keluar, jadi musik login langsung terdengar. */
 const STUDIO_DISC={id:'Game masih dalam tahap pengembangan',en:'This game is still in development',ja:'本作は現在開発中です'};
+const STUDIO_TAP={id:'Ketuk untuk melanjutkan',en:'Tap to continue',ja:'タップして続ける'};
 function studioSplash(){const st=document.getElementById('studio');if(!st)return;if(location.hash==='#skipboot'){st.remove();return}
- try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}'),l=d&&d.lang||'id',e=document.getElementById('stDisc');if(e&&STUDIO_DISC[l])e.textContent=STUDIO_DISC[l]}catch(e){}
+ let l='id';try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');l=d&&d.lang||'id';const e=document.getElementById('stDisc');if(e&&STUDIO_DISC[l])e.textContent=STUDIO_DISC[l]}catch(e){}
  let done=false;const end=()=>{if(done)return;done=true;st.classList.add('out');setTimeout(()=>st.remove(),700)};
- const tm=setTimeout(end,Math.max(1800,3400-performance.now()));
+ const tm=setTimeout(()=>{if(AUD.gest){end();return}  // sudah pernah disentuh: lanjut otomatis
+  const t=document.createElement('p');t.id='stTap';t.textContent=STUDIO_TAP[l]||STUDIO_TAP.id;st.querySelector('.stin').appendChild(t)},Math.max(1800,3400-performance.now()));
  st.addEventListener('click',()=>{if(performance.now()>900){clearTimeout(tm);end()}})}
 studioSplash();
 async function bootStep(fn){try{await fn()}catch(e){console.error('boot',e)}}

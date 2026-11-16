@@ -23,3 +23,5 @@
 @keyframes stFade{to{opacity:1}}
 @keyframes stPetal{0%{opacity:0;transform:translate(0,0) rotate(0)}10%{opacity:.85}90%{opacity:.7}100%{opacity:0;transform:translate(-60px,110vh) rotate(540deg)}}
 @media (prefers-reduced-motion:reduce){#stLogo,#studio .stline,#stDisc{animation:none;opacity:1;transform:none;filter:none;width:auto}#studio .stline{width:72%}#studio .stpetal{display:none}}
+#stTap{margin:26px 0 0;font:700 12px/1 var(--fb,system-ui),system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#b8231e;opacity:0;animation:stFade .5s ease-out forwards,stBlink 1.6s ease-in-out .5s infinite}
+@keyframes stBlink{0%,100%{opacity:1}50%{opacity:.35}}

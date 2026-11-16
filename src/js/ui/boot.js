@@ -26,12 +26,16 @@ function bootTip(){const e=document.getElementById('bootTip');if(!e)return;e.cla
 
 /* ---------------- splash studio HUN2 STUDIO (paling awal, sebelum loading & login) ----------------
    Markup statis #studio ada di index.html (logo ditanam saat build) sehingga langsung tampil.
-   Tampil ±3 dtk sejak halaman dibuka (loading tetap berjalan di belakang), ketuk untuk lewati. */
+   Tampil ±3 dtk sejak halaman dibuka (loading tetap berjalan di belakang), ketuk untuk lewati.
+   Kalau belum pernah disentuh, splash menunggu satu ketukan ("Ketuk untuk melanjutkan"):
+   iOS mewajibkan sentuhan sebelum suara boleh keluar, jadi musik login langsung terdengar. */
 const STUDIO_DISC={id:'Game masih dalam tahap pengembangan',en:'This game is still in development',ja:'本作は現在開発中です'};
+const STUDIO_TAP={id:'Ketuk untuk melanjutkan',en:'Tap to continue',ja:'タップして続ける'};
 function studioSplash(){const st=document.getElementById('studio');if(!st)return;if(location.hash==='#skipboot'){st.remove();return}
- try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}'),l=d&&d.lang||'id',e=document.getElementById('stDisc');if(e&&STUDIO_DISC[l])e.textContent=STUDIO_DISC[l]}catch(e){}
+ let l='id';try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');l=d&&d.lang||'id';const e=document.getElementById('stDisc');if(e&&STUDIO_DISC[l])e.textContent=STUDIO_DISC[l]}catch(e){}
  let done=false;const end=()=>{if(done)return;done=true;st.classList.add('out');setTimeout(()=>st.remove(),700)};
- const tm=setTimeout(end,Math.max(1800,3400-performance.now()));
+ const tm=setTimeout(()=>{if(AUD.gest){end();return}  // sudah pernah disentuh: lanjut otomatis
+  const t=document.createElement('p');t.id='stTap';t.textContent=STUDIO_TAP[l]||STUDIO_TAP.id;st.querySelector('.stin').appendChild(t)},Math.max(1800,3400-performance.now()));
  st.addEventListener('click',()=>{if(performance.now()>900){clearTimeout(tm);end()}})}
 studioSplash();
 async function bootStep(fn){try{await fn()}catch(e){console.error('boot',e)}}
