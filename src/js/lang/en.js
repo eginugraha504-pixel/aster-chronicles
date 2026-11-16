@@ -26,7 +26,7 @@ I18N.en={"Ambil Semua ({n})":"Claim All ({n})","Batas level akun":"Account level
  'Summon':'Summon','Permata tidak cukup!':'Not enough gems!','Hadiah diklaim!':'Reward claimed!','Pencapaian diklaim!':'Achievement claimed!',
  'Stamina sudah penuh.':'Stamina is already full.','Isi ulang {a} dengan {b}?':'Refill {a} for {b}?','Stamina':'Stamina','Permata':'Gems',
  'Stamina terisi!':'Stamina refilled!','Isi':'Refill','Nama Kapten':'Captain Name','Batal':'Cancel','Simpan':'Save',
- 'Pengaturan':'Settings','Bahasa':'Language','Suara Karakter':'Character Voice','dub Jepang':'Japanese dub','Game masih dalam tahap pengembangan':'This game is still in development','Efek Suara':'Sound Effects','Pelan':'Low','Sedang':'Medium','Keras':'High','Coba':'Test',
+ 'Pengaturan':'Settings','Bahasa':'Language','Suara Karakter':'Character Voice','dub Jepang':'Japanese dub','Game masih dalam tahap pengembangan':'This game is still in development','Musik':'Music','layar judul':'title screen','Efek Suara':'Sound Effects','Pelan':'Low','Sedang':'Medium','Keras':'High','Coba':'Test',
  'Hapus Progres':'Delete Progress','Progres tersimpan otomatis di browser ini.':'Progress is saved automatically in this browser.',
  'Semua hero, tahap, dan Permata akan dihapus. Lanjutkan?':'All heroes, stages and gems will be deleted. Continue?','Hapus':'Delete',
  'Arena PvP segera hadir! CP timmu: {cp}':'PvP Arena coming soon! Your team CP: {cp}','Formasi terbaik dipasang! CP {cp}':'Best formation set! CP {cp}',

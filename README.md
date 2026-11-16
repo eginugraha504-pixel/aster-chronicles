@@ -350,3 +350,17 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - Kedip: gambar mata tertutup dibuat dengan Higgsfield nano_banana_pro (edit dari splash asli), diselaraskan otomatis, lalu area mata dideteksi dari selisih gambar. Tahap "setengah" Sakuya/Raika = campuran 55% (hasil edit setengahnya jadi wink).
 - Resolusi adaptif: kalau rata-rata waktu gambar > 14 ms (HP lemah), resolusi turun bertahap sampai 45%, lalu naik lagi kalau lancar. Tanpa WebGL atau dengan `prefers-reduced-motion`, splash diam biasa yang dipakai.
 - Menambah hero: buat mask + atlas mata (lihat `masks.py`), salin ke `src/img/rig/`, lalu tambahkan entri di `RIG`.
+
+
+## Splash studio HUN2 STUDIO
+- Layar pertama saat game dibuka: logo HUN2 STUDIO (gaya stempel hanko Jepang, dibuat dengan Higgsfield GPT Image 2.6, latarnya dibuat transparan) di atas kertas krem, dengan kelopak sakura jatuh dan disclaimer "Game masih dalam tahap pengembangan" (id/en/ja sesuai bahasa tersimpan).
+- Markup statis `#studio` ada di `src/index.html`. Logonya (`src/img/studio/logo.webp`) ditanam langsung ke HTML oleh `tools/build.py` (`__STUDIO_LOGO__`), jadi langsung tampil sebelum script besar selesai dimuat. Gaya ada di `css/studio.css`.
+- `studioSplash()` di `ui/boot.js` menutupnya sekitar 3,4 detik sejak halaman dibuka (minimal 1,8 detik setelah script jalan). Loading tetap berjalan di belakang. Ketuk untuk melewati. Dilewati otomatis dengan `#skipboot`.
+
+
+## Musik latar layar judul
+- Lagu "Starbound Prologue" (dari Egi) diputar berulang di layar judul/login, lalu memudar saat masuk game.
+- File: `src/audio/login.mp3` (dikompres ke 96 kbps stereo, ±1,8 MB). `tools/build.py` menanamnya sebagai `MUSIC_SRC`. Diputar oleh `js/systems/music.js` (`bgmPlay('login')` di `openLogin`, `bgmStop()` di `enterGame`).
+- Diputar lewat `<audio>` + Web Audio gain supaya fade dan volume berfungsi di iOS. Sebelum ada sentuhan pertama, permintaan putar ditunda, lalu dilanjutkan oleh `audUnlock()` (ketuk splash HUN2 untuk langsung mendengarnya di layar login).
+- Pengaturan: Musik ON/OFF (`S.music`).
+- Menambah lagu lain: taruh `src/audio/<kunci>.mp3`, lalu panggil `bgmPlay('<kunci>')`.

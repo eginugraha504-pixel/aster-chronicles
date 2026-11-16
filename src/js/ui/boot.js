@@ -55,7 +55,7 @@ async function bootStart(){await sprReady();if(location.hash==='#skipboot'){awai
 let loginRAF=0,lgMode='tap',entering=false;
 function logoHTML(){return`<div class="logo"><div class="lgstar"></div><div class="lgt"><span>ASTER</span></div><div class="lgr"><span>CHRONICLES</span></div><div class="lgs">${T('Ksatria Piksel')}</div></div>`}
 let lgOpened=false;
-function openLogin(){cancelAnimationFrame(loginRAF);if(!S.uid){S.uid=String(10000000+Math.floor(Math.random()*89999999));save()}
+function openLogin(){cancelAnimationFrame(loginRAF);if(typeof bgmPlay==='function')bgmPlay('login');if(!S.uid){S.uid=String(10000000+Math.floor(Math.random()*89999999));save()}
  const L=document.getElementById('login');const hs=['sakuya','seraphine','vela'].filter(id=>HD[id]);
  const KA=hasBgArt('key');L.innerHTML=`${KA?`<img id="lgbg" class="kart" src="${BGIMG_SRC.key}" alt="">`:`<canvas id="lgbg" width="${HOME_W}" height="${HOME_H}"></canvas>`}<div class="lgtint"></div><div class="lgfx">${Array.from({length:18},(_,i)=>`<i style="left:${(i*53)%100}%;animation-delay:${(i*.37)%5}s;animation-duration:${5+(i%4)}s"></i>`).join('')}</div>
  ${logoHTML()}<div class="lgheroes">${hs.map((id,i)=>`<img class="px h${i}" src="${sprite(HD[id].spr).url}">`).join('')}</div>
@@ -70,7 +70,7 @@ function loginNameHTML(){return`<div class="lgcard"><button class="lgx" data-act
  <label>${T('Nama Kapten')}</label><input class="nm" id="lgName" maxlength="12" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" value="${S.name&&S.name!=='Kapten'?esc(S.name):''}" placeholder="${T('3–12 huruf atau angka')}">
  <small class="lgrule" id="lgRule">${T('Hanya huruf dan angka, tanpa spasi atau simbol.')}</small>
  <div class="mrow"><button class="btn gray" data-act="lgDice">🎲 ${T('Acak')}</button><button class="btn" data-act="lgGo">${T('Mulai Petualangan')}</button></div></div>`}
-async function enterGame(){if(entering)return;entering=true;sfx('start');const L=document.getElementById('login');L.classList.add('enter');
+async function enterGame(){if(entering)return;entering=true;sfx('start');if(typeof bgmStop==='function')bgmStop(1.2);const L=document.getElementById('login');L.classList.add('enter');
  const tr=document.createElement('div');tr.className='trans';tr.innerHTML=`<div class="trin"><img class="px" src="${sprite(HD[S.team.find(Boolean)||STARTERS()[0]].spr).url}"><b>${T('Memasuki Kerajaan Aster...')}</b><span class="trbar"><i></i></span></div>`;document.body.appendChild(tr);
  await sleep(60);tr.classList.add('on');await sleep(900);cancelAnimationFrame(loginRAF);L.classList.remove('on','enter','again');L.innerHTML='';lgMode='tap';lgOpened=false;
  initUI();await sleep(250);tr.classList.remove('on');setTimeout(()=>tr.remove(),500)}

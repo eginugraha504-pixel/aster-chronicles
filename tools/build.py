@@ -26,6 +26,9 @@ import json
 # rig splash hidup hero ★3 (src/img/rig/<hero>_mask.png, <hero>_eyes.png) -> RIG_SRC, dipakai js/art/live2d.js
 RGD=os.path.join(SRC,'img','rig')
 rig={f[:-4]:'data:image/png;base64,'+base64.b64encode(open(os.path.join(RGD,f),'rb').read()).decode() for f in sorted(os.listdir(RGD)) if f.endswith('.png')} if os.path.isdir(RGD) else {}
+# musik latar (src/audio/<kunci>.mp3) -> MUSIC_SRC, diputar oleh js/systems/music.js
+AUDD=os.path.join(SRC,'audio')
+mus={f[:-4]:'data:audio/mpeg;base64,'+base64.b64encode(open(os.path.join(AUDD,f),'rb').read()).decode() for f in sorted(os.listdir(AUDD)) if f.endswith('.mp3')} if os.path.isdir(AUDD) else {}
 # suara karakter (src/voice/<hero>_<l|p><i>.mp3, <hero>_sk.mp3) -> VOICE_SRC, diputar oleh js/systems/voice.js
 VOD=os.path.join(SRC,'voice')
 vox={f[:-4]:'data:audio/mpeg;base64,'+base64.b64encode(open(os.path.join(VOD,f),'rb').read()).decode() for f in sorted(os.listdir(VOD)) if f.endswith('.mp3')} if os.path.isdir(VOD) else {}
@@ -38,8 +41,11 @@ ici={f[:-5]:'data:image/webp;base64,'+base64.b64encode(open(os.path.join(ICD,f),
 # latar ilustrasi (src/img/bg/*.webp: w_<art> battle, m_<art> peta, key = key art judul) -> BGIMG_SRC
 BGD=os.path.join(SRC,'img','bg')
 bgi={f[:-5]:'data:image/webp;base64,'+base64.b64encode(open(os.path.join(BGD,f),'rb').read()).decode() for f in sorted(os.listdir(BGD)) if f.endswith('.webp')} if os.path.isdir(BGD) else {}
-jsb="<script>\n'use strict';\nconst SPLASH_SRC="+json.dumps(spl)+";\nconst BGIMG_SRC="+json.dumps(bgi)+";\nconst ICONIMG_SRC="+json.dumps(ici)+";\nconst SPRITE_SRC="+json.dumps(sps)+";\nconst VOICE_SRC="+json.dumps(vox)+";\nconst RIG_SRC="+json.dumps(rig)+";\n"+'\n'.join(f'/* ==== {p} ==== */\n'+read(p) for p in js)+'</script>'
-out=shell.replace('<!-- @css -->',cssb).replace('<!-- @js -->',jsb)
+jsb="<script>\n'use strict';\nconst SPLASH_SRC="+json.dumps(spl)+";\nconst BGIMG_SRC="+json.dumps(bgi)+";\nconst ICONIMG_SRC="+json.dumps(ici)+";\nconst SPRITE_SRC="+json.dumps(sps)+";\nconst VOICE_SRC="+json.dumps(vox)+";\nconst RIG_SRC="+json.dumps(rig)+";\nconst MUSIC_SRC="+json.dumps(mus)+";\n"+'\n'.join(f'/* ==== {p} ==== */\n'+read(p) for p in js)+'</script>'
+# logo studio (src/img/studio/logo.webp) ditanam langsung di HTML agar splash studio tampil sebelum script besar selesai dimuat
+STL=os.path.join(SRC,'img','studio','logo.webp')
+stlogo='data:image/webp;base64,'+base64.b64encode(open(STL,'rb').read()).decode() if os.path.exists(STL) else ''
+out=shell.replace('__STUDIO_LOGO__',stlogo).replace('<!-- @css -->',cssb).replace('<!-- @js -->',jsb)
 os.makedirs(os.path.join(ROOT,'dist'),exist_ok=True)
 open(os.path.join(ROOT,'dist','index.html'),'w',encoding='utf-8').write(out)
 print(f'dist/index.html  {len(out)//1024} KB  ({len(css)} css, {len(js)} js)')

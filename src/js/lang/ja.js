@@ -26,7 +26,7 @@ I18N.ja={"Ambil Semua ({n})":"すべて受け取る（{n}）","Batas level akun"
  'Summon':'召喚','Permata tidak cukup!':'ジェムが足りません！','Hadiah diklaim!':'報酬を受け取った！','Pencapaian diklaim!':'実績報酬を受け取った！',
  'Stamina sudah penuh.':'スタミナは満タンです。','Isi ulang {a} dengan {b}?':'{b}で{a}を回復しますか？','Stamina':'スタミナ','Permata':'ジェム',
  'Stamina terisi!':'スタミナを回復した！','Isi':'回復','Nama Kapten':'キャプテン名','Batal':'キャンセル','Simpan':'保存',
- 'Pengaturan':'設定','Bahasa':'言語','Suara Karakter':'キャラボイス','dub Jepang':'日本語ボイス','Game masih dalam tahap pengembangan':'本作は現在開発中です','Efek Suara':'効果音','Pelan':'小','Sedang':'中','Keras':'大','Coba':'試聴',
+ 'Pengaturan':'設定','Bahasa':'言語','Suara Karakter':'キャラボイス','dub Jepang':'日本語ボイス','Game masih dalam tahap pengembangan':'本作は現在開発中です','Musik':'音楽','layar judul':'タイトル画面','Efek Suara':'効果音','Pelan':'小','Sedang':'中','Keras':'大','Coba':'試聴',
  'Hapus Progres':'データ削除','Progres tersimpan otomatis di browser ini.':'進行状況はこのブラウザに自動保存されます。',
  'Semua hero, tahap, dan Permata akan dihapus. Lanjutkan?':'すべてのヒーロー・ステージ・ジェムが削除されます。よろしいですか？','Hapus':'削除',
  'Arena PvP segera hadir! CP timmu: {cp}':'PvPアリーナは近日公開！あなたのパーティ戦力：{cp}','Formasi terbaik dipasang! CP {cp}':'おすすめ編成にしました！戦力 {cp}',
