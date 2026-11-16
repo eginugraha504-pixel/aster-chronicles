@@ -24,6 +24,16 @@ function bootAnim(){bootShown+=(bootP-bootShown)*.12;if(bootP-bootShown<.3)bootS
  if(f)f.style.width=bootShown+'%';if(n)n.textContent=Math.floor(bootShown)+'%';if(r)r.style.left=`calc(${bootShown}% - 20px)`;bootRAF=requestAnimationFrame(bootAnim)}
 function bootTip(){const e=document.getElementById('bootTip');if(!e)return;e.classList.remove('in');setTimeout(()=>{e.textContent=T(BOOT_TIPS[bootTipI++%BOOT_TIPS.length]);e.classList.add('in')},250)}
 
+/* ---------------- splash studio HUN2 STUDIO (paling awal, sebelum loading & login) ----------------
+   Markup statis #studio ada di index.html (logo ditanam saat build) sehingga langsung tampil.
+   Tampil ±3 dtk sejak halaman dibuka (loading tetap berjalan di belakang), ketuk untuk lewati. */
+const STUDIO_DISC={id:'Game masih dalam tahap pengembangan',en:'This game is still in development',ja:'本作は現在開発中です'};
+function studioSplash(){const st=document.getElementById('studio');if(!st)return;if(location.hash==='#skipboot'){st.remove();return}
+ try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}'),l=d&&d.lang||'id',e=document.getElementById('stDisc');if(e&&STUDIO_DISC[l])e.textContent=STUDIO_DISC[l]}catch(e){}
+ let done=false;const end=()=>{if(done)return;done=true;st.classList.add('out');setTimeout(()=>st.remove(),700)};
+ const tm=setTimeout(end,Math.max(1800,3400-performance.now()));
+ st.addEventListener('click',()=>{if(performance.now()>900){clearTimeout(tm);end()}})}
+studioSplash();
 async function bootStep(fn){try{await fn()}catch(e){console.error('boot',e)}}
 async function bootStart(){await sprReady();if(location.hash==='#skipboot'){await sprReady();load();setLang(S.lang||'id');initCore();const b=document.getElementById('boot');b&&b.remove();if(!S.uid)S.uid='00000000';initUI();return}  // jalan pintas untuk tes otomatis
  bootAnim();const t0=performance.now();let tipT=0;

@@ -1,0 +1,25 @@
+/* =====================================================================
+   SPLASH STUDIO — "HUN2 STUDIO" + disclaimer, tampil paling awal (sebelum loading & login)
+   Latar kertas krem senada logo (latar logo dibuat transparan). Diatur oleh studioSplash() di ui/boot.js.
+   ===================================================================== */
+#studio{position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;overflow:hidden;
+ background:radial-gradient(120% 90% at 50% 45%,#fffaf0 0%,#fcf6ea 55%,#efe4cf 100%);
+ transition:opacity .6s ease,visibility 0s .6s;-webkit-user-select:none;user-select:none;cursor:pointer}
+#studio.out{opacity:0;visibility:hidden;pointer-events:none}
+#studio::before{content:'';position:absolute;inset:0;opacity:.35;pointer-events:none;
+ background:repeating-linear-gradient(0deg,rgba(120,90,50,.035) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,rgba(120,90,50,.025) 0 1px,transparent 1px 4px)}
+#studio .stin{position:relative;display:flex;flex-direction:column;align-items:center;width:min(78vw,420px)}
+#stLogo{width:100%;height:auto;opacity:0;transform:scale(.94);filter:blur(6px);animation:stLogo 1s cubic-bezier(.2,.7,.2,1) .25s forwards}
+#studio .stline{width:0;height:2px;margin:22px 0 12px;background:linear-gradient(90deg,transparent,#b8231e,transparent);animation:stLine .7s ease-out .95s forwards}
+#stDisc{margin:0;font:600 13px/1.4 var(--fb,system-ui),system-ui,sans-serif;letter-spacing:.06em;color:#6b5a4a;text-align:center;opacity:0;animation:stFade .6s ease-out 1.15s forwards}
+#stDisc::before{content:'⚠ ';color:#b8231e}
+#studio .stpetal i{position:absolute;top:-6%;width:12px;height:9px;border-radius:70% 0 70% 0;background:radial-gradient(circle at 30% 30%,#ffd7e2,#f29bb2);opacity:0;animation:stPetal 5.5s linear infinite}
+#studio .stpetal i:nth-child(1){left:8%;animation-delay:.2s}#studio .stpetal i:nth-child(2){left:22%;animation-delay:1.6s;transform:scale(.8)}
+#studio .stpetal i:nth-child(3){left:37%;animation-delay:.9s}#studio .stpetal i:nth-child(4){left:53%;animation-delay:2.3s;transform:scale(.7)}
+#studio .stpetal i:nth-child(5){left:66%;animation-delay:.5s}#studio .stpetal i:nth-child(6){left:79%;animation-delay:1.9s;transform:scale(.85)}
+#studio .stpetal i:nth-child(7){left:91%;animation-delay:1.1s}#studio .stpetal i:nth-child(8){left:46%;animation-delay:3s;transform:scale(.6)}
+@keyframes stLogo{to{opacity:1;transform:none;filter:none}}
+@keyframes stLine{to{width:72%}}
+@keyframes stFade{to{opacity:1}}
+@keyframes stPetal{0%{opacity:0;transform:translate(0,0) rotate(0)}10%{opacity:.85}90%{opacity:.7}100%{opacity:0;transform:translate(-60px,110vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){#stLogo,#studio .stline,#stDisc{animation:none;opacity:1;transform:none;filter:none;width:auto}#studio .stline{width:72%}#studio .stpetal{display:none}}

@@ -13,6 +13,7 @@ css/summon.css
 css/missions.css
 css/battle.css
 css/boot.css
+css/studio.css
 css/skin.css
 
 js/core/util.js
