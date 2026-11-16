@@ -70,7 +70,7 @@ function loginNameHTML(){return`<div class="lgcard"><button class="lgx" data-act
  <label>${T('Nama Kapten')}</label><input class="nm" id="lgName" maxlength="12" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" value="${S.name&&S.name!=='Kapten'?esc(S.name):''}" placeholder="${T('3–12 huruf atau angka')}">
  <small class="lgrule" id="lgRule">${T('Hanya huruf dan angka, tanpa spasi atau simbol.')}</small>
  <div class="mrow"><button class="btn gray" data-act="lgDice">🎲 ${T('Acak')}</button><button class="btn" data-act="lgGo">${T('Mulai Petualangan')}</button></div></div>`}
-async function enterGame(){if(entering)return;entering=true;sfx('start');if(typeof bgmStop==='function')bgmStop(1.2);const L=document.getElementById('login');L.classList.add('enter');
+async function enterGame(){if(entering)return;entering=true;sfx('start');if(typeof bgmStop==='function'){bgmStop(1.2);setTimeout(()=>{if(!document.getElementById('login').classList.contains('on'))bgmPlay('game')},1500)}const L=document.getElementById('login');L.classList.add('enter');
  const tr=document.createElement('div');tr.className='trans';tr.innerHTML=`<div class="trin"><img class="px" src="${sprite(HD[S.team.find(Boolean)||STARTERS()[0]].spr).url}"><b>${T('Memasuki Kerajaan Aster...')}</b><span class="trbar"><i></i></span></div>`;document.body.appendChild(tr);
  await sleep(60);tr.classList.add('on');await sleep(900);cancelAnimationFrame(loginRAF);L.classList.remove('on','enter','again');L.innerHTML='';lgMode='tap';lgOpened=false;
  initUI();await sleep(250);tr.classList.remove('on');setTimeout(()=>tr.remove(),500)}

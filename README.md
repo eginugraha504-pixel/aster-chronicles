@@ -358,9 +358,9 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - `studioSplash()` di `ui/boot.js` menutupnya sekitar 3,4 detik sejak halaman dibuka (minimal 1,8 detik setelah script jalan). Loading tetap berjalan di belakang. Ketuk untuk melewati. Dilewati otomatis dengan `#skipboot`.
 
 
-## Musik latar layar judul
-- Lagu "Eternal Sky" (dari Egi; sebelumnya "Starbound Prologue") diputar berulang di layar judul/login, lalu memudar saat masuk game.
-- File: `src/audio/login.mp3` (dikompres ke 96 kbps stereo, ±2,4 MB). `tools/build.py` menanamnya sebagai `MUSIC_SRC`. Diputar oleh `js/systems/music.js` (`bgmPlay('login')` di `openLogin`, `bgmStop()` di `enterGame`).
-- Diputar lewat `<audio>` + Web Audio gain supaya fade dan volume berfungsi di iOS. Sebelum ada sentuhan pertama, permintaan putar ditunda, lalu dilanjutkan oleh `audUnlock()` (ketuk splash HUN2 untuk langsung mendengarnya di layar login).
-- Pengaturan: Musik ON/OFF (`S.music`).
-- Menambah lagu lain: taruh `src/audio/<kunci>.mp3`, lalu panggil `bgmPlay('<kunci>')`.
+## Musik latar
+- **Layar login** (setelah splash studio): "Eternal Sky", `src/audio/login.mp3`, volume .55.
+- **Di dalam game** (setelah login): "Starbound Prologue", `src/audio/game.mp3`, volume .4 supaya efek suara dan suara karakter tetap jelas.
+- Keduanya dikompres ke 96 kbps stereo. `tools/build.py` menanamnya sebagai `MUSIC_SRC`, dan `js/systems/music.js` memutarnya: `bgmPlay('login')` di `openLogin`; di `enterGame` musik login memudar (`bgmStop`), lalu `bgmPlay('game')` masuk sekitar 1,5 detik kemudian. Volume per lagu ada di `BGM_VOL`.
+- Diputar lewat `<audio>` + Web Audio gain supaya fade dan volume berfungsi di iOS. Sebelum ada sentuhan pertama, permintaan putar ditunda, lalu dilanjutkan oleh `audUnlock()` (ketuk splash HUN2 untuk langsung mendengarnya di layar login). Musik berhenti saat aplikasi di latar belakang dan lanjut saat kembali.
+- Pengaturan: Musik ON/OFF (`S.music`), berlaku untuk layar mana pun yang sedang tampil.
