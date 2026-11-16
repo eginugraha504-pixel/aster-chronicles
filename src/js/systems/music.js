@@ -2,7 +2,7 @@
    MUSIC — musik latar (BGM)
    ---------------------------------------------------------------------
    Lagu ditanam oleh tools/build.py dari src/audio/<kunci>.mp3 -> MUSIC_SRC.
-     login : "Starbound Prologue" — layar judul/login (loop), memudar saat masuk game.
+     login : "Eternal Sky" — layar judul/login (loop), memudar saat masuk game.
    Diputar lewat <audio> + Web Audio (MediaElementSource -> gain) supaya volume & fade
    tetap berfungsi di iOS (volume <audio> di iOS tidak bisa diubah langsung).
    iOS/Chrome baru mengizinkan suara setelah sentuhan pertama: kalau belum boleh,

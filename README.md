@@ -359,8 +359,8 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 
 
 ## Musik latar layar judul
-- Lagu "Starbound Prologue" (dari Egi) diputar berulang di layar judul/login, lalu memudar saat masuk game.
-- File: `src/audio/login.mp3` (dikompres ke 96 kbps stereo, ±1,8 MB). `tools/build.py` menanamnya sebagai `MUSIC_SRC`. Diputar oleh `js/systems/music.js` (`bgmPlay('login')` di `openLogin`, `bgmStop()` di `enterGame`).
+- Lagu "Eternal Sky" (dari Egi; sebelumnya "Starbound Prologue") diputar berulang di layar judul/login, lalu memudar saat masuk game.
+- File: `src/audio/login.mp3` (dikompres ke 96 kbps stereo, ±2,4 MB). `tools/build.py` menanamnya sebagai `MUSIC_SRC`. Diputar oleh `js/systems/music.js` (`bgmPlay('login')` di `openLogin`, `bgmStop()` di `enterGame`).
 - Diputar lewat `<audio>` + Web Audio gain supaya fade dan volume berfungsi di iOS. Sebelum ada sentuhan pertama, permintaan putar ditunda, lalu dilanjutkan oleh `audUnlock()` (ketuk splash HUN2 untuk langsung mendengarnya di layar login).
 - Pengaturan: Musik ON/OFF (`S.music`).
 - Menambah lagu lain: taruh `src/audio/<kunci>.mp3`, lalu panggil `bgmPlay('<kunci>')`.
