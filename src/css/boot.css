@@ -1,0 +1,129 @@
+/* ================= LOADING SCREEN, LOGIN & TRANSISI ================= */
+#boot,#login,.trans{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;overflow:hidden}
+#boot{z-index:9999;display:flex;flex-direction:column;align-items:center;font-family:var(--fb);
+ background:radial-gradient(ellipse at 50% 38%,#4b3f9e 0%,#2a2366 45%,#120f2e 100%);transition:opacity .5s}
+#boot.out{opacity:0;pointer-events:none}
+.bstars{position:absolute;inset:0;opacity:.85;background:
+ radial-gradient(1.5px 1.5px at 12% 18%,#fff 98%,transparent),radial-gradient(1.5px 1.5px at 78% 12%,#fff 98%,transparent),radial-gradient(1px 1px at 33% 8%,#fff 98%,transparent),
+ radial-gradient(1px 1px at 62% 28%,#fff 98%,transparent),radial-gradient(2px 2px at 88% 40%,#ffe9a8 98%,transparent),radial-gradient(1px 1px at 8% 52%,#fff 98%,transparent),
+ radial-gradient(1.5px 1.5px at 45% 60%,#fff 98%,transparent),radial-gradient(1px 1px at 92% 70%,#fff 98%,transparent),radial-gradient(2px 2px at 20% 78%,#ffe9a8 98%,transparent),
+ radial-gradient(1px 1px at 70% 88%,#fff 98%,transparent);animation:twk 3s ease-in-out infinite alternate}
+@keyframes twk{to{opacity:.45}}
+
+/* ---- logo ---- */
+.logo{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;margin-top:16vh;margin-top:16dvh;pointer-events:none}
+.lgstar{width:46px;height:46px;margin-bottom:-14px;background:linear-gradient(135deg,#fffbe0,#ffd23f 55%,#ff9a2a);clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);
+ filter:drop-shadow(0 0 10px #ffe9a8);animation:lgspin 6s linear infinite}
+@keyframes lgspin{50%{transform:rotate(45deg) scale(1.12)}}
+.lgt{font-family:var(--fh);font-size:74px;line-height:1;letter-spacing:2px;color:transparent;
+ background:linear-gradient(180deg,#fffbe6 0%,#ffe27a 40%,#ffb02a 62%,#e0701a 100%);-webkit-background-clip:text;background-clip:text;
+ filter:drop-shadow(0 4px 0 #4a2a17) drop-shadow(3px 0 0 #4a2a17) drop-shadow(-3px 0 0 #4a2a17) drop-shadow(0 -3px 0 #4a2a17) drop-shadow(0 6px 8px rgba(0,0,0,.45))}
+.lgr{margin-top:-6px;padding:3px 22px;background:linear-gradient(180deg,#ff6a5a,#d0302a);border:3px solid #4a2a17;border-radius:6px;box-shadow:0 3px 0 #4a2a17;position:relative}
+.lgr::before,.lgr::after{content:'';position:absolute;top:6px;width:14px;height:100%;background:#a8201c;border:3px solid #4a2a17;z-index:-1}
+.lgr::before{left:-12px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,40% 50%)}.lgr::after{right:-12px;clip-path:polygon(0 0,100% 0,60% 50%,100% 100%,0 100%)}
+.lgr span{font-family:var(--fh);font-size:17px;letter-spacing:5px;color:#fff;text-shadow:0 2px 0 #7a1410}
+.lgs{margin-top:8px;font-family:var(--fh);font-size:15px;letter-spacing:1px;color:#ffe9a8;text-shadow:0 2px 0 #4a2a17,0 0 8px rgba(255,210,120,.6)}
+
+/* ---- progres ---- */
+.bbar{position:relative;z-index:2;display:flex;align-items:center;gap:8px;width:82%;margin-top:auto}
+.bfr{flex:1;height:22px;padding:3px;border-radius:14px;background:#f6e6c0;border:3px solid #4a2a17;box-shadow:0 3px 0 #4a2a17,inset 0 2px 0 rgba(0,0,0,.12)}
+.bfill{height:100%;width:0;border-radius:9px;background:repeating-linear-gradient(-45deg,rgba(255,255,255,.25) 0 8px,transparent 8px 16px),linear-gradient(180deg,#ffe27a,#ffb02a 60%,#e0841a);
+ background-size:22px 22px,100% 100%;animation:bstripe .6s linear infinite}
+@keyframes bstripe{to{background-position:22px 0,0 0}}
+.bbar b{min-width:44px;text-align:right;font-family:var(--fh);font-size:18px;color:#fff;text-shadow:0 2px 0 #4a2a17}
+#bootRun{position:absolute;left:-20px;bottom:24px;width:52px;height:52px;animation:bhop .38s ease-in-out infinite alternate}
+#bootRun:not([src]),#bootRun[src=""]{visibility:hidden}
+@keyframes bhop{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-9px) rotate(3deg)}}
+.bst{position:relative;z-index:2;margin-top:10px;font-size:13px;font-weight:800;color:#d8ccff}
+.btip{position:relative;z-index:2;width:86%;min-height:54px;margin:18px 0 6vh;margin:18px 0 6dvh;padding:10px 14px;border-radius:14px;background:rgba(18,14,46,.6);border:2px solid rgba(255,233,168,.35);display:flex;align-items:center}
+.btip p{margin:0;font-size:12.5px;line-height:1.5;color:#fff6dc;opacity:0;transform:translateY(4px);transition:opacity .25s,transform .25s}
+.btip p.in{opacity:1;transform:none}
+
+/* ---- layar judul / login ---- */
+#login{z-index:9000;display:none;font-family:var(--fb)}
+#login.on{display:block}
+#lgbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.lgtint{position:absolute;inset:0;background:linear-gradient(180deg,rgba(40,24,90,.65) 0%,rgba(80,40,120,.15) 38%,rgba(0,0,0,0) 55%,rgba(30,16,40,.55) 82%,rgba(20,10,30,.85) 100%)}
+.lgfx{position:absolute;inset:0;pointer-events:none}
+.lgfx i{position:absolute;bottom:-10px;width:5px;height:5px;background:#fff6c0;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:lgrise linear infinite;opacity:0}
+@keyframes lgrise{10%{opacity:1}80%{opacity:.8}100%{transform:translateY(-95vh) scale(1.6);opacity:0}}
+#login .logo{margin-top:7vh;margin-top:7dvh}
+.lgheroes{position:absolute;left:0;right:0;bottom:25%;height:150px;pointer-events:none}
+.lgheroes img{position:absolute;bottom:0;width:120px;height:120px;filter:drop-shadow(0 6px 4px rgba(0,0,0,.4));animation:lgbob 2.4s ease-in-out infinite}
+.lgheroes .h1{left:50%;width:150px;height:150px;margin-left:-75px;z-index:2;animation-delay:-.6s}
+.lgheroes .h0{left:9%;bottom:14px;animation-delay:-1.2s}.lgheroes .h2{right:9%;bottom:14px;transform:scaleX(-1);animation-name:lgbobf}
+@keyframes lgbob{50%{translate:0 -6px}}@keyframes lgbobf{50%{translate:0 -6px}}
+#lgPanel{position:absolute;left:0;right:0;bottom:12%;display:flex;justify-content:center;z-index:3}
+.lgtap{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;padding:18px 0;background:none;border:0;font:inherit;cursor:pointer;color:#fff}
+.lgtap small{font-size:13px;font-weight:800;color:#ffe9a8;text-shadow:0 2px 0 #4a2a17}
+.lgtap b{font-family:var(--fh);font-size:26px;text-shadow:0 3px 0 #4a2a17,2px 0 0 #4a2a17,-2px 0 0 #4a2a17}
+.lgtap span{font-family:var(--fh);font-size:22px;letter-spacing:3px;text-shadow:0 3px 0 #4a2a17,2px 0 0 #4a2a17,-2px 0 0 #4a2a17,0 0 16px #ffd27a;animation:lgpulse 1.4s ease-in-out infinite}
+@keyframes lgpulse{50%{opacity:.35;transform:scale(.96)}}
+.lgcard{width:86%;padding:14px 16px 12px;border-radius:18px;background:linear-gradient(#fff8e6,#f3e2b8);border:3.5px solid var(--ink);box-shadow:0 5px 0 var(--ink),0 10px 24px rgba(0,0,0,.4);animation:lgpop .25s ease-out}
+@keyframes lgpop{from{transform:scale(.85);opacity:0}}
+.lgcard h3{margin:0 0 2px;font-family:var(--fh);font-size:20px;text-align:center}
+.lgcard p{margin:0 0 10px;font-size:12px;color:var(--mut);text-align:center}
+.lgcard label{display:block;font-size:12px;font-weight:900;margin-bottom:3px}
+.lgcard input.nm{width:100%;box-sizing:border-box}
+.lgrule{display:block;margin:4px 0 8px;font-size:11px;font-weight:800;color:var(--mut)}.lgrule.bad{color:#d0302a}.lgrule.good{color:#1e9a3a}
+.lgfoot{position:absolute;left:0;right:0;bottom:30px;display:flex;justify-content:center;gap:18px;z-index:3}
+.lgfoot button{display:flex;flex-direction:column;align-items:center;gap:1px;background:none;border:0;font:inherit;font-size:10.5px;font-weight:900;color:#fff;text-shadow:0 2px 0 #000;cursor:pointer}
+.lgfoot img{width:38px;height:38px;padding:3px;border-radius:50%;background:rgba(255,248,226,.92);border:2.5px solid var(--ink);box-shadow:0 2px 0 var(--ink)}
+.lgver{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:10px;font-weight:800;color:rgba(255,255,255,.7);z-index:3}
+#login.enter .logo,#login.enter #lgPanel,#login.enter .lgfoot{transition:opacity .4s,transform .4s;opacity:0;transform:translateY(-12px)}
+.news{display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow-y:auto}
+.nwi{padding:8px 10px;border-radius:12px;background:#fff8e6;border:2px solid rgba(74,42,23,.3)}.nwi b{font-family:var(--fh);font-size:15px}.nwi p{margin:3px 0 0;font-size:12.5px;line-height:1.45}
+
+/* ---- transisi masuk game ---- */
+.trans{z-index:9500;display:flex;align-items:center;justify-content:center;background:#120f2e;opacity:0;pointer-events:none;transition:opacity .45s}
+.trans.on{opacity:1;pointer-events:auto}
+.trin{display:flex;flex-direction:column;align-items:center;gap:8px}
+.trin img{width:72px;height:72px;animation:bhop .38s ease-in-out infinite alternate}
+.trin b{font-family:var(--fh);font-size:17px;color:#ffe9a8;text-shadow:0 2px 0 #000}
+.trbar{width:160px;height:8px;border-radius:5px;background:rgba(255,255,255,.15);overflow:hidden}
+.trbar i{display:block;height:100%;width:40%;border-radius:5px;background:linear-gradient(90deg,#ffe27a,#ffb02a);animation:trslide .9s ease-in-out infinite}
+@keyframes trslide{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
+
+.bparty{position:relative;z-index:2;display:flex;justify-content:center;align-items:flex-end;gap:0;margin-top:auto;height:110px;opacity:0;animation:bpin .6s .2s ease-out forwards}
+.bparty img{width:76px;height:76px;margin:0 -8px;filter:drop-shadow(0 4px 3px rgba(0,0,0,.5));animation:lgbob 2s ease-in-out infinite}
+.bparty img:nth-child(3){width:96px;height:96px;z-index:2}
+.bparty .bglow{position:absolute;left:10%;right:10%;bottom:-6px;height:18px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,226,140,.45),transparent 70%);z-index:-1}
+@keyframes bpin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.bparty~.bbar{margin-top:40px}
+
+/* ---- polish ---- */
+#login{z-index:35}                 /* di bawah modal (40) & toast (99) agar Pengumuman/Bahasa/Akun terlihat */
+#lgPanel{inset:0 0 auto 0;top:0;bottom:0;align-items:flex-end;padding-bottom:12vh;padding-bottom:12dvh;box-sizing:border-box;z-index:2}
+.lgtap{position:absolute;inset:0;justify-content:flex-end;padding:0 0 calc(12vh + 70px);padding:0 0 calc(12dvh + 70px);-webkit-tap-highlight-color:transparent}
+.lgtap span{padding:4px 34px;background:linear-gradient(90deg,transparent,rgba(26,12,40,.62) 18%,rgba(26,12,40,.62) 82%,transparent)}
+.lgtap small,.lgtap b{position:relative}
+#lgPanel.card{align-items:flex-start;padding:22vh 0 0;padding:22dvh 0 0;background:rgba(18,10,30,.45);z-index:4;animation:lgdim .25s}
+@keyframes lgdim{from{background:rgba(18,10,30,0)}}
+.lgcard{position:relative}
+.lgx{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:2.5px solid var(--ink);background:#e8483b;color:#fff;font-weight:900;cursor:pointer;line-height:1;padding:0}
+#login .logo{animation:lgdrop .7s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes lgdrop{from{transform:translateY(-40px) scale(.8);opacity:0}}
+.lgheroes{animation:lgrisein .7s .15s ease-out both}
+@keyframes lgrisein{from{transform:translateY(30px);opacity:0}}
+.lgfoot,.lgver{animation:lgfade .6s .35s both}@keyframes lgfade{from{opacity:0}}
+#login .logo::before{content:'';position:absolute;inset:-10% -18%;z-index:-1;background:radial-gradient(ellipse,rgba(40,20,80,.45),transparent 70%)}
+#bootRun{bottom:14px;width:46px;height:46px}
+.bparty~.bbar{margin-top:58px}
+@media (max-height:680px){.bparty{height:84px}.bparty img{width:60px;height:60px}.bparty img:nth-child(3){width:78px;height:78px}.logo{margin-top:10vh;margin-top:10dvh}.lgt{font-size:62px}.lgheroes{bottom:27%}.lgheroes img{width:96px;height:96px}.lgheroes .h1{width:124px;height:124px;margin-left:-62px}}
+.lgfoot,.lgver{z-index:5}
+#login.again .logo,#login.again .lgheroes,#login.again .lgfoot,#login.again .lgver,#login.again #lgPanel.card,#login.again .lgcard{animation:none}
+
+/* ---- Safari / iPhone ---- */
+.lgt{background:none;color:inherit}
+.lgt span{display:block;color:transparent;-webkit-text-fill-color:transparent;background:linear-gradient(180deg,#fffbe6 0%,#ffe27a 40%,#ffb02a 62%,#e0701a 100%);-webkit-background-clip:text;background-clip:text}
+.lgver{bottom:calc(8px + env(safe-area-inset-bottom))}
+.lgfoot{bottom:calc(30px + env(safe-area-inset-bottom))}
+.btip{margin-bottom:calc(6vh + env(safe-area-inset-bottom))}
+#boot .logo{margin-top:calc(16vh + env(safe-area-inset-top))}
+#login .logo{margin-top:calc(7vh + env(safe-area-inset-top))}
+@media (max-height:680px){#boot .logo{margin-top:calc(10vh + env(safe-area-inset-top))}#login .logo{margin-top:calc(5vh + env(safe-area-inset-top))}}
+
+/* key art (ilustrasi) di layar judul: zoom pelan bolak-balik */
+#lgbg.kart{object-position:50% 38%;transform-origin:50% 30%;animation:kburns 22s ease-in-out infinite alternate}
+@keyframes kburns{from{transform:scale(1.02)}to{transform:scale(1.10) translateY(1.5%)}}
+@media (prefers-reduced-motion:reduce){#lgbg.kart{animation:none}}

@@ -1,0 +1,24 @@
+/* ================= TOKO EMAS (UI) ================= */
+function shopItemName(g){if(g.mats){const[k,n]=Object.entries(g.mats)[0];return`${MD2[k].n} ×${n}`}if(g.stam)return`${T('Stamina')} +${g.stam}`;if(g.tixH)return`${T('Tiket Hero')} ×${g.tixH}`;if(g.tixW)return`${T('Tiket Senjata')} ×${g.tixW}`;return''}
+function shopItemIcon(g){if(g.mats)return MD2[Object.keys(g.mats)[0]].icon;if(g.stam)return'stam';if(g.tixH)return'tixH';if(g.tixW)return'tixW';return'chest'}
+let shopTab='gold';
+const shopTabsHTML=()=>`<div class="mtabs"><button class="btn ${shopTab==='gold'?'':'blue'}" data-act="shopTab" data-arg="gold">${T('Toko Emas')}</button><button class="btn ${shopTab==='x'?'':'blue'}" data-act="shopTab" data-arg="x">${T('Tukar Lencana')}</button></div>`;
+function openShop(){if(shopTab==='x')return openShopX();shopState();
+ modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${ic('shop',22)} ${T('Toko')}</h3>${shopTabsHTML()}<div class="sub">${T('Tukar emas dengan material & tiket. Stok diisi ulang setiap hari.')}</div>
+ <div class="shopgold">${ic('gold',20)} <b>${fmt(S.gold)}</b></div>
+ <div class="shopgrid">${SHOP.map(it=>{const left=shopLeft(it),can=left>0&&S.gold>=it.cost;return`<div class="sitem ${left<=0?'sold':''}"><span class="sic">${ic(shopItemIcon(it.give),40)}</span><b>${shopItemName(it.give)}</b><small>${T('Sisa {a}/{b}',{a:left,b:it.limit})}</small><button class="btn ${can?'':'gray'}" data-act="shopBuy" data-arg="${it.id}" ${left>0?'':'disabled'}>${left>0?`${ic('gold',12)} ${fmt(it.cost)}`:T('Habis')}</button></div>`}).join('')}</div>`)}
+
+// TOKO LENCANA: tukar Lencana Ksatria dengan hero/senjata ★3 standar, tiket, dan material
+function shopXName(g){if(g.pickHero)return T('Pilih 1 Hero ★{n}',{n:g.pickHero});if(g.pickWpn)return T('Pilih 1 Senjata ★{n}',{n:g.pickWpn});return shopItemName(g)}
+function shopXIcon(g){if(g.pickHero)return'summon';if(g.pickWpn)return'tixW';return shopItemIcon(g)}
+function openShopX(){shopXState();
+ modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${ic('shop',22)} ${T('Toko')}</h3>${shopTabsHTML()}<div class="sub">${T('Hero duplikat setelah Limit Break maks berubah jadi Lencana Ksatria (★1: {a}, ★2: {b}, ★3: {c}). Stok tiket & material diisi ulang tiap Senin.',{a:BADGE_DUPE[1],b:BADGE_DUPE[2],c:BADGE_DUPE[3]})}</div>
+ <div class="shopgold">${ic('badge',20)} <b>${fmt(S.badge||0)}</b> <span>${T('Lencana Ksatria')}</span></div>
+ <div class="shopgrid">${SHOP_X.map(it=>{const left=shopXLeft(it),can=left>0&&(S.badge||0)>=it.cost;return`<div class="sitem ${left<=0?'sold':''} ${it.give.pickHero||it.give.pickWpn?'big3':''}"><span class="sic">${ic(shopXIcon(it.give),40)}</span><b>${shopXName(it.give)}</b><small>${it.limit?T('Sisa {a}/{b} minggu ini',{a:left,b:it.limit}):T('Tanpa batas')}</small><button class="btn ${can?'':'gray'}" data-act="shopXBuy" data-arg="${it.id}" ${left>0?'':'disabled'}>${left>0?`${ic('badge',12)} ${fmt(it.cost)}`:T('Habis')}</button></div>`}).join('')}</div>
+ <p class="sub" style="text-align:center;margin-top:8px">${T('Hero & senjata terbatas tidak bisa ditukar — hanya dari banner-nya.')}</p>`)}
+function openShopXPick(id){const it=SHOP_X.find(x=>x.id===id),g=it.give,isH=!!g.pickHero,list=isH?pickPool(g.pickHero):pickWpnPool(g.pickWpn);
+ modal(`<button class="btn red mclose" data-act="shop">‹</button><h3>${shopXName(g)}</h3><div class="sub">${T('Harga: {n} Lencana',{n:fmt(it.cost)})}</div>
+ <div class="pick">${list.map(x=>isH?`<button class="hcard r3 pickh" data-act="shopXPick" data-arg="${id}:${x.id}">${eic(x.el)}<img class="px sp" src="${sprite({hero:x.id,base:1}).url}"><span class="stars">${stars(x.r)}</span>${S.heroes[x.id]?'<span class="lbd">LB+1</span>':''}<span class="nm">${x.name}</span></button>`:`<button class="wcard r3" data-act="shopXPick" data-arg="${id}:${x.id}"><span class="wcls">${WCLASS[x.cls]}</span>${invHas(S.weapons,x.id)?`<span class="cnt">×${invKeys(S.weapons,x.id).length}</span>`:''}<img class="px wi" src="${weaponIcon(x.id).url}"><span class="stars">${stars(x.r)}</span><span class="nm">${x.name}</span></button>`).join('')}</div>`)}
+function doShopX(id,pick){const it=SHOP_X.find(x=>x.id===id);if(!it)return;if((it.give.pickHero||it.give.pickWpn)&&!pick){if((S.badge||0)<it.cost){toast(T('Lencana tidak cukup!'),1);return}return openShopXPick(id)}
+ const r=shopXBuy(id,pick);if(r.err){toast(r.err,1);return}sfx('claim');updateTop();
+ const got=r.res&&r.res.got&&r.res.got[0];toast(got?T('{n} didapat!',{n:got.wid?WD[got.wid].name:HD[got.id].name}):T('Ditukar!'));openShopX()}

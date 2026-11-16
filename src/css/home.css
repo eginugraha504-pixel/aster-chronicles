@@ -1,0 +1,98 @@
+/* =====================================================================
+   home.css : Beranda (karakter besar, banner, tombol bulat, 3 tombol utama)
+   ===================================================================== */
+.home{position:absolute;inset:0;overflow:hidden}
+.hbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 38%}
+.hfx{position:absolute;inset:0;pointer-events:none;background:
+ radial-gradient(ellipse at 50% 62%,rgba(255,240,200,.45) 0%,transparent 45%),
+ linear-gradient(180deg,transparent 55%,rgba(110,58,26,.35) 100%)}
+
+/* banner pick-up di atas */
+.hbanw{position:absolute;top:64px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:4px;z-index:5}
+.harrs{width:22px;height:30px;font-family:var(--fh);font-size:24px;line-height:24px;color:#fff;-webkit-text-stroke:4px var(--ink);paint-order:stroke fill}
+.hban{position:relative;width:212px;height:62px;border-radius:14px;overflow:hidden;text-align:left;padding:6px 10px;border:3px solid var(--ink);
+ background:linear-gradient(110deg,#ffe58a 0%,#ff9ac0 55%,#9a7af0 100%);box-shadow:inset 0 0 0 2px #fff,0 4px 0 rgba(74,42,23,.6),0 6px 14px rgba(0,0,0,.25)}
+.hban:after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);background-size:300% 100%;animation:shine 3.5s linear infinite;pointer-events:none}
+.hban .btag{display:inline-block;font-size:9px;font-weight:900;color:#fff;background:var(--red);border:2px solid var(--ink);border-radius:7px;padding:0 6px}
+.hban small{display:inline-block;margin:0 0 0 4px;vertical-align:1px;font-size:9px;font-weight:900;color:#fff;-webkit-text-stroke:2.5px var(--ink);paint-order:stroke fill;line-height:1}
+.hban b{display:block;margin-top:3px;font-size:22px;max-width:126px;line-height:1;white-space:nowrap}
+.hban .bh2{position:absolute;right:2px;bottom:-6px;width:64px;height:64px}
+.hban .bw{position:absolute;right:6px;top:6px;width:50px;height:50px}
+.hban .bhs{position:absolute;right:2px;bottom:0;display:flex}.hban .bhs img{width:40px;height:40px;margin-left:-14px}
+.bdots{position:absolute;left:100px;bottom:7px;display:flex;gap:3px}
+.bdots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55);border:1px solid var(--ink)}.bdots i.on{background:#fff;width:12px;border-radius:4px}
+
+/* tombol bulat samping */
+.rcol{position:absolute;top:134px;display:flex;flex-direction:column;gap:9px;z-index:5;align-items:center}
+.rcol.l{left:8px}.rcol.r{right:8px}
+.rb{position:relative;display:flex;flex-direction:column;align-items:center;width:58px}
+.rbi{display:grid;place-items:center;width:50px;height:50px;border-radius:50%;background:radial-gradient(circle at 40% 30%,#fffdf5,#f6e3b8 70%,#e2c587);border:3px solid var(--ink);box-shadow:inset 0 0 0 2px #fff,inset 0 -4px 0 rgba(180,120,50,.3),0 3px 0 rgba(74,42,23,.6)}
+.rbi img{width:34px;height:34px}.rbi .ico{font-size:24px;line-height:1;color:var(--wood3)}
+.rbl{margin-top:-9px;font-size:11px;padding:1px 6px;white-space:nowrap;border-radius:8px;background:linear-gradient(180deg,#d99a55,#a8662e);border:2px solid var(--ink);-webkit-text-stroke-width:3px}
+.rb .dot{top:-2px;right:2px}
+.cpb{display:flex;flex-direction:column;align-items:center;padding:4px 8px 5px;border-radius:12px;background:linear-gradient(180deg,#5a3ab0,#2e1f6a);border:3px solid var(--ink);box-shadow:inset 0 0 0 2px var(--gold),0 3px 0 rgba(74,42,23,.6)}
+.cpb span{font-family:var(--fh);font-size:9px;font-weight:700;color:var(--gold);letter-spacing:.5px}
+.cpb b{font-size:16px;line-height:1;-webkit-text-stroke-width:3px}
+.cpb.sm{flex-direction:row;gap:5px;padding:3px 9px}.cpb.sm b{font-family:var(--fh);font-size:15px;color:#fff;-webkit-text-stroke:0}
+
+/* panah ganti karakter */
+.harr{position:absolute;top:47%;z-index:4;width:34px;height:44px;font-family:var(--fh);font-size:40px;line-height:36px;color:#fff;-webkit-text-stroke:5px var(--ink);paint-order:stroke fill;animation:nudge 1.2s ease-in-out infinite}
+.harr.l{left:70px}.harr.r{right:70px;animation-direction:reverse}
+@keyframes nudge{50%{transform:translateX(-3px)}}
+
+/* karakter utama */
+.hstage{position:absolute;left:50%;bottom:150px;width:176px;height:176px;margin-left:-88px;z-index:3}
+.hstage canvas{position:relative;width:176px;height:176px;display:block;cursor:pointer}
+.hcircle{position:absolute;left:8px;right:8px;bottom:-4px;height:40px;border-radius:50%;
+ background:radial-gradient(ellipse,rgba(255,240,170,.85) 0%,rgba(255,200,90,.35) 45%,transparent 70%)}
+.hcircle:before{content:'';position:absolute;inset:6px 10px;border-radius:50%;border:3px dashed rgba(255,250,210,.9);animation:spin 18s linear infinite}
+
+/* dialog karakter */
+.hspeech{position:absolute;right:10px;bottom:248px;width:184px;z-index:6}
+.hspeech p{position:relative;padding:10px 12px 12px;font-size:13px;line-height:1.4;color:var(--txt);background:rgba(255,250,240,.96);border:3px solid var(--ink);border-radius:14px;box-shadow:inset 0 0 0 2px var(--parch3),0 4px 0 rgba(74,42,23,.5);animation:spop .25s cubic-bezier(.2,1.5,.5,1)}
+@keyframes spop{from{transform:scale(.6);opacity:0}}
+.hname{position:absolute;left:10px;bottom:-14px;display:flex;align-items:center;gap:4px;padding:2px 10px;border-radius:9px;font-family:var(--fh);font-size:13px;color:#fff;background:linear-gradient(180deg,#d99a55,#a8662e);border:2px solid var(--ink);-webkit-text-stroke:3px var(--ink);paint-order:stroke fill}
+.hname i{font-style:normal;color:var(--gold);font-size:10px;letter-spacing:-1px}
+
+/* 3 tombol utama */
+.hbtm{position:absolute;left:8px;right:8px;bottom:10px;display:flex;align-items:flex-end;justify-content:space-between;z-index:7}
+.hplate{position:relative;width:104px;height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border-radius:18px 18px 22px 22px;
+ background:linear-gradient(180deg,#fffaf0,#efd5a0);border:3px solid var(--ink);box-shadow:inset 0 0 0 2px #fff,inset 0 -5px 0 rgba(180,120,50,.35),0 4px 0 var(--ink),0 8px 14px rgba(0,0,0,.25)}
+.hplate .hpi{height:38px;display:grid;place-items:center}.hplate .hpi img{width:38px;height:38px}
+.hplate b{font-size:17px}
+.hplate small{font-size:11px;font-weight:900;color:var(--mut)}
+.hplate.lock{filter:saturate(.5)}
+.hplate .lk{position:absolute;top:-12px;right:-8px;width:28px;height:28px}
+.hplate.ev{background:linear-gradient(180deg,#fff6c8,#ffcf6a)}
+.hplate .dot{top:-6px;right:-6px}
+.hmed{position:relative;width:146px;height:146px;margin-bottom:-2px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ background:radial-gradient(circle at 40% 30%,#fff7c8 0%,#ffd23f 45%,#e98a14 100%);border:4px solid var(--ink);box-shadow:inset 0 0 0 4px #fff3b0,inset 0 -8px 0 rgba(170,80,10,.45),0 5px 0 var(--ink),0 0 24px 4px rgba(255,210,90,.55)}
+.hmr{position:absolute;inset:10px;border-radius:50%;border:3px dashed rgba(122,58,10,.45);animation:spin 20s linear infinite}
+.hmed img{position:relative;width:56px;height:56px;margin-top:-6px;filter:drop-shadow(0 3px 0 rgba(74,42,23,.5))}
+.hmed b{position:relative;font-size:17px;margin-top:2px}
+.hmed small{position:relative;font-size:11px;font-weight:900;color:#7a3f08;max-width:116px;text-align:center;line-height:1.15}
+.hmed:active,.hplate:active,.rb:active{transform:translateY(3px)}
+.hspeech.sm{width:146px;right:6px}.hspeech.sm p{font-size:11.5px;padding:7px 9px 9px}
+
+.hbg.art{image-rendering:pixelated;object-position:50% 70%}
+
+/* beranda: splash art besar (mode utama bila hero punya splash) */
+.hstage.hsp{cursor:pointer;z-index:3}
+.hstage.hsp .hcircle{left:12%;right:12%;bottom:-6px;height:44px}
+.hstage.hsp .spw.hspl{position:absolute;left:50%;bottom:4px;height:100%;translate:-50% 0;animation:spsway 7s ease-in-out infinite,hsin .5s cubic-bezier(.2,.8,.3,1)}
+.hstage.hsp .spw.hspl .spl{height:100%;width:auto;filter:drop-shadow(0 0 10px rgba(255,248,225,.55)) drop-shadow(0 7px 0 rgba(36,22,38,.22))}
+.hstage.hsp .spw.hspl.hop{animation:spsway 7s ease-in-out infinite,hhop .45s cubic-bezier(.3,.7,.4,1)}
+@keyframes hsin{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes hhop{0%,100%{transform:none}35%{transform:translateY(-14px) scale(1.015)}70%{transform:translateY(2px) scale(.995,1.005)}}
+@media (prefers-reduced-motion:reduce){.hstage.hsp .spw.hspl,.hstage.hsp .spw.hspl.hop{animation:none}}
+
+/* gelembung: tersembunyi kecuali .on (idle acak / disentuh) */
+.hspeech{opacity:0;visibility:hidden;transition:opacity .25s,visibility 0s .25s;pointer-events:none}
+.hspeech.on{opacity:1;visibility:visible;transition:opacity .2s}
+/* mode splash: di bawah, tepat di atas tombol Petualangan, ekor menunjuk ke atas (ke karakter) */
+.hspeech.hsp{right:auto;top:auto;z-index:8}
+.hspeech.hsp p{padding:13px 14px 10px;font-size:13px;line-height:1.38;text-align:center}
+.hspeech.hsp p:after,.hspeech.hsp p:before{content:'';position:absolute;left:50%;width:0;height:0;border-style:solid;translate:-50% 0}
+.hspeech.hsp p:before{top:-14px;border-width:0 9px 14px;border-color:transparent transparent var(--ink)}
+.hspeech.hsp p:after{top:-9px;border-width:0 6px 10px;border-color:transparent transparent rgba(255,250,240,.98)}
+.hspeech.hsp .hname{top:-14px;bottom:auto;left:12px;font-size:12px;padding:1px 8px}

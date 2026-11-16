@@ -1,0 +1,95 @@
+# =====================================================================
+# Urutan muat file (script klasik/global — urutan PENTING)
+# core -> data -> art -> systems -> ui -> main
+# Tambah file baru? daftarkan di sini lalu jalankan: python3 tools/build.py
+# =====================================================================
+css/fonts.css
+css/base.css
+css/shell.css
+css/home.css
+css/collection.css
+css/adventure.css
+css/summon.css
+css/missions.css
+css/battle.css
+css/boot.css
+css/skin.css
+
+js/core/util.js
+js/core/i18n.js
+
+# --- data (konten & balancing: paling sering diedit) ---
+js/data/config.js
+js/data/elements.js
+js/data/heroes.js
+js/data/weapons.js
+js/data/gear.js
+js/data/bots.js
+js/data/enemies.js
+js/data/worlds.js
+js/data/banners.js
+js/data/missions.js
+js/data/materials.js
+js/data/dungeons.js
+js/data/shop.js
+js/data/mail.js
+js/data/events.js
+js/lang/en.js
+js/lang/ja.js
+
+# --- art (pixel art prosedural) ---
+js/art/icons.js
+js/art/weapon-skin.js
+js/art/sprite.js
+js/art/heroes/seraphine.js
+js/art/heroes/sakuya.js
+js/art/heroes/raika.js
+js/art/heroes/generic.js
+js/art/hero-art.js
+js/art/imgsprite.js
+js/art/splash.js
+js/art/live2d.js
+js/art/enemies.js
+js/art/imgsprite-enemy.js
+js/art/weapon-icons.js
+js/art/gear-icons.js
+js/art/backgrounds.js
+js/art/bgart.js
+js/art/home-bg.js
+
+# --- sistem (logika) ---
+js/systems/state.js
+js/systems/stats.js
+js/systems/stages.js
+js/systems/weapons.js
+js/systems/gear.js
+js/systems/bots.js
+js/systems/dungeons.js
+js/systems/shop.js
+js/systems/gacha.js
+js/systems/mail.js
+js/systems/events.js
+js/systems/sound.js
+js/systems/voice.js
+js/systems/platform.js
+js/systems/dash.js
+js/systems/battle.js
+
+# --- UI layar ---
+js/ui/core.js
+js/ui/home.js
+js/ui/heroes.js
+js/ui/gear.js
+js/ui/adventure.js
+js/ui/summon.js
+js/ui/missions.js
+js/ui/mail.js
+js/ui/events.js
+js/ui/shop.js
+js/ui/actions.js
+js/ui/leaderboard.js
+js/ui/splash.js
+js/ui/boot.js
+
+js/art/iconart.js
+js/main.js

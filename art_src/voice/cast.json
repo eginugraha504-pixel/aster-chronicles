@@ -1,0 +1,62 @@
+{
+ "seraphine": {
+  "name": "Luna",
+  "voice_id": "375a3398-e3b4-4f91-845d-42181e352899",
+  "audition_job": "ad89dc1a-434d-400f-afeb-2eff3fd78363"
+ },
+ "sakuya": {
+  "name": "Maya",
+  "voice_id": "b0f766b7-8703-4bd1-b973-f857c36837b6",
+  "audition_job": "65780988-57c2-4f2d-9646-8cbbaa8bc125"
+ },
+ "raika": {
+  "name": "Helena",
+  "voice_id": "3c2b83c0-2e0a-5ae8-998a-a5fe71b7eccd",
+  "audition_job": "cedea862-9ced-4b1e-8457-f8b618234e86"
+ },
+ "mira": {
+  "name": "Zoe",
+  "voice_id": "d0374db1-44b9-4f05-939e-0a9ae9dbbe6a",
+  "audition_job": "6481b86f-88cb-4545-9444-58f78272cb06"
+ },
+ "noa": {
+  "name": "Chloe",
+  "voice_id": "e9cfbbf0-4476-46be-b396-596eb774b165",
+  "audition_job": "36d1ddee-f66f-41bb-98ee-731826d6b592"
+ },
+ "pia": {
+  "name": "Gracie",
+  "voice_id": "09878754-f20b-5330-9790-58a8027ab5b2",
+  "audition_job": "fe1efbf8-6158-4f2b-9376-905f770e2cd1"
+ },
+ "rin": {
+  "name": "Kayla",
+  "voice_id": "5c615d8a-5135-539d-8ab0-497b7ceabbae",
+  "audition_job": "569d5380-8bb8-4778-884f-c5dbd574ae52"
+ },
+ "vela": {
+  "name": "Sloane",
+  "voice_id": "b57b22a0-f287-405b-bc82-6f08f5e6bb1f",
+  "audition_job": "02da1ee2-2220-41dc-8b8a-f242ecb9bba1"
+ },
+ "bruna": {
+  "name": "Petra",
+  "voice_id": "0c63637d-2ecb-5bda-9bbe-38894aa9a876",
+  "audition_job": "c6f818c0-5746-4b5e-82cb-9945072b6170"
+ },
+ "nami": {
+  "name": "Skye",
+  "voice_id": "1fb253b8-928b-4d29-a349-f242a71eaddf",
+  "audition_job": "ebca3af0-5ce9-4d41-8334-6f8fc62f85a0"
+ },
+ "kuro": {
+  "name": "Una",
+  "voice_id": "e91c5696-3d9f-5ae6-9c68-8389d2d0d294",
+  "audition_job": "442314b7-a832-4c3a-bbab-9c3eb8dc41f1"
+ },
+ "lumi": {
+  "name": "Annie",
+  "voice_id": "f2801b0f-e345-598e-86f5-8364d886d96b",
+  "audition_job": "fda904b6-b248-4ee5-ab03-1d5ee0231b30"
+ }
+}

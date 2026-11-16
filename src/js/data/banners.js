@@ -1,0 +1,7 @@
+/* =====================================================================
+   BANNER GACHA
+   weapon:true -> banner senjata (pity terpisah)   rateUp: id hero/senjata ★3 unggulan
+   limited:true -> banner terbatas. Senjata signature milik hero terbatas otomatis ikut terbatas.
+   ===================================================================== */
+const BANNERS=[{id:'raijin',n:'Panggilan Petir Raijin',sn:'Raika',rateUp:'raika',limited:true,desc:'★3 TERBATAS Raika hanya ada di panggilan ini! Peluang ★3 Raika meningkat.'},{id:'sakura',n:'Panggilan Rubah Sakura',sn:'Sakuya',rateUp:'sakuya',limited:true,desc:'★3 TERBATAS Sakuya hanya ada di panggilan ini! Peluang ★3 Sakuya meningkat.'},{id:'std',n:'Panggilan Standar',sn:'Standar',rateUp:null,show:['seraphine','noa','mira'],desc:'Semua hero standar bisa muncul dengan peluang normal. Hero terbatas tidak termasuk.'},{id:'wraijin',n:'Senjata Petir Raijin',sn:'Raijin',weapon:true,rateUp:'raijin',limited:true,desc:'★3 TERBATAS Busur Guntur Raijin hanya ada di panggilan ini! Peluang ★3 meningkat.'},{id:'wsakura',n:'Senjata Rubah Sakura',sn:'Sakura',weapon:true,rateUp:'hanafubuki',limited:true,desc:'★3 TERBATAS Katana Hanafubuki hanya ada di panggilan ini! Peluang ★3 meningkat.'},{id:'wpn',n:'Senjata Standar',sn:'Standar',weapon:true,rateUp:null,desc:'Semua senjata standar bisa muncul dengan peluang normal. Senjata terbatas tidak termasuk.'}];
+
