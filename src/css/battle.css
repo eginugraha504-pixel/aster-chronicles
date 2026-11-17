@@ -10,8 +10,7 @@
 .bcw{position:relative;flex:none}
 .bcw canvas{width:100%;display:block;aspect-ratio:4/5;image-rendering:pixelated}
 /* tinggi medan dibatasi supaya panel bawah tetap muat di layar pendek */
-@media (max-aspect-ratio:10/19){.bcw canvas{aspect-ratio:4/5}}
-@media (min-aspect-ratio:10/18){.bcw canvas{aspect-ratio:240/250;object-fit:cover;object-position:50% 85%}}
+@media (max-height:700px){.bcw canvas{aspect-ratio:240/250;object-fit:cover;object-position:50% 85%}}
 .bvig{position:absolute;inset:0;pointer-events:none;background:
  linear-gradient(180deg,rgba(10,6,20,.55) 0,rgba(10,6,20,0) 17%),
  linear-gradient(0deg,rgba(18,11,7,.95) 0,rgba(18,11,7,0) 9%),
