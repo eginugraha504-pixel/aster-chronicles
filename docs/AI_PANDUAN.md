@@ -29,6 +29,8 @@ Ubah/tambah teks di sini bila ada fitur baru yang perlu dijelaskan dengan kata-k
 - Banner hero & banner senjata, pity terpisah. 1× = 300 permata, 10× = 2.700 permata (atau Tiket Hero/Tiket Senjata). Ada 1 summon gratis harian di banner hero.
 - Peluang: ★3 3%, ★2 19%, ★1 78%. Soft pity mulai tarikan ke-66 (+6% tiap tarikan), hard pity 80 = ★3 pasti. Pity terbawa antar banner.
 - Rate On/Off: di banner rate-up, ★3 punya peluang 50% (senjata 75%) jadi item rate-up. Kalau kalah (rate off), ★3 berikutnya DIJAMIN rate-up.
+- Pity ≥66 artinya SUDAH masuk soft pity (peluang ★3 naik tiap tarikan); 80 = pasti ★3.
+- Hero ★3 standar (Seraphine, Marisa) TIDAK punya banner sendiri: mereka muncul sebagai ★3 biasa (bukan rate-up) di banner hero mana pun, dan bisa dipilih lewat hadiah "Pilih 1 Hero ★3" atau Toko Lencana.
 - Banner terbatas: hero terbatas (Raika, Sakuya) hanya ada di banner-nya; senjata signature mereka ikut terbatas. 10× menjamin minimal satu ★2.
 - Duplikat hero = Limit Break (+1, maks +5): stat naik 10% dan batas level +2. Duplikat setelah +5 jadi Lencana Ksatria (★1: 1, ★2: 5, ★3: 25) untuk Toko Lencana.
 
