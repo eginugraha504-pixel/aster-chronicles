@@ -35,7 +35,9 @@ function hit(a,d,mult,opt={}){if(!d.alive)return;const em=elMult(a.el,d.el);let 
  addText(d.x,d.y-uh(d)-4,fmt(dmg)+(crit?'!':''),crit?'#ffd23f':em>1?'#ff6a3c':em<1?'#bfb2e2':'#fff',crit||opt.big);
  if(em>1&&Math.random()<.3)addText(d.x,d.y-uh(d)-14,T('EFEKTIF'),'#ff9a5a');
  B.fx.push({k:'spark',x:d.x,y:d.y-uh(d)*.45,t:0,dur:.25,c:EL[a.el].c});sfx('hit',{crit});if(d.side==='hero')sfx(d.shieldT>0?'block':'hurt');
- if(d.hp<=0){d.hp=0;d.alive=false;d.deathT=.6;sfx('die');B.fx.push({k:'poof',x:d.x,y:d.y-uh(d)*.35,t:0,dur:.5,c:'#fff'})}}
+ if(d.hp<=0){d.hp=0;d.alive=false;d.deathT=.6;sfx('die');B.fx.push({k:'poof',x:d.x,y:d.y-uh(d)*.35,t:0,dur:.5,c:'#fff'});if(d.side==='enemy'&&B.st.goldR&&!B.sim)coinBurst(d)}}
+// dungeon emas: koin memercik + angka emas saat musuh tumbang (hanya hiasan; emas sebenarnya diberikan di akhir)
+function coinBurst(d){const y=d.y-uh(d)*.5;for(let i=0;i<(d.boss?9:4);i++)B.fx.push({k:'spark',x:d.x+rnd(-8,8),y:y+rnd(-6,6),t:-i*.06,dur:.55,c:i%2?'#ffd23f':'#fff3a0'});const g=B.st.goldR,n=Math.round((g[0]+g[1])/2/(d.boss?3:10)/10)*10;addText(d.x,y-6,'+'+fmt(n)+' G','#ffd23f',d.boss?1:0);if(typeof sfx==='function')sfx('coin')}
 function heal(u,amt,by){if(!u.alive)return;amt=Math.round(amt*(B.st.arena?ARENA_CFG.healMul:1));if(by)by.healed=(by.healed||0)+Math.min(amt,u.maxHp-u.hp);u.hp=Math.min(u.maxHp,u.hp+amt);addText(u.x,u.y-uh(u)-4,'+'+fmt(amt),'#7ee07a');B.fx.push({k:'heal',x:u.x,y:u.y,t:0,dur:.7})}
 function act(u){const foeSide=u.side==='hero'?'enemy':'hero';if(!alive(foeSide).length)return;if(isHU(u))sfx('swing');if(u.anim!=='skill'){u.anim='attack';u.animT=0}
  if(u.role==='support'&&isHU(u)){const low=alive(u.side).filter(a=>a.hp/a.maxHp<.65).sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];if(low){heal(low,u.atk*1.3,u);u.charge=Math.min(100,u.charge+14);return}}
@@ -110,7 +112,7 @@ function drawBattle(){const g=B.g,st=B.st;g.setTransform(2,0,0,2,0,0);g.imageSmo
 const elImg={};
 function endBattle(win){if(!B)return;const st=B.st;let html;
  if(win){const dead=B.units.some(u=>u.side==='hero'&&!u.alive);const sr=1+(!dead?1:0)+(B.time<=60?1:0);const first=!S.stages[st.key];S.stages[st.key]=Math.max(S.stages[st.key]||0,sr);
-  const rw={gold:st.gold,exp:st.exp};if(first&&!st.dg)rw.gems=st.gems;if(st.dg){const gd=rollGear(st);if(gd)rw.gear=gd}if(first&&BOSS_GEAR[st.key])rw.gear=BOSS_GEAR[st.key];if(st.dg){rw.mats=rollDrops(st,sr>=3);S.daily.c.dg=(S.daily.c.dg||0)+1}const ups=grant(rw);S.daily.c.clear++;evCount('clear');if(st.boss){S.daily.c.boss++;evCount('boss')}save();sfx('win');for(let i=0;i<sr;i++)setTimeout(()=>sfx('star',{i}),1100+i*250);
+  const rw={gold:st.dg?dgGold(st,sr):st.gold,exp:st.exp};if(first&&!st.dg)rw.gems=st.gems;if(st.dg){const gd=rollGear(st);if(gd)rw.gear=gd}if(first&&BOSS_GEAR[st.key])rw.gear=BOSS_GEAR[st.key];if(st.dg){rw.mats=rollDrops(st,sr>=3);S.daily.c.dg=(S.daily.c.dg||0)+1}const ups=grant(rw);S.daily.c.clear++;evCount('clear');if(st.boss){S.daily.c.boss++;evCount('boss')}save();sfx('win');for(let i=0;i<sr;i++)setTimeout(()=>sfx('star',{i}),1100+i*250);
   const nx=st.dg?null:SLIST[st.n+1];
   html=`<div class="panel res win"><div class="rrib"><h3>${T('MENANG!')}</h3></div><div class="rstars">${[0,1,2].map(i=>`<span class="${i<sr?'on':''}" style="animation-delay:${.3+i*.25}s">★</span>`).join('')}</div>${mvpHTML(battleMVP(B))}<div class="rcond">${dead?'✗':'✓'} ${T('Tanpa hero gugur')} · ${B.time<=60?'✓':'✗'} ${T('≤ 60 detik')} (${Math.floor(B.time)}${T('d')})</div>
   ${rewardHTML(rw)}<div class="rexp"><b>Lv ${S.lv}</b><span class="bar"><i style="width:${Math.min(100,S.exp/expNeed(S.lv)*100)}%"></i></span><small>${fmt(S.exp)}/${fmt(expNeed(S.lv))}</small></div>${first?`<div style="font-size:13px;color:#2a8ad0">${T('Bonus pertama kali!')}</div>`:''}${ups?`<div style="font-size:15px;color:#d2780a;margin-top:6px">⬆ ${T('Level Akun naik ke {lv}! Stamina +{s}',{lv:S.lv,s:ups*20})}</div>`:''}

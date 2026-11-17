@@ -27,4 +27,7 @@ const ENEMY={
  bKnight:{n:'Ksatria Kegelapan',role:'warrior',hp:1,atk:1.1,def:1.1,h:33,
   look:{head:'helm',armor:1,weapon:'sword',horns:1,cape:1,big:1,pal:{cloth:['#140c20','#2a1a3e','#4a3266','#7a5aa0'],leg:['#140c20','#2a1a3e','#4a3266','#7a5aa0'],boot:'#0c0814',emb:'#ff3b4f',cape:['#2a0a1a','#5a1030','#8a1a44'],bl1:'#f0d8ff',bl2:'#b48ae8',bl3:'#6a3aa8',gd:'#8a1a44',gd2:'#5a1030'}}}
 };
+// musuh dungeon emas: memakai sprite slime yang diwarnai emas (sprOf = pinjam strip gambar musuh lain)
+ENEMY.gslime={n:'Slime Emas',role:'warrior',hp:.9,atk:.8,def:.9,h:18,sprOf:'slime',look:{slime:true,metal:'gold',color:'#ffc93a'}};
+ENEMY.bGold={n:'Raja Slime Emas',role:'warrior',hp:1.25,atk:.9,def:1.1,h:20,sprOf:'slime',look:{slime:true,metal:'gold',crown:1,color:'#ffae1a'}};
 for(const k in ENEMY)ENEMY[k].spr=(el)=>({enemy:k,el});

@@ -11,7 +11,7 @@ const FILES=['config','elements','heroes','weapons','gear','materials','enemies'
 const ctx={S:{},T:s=>s,Math,Date,console,Object,JSON,Array,Set,Map};vm.createContext(ctx);
 let code='';for(const f of FILES)code+=fs.readFileSync(path.join(SRC,f+'.js'),'utf8').replace(/^(const|let) /gm,'var ')+'\n';
 vm.runInContext(code,ctx);
-const {HEROES,WEAPONS,GEAR,MATS,WORLDS,BANNERS,MISSIONS,ACH,DUNGEONS,SHOP,SHOP_X,MAILS,EVENTS,ARENA_CFG,TOPUP_CFG,BOT_CFG,EL,ROLE,SKT,WCLASS,ENEMY,MAX_LV,RATES,PITY,SOFT_PITY,RATE_UP,COST1,COST10,DUPE_MAX,BADGE_DUPE,STAM_MAX,DIFF,GEAR_MAX_LV}=ctx;
+const {GOLD_DG_3STAR,HEROES,WEAPONS,GEAR,MATS,WORLDS,BANNERS,MISSIONS,ACH,DUNGEONS,SHOP,SHOP_X,MAILS,EVENTS,ARENA_CFG,TOPUP_CFG,BOT_CFG,EL,ROLE,SKT,WCLASS,ENEMY,MAX_LV,RATES,PITY,SOFT_PITY,RATE_UP,COST1,COST10,DUPE_MAX,BADGE_DUPE,STAM_MAX,DIFF,GEAR_MAX_LV}=ctx;
 const rp=n=>'Rp'+n.toLocaleString('id-ID'),stars=r=>'★'+r,HDn=id=>(HEROES.find(h=>h.id===id)||{}).name||id;
 const rw=o=>Object.entries(o||{}).map(([k,v])=>({gems:`${v} permata`,gold:`${v} emas`,stam:`${v} stamina`,exp:`${v} EXP`,tixH:`${v} Tiket Hero`,tixW:`${v} Tiket Senjata`,pickHero:`pilih 1 hero ★${v}`,pickWpn:`pilih 1 senjata ★${v}`,
  hero:`hero ${HDn(v)}`,weapon:`senjata ${v}`,mats:Object.entries(v).map(([m,n])=>`${n} ${(MATS.find(x=>x.id===m)||{}).n||m}`).join(', '),gear:[].concat(v).join(', ')}[k]||`${k} ${v}`)).join(', ');
@@ -28,7 +28,7 @@ H('Material');for(const m of MATS)L.push(`- ${m.n}: ${m.desc}`);
 H('Dunia & tahap cerita');
 WORLDS.forEach((w,k)=>L.push(`- Dunia ${k+1} ${w.n}: ${w.stages.map((s,j)=>`${k+1}-${j+1} ${s}`).join(', ')}. ${w.intro} Bos ${k+1}-5: ${ENEMY[w.boss].n} (elemen ${EL[w.bossEl].n}). Musuh: ${[...new Set(w.mobs)].map(m=>ENEMY[m].n).join(', ')}; elemen ${w.els.map(e=>EL[e].n).join('/')}. CP rekomendasi ±${recCP(k*5)}–${recCP(k*5+4)}.`));
 H('Dungeon');
-for(const d of DUNGEONS)L.push(`- ${d.n}: ${d.desc} Tingkat 1–${d.levels.length}, terbuka setelah tahap ${d.levels.map(l=>l.req).join(' / ')}, stamina ${d.levels[0].cost}–${d.levels.at(-1).cost}.`);
+for(const d of DUNGEONS)L.push(`- ${d.n}: ${d.desc} Tingkat 1–${d.levels.length}, terbuka setelah tahap ${d.levels.map(l=>l.req).join(' / ')}, stamina ${d.levels[0].cost}–${d.levels.at(-1).cost}.${d.levels[0].gold?` Hadiah emas per kemenangan: ${d.levels.map((l,i)=>`T${i+1} ${l.gold[0].toLocaleString('id-ID')}–${l.gold[1].toLocaleString('id-ID')}`).join(', ')} (+${Math.round(ctx.GOLD_DG_3STAR*100)}% bila 3 bintang); musuh slime emas, bos ${ENEMY[d.boss].n}. Tempat terbaik untuk farming emas.`:''}`);
 H('Banner gacha sekarang');
 for(const b of BANNERS)L.push(`- ${b.n}${b.weapon?' (senjata)':''}${b.limited?' — TERBATAS':''}${b.rateUp?`, rate-up ${HDn(b.rateUp)}`:''}. ${b.desc||''}`);
 L.push(`- Angka: ★3 ${RATES[3]}%, ★2 ${RATES[2]}%, ★1 ${RATES[1]}%; soft pity mulai ${SOFT_PITY.at}, hard pity ${PITY}; rate-up hero ${RATE_UP.hero*100}% / senjata ${RATE_UP.wpn*100}%; 1× ${COST1} permata, 10× ${COST10}; Limit Break maks +${DUPE_MAX}; Lencana dari duplikat setelah maks: ★1 ${BADGE_DUPE[1]}, ★2 ${BADGE_DUPE[2]}, ★3 ${BADGE_DUPE[3]}. Level maks per bintang ★1/★2/★3: ${MAX_LV.slice(1).join('/')}. Stamina maks ${STAM_MAX}.`);

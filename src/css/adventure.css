@@ -32,7 +32,7 @@
 .wtabs{flex-wrap:wrap}
 .wtabs .dgtab{flex-basis:100%;display:flex;align-items:center;justify-content:center;gap:4px}
 .wtabs .dgtab img{width:16px;height:16px}
-.dgsel{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.dgsel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
 .dgc{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 6px 9px;border-radius:16px;background:var(--parch);border:3px solid var(--ink);box-shadow:0 3px 0 rgba(74,42,23,.5)}
 .dgc b{font-size:15px}
 .dgc.on{background:linear-gradient(180deg,#fff2a0,#ffc93a);box-shadow:inset 0 2px 0 #fff,0 3px 0 var(--ink)}
@@ -40,6 +40,8 @@
 .dgc .mrw{justify-content:center}
 .dghead{position:relative;overflow:hidden;min-height:120px;margin-bottom:12px;border-radius:18px;border:3px solid var(--ink);box-shadow:inset 0 0 0 3px #fff,inset 0 0 0 6px var(--gold2),var(--sh)}
 .dghead.mine{background:linear-gradient(135deg,#8a7ab0,#3a2e5a 70%)}
+.dghead.vault{background:linear-gradient(135deg,#ffe27a,#d88a1a 50%,#5a2a0a)}
+.dggold{font-family:var(--fh);color:#b8680e}
 .dghead.shrine{background:linear-gradient(135deg,#ff9a8a,#9a3a6a 55%,#3a1f5a)}
 .dghead .rays{position:absolute;left:78%;top:50%;width:500px;height:500px;margin:-250px;background:repeating-conic-gradient(rgba(255,255,255,.2) 0 10deg,transparent 10deg 20deg);animation:spin 20s linear infinite}
 .dghead .dgbig{position:absolute;right:16px;top:50%;margin-top:-38px;filter:drop-shadow(0 0 10px rgba(255,240,170,.6))}

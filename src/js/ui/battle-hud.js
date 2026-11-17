@@ -53,7 +53,7 @@ function pauseHTML(){const st=B.st;return`<div class="panel bpause"><h3>${T('Jed
  <div class="mrow"><button class="btn red" data-act="bquit">${T('Menyerah')}</button><button class="btn green" data-act="bresume">${T('Lanjut')}</button></div></div>`}
 // MVP pertarungan (damage + pulih terbanyak di pihakmu)
 function battleMVP(b){return b.units.filter(u=>u.side==='hero').sort((x,y)=>(y.dmg||0)+(y.healed||0)-(x.dmg||0)-(x.healed||0))[0]}
-function mvpHTML(u){if(!u)return'';const sp=splash(u.id),fc=splashFocus(u.id);
+function mvpHTML(u){if(!u||!((u.dmg||0)+(u.healed||0)))return'';const sp=splash(u.id),fc=splashFocus(u.id);
  return`<div class="rmvp">${sp?`<span class="rmart" style="background-image:url(${sp});background-position:${fc[0]}% ${Math.max(0,fc[1]-4)}%"></span>`:`<img class="px" src="${portrait(u.id)}">`}<div><em>MVP</em><b>${u.name}</b><small>${fmt(u.dmg||0)} ${T('damage')}${u.healed?` · ${fmt(u.healed)} ${T('pulih')}`:''}</small></div></div>`}
 // kartu berkedip saat skill dipakai
 function hudCast(u){const i=B.units.filter(x=>x.side==='hero').indexOf(u),c=B.cards&&B.cards[i];if(!c)return;c.classList.remove('cast');void c.offsetWidth;c.classList.add('cast')}
