@@ -91,7 +91,7 @@ function arSim(b){const keep=B;B=b;try{let n=0;while(B.state!=='end'&&n<6000){ti
 /* ---------------- menantang lawan ---------------- */
 function arCanFight(){const A=arCheck();if(A.tix<=0){toast(T('Tiket Arena habis! Tiket terisi lagi pukul 00:00 WIB.'),1);return false}
  if(!S.team.some(Boolean)){toast(T('Tim kosong! Pilih hero dulu.'),1);return false}return true}
-function arMeta(i,pts,extra){const st=botState(i);return Object.assign({opp:i,name:BOTS.names[i],pts,cp:st.cp,lv:st.lv,team:st.team.slice()},extra||{})}
+function arMeta(i,pts,extra){const st=botState(i);return Object.assign({opp:i,name:botName(i),pts,cp:st.cp,lv:st.lv,team:st.team.slice()},extra||{})}
 function arenaFight(i,quick,extra){i=+i;if(!arCanFight())return;const A=S.arena,pts=arBotPtsNow(i)??(A.opps.find(o=>o.i===i)||{}).pts??A.pts;
  const st=botState(i),meta=arMeta(i,pts,extra),atk=arUnits(null,S.team),def=arUnits(st,st.team);if(!def.length){toast(T('Lawan belum punya tim.'),1);return}
  A.tix--;A.reg=true;save();
@@ -106,24 +106,37 @@ function arApply(win,meta){const A=arState(),C=ARENA_CFG,before=A.pts,lgB=arLeag
  if(win){A.wins++;A.wWins++;A.streak=(A.streak||0)+1}else{A.losses++;A.wLoss++;A.streak=0}
  const rw=Object.assign({},win?C.battle.win:C.battle.lose),ups=grant(rw);
  if(meta.rev!=null){const e=A.log.find(x=>x.id===meta.rev);if(e)e.rev=1}
- arLog({k:'atk',i:meta.opp,win,d,cp:meta.cp,pts:meta.pts});
+ arLog({k:'atk',i:meta.opp,win,d,cp:meta.cp,pts:meta.pts});if(typeof chatArenaAtk==='function')chatArenaAtk({t:Date.now(),i:meta.opp,win});
  S.daily.c.arena=(S.daily.c.arena||0)+1;A.seed++;A.opps=[];AR.at=0;save();try{arFindOpps()}catch(e){}
  return{win,d,before,after:A.pts,lgB,lgA:arLeague(A.pts),rw,ups,meta}}
 function arLog(e){const A=S.arena;e.t=e.t||Date.now();e.id=(A.lid=(A.lid||0)+1);A.log.unshift(e);A.log.sort((a,b)=>b.t-a.t);A.log.length=Math.min(A.log.length,30)}
 
 /* ---------------- serangan bot ke Tim Bertahan ---------------- */
+// serangan hanya terjadi saat bot penyerang sedang online (jam main WIB-nya). Bot yang kamu kalahkan bisa membalas dendam.
+function arBotOnline(i,t){const b=botBase(i);return t>=b.join&&botActive(b,t)&&botPresence(i,t).online}
+function arRevengeAt(e){const b=botBase(e.i),h=bHash(e.i,40000+(e.id||0)+Math.floor(e.t/6e4)),C=ARENA_CFG.revenge;
+ const p=C.p[b.pf]*(b.mood==='sial'?1.15:1);if(h%1000>=p*1000)return null;
+ const t=botSnap(b,e.t+(C.delay[0]+(h>>>10)%1000/1000*(C.delay[1]-C.delay[0]))*6e4);return t>e.t&&botActive(b,t)?t:null}
 function arDefTick(now=Date.now()){const A=arState(),C=ARENA_CFG;if(!A.reg||!botsWarmOk())return 0;
  if(!A.lastDef){A.lastDef=now;save();return 0}
  const from=Math.max(A.lastDef,now-48*36e5),seed=+S.uid||7,evs=[];
- for(let h=Math.floor(from/36e5);h<=Math.floor(now/36e5);h++){const r=bRng(bHash(seed,20000+h));if(r()<C.defPerHour){const t=h*36e5+Math.floor(r()*36e5);if(t>A.lastDef&&t<=now)evs.push([t,r()])}}
- A.lastDef=now;const list=evs.slice(-C.defMax);if(!list.length){save();return 0}
+ for(let h=Math.floor(from/36e5);h<=Math.floor(now/36e5);h++){const r=bRng(bHash(seed,20000+h));if(r()<C.defPerHour){const t=h*36e5+Math.floor(r()*36e5);if(t>A.lastDef&&t<=now)evs.push([t,r(),null])}}
+ // balas dendam: bot yang kalah dari seranganmu datang lagi saat online berikutnya
+ for(const e of A.log){if(e.k!=='atk'||!e.win||e.rvx||e.i>=botsVisible(now))continue;const t=arRevengeAt(e);
+  if(t==null||now-e.t>3*864e5){e.rvx=1;continue}if(t<=now){e.rvx=1;if(t>A.lastDef-6e4)evs.push([t,0,e.i])}}
+ evs.sort((x,y)=>x[0]-y[0]);
+ A.lastDef=now;const list=evs.filter(v=>v[2]!=null).concat(evs.filter(v=>v[2]==null).slice(-C.defMax)).sort((x,y)=>x[0]-y[0]);if(!list.length){save();return 0}
  const Bd=arBoard(now),def=arUnits(null,A.def);let n=0;
  const dcp=teamCP(A.def).total;
- for(const[t,rv]of list){if(!def.length)break;const near=Bd.filter(e=>Math.abs(e.pts-A.pts)<=250&&botState(e.i).team.length);
-  // penyerang dicari seperti matchmaking sungguhan: poin mirip, CP tidak terlalu jauh dari Tim Bertahanmu
-  let pool=near.filter(e=>e.cp>=dcp*.75&&e.cp<=dcp*1.3);if(pool.length<3)pool=near;if(!pool.length)pool=Bd.slice().sort((a,b)=>Math.abs(a.pts-A.pts)-Math.abs(b.pts-A.pts)).slice(0,10);if(!pool.length)break;
-  const e=pool[Math.floor(rv*pool.length)],st=botState(e.i),atk=arUnits(st,st.team);if(!atk.length)continue;
+ for(const[t,rv,ri]of list){if(!def.length)break;let e;
+  if(ri!=null){e=Bd.find(x=>x.i===ri);if(!e)continue}
+  else{const near=Bd.filter(x=>Math.abs(x.pts-A.pts)<=250&&arBotOnline(x.i,t)&&botState(x.i).team.length);
+   // penyerang dicari seperti matchmaking sungguhan: poin mirip, CP tidak terlalu jauh dari Tim Bertahanmu, dan sedang online
+   let pool=near.filter(x=>x.cp>=dcp*.75&&x.cp<=dcp*1.3);if(pool.length<3)pool=near;if(!pool.length)pool=Bd.filter(x=>arBotOnline(x.i,t)).sort((a,b)=>Math.abs(a.pts-A.pts)-Math.abs(b.pts-A.pts)).slice(0,10);if(!pool.length)continue;
+   e=pool[Math.floor(rv*pool.length)]}
+  const st=botState(e.i),atk=arUnits(st,st.team);if(!atk.length)continue;
   const b=arSim(arMakeB(atk,def,{sim:true,auto:true,speed:1})),held=!b.result;
   const E=1/(1+Math.pow(10,(e.pts-A.pts)/400)),d=held?Math.max(2,Math.round(C.kDef*(1-E))):-Math.max(C.minLose,Math.round(C.kDef*E));
-  A.pts=Math.max(0,A.pts+d);arLog({k:'def',t,i:e.i,win:held,d,cp:st.cp,pts:e.pts});n++}
+  A.pts=Math.max(0,A.pts+d);arLog({k:'def',t,i:e.i,win:held,d,cp:st.cp,pts:e.pts,bRev:ri!=null?1:0});n++;
+  if(typeof chatArenaHit==='function')chatArenaHit({t,i:e.i,held,rev:ri!=null})}
  A.unseen=(A.unseen||0)+n;AR.at=0;save();return n}

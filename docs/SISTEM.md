@@ -158,3 +158,27 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - Bank di program Cynthia (PC) dimatikan sejak 17 Nov 2026 (bisa dinyalakan lagi dengan `BANK_DI_PC=ya`); saldo & pesanan lunas sudah dipindah lewat `migrations/0002_pindahan.sql`. `tools/bank_topup/` = versi lama untuk bank di PC.
 - Username bot disimpan di `S.iap.bot` (diatur pemain lewat tombol Atur). SHA-256/HMAC ditulis murni JS (tanpa crypto.subtle) agar jalan di file:// dan http://.
 - Secret ada di kode game (repo publik) — wajar karena uang & permata sama-sama fiktif; tujuannya mencegah salah ketik, bukan keamanan sungguhan.
+
+## Bot makin hidup: top up, emosi, hidup berubah (17 Nov 2026)
+- **Top up bot** (`BOT_CFG.SPEND` di `data/bots.js`): 75% gratis, 17% Kartu Bulanan, 6% belanja sedang, 2% sultan. Pembelian ditentukan per bot per hari (seed): Kartu Bulanan + perpanjangan, beli acak saat main (×2,2 di tanggal gajian 25–28 & 1), borong saat banner baru (maks sekali per 3 hari). Paket & harga = `TOPUP_CFG` (bonus 2× pembelian pertama ikut berlaku). Permata berbayar → tarikan tambahan di `botGacha` (70% banner hero). Total belanja → **VIP 1–7** (tampil di Peringkat, profil, chat; VIP-mu dari `S.iap.spent`).
+- **Emosi gacha** (`BOT_CFG.EMO`): 60 tarikan hero pertama diulang (`botEarlyMood`, aliran acak yang sama dengan gacha bot) → hoki (lebih rajin, jarang berhenti) / sial (lebih cepat menyerah). Pemain berbayar lebih betah. 30% pengejar banner = **penabung**: melewati sebagian banner, tarikan ditahan sampai banner incaran (atau tabungan 90 tarikan) — tampil "Menabung N tarikan" di profil.
+- **Hidup berubah** (`BOT_CFG.LIFE`): bio diganti tiap 2–9 hari, 50% bot pindah hero favorit ke ★3 terbatas terbaru, 12% bot ganti nama sekali (kolam nama baru `bots/renames`, dibuat Claude; profil menampilkan "Sebelumnya: ..."). `botName(i,t)` = nama pada waktu t.
+- Sifat baru memakai aliran acak terpisah (`bHash(i,31)`) supaya sifat lama bot tidak bergeser.
+
+## Arena: serangan saat online & balas dendam
+- Penyerang Tim Bertahan hanya bot yang **sedang online** pada jam serangan (`arBotOnline`).
+- Bot yang kamu kalahkan bisa **membalas dendam** di sesi online berikutnya (peluang per gaya main `ARENA_CFG.revenge`, ×1,15 bila sedang apes). Log Arena memberi label "DENDAM"; bot sering menyebutmu di chat setelahnya.
+
+## Obrolan Dunia (world chat)
+- File: data `js/data/chat/` — `style.js` (cara menulis: persona, singkatan, tawa, emotikon, salah ketik), `lines.js` (kalimat per suasana & kejadian), `threads.js` (utas tanya-jawab), `brain.js` (menanggapi pesanmu); mesin `js/systems/chat.js`; tampilan `js/ui/chat.js` + `css/chat.css`. **Tambah kalimat cukup di file data**, mesin tidak perlu diubah.
+- Strip 2 pesan terakhir di beranda (di atas tombol Arena) → panel obrolan penuh (ketuk nama/avatar = profil pemain).
+- Obrolan bot **deterministik per menit** (seed menit + generasi dunia) → semua pemain melihat percakapan yang sama. Hanya bot yang online yang bicara; keramaian ≈ 0,085 × √online pesan/menit. ±50% bot hanya membaca.
+- Isi mengikuti keadaan ASLI bot: favorit, pity, CP, tahap, liga, tabungan, top up, hoki/apes, mau berhenti. Kejadian nyata memicu reaksi: ★3 (pengumuman [Sistem] untuk ★3 terbatas, kadang diberi selamat), rate off, top up, banner/hero baru, pemain baru disambut, kembali main, ganti nama.
+- Utas: pembuka + 1–4 jawaban dari bot lain (jawaban berupa fungsi bisa memakai data asli, mis. "liga kalian apa?"), jawaban salah bisa dikoreksi bot lain, penanya berterima kasih.
+- Pesanmu: disimpan lokal (`aster_chat_me`). Balasan dari **Claude** bila tersedia (prompt berisi fakta game + keadaan asli calon penjawab + 16 pesan terakhir), selain itu **otak lokal** `brain.js` (pola kata kunci, ingat kota/hero favoritmu, bertanya balik). Bot yang kamu sebut saat offline membalas ketika online lagi. Tarikan ★3-mu diumumkan sistem dan diberi selamat; bot kadang memanggilmu saat kamu masuk 10 besar.
+- Kolam kalimat buatan Claude (`bots/chatlines`, maks 1.600) terus bertambah tiap 20 menit saat game terbuka di claude.ai dan ikut dipakai semua bot.
+
+## Penjualan bot → bank Telegram
+- `js/systems/botsale.js`: tiap menit game melaporkan pembelian bot (sejak `BOT_CFG.SPEND.bankFrom`, maks 3 hari) ke `POST /api/botsale` (HMAC `TOPUP_CFG.secret`). Server (`bank-worker/`, tabel `botsales`, migrasi 0003) membuang duplikat per kunci lalu menambah saldo **HUN2 STUDIO** + mutasi `jual`.
+- Telegram: tombol **🏢 HUN2 STUDIO** / `/toko` (saldo, penjualan hari ini/7 hari/total, pembeli terbesar, 10 transaksi terakhir), `/notif on|off` (kabar pembelian ≥ Rp799rb, default mati).
+- Catatan: di GitHub Pages nama bot dibuat lokal (tanpa Claude), di claude.ai dari Claude — nama pembeli di bank mengikuti perangkat yang melapor pertama.

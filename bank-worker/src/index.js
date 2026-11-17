@@ -4,6 +4,7 @@
    ---------------------------------------------------------------------
    POST /tg                 webhook Telegram (dicek dengan header secret token)
    GET  /api/order/<ID>     dipakai game: {st:'wait'} atau {st:'paid', c:'XXXXX-XXXXX'}  (CORS terbuka)
+   POST /api/botsale        dipakai game: penjualan top up para pemain bot -> pemasukan HUN2 STUDIO (ditandatangani HMAC)
    GET  /setup?k=<hook>     pasang webhook + daftar perintah (dipanggil workflow setelah deploy)
    Secret: BOT_TOKEN (wrangler secret). Var: ASTER_SECRET (= TOPUP_CFG.secret di game), SALDO_AWAL.
    Pemilik rekening = akun Telegram pertama yang menekan Start setelah bot dipasang.
@@ -16,8 +17,9 @@ const CATALOG = {
   g4: ['3.960 Permata', 479000], g5: ['6.560 Permata', 799000], g6: ['12.960 Permata', 1599000],
   mc: ['Kartu Bulanan (30 hari)', 79000],
 };
-const BTN = { saldo: '💰 Cek Saldo', setor: '📥 Setor Tunai', mutasi: '📜 Mutasi', bantuan: '❓ Bantuan' };
-const MENU = { keyboard: [[{ text: BTN.saldo }, { text: BTN.setor }], [{ text: BTN.mutasi }, { text: BTN.bantuan }]], resize_keyboard: true, is_persistent: true };
+const BTN = { saldo: '💰 Cek Saldo', setor: '📥 Setor Tunai', mutasi: '📜 Mutasi', toko: '🏢 HUN2 STUDIO', bantuan: '❓ Bantuan' };
+const MENU = { keyboard: [[{ text: BTN.saldo }, { text: BTN.setor }], [{ text: BTN.mutasi }, { text: BTN.toko }], [{ text: BTN.bantuan }]], resize_keyboard: true, is_persistent: true };
+const BIG = 799000;   // notifikasi pembelian bot mulai nominal ini (bila /notif on)
 const B32 = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const enc = new TextEncoder();
 
@@ -94,7 +96,45 @@ async function cardMutasi(env) {
   const rows = results.map(t => `${wib(t.ts, { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })}  ${t.too === 'egi' ? '+' : '-'}${rp(t.amount)}\n      ${what(t)}`);
   return `📜 <b>Mutasi rekening</b> (12 terakhir)\n\n<code>${esc(rows.join('\n'))}</code>\n\n💰 Saldo: <b>${rp((await acc(env, 'egi')).balance)}</b>`;
 }
-const HELP = `🏦 <b>${BANK}</b>\n\nPakai tombol di bawah, atau ketik:\n• /saldo\n• /mutasi\n• /setor 5jt\n• /tarik 500rb\n\n🎮 <b>Top Up Aster Chronicles</b>: buka Toko › Top Up di game, pilih paket, lalu tekan <i>Bayar di Telegram</i>. Permata masuk otomatis setelah kamu menekan ✅ Bayar.\n\nNominal boleh ditulis 250000, 250.000, 250rb, 1,5jt.`;
+const HELP = `🏦 <b>${BANK}</b>\n\nPakai tombol di bawah, atau ketik:\n• /saldo\n• /mutasi\n• /setor 5jt\n• /tarik 500rb\n• /toko — pemasukan HUN2 STUDIO dari pemain\n• /notif on|off — kabar pembelian besar\n\n🎮 <b>Top Up Aster Chronicles</b>: buka Toko › Top Up di game, pilih paket, lalu tekan <i>Bayar di Telegram</i>. Permata masuk otomatis setelah kamu menekan ✅ Bayar.\n\nNominal boleh ditulis 250000, 250.000, 250rb, 1,5jt.`;
+
+/* ---------------- rekening HUN2 STUDIO (penjualan pemain bot) ---------------- */
+const dayStartWIB = ms => { const d = new Date(ms + 7 * 36e5); d.setUTCHours(0, 0, 0, 0); return d.getTime() - 7 * 36e5 };
+async function cardToko(env) {
+  const m = await acc(env, MERCHANT.key), now = Date.now(), d0 = dayStartWIB(now), w0 = now - 7 * 864e5;
+  const q = (a, b) => env.DB.prepare('SELECT COUNT(*) n, COALESCE(SUM(price),0) s FROM botsales WHERE ts>=? AND ts<?').bind(a, b).first();
+  const [today, week, all] = await Promise.all([q(d0, now + 1), q(w0, now + 1), q(0, now + 1)]);
+  const { results: last } = await env.DB.prepare('SELECT * FROM botsales ORDER BY ts DESC LIMIT 10').all();
+  const top = await env.DB.prepare('SELECT name, SUM(price) s, COUNT(*) n FROM botsales WHERE ts>=? GROUP BY name ORDER BY s DESC LIMIT 3').bind(d0).all();
+  const rows = last.map(t => `${wib(t.ts, { hour: '2-digit', minute: '2-digit' })}  +${rp(t.price)}\n      ${t.name} · ${(CATALOG[t.sku] || [t.sku])[0]}`);
+  return `🏢 <b>${MERCHANT.name}</b> · ${m.number}\n💰 Saldo: <b>${rp(m.balance)}</b>\n\n📈 Penjualan Aster Chronicles\n• Hari ini: <b>${rp(today.s)}</b> (${today.n} transaksi)\n• 7 hari: ${rp(week.s)} (${week.n})\n• Total: ${rp(all.s)} (${all.n})` +
+    (top.results.length ? `\n\n👑 Pembeli terbesar hari ini\n${top.results.map((t, k) => `${k + 1}. ${esc(t.name)} — ${rp(t.s)} (${t.n}x)`).join('\n')}` : '') +
+    (rows.length ? `\n\n🧾 Terakhir\n<code>${esc(rows.join('\n'))}</code>` : '\n\nBelum ada penjualan.') + `\n\n🔔 Kabar pembelian besar: ${(await kvGet(env, 'notif')) === 'on' ? 'aktif' : 'mati'} (/notif on|off)`;
+}
+async function botSale(env, req) {
+  let body; try { body = JSON.parse(await req.text()) } catch (e) { return json({ ok: false, e: 'json' }, 400) }
+  const L = Array.isArray(body.sales) ? body.sales.slice(0, 50) : [];
+  if (!L.length) return json({ ok: true, n: 0 });
+  const sig = Array.from(await hmacBytes(env.ASTER_SECRET, L.map(s => [s.k, s.n, s.sku, s.p, s.t].join('|')).join('\n')), x => x.toString(16).padStart(2, '0')).join('');
+  if (sig !== body.sig) return json({ ok: false, e: 'sig' }, 403);
+  const now = Date.now(), ok = L.filter(s => typeof s.k === 'string' && s.k.length <= 90 && /^[A-Za-z0-9]{3,16}$/.test(s.n) && CATALOG[s.sku] && CATALOG[s.sku][1] === s.p && s.t > now - 3 * 864e5 && s.t < now + 12e4);
+  if (!ok.length) return json({ ok: true, n: 0 });
+  const have = new Set((await env.DB.prepare(`SELECT k FROM botsales WHERE k IN (${ok.map(() => '?').join(',')})`).bind(...ok.map(s => s.k)).all()).results.map(r => r.k));
+  const fresh = ok.filter(s => !have.has(s.k)), st = [], big = [];
+  for (const s of fresh) {
+    const ref = newRef(), label = CATALOG[s.sku][0];
+    // hanya yang benar-benar menyisipkan baris (ref cocok) yang menambah saldo -> aman dari laporan ganda bersamaan
+    st.push(env.DB.prepare('INSERT OR IGNORE INTO botsales (k,name,sku,price,ts,ref) VALUES (?,?,?,?,?,?)').bind(s.k, s.n, s.sku, s.p, s.t, ref));
+    st.push(env.DB.prepare("UPDATE accounts SET balance=balance+? WHERE key=? AND (SELECT ref FROM botsales WHERE k=?)=?").bind(s.p, MERCHANT.key, s.k, ref));
+    st.push(env.DB.prepare("INSERT INTO tx (ref,ts,kind,frm,too,amount,note) SELECT ?,?,'jual',NULL,?,?,? WHERE (SELECT ref FROM botsales WHERE k=?)=?").bind(ref, s.t, MERCHANT.key, s.p, `Top up Aster: ${label} (${s.n})`.slice(0, 120), s.k, ref));
+    if (s.p >= BIG) big.push(s);
+  }
+  if (st.length) await env.DB.batch(st);
+  const owner = await kvGet(env, 'owner');
+  if (big.length && owner && (await kvGet(env, 'notif')) === 'on')
+    await send(env, owner, `💎 <b>Pembelian besar di Aster Chronicles</b>\n\n${big.slice(0, 6).map(s => `• ${esc(s.n)} — ${CATALOG[s.sku][0]} <b>${rp(s.p)}</b> (${wib(s.t, { hour: '2-digit', minute: '2-digit' })})`).join('\n')}${big.length > 6 ? `\n…dan ${big.length - 6} lagi` : ''}\n\nMasuk ke rekening ${MERCHANT.name}.`);
+  return json({ ok: true, n: fresh.length });
+}
 
 /* ---------------- top up ---------------- */
 async function invoice(env, chat, o) {
@@ -136,6 +176,9 @@ async function onMessage(env, m) {
   if (low === '/batal' || low === 'batal') { await kvSet(env, 'flow', null); return send(env, chat, 'Transaksi dibatalkan.') }
   if (t === BTN.saldo || low === '/saldo') return send(env, chat, await cardSaldo(env));
   if (t === BTN.mutasi || low === '/mutasi') return send(env, chat, await cardMutasi(env));
+  if (t === BTN.toko || low === '/toko') return send(env, chat, await cardToko(env));
+  const nm = low.match(/^\/notif(?:@\w+)?\s*(on|off)?$/);
+  if (nm) { if (nm[1]) await kvSet(env, 'notif', nm[1]); return send(env, chat, `🔔 Kabar pembelian besar (≥ ${rp(BIG)}) dari pemain Aster: <b>${(await kvGet(env, 'notif')) === 'on' ? 'aktif' : 'mati'}</b>.\nUbah dengan /notif on atau /notif off.`) }
   if (t === BTN.setor) { await kvSet(env, 'flow', 'setor'); return send(env, chat, '📥 <b>Setor tunai</b>\n\nKetik nominal yang mau disetor (contoh: 5jt).\nKetik /batal untuk membatalkan.') }
   let mm = t.match(/^\/(setor|tarik)(?:@\w+)?\s+(\S+)/i), flow = await kvGet(env, 'flow');
   if (mm || flow === 'setor') {
@@ -162,7 +205,7 @@ async function onCallback(env, q) {
 }
 
 /* ---------------- HTTP ---------------- */
-const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Cache-Control': 'no-store' };
+const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'content-type', 'Cache-Control': 'no-store' };
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json', ...CORS } });
 export default {
   async fetch(req, env) {
@@ -173,6 +216,7 @@ export default {
       const o = await env.DB.prepare('SELECT id,sku,price,code,ts FROM orders WHERE id=?').bind(om[1]).first();
       return json(o ? { st: 'paid', id: o.id, sku: o.sku, p: o.price, c: o.code, t: o.ts } : { st: 'wait' });
     }
+    if (p === '/api/botsale' && req.method === 'POST') { try { return await botSale(env, req) } catch (e) { console.error(e); return json({ ok: false, e: 'server' }, 500) } }
     if (p === '/tg' && req.method === 'POST') {
       if (req.headers.get('X-Telegram-Bot-Api-Secret-Token') !== await hookSecret(env)) return new Response('forbidden', { status: 403 });
       const u = await req.json();
@@ -182,7 +226,7 @@ export default {
     if (p === '/setup') {
       if (url.searchParams.get('k') !== await hookSecret(env)) return new Response('forbidden', { status: 403 });
       const a = await tg(env, 'setWebhook', { url: `${url.origin}/tg`, secret_token: await hookSecret(env), allowed_updates: ['message', 'callback_query'], drop_pending_updates: true });
-      const b = await tg(env, 'setMyCommands', { commands: [{ command: 'saldo', description: 'Cek saldo' }, { command: 'mutasi', description: 'Mutasi rekening' }, { command: 'setor', description: 'Setor tunai, mis. /setor 5jt' }, { command: 'tarik', description: 'Tarik tunai, mis. /tarik 500rb' }, { command: 'bantuan', description: 'Bantuan' }] });
+      const b = await tg(env, 'setMyCommands', { commands: [{ command: 'saldo', description: 'Cek saldo' }, { command: 'mutasi', description: 'Mutasi rekening' }, { command: 'setor', description: 'Setor tunai, mis. /setor 5jt' }, { command: 'tarik', description: 'Tarik tunai, mis. /tarik 500rb' }, { command: 'toko', description: 'Pemasukan HUN2 STUDIO' }, { command: 'notif', description: 'Kabar pembelian besar: /notif on|off' }, { command: 'bantuan', description: 'Bantuan' }] });
       return json({ webhook: a, commands: b });
     }
     if (env.TG_LOG && p === '/__out') { const o = globalThis.__out || []; globalThis.__out = []; return json(o) }

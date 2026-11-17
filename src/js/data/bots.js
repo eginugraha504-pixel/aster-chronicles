@@ -47,6 +47,31 @@ const BOT_CFG={
  // kapan hero masuk ke game (default: sejak rilis). Senjata signature ikut pemiliknya.
  HERO_SINCE:{vela:Date.UTC(2026,10,15,1,1),bruna:Date.UTC(2026,10,15,1,1),nami:Date.UTC(2026,10,15,1,1),kuro:Date.UTC(2026,10,15,1,1),lumi:Date.UTC(2026,10,15,1,1),raika:Date.UTC(2026,10,15,4,32),marisa:Date.UTC(2026,10,17,5,45)},
  CHASER:.6,                      // porsi pemain yang mengejar banner rate-up (sisanya banner standar)
+ // ---- TOP UP bot (paket & harga = TOPUP_CFG, sama seperti pemain) ----
+ // w = bobot %; card = peluang beli Kartu Bulanan; renew = peluang perpanjang; rate = peluang beli paket per hari main;
+ // packs = paket acak [id,bobot]; banner = jumlah paket saat banner baru [min,maks]; bp = paket saat banner baru
+ SPEND:{
+  tiers:[
+   {id:'f2p',    w:75},
+   {id:'card',   w:17,card:1,  renew:.8, rate:.035,packs:[['g1',6],['g2',3]],                    banner:[0,1],bp:[['g1',3],['g2',2]]},
+   {id:'dolphin',w:6, card:.85,renew:.9, rate:.16, packs:[['g1',2],['g2',5],['g3',4],['g4',1]],  banner:[1,2],bp:[['g2',2],['g3',4],['g4',2]]},
+   {id:'whale',  w:2, card:1,  renew:1,  rate:.42, packs:[['g3',2],['g4',3],['g5',3],['g6',3]],  banner:[2,5],bp:[['g4',1],['g5',2],['g6',4]]},
+  ],
+  firstDay:[.3,4],                 // hari main sebelum pembelian pertama
+  payday:{dates:[25,26,27,28,1],mul:2.2}, // tanggal gajian: peluang beli ×mul
+  churnMul:.55,                    // pemain yang top up lebih jarang berhenti
+  heroShare:.7,                    // porsi tarikan berbayar ke banner hero
+  VIP:[16000,150000,500000,1500000,4000000,10000000,25000000], // total belanja (Rp) untuk VIP 1..7
+  bankFrom:Date.UTC(2026,10,17,15,0),   // penjualan bot sejak waktu ini dilaporkan ke bot bank (systems/botsale.js)
+ },
+ // ---- emosi gacha: hasil 60 tarikan pertama menentukan semangat bermain ----
+ EMO:{early:60,hoki:{churn:.6,speed:1.08},sial:{churn:1.7,speed:.95},
+  saver:.3,                        // porsi pengejar banner yang suka menabung: melewati sebagian banner, tarik semua saat banner incaran
+  saveCap:90},                     // tabungan (tarikan) maksimum sebelum tidak tahan lagi
+ // ---- hidup yang berubah ----
+ LIFE:{bioEvery:[2,9],             // bio diganti tiap N hari
+  loyal:.5,                        // tetap setia pada hero favorit pertama (sisanya pindah ke ★3 terbatas terbaru)
+  rename:{p:.12,days:[2,14],pool:600}}, // peluang ganti nama sekali, kapan (hari), ukuran kolam nama baru (dibuat Claude)
  GEAR_FROM_DAY:2,             // mulai punya Pelindung/Aksesori
  BENCH_LV:[.35,.7],           // level hero cadangan relatif terhadap cap
  // nama: dibuat Claude (integrasi sample) lalu disimpan bersama di db; hanya huruf & angka

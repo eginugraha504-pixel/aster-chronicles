@@ -58,7 +58,7 @@
 .arlog.l{background:#fdeeea}
 .arlog>img,.arlog .noav{width:38px;height:38px;border-radius:10px;border:2px solid var(--ink);background:#f6e7c2;flex:none}
 .ark{writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;font-weight:900;letter-spacing:1px;color:#fff;padding:4px 2px;border-radius:6px}
-.ark.atk{background:#d8443d}.ark.def{background:#3f7fd8}
+.ark.atk{background:#d8443d}.ark.def{background:#3f7fd8}.ark.def.rv{background:#8a3fd8}
 .ali{display:flex;flex-direction:column;flex:1;min-width:0}
 .ali b{font-family:var(--fh);font-weight:400;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ali small{font-size:10.5px;font-weight:800;color:var(--mut)}

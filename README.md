@@ -46,6 +46,7 @@ src/
       bots.js         dunia pemain bot (kurva progres, profil, nama)
       arena.js        Arena PvP (tiket, liga, hadiah, Elo)
       topup.js        Top Up pura-pura: paket Permata, Kartu Bulanan, secret voucher
+      chat/           OBROLAN DUNIA: style.js (gaya tulis), lines.js (kalimat), threads.js (utas), brain.js (balasan)
     lang/           en.js, ja.js (kunci = teks Indonesia)
     art/            sprite & gambar
       heroes/*.js     sprite kode lama (cadangan) · hero-art.js registri sprite & potret
@@ -59,6 +60,7 @@ src/
       gacha.js · weapons.js · gear.js · dungeons.js · shop.js · mail.js · events.js · stages.js
       battle.js       pertempuran real-time (+ mode simulasi B.sim) · dash.js serangan melee
       bots.js         mesin pemain bot · arena.js mesin Arena PvP
+      chat.js         mesin obrolan dunia · botsale.js penjualan bot -> bank Telegram
       sound.js        SFX sintetis · music.js BGM · voice.js dub · platform.js iOS/Safari
     ui/             layar & modal
       core.js (render, modal, toast) · actions.js (semua data-act) · boot.js (studio, loading, login)
@@ -91,6 +93,8 @@ tools/
 | Bot & peringkat | `js/data/bots.js` (angka), `js/systems/bots.js` (mesin), `js/ui/leaderboard.js` |
 | Top Up (Permata, Kartu Bulanan) | `js/data/topup.js` (paket & harga), `js/systems/topup.js`, `js/ui/topup.js`, bot: `tools/bank_topup/` |
 | Arena PvP | `js/data/arena.js` (angka), `js/systems/arena.js` (mesin), `js/ui/arena.js` |
+| Obrolan dunia (kalimat bot, gaya tulis, balasan) | `js/data/chat/*.js` (isi), `js/systems/chat.js` (mesin), `js/ui/chat.js` |
+| Top up bot, VIP, emosi & hidup bot | `js/data/bots.js` (`SPEND`, `EMO`, `LIFE`) |
 | Splash art | `src/img/splash/`, `js/art/splash.js`, `js/ui/splash.js` |
 | Teks bahasa Inggris / Jepang | `js/lang/en.js`, `js/lang/ja.js` |
 | Tampilan per layar | `js/ui/<layar>.js` + `css/<layar>.css` |

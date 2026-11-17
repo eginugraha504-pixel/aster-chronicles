@@ -13,6 +13,7 @@ css/summon.css
 css/missions.css
 css/battle.css
 css/arena.css
+css/chat.css
 css/boot.css
 css/studio.css
 css/skin.css
@@ -29,6 +30,10 @@ js/data/gear.js
 js/data/bots.js
 js/data/arena.js
 js/data/topup.js
+js/data/chat/style.js
+js/data/chat/lines.js
+js/data/chat/threads.js
+js/data/chat/brain.js
 js/data/enemies.js
 js/data/worlds.js
 js/data/banners.js
@@ -81,6 +86,8 @@ js/systems/dash.js
 js/systems/battle.js
 js/systems/arena.js
 js/systems/topup.js
+js/systems/chat.js
+js/systems/botsale.js
 
 # --- UI layar ---
 js/ui/core.js
@@ -97,6 +104,7 @@ js/ui/actions.js
 js/ui/leaderboard.js
 js/ui/arena.js
 js/ui/topup.js
+js/ui/chat.js
 js/ui/splash.js
 js/ui/boot.js
 

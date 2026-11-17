@@ -16,7 +16,7 @@ function rankDelta(e,k){if(!e.me&&e.isNew)return`<span class="rkd new">${T('BARU
 function rankSorted(){if(rankTab==='ar'){arCheck();return arBoard().slice().concat([arMe()]).sort((a,b)=>b.pts-a.pts||b.cp-a.cp)}const L=botsList();return L.sort(rankTab==='cp'?(a,b)=>b.cp-a.cp||b.lv-a.lv:(a,b)=>b.lv-a.lv||b.cp-a.cp)}
 function rankRow(e,k){const md=k<3?` m${k+1}`:'';return`<button class="rkrow${e.me?' mine':''}" ${e.me?'data-act="closeModal"':`data-act="botView" data-arg="${e.i}"`}>
  <span class="rkn${md}">${k+1}</span><span class="rkav">${e.top?`<img class="px" src="${portrait(e.top)}">`:''}${e.online?'<i class="on"></i>':''}</span>
- <span class="rknm"><b>${e.name}${e.me?` <em>${T('Kamu')}</em>`:''}${rankDelta(e,k)}</b><small>${e.me&&S.rankDay&&S.rankDay.prev&&S.rankDay.prev[rankTab]?T('Kemarin #{n}',{n:S.rankDay.prev[rankTab]}):e.online?T('Online'):T('Aktif {t}',{t:agoMs(Date.now()-e.last)})}</small></span>
+ <span class="rknm"><b>${e.vip?`<i class="vip v${Math.min(7,e.vip)}">VIP${e.vip}</i>`:''}${esc(e.name)}${e.me?` <em>${T('Kamu')}</em>`:''}${rankDelta(e,k)}</b><small>${e.me&&S.rankDay&&S.rankDay.prev&&S.rankDay.prev[rankTab]?T('Kemarin #{n}',{n:S.rankDay.prev[rankTab]}):e.online?T('Online'):T('Aktif {t}',{t:agoMs(Date.now()-e.last)})}</small></span>
  <span class="rkv">${rankTab==='ar'?`<b>${lgIc(e.pts,14)} ${fmt(e.pts)}</b><small>CP ${fmt(e.cp)}</small>`:`<b>${rankTab==='cp'?fmt(e.cp):'Lv '+e.lv}</b><small>${rankTab==='cp'?'Lv '+e.lv:'CP '+fmt(e.cp)}</small>`}</span></button>`}
 function rankListHTML(){const L=rankSorted(),me=L.findIndex(e=>e.me),n=L.length-1,on=L.filter(e=>e.online&&!e.me).length;
  if(!n)return`<p class="sub" style="text-align:center;padding:30px 0">${BOTS.ready?T('Memanggil para petualang...'):T('Memuat pemain...')}</p>`;
@@ -30,7 +30,7 @@ function openRank(){botsInit();botsEnsure();botsEnsureBios();rankBot=null;
 function rankRefresh(){const b=$('#rkBody');if(!b)return;const sc=$('#rkScroll'),top=sc?sc.scrollTop:0;b.innerHTML=rankListHTML();const sc2=$('#rkScroll');if(sc2)sc2.scrollTop=top}
 function rankStartTimer(){if(rankTimer)return;BOTS.seen=botsVisible();
  rankTimer=setInterval(()=>{const open=$('#modal').classList.contains('on')&&($('#rkBody')||$('#botBody'));if(!open){clearInterval(rankTimer);rankTimer=null;return}
-  botsEnsure();const n=botsVisible();if(n>BOTS.seen){for(let i=BOTS.seen;i<n&&i<BOTS.seen+3;i++)toast(T('{n} bergabung ke Aster!',{n:BOTS.names[i]}));BOTS.seen=n}
+  botsEnsure();const n=botsVisible();if(n>BOTS.seen){for(let i=BOTS.seen;i<n&&i<BOTS.seen+3;i++)toast(T('{n} bergabung ke Aster!',{n:botName(i)}));BOTS.seen=n}
   if($('#rkBody'))rankRefresh();else if($('#botBody')&&rankBot!=null)$('#botBody').innerHTML=botBodyHTML(rankBot)},5000)}
 BOTS.onChange=()=>{if($('#rkBody'))rankRefresh()};
 
@@ -41,21 +41,22 @@ function botHeroCard(s,id,big){const h=s.heroes[id],w=h.wpn&&WD[h.wpn],o=w&&s.we
  ${big?`<div class="eqr">${w?`<span title="${w.name}"><img class="px" src="${weaponIcon(h.wpn).url}"><i>${o.lv}</i></span>`:''}${h.ar?`<span><img class="px" src="${gearIcon(h.ar).url}"><i>+${s.gear[h.ar].lv}</i></span>`:''}${h.ac?`<span><img class="px" src="${gearIcon(h.ac).url}"><i>+${s.gear[h.ac].lv}</i></span>`:''}</div>`:''}</div>`}
 function botBodyHTML(i){const s=botState(i),p=botPresence(i),b=botBase(i),now=Date.now();
  const ids=Object.keys(s.heroes).sort((x,y)=>(y===s.fav)-(x===s.fav)||HD[y].r-HD[x].r||s.heroes[y].lv-s.heroes[x].lv);const L=rankSorted(),rk=L.findIndex(e=>e.i===i)+1;
- const bio=botBio(i,s,rk),st=s.stats,LUCK={hoki:T('Hoki'),normal:T('Normal'),sial:T('Apes')};
+ const bio=botBio(i,s,rk,now),st=s.stats,LUCK={hoki:T('Hoki'),normal:T('Normal'),sial:T('Apes')},old=botOldName(i,now);
  return`<div class="bprof"><div class="bpav">${s.fav?`<img class="px" src="${portrait(s.fav)}">`:''}${p.online?'<i class="on"></i>':''}</div>
-  <div class="bpinf"><b>${BOTS.names[i]}</b><span>${p.online?`<em class="ok">${T('Online')}</em>`:T('Aktif {t}',{t:agoMs(now-p.last)})}${b.back&&now>=b.segs[2][0]?` · <em class="ok">${T('Kembali bermain!')}</em>`:''}</span><span>${T('Bergabung {t}',{t:agoMs(now-b.join)})}</span></div></div>
+  <div class="bpinf"><b>${st.vip?`<i class="vip v${Math.min(7,st.vip)}">VIP${st.vip}</i>`:''}${esc(botName(i,now))}</b>${old?`<small class="bold">${T('Sebelumnya: {n}',{n:esc(old)})}</small>`:''}<span>${p.online?`<em class="ok">${T('Online')}</em>`:T('Aktif {t}',{t:agoMs(now-p.last)})}${b.back&&now>=b.segs[2][0]?` · <em class="ok">${T('Kembali bermain!')}</em>`:''}</span><span>${T('Bergabung {t}',{t:agoMs(now-b.join)})}</span></div></div>
+ ${st.card||st.held>=10?`<div class="bbadges">${st.card?`<span class="bb card">${T('Kartu Bulanan')}</span>`:''}${st.held>=10?`<span class="bb save">${T('Menabung {n} tarikan',{n:st.held})}</span>`:''}</div>`:''}
  ${bio?`<div class="bbio">“${esc(bio)}”</div>`:''}
  <div class="stats"><div><span>${T('Level')}</span><b>${s.lv}</b></div><div><span>CP</span><b>${fmt(s.cp)}</b></div><div><span>${T('Peringkat')}</span><b>#${rk}</b></div><div><span>${T('Tahap')}</span><b>${s.stage}</b></div></div>
  <div class="bstat"><div><b>${fmt(st.sum)}</b><span>${T('Total summon')}</span></div><div><b>${st.s3}${st.lim3?` <i>(${st.lim3} ${T('terbatas')})</i>`:''}</b><span>${T('★3 didapat')}</span></div><div><b>${st.days}</b><span>${T('Hari login')}</span></div><div><b>${st.hours<10?st.hours.toFixed(1):Math.round(st.hours)} ${T('jam')}</b><span>${T('Waktu main')}</span></div><div class="lk ${st.luck}"><b>${LUCK[st.luck]}</b><span>${T('Gacha')}</span></div></div>
  <div class="sec">${T('Tim Utama')}</div><div class="bteam">${s.team.map(id=>botHeroCard(s,id,true)).join('')}</div>
  <div class="sec">${T('Koleksi Hero')} · ${ids.length}/${HEROES.length}</div><div class="broster">${ids.map(id=>botHeroCard(s,id,false)).join('')}</div>
  <p class="sub" style="text-align:center;margin-top:6px">${T('Senjata dimiliki: {n}',{n:Object.keys(s.weapons).length})} · ${T('Perlengkapan: {n}',{n:Object.keys(s.gear).length})}</p>`}
-function openBot(i){i=+i;if(!(i<botsVisible()))return;rankBot=i;botsEnsureBios();
- modal(`<button class="btn red mclose" data-act="rank">‹</button><h3>${T('Profil Pemain')}</h3><div id="botBody">${botBodyHTML(i)}</div>`);rankStartTimer()}
+function openBot(i,back){i=+i;if(!(i<botsVisible()))return;rankBot=i;botsEnsureBios();
+ modal(`<button class="btn red mclose" data-act="${back||'rank'}">‹</button><h3>${T('Profil Pemain')}</h3><div id="botBody">${botBodyHTML(i)}</div>`);rankStartTimer()}
 
 Object.assign(ACT,{rank:()=>openRank(),rankTab:a=>{rankTab=a;openRank()},botView:i=>openBot(i)});
 // mulai dunia bot sesaat setelah game siap (nama dibuat Claude bila tersedia)
-setTimeout(()=>{botsInit();botsWarm();setInterval(botsEnsure,30e3);setInterval(()=>botsWarm(),120e3)},2500);
+setTimeout(()=>{botsInit();botsWarm();setInterval(()=>{botsEnsure();botsEnsureRenames()},30e3);setInterval(()=>botsWarm(),120e3)},2500);
 
 // awal ulang dunia bot: potret peringkat lama tidak berlaku lagi
 function rankReset(){RANK_PREV=null}

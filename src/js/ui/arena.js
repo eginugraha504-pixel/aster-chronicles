@@ -38,7 +38,7 @@ function arOppHTML(){const A=S.arena,opps=arOpps(),my=teamPow(),qk=A.wins>0;
  const cards=opps.map(o=>{const st=botState(o.i),pts=arBotPtsNow(o.i)??o.pts,L=arLg(pts),r=st.cp/Math.max(1,my),df=r<.85?['easy',T('Mudah')]:r<1.15?['even',T('Setara')]:['hard',T('Sulit')],p=botPresence(o.i);
   return`<div class="panel aropp" style="--oc:${L.c}"><span class="ardf ${df[0]}">${df[1]}</span>
   <button class="aroav" data-act="arBot" data-arg="${o.i}">${st.fav?`<img class="px" src="${portrait(st.fav)}">`:''}${p.online?'<i class="on"></i>':''}</button>
-  <div class="aroi"><b>${esc(BOTS.names[o.i])}</b><span>${lgIc(pts,14)} ${T(L.n)} · <b>${fmt(pts)}</b></span><span>Lv ${st.lv} · CP <b>${fmt(st.cp)}</b></span>${arTeamMini(st,st.team)}</div>
+  <div class="aroi"><b>${esc(botName(o.i))}</b><span>${lgIc(pts,14)} ${T(L.n)} · <b>${fmt(pts)}</b></span><span>Lv ${st.lv} · CP <b>${fmt(st.cp)}</b></span>${arTeamMini(st,st.team)}</div>
   <div class="aroa"><span class="arex"><em class="aup">+${arDelta(A.pts,pts,true,ARENA_CFG.kAtk)}</em><em class="adn">${arDelta(A.pts,pts,false,ARENA_CFG.kAtk)}</em></span>
    <button class="btn" data-act="arFight" data-arg="${o.i}">${T('Tantang')}</button>
    <button class="btn blue sm${qk?'':' lk'}" data-act="arQuick" data-arg="${o.i}">${qk?'⏩ ':ic('lock',11)+' '}${T('Cepat')}</button></div></div>`}).join('');
@@ -63,9 +63,9 @@ function arDefPick(i){const A=S.arena,ids=Object.keys(S.heroes).sort((a,b)=>hero
 /* ---- riwayat ---- */
 function arLogHTML(){const A=S.arena;A.unseen=0;save();
  if(!A.log.length)return`<p class="sub arload">${T('Belum ada pertarungan. Tantang lawan pertamamu!')}</p>`;
- return`<div class="arlogs">${A.log.map(e=>{const nm=BOTS.names[e.i]||'???',st=e.i<botsVisible()?botState(e.i):null,me=e.k==='atk';
-  const txt=me?(e.win?T('Kamu menang melawan'):T('Kamu kalah dari')):(e.win?T('Menahan serangan'):T('Timmu dikalahkan'));
-  return`<div class="arlog ${e.win?'w':'l'}"><span class="ark ${me?'atk':'def'}">${me?T('SERANG'):T('BERTAHAN')}</span>${st&&st.fav?`<img class="px" src="${portrait(st.fav)}">`:'<span class="noav"></span>'}
+ return`<div class="arlogs">${A.log.map(e=>{const nm=e.i<BOTS.names.length?botName(e.i,e.t):'???',st=e.i<botsVisible()?botState(e.i):null,me=e.k==='atk';
+  const txt=me?(e.win?T('Kamu menang melawan'):T('Kamu kalah dari')):e.bRev?(e.win?T('Menahan balas dendam'):T('Dibalas dendam oleh')):(e.win?T('Menahan serangan'):T('Timmu dikalahkan'));
+  return`<div class="arlog ${e.win?'w':'l'}"><span class="ark ${me?'atk':e.bRev?'def rv':'def'}">${me?T('SERANG'):e.bRev?T('DENDAM'):T('BERTAHAN')}</span>${st&&st.fav?`<img class="px" src="${portrait(st.fav)}">`:'<span class="noav"></span>'}
   <div class="ali"><small>${txt}</small><b>${esc(nm)}</b><small>CP ${fmt(e.cp||0)} · ${agoTxt(e.t)}</small></div><span class="ard ${e.d>=0?'aup':'adn'}">${e.d>=0?'+':''}${e.d}</span>
   ${!me&&!e.win&&!e.rev&&st?`<button class="btn sm" data-act="arRev" data-arg="${e.id}">${T('Balas')}</button>`:''}</div>`}).join('')}</div>`}
 

@@ -21,6 +21,8 @@ const ARENA_CFG={
  refreshCd:10,          // detik jeda tombol "Cari Lawan Lain"
  // serangan bot ke tim bertahanmu: peluang per jam & batas per kali hitung (setelah pertama kali bertarung)
  defPerHour:.17,defMax:8,
+ // balas dendam bot yang kamu kalahkan: peluang per gaya main, jeda (menit) sebelum menyerang di sesi online berikutnya
+ revenge:{p:{santai:.25,reguler:.45,rajin:.6,hardcore:.8},delay:[2,40]},
  // hadiah per pertarungan
  battle:{win:{gold:2500,exp:40},lose:{gold:800,exp:15}},
  // liga: min = poin minimum. day = hadiah harian, week = hadiah akhir musim
