@@ -19,16 +19,18 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       BOT_TOKEN: ${{ secrets.BANK_BOT_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
       - run: npm i -g wrangler@4
       - name: Cek secret
         run: |
+          miss=0
           for v in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID BOT_TOKEN; do
-            if [ -z "${!v}" ]; then echo "::error::Secret $v belum diisi di GitHub (Settings > Secrets and variables > Actions)"; exit 1; fi
+            if [ -z "${!v}" ]; then echo "::error::Secret $v KOSONG"; miss=1; else echo "OK $v (${#v} karakter)"; fi
           done
+          [ $miss = 0 ] || { echo "::error::Isi di Settings > Secrets and variables > Actions > tab Secrets > Repository secrets (BANK_BOT_TOKEN untuk token bot)"; exit 1; }
       - name: Database D1 (dibuat sekali)
         run: |
           getid() { wrangler d1 list --json | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const d=JSON.parse(s).find(x=>x.name==='aster-bank');console.log(d?d.uuid:'')})"; }
