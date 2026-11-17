@@ -1,4 +1,5 @@
 # Bank Central Universe (bot Telegram) + API Top Up Aster Chronicles — Cloudflare Workers (gratis)
+# Secret: BOT_TOKEN, ANTHROPIC_API_KEY (Mode AI) — dari GitHub secret, dipasang workflow.
 # Di-deploy otomatis oleh GitHub Actions (.github/workflows/bank-worker.yml). database_id diisi otomatis oleh workflow.
 name = "aster-bank"
 main = "src/index.js"
@@ -8,6 +9,8 @@ workers_dev = true
 [vars]
 ASTER_SECRET = "HUN2-aster-7Qm4Xc9TzR2kLw8B"   # harus sama dengan TOPUP_CFG.secret di game
 SALDO_AWAL = "117456000"                        # saldo awal pemilik saat pertama /start (= saldo terakhir di bank lama PC)
+AI_MODEL = "claude-haiku-5-5"                   # model Mode AI obrolan
+AI_DAILY = "2000"                               # batas panggilan AI per hari (semua pemain)
 
 [[d1_databases]]
 binding = "DB"

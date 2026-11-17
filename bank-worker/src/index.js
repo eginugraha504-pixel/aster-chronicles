@@ -4,11 +4,13 @@
    ---------------------------------------------------------------------
    POST /tg                 webhook Telegram (dicek dengan header secret token)
    GET  /api/order/<ID>     dipakai game: {st:'wait'} atau {st:'paid', c:'XXXXX-XXXXX'}  (CORS terbuka)
+   POST /api/ai, GET /api/ai/status   Mode AI obrolan (Claude Haiku 5.5) — lihat src/ai.js
    POST /api/botsale        dipakai game: penjualan top up para pemain bot -> pemasukan HUN2 STUDIO (ditandatangani HMAC)
    GET  /setup?k=<hook>     pasang webhook + daftar perintah (dipanggil workflow setelah deploy)
    Secret: BOT_TOKEN (wrangler secret). Var: ASTER_SECRET (= TOPUP_CFG.secret di game), SALDO_AWAL.
    Pemilik rekening = akun Telegram pertama yang menekan Start setelah bot dipasang.
    ===================================================================== */
+import { aiRoute } from './ai.js';
 const BANK = 'Bank Central Universe';
 const MERCHANT = { key: 'hun2studio', name: 'HUN2 STUDIO' };
 // harus sama dengan TOPUP_CFG di game (src/js/data/topup.js)
@@ -216,6 +218,7 @@ export default {
       const o = await env.DB.prepare('SELECT id,sku,price,code,ts FROM orders WHERE id=?').bind(om[1]).first();
       return json(o ? { st: 'paid', id: o.id, sku: o.sku, p: o.price, c: o.code, t: o.ts } : { st: 'wait' });
     }
+    if (p === '/api/ai' || p === '/api/ai/status') return aiRoute(req, env, url, json, hookSecret);
     if (p === '/api/botsale' && req.method === 'POST') { try { return await botSale(env, req) } catch (e) { console.error(e); return json({ ok: false, e: 'server' }, 500) } }
     if (p === '/tg' && req.method === 'POST') {
       if (req.headers.get('X-Telegram-Bot-Api-Secret-Token') !== await hookSecret(env)) return new Response('forbidden', { status: 403 });

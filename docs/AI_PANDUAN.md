@@ -1,0 +1,67 @@
+# Panduan Aster Chronicles untuk AI (Mode AI obrolan)
+
+File ini adalah pengetahuan tangan yang digabungkan oleh `tools/gen_knowledge.mjs` dengan data game
+(hero, senjata, tahap, toko, event, dst. diambil otomatis dari `src/js/data/*.js`) menjadi
+`bank-worker/src/knowledge.js`. Pengetahuan itulah yang dibaca Claude Haiku saat menulis obrolan para pemain bot.
+Ubah/tambah teks di sini bila ada fitur baru yang perlu dijelaskan dengan kata-kata.
+
+## Tentang game
+- Aster Chronicles: Ksatria Piksel — game gacha RPG pixel anime (chibi) buatan HUN2 STUDIO, layar potret, bisa dimainkan di HP (iPhone) lewat browser.
+- Cerita: kegelapan menyelimuti Kerajaan Aster. Pemain adalah "Kapten" yang memimpin para ksatria (semua hero perempuan) menembus 5 dunia sampai Puncak Aster dan mengalahkan Ksatria Kegelapan yang mencuri kekuatan fajar. Ratu Aster dan Pandai Besi Bram mengirim surat dan hadiah.
+- Semua hero bersuara dub Jepang. Splash art ★3 bergerak (Live2D: bernapas, rambut berkibar, berkedip). Ada musik khusus layar login dan musik menu.
+- Bahasa UI: Indonesia, Inggris, Jepang.
+
+## Navigasi layar
+- Bar atas: avatar + level akun, Stamina (petir), Emas (koin), Permata (berlian, tombol + membuka Top Up).
+- Beranda: hero pilihan berdiri besar di tengah (geser ‹ › untuk ganti, ketuk = ia bereaksi dan bicara), banner gacha berputar di atas, tombol kiri (Event, Misi, Hadiah/Kotak Surat, Toko), kanan (CP Tim, Tim, Peringkat, Menu/Pengaturan), bawah (ARENA, PETUALANGAN, EVENT), strip Obrolan Dunia di atas tombol Arena.
+- Bilah bawah: Beranda, Petualangan, Tim, Hero, Summon, Misi.
+- Menu/Pengaturan: bahasa, efek suara, musik, suara karakter (dub Jepang), Mode AI obrolan, hapus progres, reset dunia bot.
+
+## Cara bermain inti
+1. Petualangan > Cerita: 5 dunia × 5 tahap (1-1 sampai 5-5). Tahap ke-5 tiap dunia adalah BOS. Tiap tahap butuh stamina (6, bos 8) dan punya CP rekomendasi. Kemenangan pertama memberi permata (bos lebih banyak). Bintang tahap (maks 3) dari seberapa bagus menang.
+2. Pertempuran real-time otomatis: hero menyerang sendiri; skill bisa diaktifkan dengan mengetuk kartu hero (atau Auto), kecepatan ×1/×2, jeda, keluar. Beberapa gelombang musuh; hero yang hidup pulih 25% HP tiap ganti gelombang. Hero jarak dekat melakukan dash serang.
+3. Tim: 4 slot. Tombol Tim Otomatis menyusun tim terkuat. CP Tim = kekuatan gabungan + bonus: Resonansi elemen (2 sama +5%, 3 +10%, 4 +15%), Formasi Seimbang (ada Penjaga + Pendukung) +12%, Tim Lengkap 4 hero +3%, tiap Senjata Signature di pemiliknya +2%.
+4. Level akun naik dari EXP tahap; tiap naik level +20 stamina. Level hero maksimum = level akun × 2 + 10 (dan batas per bintang: ★1 30, ★2 40, ★3 50, +2 per Limit Break). Naik level hero pakai emas.
+5. Stamina maks 60, +1 tiap 2 menit; bisa dibeli di Toko Emas.
+6. Dungeon (Petualangan > tab Dungeon): Tambang Bijih (Bijih Tempa untuk level senjata, drop Pelindung) dan Kuil Bintang (Serpihan/Kristal/Inti Bintang untuk Limit Break senjata, drop Aksesori). Tingkat dungeon terbuka sesuai tahap cerita yang sudah selesai.
+
+## Gacha (Summon)
+- Banner hero & banner senjata, pity terpisah. 1× = 300 permata, 10× = 2.700 permata (atau Tiket Hero/Tiket Senjata). Ada 1 summon gratis harian di banner hero.
+- Peluang: ★3 3%, ★2 19%, ★1 78%. Soft pity mulai tarikan ke-66 (+6% tiap tarikan), hard pity 80 = ★3 pasti. Pity terbawa antar banner.
+- Rate On/Off: di banner rate-up, ★3 punya peluang 50% (senjata 75%) jadi item rate-up. Kalau kalah (rate off), ★3 berikutnya DIJAMIN rate-up.
+- Banner terbatas: hero terbatas (Raika, Sakuya) hanya ada di banner-nya; senjata signature mereka ikut terbatas. 10× menjamin minimal satu ★2.
+- Duplikat hero = Limit Break (+1, maks +5): stat naik 10% dan batas level +2. Duplikat setelah +5 jadi Lencana Ksatria (★1: 1, ★2: 5, ★3: 25) untuk Toko Lencana.
+
+## Senjata & perlengkapan
+- Tiap hero memakai 1 senjata sesuai kelasnya (Pedang, Busur, Tongkat, Perisai, Kapak). Senjata signature (milik hero tertentu) memberi efek tambahan bila dipakai pemiliknya.
+- Level senjata pakai Bijih Tempa (Kecil 100 EXP, Biru 400, Ungu 1.500) + emas. Batas level 20/30/40/50/60 per tahap Limit Break senjata (0–4); Limit Break senjata pakai Serpihan/Kristal/Inti Bintang + emas.
+- Senjata/perlengkapan duplikat disimpan sebagai salinan: pasang ke hero lain, Tempa (lebur salinan ke senjata utama, +10% stat, maks 5), atau Lebur jadi material.
+- Pelindung (HP+DEF) & Aksesori (ATK+Crit) untuk semua hero, bisa di-enhance (+5/+10/+15 menurut bintang) dengan emas & bijih. Bos dunia memberi item pasti pada kemenangan pertama.
+
+## Ekonomi & hadiah
+- Permata dari: kemenangan pertama tahap, misi harian, pencapaian, event, Kotak Surat, hadiah Arena, Top Up.
+- Misi harian (reset 00:00 WIB) + bonus semua misi. Pencapaian permanen. Event: Login Pemula 7 Hari (hari ke-7 pilih hero ★3), Misi Pemula, event terbatas seperti Festival Badai Raijin.
+- Kotak Surat (tombol Hadiah): paket pemula (1.500 permata, 10 Tiket Hero, 5 Tiket Senjata, Pedang Perak ★2, bahan tempa, Pilih 1 Hero ★3), hadiah Arena, permata harian Kartu Bulanan.
+- Toko: Toko Emas (bijih, material bintang, stamina, tiket; stok reset harian), Toko Lencana (tukar Lencana Ksatria: pilih hero ★3 standar 300, senjata ★3 standar 200, tiket, bijih), dan Top Up.
+- Top Up (uang mainan): paket permata Rp16rb–Rp1,599jt dengan bonus 2× pada pembelian pertama tiap paket, Kartu Bulanan Rp79rb (600 permata langsung + 180/hari selama 30 hari lewat Kotak Surat). Dibayar lewat bot Telegram "Bank Central Universe"; permata masuk otomatis. Total belanja menentukan tingkat VIP 1–7 yang terlihat di peringkat & chat.
+
+## Arena PvP
+- Lawan = pemain lain di peringkat (tim & CP asli mereka). 5 tiket per hari (reset 00:00 WIB). Pilih dari 3 lawan (lebih lemah/setara/lebih kuat), Cari Lawan Lain, Pertarungan Cepat (setelah 1 kemenangan).
+- Poin Elo: menang lawan yang lebih kuat = poin lebih besar. Liga: Perunggu (0), Perak (1150), Emas (1300), Platinum (1450), Berlian (1600), Legenda (1800). Musim mingguan mulai Senin 00:00 WIB; poin di atas 1000 dipotong setengah saat musim baru.
+- Batas 90 detik (habis = penyerang kalah). Setelah 15 detik "Kemarahan Arena": damage naik 7%/detik, penyembuhan di Arena ×0,7.
+- Tim Bertahan: pemain lain menyerangnya saat mereka online; riwayat ada di tab Riwayat. Kekalahan bertahan bisa dibalas (tombol Balas). Pemain yang kamu kalahkan juga bisa balas dendam.
+- Hadiah harian (sesuai liga, bila bertarung hari itu) dan hadiah akhir musim lewat Kotak Surat.
+
+## Peringkat & dunia pemain
+- Peringkat: tab CP Tim, Level, Arena. Ada label BARU (pemain baru) dan KEMBALI (kembali main), indikator online, naik/turun peringkat.
+- Server berisi ribuan pemain lain (bertambah sampai 10.000) yang bermain di jam masing-masing (ramai malam hari WIB), ada yang santai, reguler, rajin, hardcore; ada yang gratis, pakai Kartu Bulanan, belanja sedang, sampai sultan. Ada yang menabung permata untuk banner tertentu, ada yang ganti nama, ada yang berhenti lalu kembali saat banner baru.
+- Profil pemain: favorit, tim utama, koleksi hero, total summon, ★3 didapat, hari login, waktu main, status hoki/apes gacha, bio, VIP, Kartu Bulanan.
+
+## Obrolan Dunia
+- Chat global semua pemain. Pengumuman [Sistem] saat seseorang mendapat ★3 terbatas. Ketuk nama untuk melihat profil. Sebut nama dengan @nama.
+
+## Tips yang benar (boleh dipakai pemain saat menjawab)
+- Kalah di tahap: naikkan level hero, level & Limit Break senjata (dungeon), pasang Pelindung & Aksesori, manfaatkan keunggulan elemen (api > tanah > air > api; cahaya ⟷ gelap saling kuat ×1,3; kalah elemen ×0,75), pakai Penjaga + Pendukung.
+- Permata sebaiknya untuk banner rate-up yang diinginkan; Tiket Hero bisa dipakai di banner mana pun.
+- Senjata signature pada pemiliknya = efek tambahan + bonus CP.
+- Bos dunia: 1-5 Raja Goblin, 2-5 Slime Kristal Raksasa, 3-5 Ksatria Kegelapan, 4-5 slime raksasa yang menelan inti api di Sarang Badai, 5-5 Ksatria Kegelapan yang bangkit lagi di Takhta Puncak.

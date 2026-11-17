@@ -36,6 +36,10 @@ function chatStripHTML(){const L=chatVisible().filter(m=>!m.sys||m.me).slice(-2)
 function chatTick(){if(!botsWarmOk()||!BOTS.names.length)return;try{chatPump()}catch(e){console.error(e)}const now=Date.now();
  if(chatOpen&&$('#chList'))chatRefresh();else{chatOpen=false;const L=chatVisible(now).filter(m=>m.t>CHAT.seenT&&!m.me);CHAT.unread=L.filter(m=>!m.sys).length;
   const at=L.filter(chMine);if(at.length>CHAT.mention){const m=at[at.length-1];toast(T('{n} menyebutmu di obrolan',{n:chName(m)}))}CHAT.mention=at.length}
+ try{chatAiScene(now)}catch(e){}
  const st=$('#hchat');if(st)st.innerHTML=chatStripHTML();if(now-(CHAT.coAt||0)>6e4){CHAT.coAt=now;try{chatCallouts(now)}catch(e){}}}
 setTimeout(()=>setInterval(chatTick,1500),3500);
 Object.assign(ACT,{chat:()=>openChat(),chatQuick:q=>{const i=$('#chIn');if(i){i.value=q;i.focus()}},chatBot:i=>{chatOpen=false;openBot(+i,'chat')}});
+// status server AI di Pengaturan
+{const _set=ACT.settings;ACT.settings=(...a)=>{_set(...a);if(!aiOn())return;fetch(TOPUP_CFG.api.replace(/\/$/,'')+'/api/ai/status').then(r=>r.json()).then(o=>{const e=$('#aiStat');if(!e)return;
+ e.insertAdjacentHTML('beforeend',`<br><b style="color:${o.on?'#2f8a3a':'#b03a2a'}">${o.on?T('Server AI aktif · {n}/{m} panggilan hari ini',{n:fmt(o.today),m:fmt(o.limit)}):T('Server AI belum aktif (token belum dipasang di GitHub secret ANTHROPIC_API_KEY).')}</b>`)}).catch(()=>{})}}

@@ -94,6 +94,7 @@ tools/
 | Top Up (Permata, Kartu Bulanan) | `js/data/topup.js` (paket & harga), `js/systems/topup.js`, `js/ui/topup.js`, bot: `tools/bank_topup/` |
 | Arena PvP | `js/data/arena.js` (angka), `js/systems/arena.js` (mesin), `js/ui/arena.js` |
 | Obrolan dunia (kalimat bot, gaya tulis, balasan) | `js/data/chat/*.js` (isi), `js/systems/chat.js` (mesin), `js/ui/chat.js` |
+| Mode AI obrolan (Haiku) & pengetahuan game AI | `docs/AI_PANDUAN.md` (panduan), `tools/gen_knowledge.mjs`, server `bank-worker/src/ai.js` |
 | Top up bot, VIP, emosi & hidup bot | `js/data/bots.js` (`SPEND`, `EMO`, `LIFE`) |
 | Splash art | `src/img/splash/`, `js/art/splash.js`, `js/ui/splash.js` |
 | Teks bahasa Inggris / Jepang | `js/lang/en.js`, `js/lang/ja.js` |

@@ -49,3 +49,8 @@ out=shell.replace('__STUDIO_LOGO__',stlogo).replace('<!-- @css -->',cssb).replac
 os.makedirs(os.path.join(ROOT,'dist'),exist_ok=True)
 open(os.path.join(ROOT,'dist','index.html'),'w',encoding='utf-8').write(out)
 print(f'dist/index.html  {len(out)//1024} KB  ({len(css)} css, {len(js)} js)')
+# pengetahuan game untuk Mode AI (server bank-worker) -> bank-worker/src/knowledge.js
+import shutil,subprocess
+if shutil.which('node'):
+    try:subprocess.run(['node',os.path.join(ROOT,'tools','gen_knowledge.mjs')],check=True)
+    except Exception as e:print('gen_knowledge gagal:',e)

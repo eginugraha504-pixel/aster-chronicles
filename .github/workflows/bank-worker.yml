@@ -18,6 +18,7 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       BOT_TOKEN: ${{ secrets.BANK_BOT_TOKEN }}
+      AI_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -42,6 +43,9 @@ jobs:
       - run: wrangler deploy
       - name: Token bot
         run: printf '%s' "$BOT_TOKEN" | wrangler secret put BOT_TOKEN
+      - name: Token AI (Mode AI obrolan, opsional)
+        run: |
+          if [ -n "$AI_KEY" ]; then printf '%s' "$AI_KEY" | wrangler secret put ANTHROPIC_API_KEY; else echo "ANTHROPIC_API_KEY kosong: Mode AI mati"; fi
       - name: Pasang webhook Telegram
         run: |
           SUB=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(JSON.parse(s).result.subdomain||'')}catch(e){console.log('')}})")
@@ -52,3 +56,6 @@ jobs:
           curl -s "$URL/setup?k=$K"; echo
           echo "### ✅ Bank aktif di $URL" >> $GITHUB_STEP_SUMMARY
           echo "Isi alamat ini di game: \`TOPUP_CFG.api = '$URL'\`" >> $GITHUB_STEP_SUMMARY
+          echo "### Mode AI" >> $GITHUB_STEP_SUMMARY
+          AIS=$(curl -s "$URL/api/ai/status?ping=$K" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{const o=JSON.parse(s);console.log((o.on?'aktif':'mati')+' · model '+o.model+' · uji: '+(o.ping||'-')+(o.served?' ('+o.served+')':''))}catch(e){console.log('status tidak terbaca')}})")
+          echo "$AIS"; echo "$AIS" >> $GITHUB_STEP_SUMMARY
