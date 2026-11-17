@@ -1,0 +1,29 @@
+{
+ "hero": "marisa",
+ "splash": {
+  "model": "gpt_image_2_6_flare",
+  "job": "2d1c2164-7f57-4035-8734-36897847debc",
+  "params": {
+   "aspect_ratio": "3:4",
+   "quality": "high",
+   "resolution": "2k",
+   "background": "transparent"
+  },
+  "refs": [
+   "splash seraphine (Egi)",
+   "splash noa (Egi)"
+  ]
+ },
+ "sprite": {
+  "model": "nano_banana_pro",
+  "job": "e56e007e-2950-41e0-9917-880c5782e4f7",
+  "refs": [
+   "e76edb88-0a55-4e18-bdf6-41f5a1136fc6 (lembar gaya Seraphine)",
+   "2d1c2164-... (splash Marisa)"
+  ],
+  "aspect_ratio": "16:9",
+  "resolution": "2k",
+  "prompt": "Match EXACTLY the art style, pixel density, chibi proportions, outline and shading of the FIRST reference image (an animation sprite sheet); use the other reference image(s) only for this character's design and colors. Pixel art animation sprite sheet of ONE chibi anime girl for a side-view 2D mobile RPG battle, exactly 8 frames in a perfectly regular grid of 4 columns and 2 rows, each frame centered in its own equal cell with generous padding, the character ALWAYS faces RIGHT (three-quarter view toward the right), identical size in every cell with feet on the same baseline, full body, cute chibi proportions (head about 40 percent of height), big sparkling anime eyes, expressive face, crisp clean dark outline, soft cel shading, vibrant palette, the exact same outfit, colors, hair and weapon in all 8 frames. Frames in reading order: 1 idle standing relaxed holding the weapon, 2 idle breathing (slightly lower, hair settling), 3 walking right foot forward, 4 walking left foot forward, 5 raising the staff overhead to charge magic, 6 thrusting the staff forward to the right with a magic spark at its tip, 7 hurt: recoiling backward with eyes squeezed shut, 8 casting her skill: raising the dragon staff with a small swirling water dragon and sparkling healing droplets. Character: Marisa, the Horned Healer, a cheerful dragon-knight girl: long voluminous wavy teal hair with white tips, small pale-blue ice-crystal dragon horns, a teal scaled dragon tail with light belly scales, big golden eyes, happy smile with a tiny fang, silver dragon-scale light armor with coral pink trims, white and teal frilled short skirt, teal cape with coral pink lining, silver armored boots, holding a long silver staff topped with a dragon head holding a glowing aqua water orb and coral pink ribbons. No background scenery, no ground, no shadow, no text, no frame borders, no grid lines. Background: absolutely flat uniform pure magenta #FF00FF.",
+  "olah": "hapus tanda X merah di frame 7, lalu spritify.build(target_h=70) -> src/img/sprites/h_marisa.webp (lossless)"
+ }
+}

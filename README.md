@@ -40,7 +40,7 @@ src/
     data/           <<< KONTEN & ANGKA — paling sering diedit
       config.js       balance: rate gacha, pity, harga, stat, bonus CP, stamina
       elements.js     elemen, role, tipe skill, kelas senjata
-      heroes.js       12 hero (stat, skill, dialog lines/poke)
+      heroes.js       13 hero (stat, skill, dialog lines/poke)
       weapons.js · gear.js · materials.js · enemies.js · worlds.js · dungeons.js
       banners.js · missions.js · events.js · mail.js · shop.js
       bots.js         dunia pemain bot (kurva progres, profil, nama)

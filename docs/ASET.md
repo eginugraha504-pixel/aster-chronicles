@@ -8,7 +8,7 @@ Aturan umum:
 
 | Aset | Siap pakai (`src/`) | Disuntik build sebagai | Bahan & skrip (`art_src/`) | Kode |
 |---|---|---|---|---|
-| Splash art 12 hero | `img/splash/<hero>.webp` (tinggi 1100) | `SPLASH_SRC` | `splash/<hero>.png` (dari Egi), `splash/key.py` | `art/splash.js`, `ui/splash.js` |
+| Splash art 13 hero | `img/splash/<hero>.webp` (tinggi 1100) | `SPLASH_SRC` | `splash/<hero>.png` (dari Egi), `splash/key.py` | `art/splash.js`, `ui/splash.js` |
 | Live2D ★3 | `img/rig/<hero>_mask.png`, `_eyes.png` | `RIG_SRC` | `rig/masks.py`, `eyebox.json`, `eyegeo.json` | `art/live2d.js` |
 | Sprite battle | `img/sprites/h_<hero>.webp`, `e_<musuh>.webp`, `fx_melee.webp` | `SPRITE_SRC` | `sprites/prompts.py`, `mk.py`, `spritify.py` | `art/imgsprite*.js` |
 | Latar | `img/bg/w_*.webp`, `m_*.webp`, `key.webp`, `home_*.webp` | `BGIMG_SRC` | `full_*.png` | `art/bgart.js` |
@@ -16,13 +16,14 @@ Aturan umum:
 | Skin UI | `img/ui/*.webp` | variabel CSS `--ui-*` | `ui_kit/*.png`, `uikit.py`, `seg.py` | `css/skin.css` |
 | Logo studio | `img/studio/logo.webp` | `__STUDIO_LOGO__` di HTML | — | `ui/boot.js`, `css/studio.css` |
 | Musik | `audio/login.mp3`, `audio/game.mp3` (96 kbps) | `MUSIC_SRC` | — | `systems/music.js` |
-| Suara | `voice/<kunci>.mp3` (75 klip) | `VOICE_SRC` | `voice/voices.json` + `tools/voice.py` | `systems/voice.js` |
+| Suara | `voice/<kunci>.mp3` (82 klip) | `VOICE_SRC` | `voice/voices.json` + `tools/voice.py` | `systems/voice.js` |
 | Font | `fonts/*.woff2` | data URI di CSS | — (`tools/subset_ja.py`) | `css/fonts.css` |
 
 ## Splash Art (ilustrasi anime)
 - Taruh file `src/img/splash/<heroId>.webp` dengan latar transparan. `build.py` menyisipkannya otomatis sebagai `SPLASH_SRC`. Hero tanpa file tetap memakai sprite piksel.
 - Dari hasil greenscreen: hapus hijau (alpha dari selisih G − max(R,B), lalu despill), potong ke tepi karakter, tinggi 1000 px, WebP kualitas ±84 (±110 KB per hero).
 - `js/art/splash.js`: `splash(id)`, `splashHTML(id,cls)`, dan `SPLASH_FOCUS` (titik wajah [x%,y%] untuk crop cut-in skill). Isi focus untuk setiap splash baru.
+- **Marisa** (hero ke-13): splash dibuat dengan **GPT Image 2.6 Flare** (`gpt_image_2_6_flare`, `background: transparent`, quality high, 2k, 3:4) memakai splash Seraphine & Noa buatan Egi sebagai referensi gaya → PNG transparan 1744×2336 langsung, tanpa chroma key. Cara ini dipakai untuk semua splash hero baru.
 - **Splash 12 hero = versi terbaru dari Egi** (PNG transparan 1744×2336, sumber di `art_src/splash/<id>.png`). Di-crop ke batas karakter (+8 px), di-resize ke tinggi 1100 px, lalu disimpan sebagai webp q88 di `src/img/splash/`. Titik fokus wajah ada di `SPLASH_FOCUS` (`art/splash.js`).
 - **Beranda:** bila hero beranda punya splash, `homeHTML` menampilkan splash besar (`.hstage.hsp`) menggantikan sprite piksel. `lobbyPlace` (mode splash) membuat karakter setinggi ruang dari bawah banner sampai tombol bawah (`SINK` = bagian kaki yang tersembunyi di balik tombol). Gelembung dialog ada di bawah, tepat di atas tombol Petualangan, dengan ekor ke atas.
 - **Gelembung dialog (`HB` di `ui/home.js`):** tersembunyi secara default. *Idle*: muncul sendiri ±10 detik setelah masuk beranda, lalu tiap 1–3 menit (acak) memakai `lines`, tampil beberapa detik lalu hilang. *Disentuh*: karakter melompat dan mengucapkan `poke` (dialog "diganggu" sesuai kepribadian; field `poke` di `data/heroes.js` + terjemahan en/ja). Hero tanpa splash memakai kanvas piksel dengan perilaku gelembung yang sama.
@@ -37,7 +38,7 @@ Aturan umum:
 - Menambah hero: buat mask + atlas mata (lihat `masks.py`), salin ke `src/img/rig/`, lalu tambahkan entri di `RIG`.
 
 ## Sprite ilustrasi (Higgsfield) — semua hero & musuh
-- 12 hero + 6 musuh + 3 bos memakai strip 8 frame 88×88 (`src/img/sprites/h_<id>.webp`, `e_<tipe>.webp`, total ±230 KB) → `SPRITE_SRC`.
+- 13 hero + 6 musuh + 3 bos memakai strip 8 frame 88×88 (`src/img/sprites/h_<id>.webp`, `e_<tipe>.webp`, total ±230 KB) → `SPRITE_SRC`.
   Urutan frame: 0 idle · 1 napas · 2–3 jalan · 4 ancang-ancang · 5 serang · 6 kena hit · 7 skill.
 - Gaya dikunci dari lembar Seraphine (job e76edb88…) sebagai referensi pertama; desain tiap hero dari sprite lama + splash. Tiap hero digenerate 2 varian, dipilih yang terbaik (Lumi diulang).
 - Pipeline `art_src/sprites/spritify.py`: potong grid 4×2 → buang magenta (flood-fill) → buang potongan dari sel tetangga → skala seragam per karakter (tinggi frame idle = 70 px hero) → kaki rata di baris 78, jangkar horizontal dari pusat kaki → palet bersama 48 warna.
@@ -45,6 +46,7 @@ Aturan umum:
   `js/art/imgsprite-enemy.js`: membungkus `ENE.draw`; slime biasa diwarnai sesuai elemen (multiply).
 - Semua penggambar memakai ukuran logis 44×44 (battle `drawImage(...,44,44)`, beranda & potret membaca lebar kanvas) jadi resolusi 2× tetap tajam.
 - `sprReady()` menunggu semua gambar ter-decode saat boot (langkah "Melukis para hero").
+- Hero baru (contoh Marisa): referensi = lembar gaya `e76edb88…` + splash hero itu (job id), prompt dari `B` di `mk.py`; parameter & job tersimpan di `art_src/sprites/<hero>.json`. Pilih varian yang paling mirip splash, bersihkan sisa ikon (mis. tanda X di frame kena hit), lalu `spritify.build(..., target_h=70)`.
 - Catatan: sprite memegang senjata khasnya sendiri (senjata yang dipasang tidak lagi tergambar di tangan). Tanpa file strip → sprite kode lama tetap dipakai.
 
 ## Latar ilustrasi (Higgsfield)
@@ -83,7 +85,7 @@ Aturan umum:
 - Pengaturan: Musik ON/OFF (`S.music`), berlaku untuk layar mana pun yang sedang tampil.
 
 ## Suara karakter (dub Jepang)
-- 12 hero di-dub dengan **ElevenLabs Eleven v4** lewat Higgsfield (`generate_audio`, `voice_type: preset`). Aktor dipilih Egi lewat audisi.
+- 13 hero di-dub dengan **ElevenLabs Eleven v4** lewat Higgsfield (`generate_audio`, `voice_type: preset`). Aktor dipilih Egi lewat audisi.
 - **Sumber data tunggal: `art_src/voice/voices.json`**
   - `cast` — aktor per hero: `aktor`, `voice_id` (preset Higgsfield), `audition_job`.
   - `clips` — tiap klip: `ja` (teks yang diucapkan) dan `id` (teks Indonesia dari `data/heroes.js`, diisi otomatis).
@@ -108,6 +110,7 @@ Aturan umum:
 | Nami | Skye | `1fb253b8-928b-4d29-a349-f242a71eaddf` |
 | Kuro | Una | `e91c5696-3d9f-5ae6-9c68-8389d2d0d294` |
 | Lumi | Annie | `f2801b0f-e345-598e-86f5-8364d886d96b` |
+| Marisa | Roxie | `f6448975-768e-4327-b932-1b7c973d58e9` |
 
 ### Menambah / mengubah dialog
 1. Tulis teks Indonesia di `data/heroes.js` (`lines` / `poke` / `sk`). Tambah di **akhir** array supaya indeks klip lama tidak bergeser.

@@ -99,6 +99,13 @@
    "aktor": "Annie",
    "voice_id": "f2801b0f-e345-598e-86f5-8364d886d96b",
    "audition_job": "fda904b6-b248-4ee5-ab03-1d5ee0231b30"
+  },
+  "marisa": {
+   "hero": "Marisa",
+   "peran": "Penyembuh Bertanduk",
+   "aktor": "Roxie",
+   "voice_id": "f6448975-768e-4327-b932-1b7c973d58e9",
+   "audition_job": "014b6ee1-4a5a-4bdb-8601-a99791e70643"
   }
  },
  "clips": {
@@ -233,6 +240,34 @@
   "noa_sk": {
    "ja": "星露の雨！",
    "id": "Hujan Embun Bintang"
+  },
+  "marisa_l0": {
+   "ja": "キャプテン！海竜マリサ、出動だよ～ えへへ！",
+   "id": "Kapten! Naga laut siap bertugas~ Hehe!"
+  },
+  "marisa_l1": {
+   "ja": "私のツノ？ひんやりしてるよ！さわってみる？",
+   "id": "Tandukku? Dingin, lho! Mau pegang?"
+  },
+  "marisa_l2": {
+   "ja": "ケガした人は誰？マリサが治してあげる！",
+   "id": "Siapa yang terluka? Biar Marisa sembuhkan!"
+  },
+  "marisa_p0": {
+   "ja": "きゃっ！しっぽ踏まないでー！",
+   "id": "Kyaa! Ekorku jangan diinjak!"
+  },
+  "marisa_p1": {
+   "ja": "えへへ、水遊びする？ざぶーん！",
+   "id": "Ehehe, mau main air? Byur~!"
+  },
+  "marisa_p2": {
+   "ja": "ちょっとちょっと、ツノはドアノブじゃないよ、キャプテン！",
+   "id": "Hei hei, tanduk ini bukan gagang pintu, Kapten!"
+  },
+  "marisa_sk": {
+   "ja": "癒しの竜雨！",
+   "id": "Hujan Naga Penyembuh"
   },
   "pia_l0": {
    "ja": "わたしの後ろに隠れて！",

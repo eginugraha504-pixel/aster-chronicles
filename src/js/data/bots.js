@@ -45,7 +45,7 @@ const BOT_CFG={
   {at:Date.UTC(2026,10,15,4,57),hero:['raika','sakuya'],limited:['raika','sakuya'],wpn:['raijin','hanafubuki']},  // banner senjata terbatas
  ],
  // kapan hero masuk ke game (default: sejak rilis). Senjata signature ikut pemiliknya.
- HERO_SINCE:{vela:Date.UTC(2026,10,15,1,1),bruna:Date.UTC(2026,10,15,1,1),nami:Date.UTC(2026,10,15,1,1),kuro:Date.UTC(2026,10,15,1,1),lumi:Date.UTC(2026,10,15,1,1),raika:Date.UTC(2026,10,15,4,32)},
+ HERO_SINCE:{vela:Date.UTC(2026,10,15,1,1),bruna:Date.UTC(2026,10,15,1,1),nami:Date.UTC(2026,10,15,1,1),kuro:Date.UTC(2026,10,15,1,1),lumi:Date.UTC(2026,10,15,1,1),raika:Date.UTC(2026,10,15,4,32),marisa:Date.UTC(2026,10,17,5,45)},
  CHASER:.6,                      // porsi pemain yang mengejar banner rate-up (sisanya banner standar)
  GEAR_FROM_DAY:2,             // mulai punya Pelindung/Aksesori
  BENCH_LV:[.35,.7],           // level hero cadangan relatif terhadap cap

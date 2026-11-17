@@ -47,7 +47,7 @@ Catatan teknis per sistem (angka balance, keputusan desain, perilaku khusus). Ri
 - Semua hero bisa memakai semua item. Data tersimpan di `S.gear[id]={lv,ref}`, dan item yang dipakai ada di `S.heroes[h].ar` / `.ac`.
 - Dampak CP: set ★3 +15 kira-kira +20–25% CP per hero di level 50. Item ini bersifat jangka panjang, jadi kalibrasi `DIFF` tidak diubah.
 
-## Roster (12 hero)
+## Roster (13 hero)
 | Hero | ★ | Elemen | Role | Skill | Senjata signature ★3 |
 |---|---|---|---|---|---|
 | Raika (terbatas) | 3 | Gelap | Ranger | AoE | Busur Guntur Raijin (terbatas) |
@@ -62,6 +62,7 @@ Catatan teknis per sistem (angka balance, keputusan desain, perilaku khusus). Ri
 | Rin | 1 | Api | Warrior | AoE | Kapak Bara Merah |
 | Kuro | 1 | Gelap | Warrior | Single | Pedang Bayang Malam |
 | Lumi | 1 | Cahaya | Support | Heal | Tongkat Lentera Suci |
+| Marisa | 3 | Air | Support | Heal | Tongkat Naga Samudra |
 
 Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanpa file art terpisah).
 
