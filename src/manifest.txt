@@ -95,6 +95,7 @@ js/ui/home.js
 js/ui/heroes.js
 js/ui/gear.js
 js/ui/adventure.js
+js/ui/battle-hud.js
 js/ui/summon.js
 js/ui/missions.js
 js/ui/mail.js

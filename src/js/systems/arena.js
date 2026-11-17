@@ -99,7 +99,7 @@ function arenaFight(i,quick,extra){i=+i;if(!arCanFight())return;const A=S.arena,
  closeModal();lobby=null;closeSplash();
  B=arMakeB(atk,def,{g:$('#bc').getContext('2d'),meta});bgArt('w_'+ARENA_CFG.bg);
  const L=arLg(pts);$('#bTitle').textContent=T('Arena')+' · '+meta.name;$('#bSub').textContent=T('Liga {l}',{l:T(L.n)})+' · '+fmt(pts)+' '+T('poin');
- battleUI();$('#bWave').textContent='VS';banner(T('VS {n}',{n:meta.name}));sfx('start')}
+ battleUI();banner(T('VS {n}',{n:meta.name}));sfx('start')}
 // catat hasil serangan pemain
 function arApply(win,meta){const A=arState(),C=ARENA_CFG,before=A.pts,lgB=arLeague(before);const d=arDelta(A.pts,meta.pts,win,C.kAtk);
  A.pts=Math.max(0,A.pts+d);A.best=Math.max(A.best||0,A.pts);A.reg=true;A.wkFought=A.wk;A.foughtDay=A.day;

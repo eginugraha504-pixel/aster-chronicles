@@ -13,13 +13,11 @@ function startBattle(key){const st=STAGES[key];const ids=S.team.filter(Boolean);
  spawnWave();
  $('#bTitle').textContent=st.dg?st.name:st.key+' '+st.name;$('#bSub').textContent=st.dg?T('Dungeon'):WORLDS[st.wi].n;
  battleUI();banner(T('Gelombang {a}/{b}',{a:1,b:st.waves.length}));sfx('start')}
-// kartu hero, tombol & info elemen di layar pertarungan (dipakai juga oleh Arena)
-function battleUI(){$('#bHeroes').innerHTML=B.units.filter(u=>u.side==='hero').map((u,i)=>`<button class="bh" data-act="cast" data-arg="${i}"><img class="px" src="${portrait(u.id)}"><img class="px bel" src="${ICON.el[u.el]}"><span class="bn">${u.name}</span><span class="bsk">${HD[u.id]?HD[u.id].sk:''}</span><span class="bar hp"><i></i></span><span class="bar sp"><i></i></span></button>`).join('');
- B.cards=[...$('#bHeroes').children];updBtns();$('#bOver').classList.remove('on');$('#battle').classList.add('on');$('#bHint').textContent=T('Ketuk kartu hero saat bar biru penuh untuk memakai skill.');$('#bEl').innerHTML=`<b>${T('Keunggulan Elemen')}</b><span>${['api','tanah','air','api'].map(e=>`<img class="px" src="${ICON.el[e]}">`).join('<i>›</i>')}</span><span>${`<img class="px" src="${ICON.el.cahaya}"><i>⇄</i><img class="px" src="${ICON.el.gelap}">`}</span><small>${T('Unggul: +30% damage · Kalah: −25%')}</small>`;}
+// kartu hero, tombol & HUD: ui/battle-hud.js (battleUI, hudWave, hudTick, updBtns)
 function spawnWave(){const st=B.st,w=st.waves[B.wave],n=st.n;B.units=B.units.filter(u=>u.side==='hero');
  w.forEach((d,i)=>{const E=ENEMY[d.t];const g=diffG(n);let hp=DIFF.hp*g*E.hp,atk=DIFF.atk*Math.pow(g,DIFF.atkExp)*E.atk,def=DIFF.def*Math.sqrt(g)*E.def;if(d.boss){hp*=BOSS_MUL.hp;atk*=BOSS_MUL.atk;def*=BOSS_MUL.def}
   const p=d.boss?[186,180]:EPOS[(w[0].boss?i+1:i)%4];B.units.push(mkUnit('enemy',{i,name:E.n,el:d.el,role:E.role,boss:!!d.boss,spr:sprite(E.spr(d.el)),hp:Math.round(hp),maxHp:Math.round(hp),atk:Math.round(atk),def:Math.round(def),x:p[0],y:p[1],ox:110+i*14,cdMax:(d.boss?1.6:1.4)*ROLE[E.role].cd,etype:d.t,scale:d.boss?2:1,skill:d.boss?'aoe':null,mult:1.7,sk:d.boss?T(pick(['Hantaman Murka','Gempa Kegelapan','Raungan Penguasa'])):''}))});
- B.state='enter';B.enterT=1;$('#bWave').textContent=T('Gelombang {a}/{b}',{a:B.wave+1,b:st.waves.length})}
+ B.state='enter';B.enterT=1;hudWave()}
 // jeda antar gelombang: hero yang masih hidup pulih WAVE_HEAL × HP maks
 function waveHeal(){for(const u of alive('hero')){const h=Math.round(u.maxHp*WAVE_HEAL),add=Math.min(h,u.maxHp-u.hp);if(add>0){u.hp+=add;addText(u.x,u.y-uh(u)-4,'+'+fmt(add),'#7dff9a')}}}
 function banner(t){if(B&&B.sim)return;const b=$('#bbanner');b.textContent=t;b.classList.remove('on');void b.offsetWidth;b.classList.add('on')}
@@ -44,7 +42,7 @@ function act(u){const foeSide=u.side==='hero'?'enemy':'hero';if(!alive(foeSide).
  const t=target(u);if(!t)return;u.charge=Math.min(100,u.charge+(isHU(u)?13:9));
  if(ROLE[u.role].melee){u.face=t;if(u.dash){u.lungeT=.3;B.pend.push({t:.15,f:()=>{hit(u,t,1);meleeFx(u,t)}})}else dashTo(u,t,()=>{hit(u,t,1);meleeFx(u,t)})}
  else{const kind=u.role==='support'?'orb':(HD[u.id]&&HD[u.id].spr.weapon==='gun')?'bullet':(u.etype==='mage')?'orb':'arrow';B.proj.push({x:u.x+(u.side==='hero'?14:-8),y:u.y-uh(u)*.5,sx:u.x,sy:u.y-12,tx:t.x,ty:t.y-uh(t)*.45,t:0,dur:.28,kind,c:EL[u.el].c,f:()=>hit(u,t,1)})}}
-function cast(u){if(!u.alive||u.charge<100||B.state!=='fight')return;u.charge=0;const allies=alive(u.side),foes=alive(u.side==='hero'?'enemy':'hero');if(!foes.length)return;
+function cast(u){if(!u.alive||u.charge<100||B.state!=='fight')return;u.charge=0;if(u.side==='hero'&&!B.sim)hudCast(u);const allies=alive(u.side),foes=alive(u.side==='hero'?'enemy':'hero');if(!foes.length)return;
  const col=EL[u.el].c;B.flash=.5;B.flashC=col;B.shake=.25;sfx('skill',{el:u.el});const S0=isHU(u)?HERO_ART[u.id].strike:0,SG=1+(u.sig||0);u.anim='skill';u.animT=0;if(isHU(u))u.cd=Math.max(u.cd,S0+.6)
  if(u.side==='hero')cutin(u);else banner(u.ph?u.sk:u.name+': '+u.sk);
  if(u.skill==='aoe'){foes.forEach((f,i)=>B.pend.push({t:S0+.15+i*.08,f:()=>{hit(u,f,u.mult*SG,{big:1});B.fx.push({k:'boom',x:f.x,y:f.y-uh(f)*.45,t:0,dur:.45,c:col})}}))}
@@ -54,7 +52,6 @@ function cast(u){if(!u.alive||u.charge<100||B.state!=='fight')return;u.charge=0;
  if(u.skill==='shield'){sfx('shield');allies.forEach(a=>{a.shieldT=u.sig?8:6;B.fx.push({k:'ring',x:a.x,y:a.y-10,t:0,dur:.6,c:'#7fe3ff'})});u.tauntT=6;addText(u.x,u.y-uh(u)-8,T('PROVOKASI'),'#7fe3ff',1)}
  if(u.skill==='buff'){sfx('buff');allies.forEach(a=>{a.atkUpT=u.sig?11:8;a.atkUpK=u.sig?1.5:1.4;if(a!==u)a.charge=Math.min(100,a.charge+20);B.fx.push({k:'up',x:a.x,y:a.y,t:0,dur:.8})});addText(u.x,u.y-uh(u)-8,T('ATK NAIK!'),'#ffd23f',1)}}
 function cutin(u){if(B&&B.sim)return;const c=$('#cutin');if(u.side==='hero'&&typeof voice==='function')voice(u.id+'_sk');c.style.setProperty('--cc',EL[u.el].c);const su=u.side==='hero'&&splash(u.id),fc=su&&splashFocus(u.id);c.classList.toggle('spc',!!su);c.innerHTML=`${su?`<span class="cspl" style="background-image:url(${su});background-position:${fc[0]}% ${fc[1]}%"></span>`:`<img class="px" src="${u.side==='hero'?artFrame(u.id,{face:'skill'}).url:u.spr.url}">`}<div><b>${u.sk}!</b><small>${u.name}</small></div>`;c.classList.remove('on');void c.offsetWidth;c.classList.add('on')}
-function updBtns(){$('#bAuto').className='btn '+(B.auto?'green':'gray');$('#bAuto').textContent=B.auto?T('AUTO: ON'):T('AUTO: OFF');$('#bSpd').textContent='x'+B.speed}
 function tickBattle(dt){if(!B||B.paused)return;if(B.state==='end'){for(const u of B.units){if(u.dash){if(u.dash.ph==='wait'||u.dash.ph==='in'||u.dash.ph==='hold'){u.dash.ph='out';u.dash.t=0;u.dash.cb=null}tickDash(u,dt*B.speed)}}return}if(B.hitstop>0){B.hitstop-=dt;return}dt*=B.speed;B.time+=dt;
  for(const u of B.units){if(u.dash)tickDash(u,dt);else if(u.trail&&u.trail.length){for(const g of u.trail)g.a-=dt*4.5;u.trail=u.trail.filter(g=>g.a>0)}}
  for(const u of B.units){if(u.anim)u.animT+=dt;u.lungeT=Math.max(0,u.lungeT-dt);u.hitT=Math.max(0,u.hitT-dt);if(!u.alive)u.deathT=Math.max(0,u.deathT-dt);['shieldT','tauntT','atkUpT'].forEach(k=>u[k]=Math.max(0,u[k]-dt))}
@@ -78,7 +75,7 @@ function heroFrame(u){const art=HERO_ART[u.id];let f=null;
  if(!f){const A=art.anims.idle,tot=A.reduce((s,a)=>s+a.d,0);f=animFrame(A,(B.time*1000+u.i*700)%tot)}
  return artFrame(u.id,f)}
 function drawBattle(){const g=B.g,st=B.st;g.setTransform(2,0,0,2,0,0);g.imageSmoothingEnabled=false;
- if(B.shake>0)g.translate(Math.round(rnd(-2,2)),Math.round(rnd(-1,1)));{let bg=(st.art&&bgArt('w_'+st.art))||BG[st.bg+'_b'];if(!bg)bg=BG[st.bg+'_b']=makeBG(st.bg||'grass',240,210);g.drawImage(bg,0,0,240,210)}
+ if(B.shake>0)g.translate(Math.round(rnd(-2,2)),Math.round(rnd(-1,1)));drawBattleBg(g,st);g.translate(0,BTOP);
  const us=B.units.filter(u=>u.alive||u.deathT>0).sort((a,b)=>(a.y+(a.dy||0))-(b.y+(b.dy||0)));
  for(const u of us)drawTrail(g,u);
  for(const u of us)if(u.dy){u._y=u.y;u.y+=u.dy}
@@ -108,18 +105,17 @@ function drawBattle(){const g=B.g,st=B.st;g.setTransform(2,0,0,2,0,0);g.imageSmo
   if(f.k==='ring'){const r=Math.round(6+k*10);g.strokeStyle=f.c;g.globalAlpha=1-k;g.lineWidth=1;g.strokeRect(f.x-r+.5,f.y-r+.5,r*2,r*2);g.globalAlpha=1}
   if(f.k==='up'){g.fillStyle='rgba(255,210,63,'+(1-k)+')';for(let i=0;i<3;i++){const px=f.x-6+i*6,py=f.y-8-k*18-i*3;g.fillRect(px,py,1,4);g.fillRect(px-1,py+1,3,1)}}}
  g.textAlign='center';for(const t of B.texts){const k=1-t.life/.9,y=Math.round(t.y-k*12);g.font=(t.big?'13px':'10px')+' "Lilita One",sans-serif';g.globalAlpha=Math.min(1,t.life*3);g.lineWidth=2;g.strokeStyle='#241626';g.strokeText(t.t,t.x,y);g.fillStyle=t.c;g.fillText(t.t,t.x,y)}g.globalAlpha=1;
- if(B.flash>0){g.setTransform(1,0,0,1,0,0);g.globalAlpha=B.flash*.6;g.fillStyle=B.flashC;g.fillRect(0,0,480,420);g.globalAlpha=1}
- const hs=B.units.filter(u=>u.side==='hero');hs.forEach((u,i)=>{const c=B.cards[i];if(!c)return;c.querySelector('.bar.hp i').style.width=(u.hp/u.maxHp*100)+'%';c.querySelector('.bar.sp i').style.width=u.charge+'%';c.classList.toggle('ready',u.alive&&u.charge>=100);c.classList.toggle('dead',!u.alive)});
- if(B.st.arena){const r=arRage();$('#bWave').textContent=r>1?'ATK ×'+r.toFixed(1):'VS';$('#bWave').classList.toggle('rage',r>1)}const s=Math.floor(B.time);$('#bTime').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+ if(B.flash>0){g.setTransform(1,0,0,1,0,0);g.globalAlpha=B.flash*.6;g.fillStyle=B.flashC;g.fillRect(0,0,480,600);g.globalAlpha=1}
+ hudTick()}
 const elImg={};
 function endBattle(win){if(!B)return;const st=B.st;let html;
  if(win){const dead=B.units.some(u=>u.side==='hero'&&!u.alive);const sr=1+(!dead?1:0)+(B.time<=60?1:0);const first=!S.stages[st.key];S.stages[st.key]=Math.max(S.stages[st.key]||0,sr);
   const rw={gold:st.gold,exp:st.exp};if(first&&!st.dg)rw.gems=st.gems;if(st.dg){const gd=rollGear(st);if(gd)rw.gear=gd}if(first&&BOSS_GEAR[st.key])rw.gear=BOSS_GEAR[st.key];if(st.dg){rw.mats=rollDrops(st,sr>=3);S.daily.c.dg=(S.daily.c.dg||0)+1}const ups=grant(rw);S.daily.c.clear++;evCount('clear');if(st.boss){S.daily.c.boss++;evCount('boss')}save();sfx('win');for(let i=0;i<sr;i++)setTimeout(()=>sfx('star',{i}),1100+i*250);
   const nx=st.dg?null:SLIST[st.n+1];
-  html=`<div class="panel"><h3>${T('MENANG!')}</h3><div class="rstars">${[0,1,2].map(i=>`<span class="${i<sr?'on':''}" style="animation-delay:${.2+i*.25}s">★</span>`).join('')}</div><div class="rcond">${dead?'✗':'✓'} ${T('Tanpa hero gugur')} · ${B.time<=60?'✓':'✗'} ${T('≤ 60 detik')} (${Math.floor(B.time)}${T('d')})</div>
+  html=`<div class="panel res win"><div class="rrib"><h3>${T('MENANG!')}</h3></div><div class="rstars">${[0,1,2].map(i=>`<span class="${i<sr?'on':''}" style="animation-delay:${.3+i*.25}s">★</span>`).join('')}</div>${mvpHTML(battleMVP(B))}<div class="rcond">${dead?'✗':'✓'} ${T('Tanpa hero gugur')} · ${B.time<=60?'✓':'✗'} ${T('≤ 60 detik')} (${Math.floor(B.time)}${T('d')})</div>
   ${rewardHTML(rw)}<div class="rexp"><b>Lv ${S.lv}</b><span class="bar"><i style="width:${Math.min(100,S.exp/expNeed(S.lv)*100)}%"></i></span><small>${fmt(S.exp)}/${fmt(expNeed(S.lv))}</small></div>${first?`<div style="font-size:13px;color:#2a8ad0">${T('Bonus pertama kali!')}</div>`:''}${ups?`<div style="font-size:15px;color:#d2780a;margin-top:6px">⬆ ${T('Level Akun naik ke {lv}! Stamina +{s}',{lv:S.lv,s:ups*20})}</div>`:''}
   <div class="mrow"><button class="btn blue" data-act="bexit">${T('Peta')}</button><button class="btn" data-act="bretry">${T('Ulangi')}<small>${ic('stam',12)} ${st.cost}</small></button>${!st.dg&&nx&&st.s<4?`<button class="btn green" data-act="bnext">${T('Lanjut')}<small>${ic('stam',12)} ${nx.cost}</small></button>`:''}</div></div>`}
- else{sfx('lose');html=`<div class="panel"><h3 style="color:#c0392b">${T('KALAH...')}</h3><p style="font-size:14px;margin:8px 0;line-height:1.4">${T('Tips: naikkan level hero, pakai elemen yang unggul, dan bawa Penjaga di depan serta Pendukung untuk menyembuhkan.')}</p><div class="mrow"><button class="btn blue" data-act="bexit">${T('Peta')}</button><button class="btn" data-act="bretry">${T('Coba Lagi')}<small>${ic('stam',12)} ${st.cost}</small></button></div></div>`}
+ else{sfx('lose');html=`<div class="panel res lose"><div class="rrib"><h3>${T('KALAH...')}</h3></div>${mvpHTML(battleMVP(B))}<p class="rtip">${T('Tips: naikkan level hero, pakai elemen yang unggul, dan bawa Penjaga di depan serta Pendukung untuk menyembuhkan.')}</p><div class="mrow"><button class="btn blue" data-act="bexit">${T('Peta')}</button><button class="btn" data-act="bretry">${T('Coba Lagi')}<small>${ic('stam',12)} ${st.cost}</small></button></div></div>`}
  const o=$('#bOver');o.innerHTML=html;o.classList.add('on')}
 function exitBattle(){if(B&&B.st.arena){B=null;$('#battle').classList.remove('on');$('#bOver').classList.remove('on');tab='arena';render();return}if(B&&B.st.dg){advTab='dg';dgSel=B.st.dg}B=null;$('#battle').classList.remove('on');$('#bOver').classList.remove('on');tab='adv';render()}
 

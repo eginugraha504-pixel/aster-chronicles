@@ -52,7 +52,7 @@ Aturan umum:
 
 ## Latar ilustrasi (Higgsfield)
 - Dibuat dengan Higgsfield (Nano Banana, ±2 credit per gambar), lalu **diperkecil ke grid piksel game** (median-cut 64 warna, tanpa dither) supaya menyatu dengan sprite.
-- `src/img/bg/`: `w_<art>.webp` latar battle 240×210, `m_<art>.webp` peta petualangan 90×160, `key.webp` key art layar judul 384×688. `build.py` menyuntikkannya sebagai `BGIMG_SRC`.
+- `src/img/bg/`: `w_<art>.webp` latar battle **240×300** (sejak polish battle: lukisan 4:3 diperpanjang ke 3:4 dengan Higgsfield outpaint → `art_src/tall_<art>.png`, dipotong 4:5 menurut `art_src/tall_crop.json` supaya tanah pas di bawah unit), `m_<art>.webp` peta petualangan 90×160, `key.webp` key art layar judul 384×688. `build.py` menyuntikkannya sebagai `BGIMG_SRC`.
 - `art`: grass / cave / castle / storm / summit, diisi di data/worlds.js dan data/dungeons.js (Tambang → cave, Kuil Bintang → summit). Stage membawa `st.art`.
 - `bgArt(key)` di js/art/bgart.js: kalau gambar belum ada atau belum termuat, otomatis memakai latar prosedural `makeBG()`.
 - File resolusi penuh (2400×1792, key art 1536×2752) disimpan di `art_src/`, **tidak** ikut di-build. Untuk menambah dunia baru: generate 4:3 tanpa karakter dengan tanah tengah kosong, crop 8:7, perkecil ke 240×210, simpan sebagai `w_<art>.webp`.
@@ -126,3 +126,8 @@ Aturan umum:
 ## Font Jepang
 - `src/fonts/mpr-ja-800-*.woff2` = M PLUS Rounded 1c ExtraBold, di-subset hanya ke huruf yang dipakai `js/lang/ja.js`.
 - Setelah menambah teks Jepang: `npm pack @fontsource/m-plus-rounded-1c` → ekstrak → `python3 tools/subset_ja.py <folder>/package/files` → build.
+
+## Latar battle tinggi (240×300)
+- Sumber: `art_src/tall_<art>.png` (hasil outpaint 1792×2400). Potongan: lebar 1520 (=0,8×1900) di tengah, mulai y sesuai `art_src/tall_crop.json`, diperkecil ke 240×300 → `src/img/bg/w_<art>.webp`.
+- Unit digambar di koordinat lama (240×210) lalu digeser `BTOP=60` ke bawah (`js/ui/battle-hud.js`). Latar lama 240×210 atau prosedural tetap jalan: tepi atas/bawahnya direntangkan otomatis.
+- Dunia baru: outpaint lukisan 4:3 ke 3:4, pilih y potongan sampai unit (posisi kaki y 128–184 + 60) berdiri di tanah.

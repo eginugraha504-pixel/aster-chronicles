@@ -73,7 +73,7 @@
 .arrwr .lgn img{grid-row:span 2;width:30px;height:30px}.arrwr .lgn b{font-family:var(--fh);font-weight:400;font-size:14px;line-height:1}.arrwr .lgn small{font-size:10px;font-weight:900;color:var(--mut)}
 .arrwr .mrw{display:flex;flex-wrap:wrap;gap:2px 6px;font-size:11.5px;font-weight:900}
 /* hasil pertarungan */
-.arres h3{font-size:30px}.arres h3.lose{color:#c0392b}
+.arres .rrib h3{font-size:28px!important}.arres.quick h3.lose{color:#ffb0a0}
 .arvs{display:flex;align-items:center;justify-content:center;gap:12px;margin:6px 0 8px}
 .arvs span{display:flex;flex-direction:column;align-items:center;gap:2px;width:96px}
 .arvs img{width:52px;height:52px;border-radius:14px;border:3px solid var(--ink);background:radial-gradient(circle at 50% 35%,#fff7da,#e9c886)}

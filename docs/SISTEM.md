@@ -189,3 +189,11 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - Server: `bank-worker/src/ai.js` (`POST /api/ai`, `GET /api/ai/status`). Token = **GitHub secret `ANTHROPIC_API_KEY`** → dipasang workflow sebagai secret Cloudflare (tidak pernah ada di kode game). Instruksi peran ditulis di server; game hanya mengirim data berukuran terbatas. Batas: `AI_DAILY` (2.000 panggilan/hari, semua pemain) dan 20/menit per IP. Model: `AI_MODEL` di `wrangler.toml`.
 - **Pengetahuan game** untuk AI = `docs/AI_PANDUAN.md` (cara main, navigasi, sistem — tulis tangan) + data asli `src/js/data/*.js` (hero & lore, senjata, perlengkapan, dunia/tahap/bos, dungeon, banner, event, misi, toko, top up, Arena), digabung otomatis oleh `tools/gen_knowledge.mjs` setiap `build.py` → `bank-worker/src/knowledge.js` (±13.500 token, di-cache dengan prompt caching; panggilan berikutnya hanya membayar ±2.000 token baru). **Fitur baru = tambahkan penjelasannya di AI_PANDUAN.md.**
 - Bila server mati/kuota habis/OFF: balasan kembali ke Claude (claude.ai) atau otak lokal.
+
+## UI pertarungan (polish, 17 Nov 2026)
+- File: `js/ui/battle-hud.js` (HUD), `css/battle.css`, markup `#battle` di `src/index.html`. Mesin tetap `js/systems/battle.js` (memanggil `battleUI`, `hudWave`, `hudTick`, `hudCast`, `drawBattleBg`).
+- Medan 240×300 (4:5) penuh lebar; HUD atas mengambang di langit: plakat tahap, titik gelombang (bos = merah), waktu, tombol jeda bulat. Bar HP bos besar (jejak putih) saat ada bos; di Arena dua bar tim + "ATK ×" saat Kemarahan Arena.
+- Panel bawah gelap berbingkai emas: 4 kartu skill dari potongan splash art (tabir gelap turun mengikuti isi skill, HP dengan jejak merah, oranye saat HP < 30%, menyala emas + kilau + label SKILL saat siap, berkedip saat skill dipakai, "Gugur" saat KO), tombol AUTO & kecepatan berbentuk pil. Kartu mengisi ruang tersisa (maks 270px).
+- Layar pendek (rasio > 10:18, mis. iPhone SE): medan dipotong 240×250 (object-fit) supaya kartu tetap muat.
+- Jeda: panel berisi info tahap & keunggulan elemen. Hasil: pita MENANG/KALAH, bintang (tengah lebih besar), kartu MVP (splash), hadiah, EXP.
+- Loop utama tahan error per frame (`main.js`).

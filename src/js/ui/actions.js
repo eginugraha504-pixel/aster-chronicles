@@ -63,7 +63,7 @@ const ACT={
  cast:i=>{if(!B)return;const u=B.units.filter(u=>u.side==='hero')[+i];if(u&&u.charge>=100)cast(u)},
  bauto:()=>{if(!B)return;B.auto=!B.auto;S.auto=B.auto;save();updBtns()},
  bspeed:()=>{if(!B)return;B.speed=B.speed===1?2:B.speed===2?3:1;S.speed=B.speed;save();updBtns()},
- bpause:()=>{if(!B||B.state==='end')return;B.paused=true;const o=$('#bOver');o.innerHTML=`<div class="panel"><h3>${T('Jeda')}</h3><div class="mrow"><button class="btn red" data-act="bquit">${T('Menyerah')}</button><button class="btn green" data-act="bresume">${T('Lanjut')}</button></div></div>`;o.classList.add('on')},
+ bpause:()=>{if(!B||B.state==='end')return;B.paused=true;const o=$('#bOver');o.innerHTML=pauseHTML();o.classList.add('on')},
  bresume:()=>{if(B)B.paused=false;$('#bOver').classList.remove('on')},
  bquit:()=>{if(B&&B.st.arena&&B.state!=='end'){B.state='end';arApply(false,B.ar)}exitBattle()},bexit:()=>exitBattle(),
  bretry:()=>{if(!B)return;const k=B.st.key;regen();if(S.stam<B.st.cost){toast(T('Stamina tidak cukup!'),1);return}B=null;startBattle(k)},

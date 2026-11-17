@@ -29,11 +29,15 @@
  <main id="screen"></main>
  <nav id="nav"></nav>
  <div id="battle">
-  <div class="bhead"><div class="bt"><b id="bTitle"></b><small id="bSub"></small></div><div class="wv" id="bWave"></div><div class="tm" id="bTime">0:00</div><button class="btn" data-act="bpause">II</button></div>
-  <div class="bcw"><canvas id="bc" width="480" height="420"></canvas><div id="cutin"></div><div id="bbanner"></div></div>
+  <div class="bcw"><canvas id="bc" width="480" height="600"></canvas>
+   <div class="bvig"></div>
+   <div class="bhud"><div class="bplq"><b id="bTitle"></b><small id="bSub"></small></div>
+    <div class="bmid"><div class="bwv" id="bWave"></div><div class="btm" id="bTime">0:00</div></div>
+    <button class="bpz" data-act="bpause" aria-label="Jeda"><i></i><i></i></button></div>
+   <div class="bboss" id="bBoss"></div>
+   <div id="cutin"></div><div id="bbanner"></div></div>
   <div class="blow"><div class="bheroes" id="bHeroes"></div>
-  <div class="bctrl"><button class="btn" id="bAuto" data-act="bauto">AUTO</button><button class="btn blue" id="bSpd" data-act="bspeed">x1</button></div>
-  <div class="bhint" id="bHint"></div><div class="belg" id="bEl"></div></div>
+   <div class="bctrl"><button class="bcb" id="bAuto" data-act="bauto"></button><div class="bhint" id="bHint"></div><button class="bcb spd" id="bSpd" data-act="bspeed"></button></div></div>
   <div class="bover" id="bOver"></div>
  </div>
  <div id="sfx"></div>
