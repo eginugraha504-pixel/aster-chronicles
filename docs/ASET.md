@@ -30,12 +30,13 @@ Aturan umum:
 - Dipakai di: detail hero (panggung + tombol "Lihat art" layar penuh, `js/ui/splash.js`), reveal ★3 saat summon, banner pick-up, dan cut-in skill di battle. Animasinya napas + goyang halus (CSS), mati otomatis bila perangkat meminta reduced motion.
 
 ## Splash hidup ala Live2D (hero ★3)
-- Seraphine, Sakuya, dan Raika punya splash hidup: napas (dada + badan atas), rambut dan kain bergelombang (ujung bergerak paling jauh), kedip 3 tahap dengan jeda acak, partikel cahaya halus, plus efek khas: kilau menyapu pedang Seraphine, tebasan dan api rubah Sakuya berdenyut, petir busur Raika berkedip.
+- Seraphine, Sakuya, Raika, dan Marisa punya splash hidup: napas (dada + badan atas), rambut dan kain bergelombang (ujung bergerak paling jauh), kedip 3 tahap dengan jeda acak, partikel cahaya halus, plus efek khas: kilau menyapu pedang Seraphine, tebasan dan api rubah Sakuya berdenyut, petir busur Raika berkedip, kilau menyapu tongkat naga Marisa dan bola air/gelembungnya berdenyut (rambut + naga air ikut bergelombang).
 - Mesin: `js/art/live2d.js`. `splashHTML()` memberi `data-live` pada `.spw` hero yang punya rig, lalu loop 30 fps membuat `<canvas class="spl live">` pengganti `<img>`. Canvas memakai CSS yang sama, termasuk `object-fit`, jadi otomatis pas di beranda, detail hero, Lihat Art, banner, dan reveal summon. Semua instance digambar lewat **satu** konteks WebGL bersama, dan hanya yang terlihat di layar.
 - Aset: `src/img/rig/<hero>_mask.png` (R rambut, G kain, B efek cahaya; ½ resolusi) dan `<hero>_eyes.png` (atlas setengah | tertutup). Konfigurasi koordinat (kotak mata, kepala, dada, pinggang, garis pedang) ada di `RIG` dalam `live2d.js`. Pembuat mask: `art_src/rig/masks.py` (zona poligon per hero + pengecualian senjata/armor).
 - Kedip: gambar mata tertutup dibuat dengan Higgsfield nano_banana_pro (edit dari splash asli), diselaraskan otomatis, lalu area mata dideteksi dari selisih gambar. Tahap "setengah" Sakuya/Raika = campuran 55% (hasil edit setengahnya jadi wink).
 - Resolusi adaptif: kalau rata-rata waktu gambar > 14 ms (HP lemah), resolusi turun bertahap sampai 45%, lalu naik lagi kalau lancar. Tanpa WebGL atau dengan `prefers-reduced-motion`, splash diam biasa yang dipakai.
 - Menambah hero: buat mask + atlas mata (lihat `masks.py`), salin ke `src/img/rig/`, lalu tambahkan entri di `RIG`.
+- Contoh terbaru (Marisa): mata tertutup = edit nano_banana_pro dari job splash, diselaraskan otomatis dengan ORB + RANSAC (OpenCV), area mata dari selisih gambar, warna kulit disamakan, lalu atlas [setengah 55% | tertutup] — skrip lengkap `art_src/rig/eyes_marisa.py`.
 
 ## Sprite ilustrasi (Higgsfield) — semua hero & musuh
 - 13 hero + 6 musuh + 3 bos memakai strip 8 frame 88×88 (`src/img/sprites/h_<id>.webp`, `e_<tipe>.webp`, total ±230 KB) → `SPRITE_SRC`.
