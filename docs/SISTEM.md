@@ -197,3 +197,9 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - Layar pendek (rasio > 10:18, mis. iPhone SE): medan dipotong 240×250 (object-fit) supaya kartu tetap muat.
 - Jeda: panel berisi info tahap & keunggulan elemen. Hasil: pita MENANG/KALAH, bintang (tengah lebih besar), kartu MVP (splash), hadiah, EXP.
 - Loop utama tahan error per frame (`main.js`).
+
+## Pasang Terbaik & Tungku Peleburan (18 Nov 2026)
+- Mesin `js/systems/smelt.js` (angka di `SMELT`), tampilan `js/ui/smelt.js` + `css/smelt.css`.
+- **Pasang Terbaik** (`autoEquipTeam`/`autoEquipHero`): per hero tim, terkuat dulu, coba setiap senjata (kelas sama)/pelindung/aksesori dan pilih yang membuat `heroPow` tertinggi. Barang hero cadangan boleh diambil, barang hero tim lain tidak. Tombol: Tim (Formasi Terbaik kini juga memasang perlengkapan), detail hero (⚡), koleksi senjata/perlengkapan. `S.autoEq` (default ON) = jalankan otomatis setelah summon senjata / hadiah berisi barang.
+- **Peleburan**: `smeltJunk` = salinan yang bukan terbaik di jenisnya & tidak dipakai (opsi termasuk yang sudah ditingkatkan). Hasil dasar per bintang di `SMELT.base` (emas + bijih + Serpihan/Kristal Bintang); barang yang ditingkatkan mengembalikan 80% material (EXP senjata → bijih, biaya Limit Break, biaya enhance) & 50% emas; tiap penempaan +50% hasil dasar. Lebur otomatis `S.autoSalv` (0 mati, 1 = ★1 bawaan, 2 = ★1–★2). Statistik `S.smelted`.
+- Perbaikan: teks bonus "Penjaga + Pendukung" di layar Tim kini mengikuti `CP_BONUS.balance` (+12%, sebelumnya tertulis +5%).

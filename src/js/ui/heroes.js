@@ -19,8 +19,8 @@ function weaponsHTML(){const f=wFilter;const list=WEAPONS.filter(w=>f==='all'||w
 // jumlah salinan cadangan (bukan salinan terbaik, tidak dipasang, belum ditingkatkan) per bintang
 function spareCount(kind,r){const isW=kind==='w',st=isW?S.weapons:S.gear,L=isW?WEAPONS:GEAR,sc=isW?wScore:gScore,hold=isW?wHolder:gearHolder;let n=0;
  for(const x of L){if(x.r!==r)continue;for(const k of invKeys(st,x.id).sort((a,b)=>sc(b)-sc(a)).slice(1)){const o=st[k];if(!hold(k)&&!o.ref&&!(o.lb||0)&&!(isW?o.lv>1:o.lv))n++}}return n}
-function spareBarHTML(kind){const r=[1,2].map(r=>[r,spareCount(kind,r)]).filter(x=>x[1]);if(!r.length)return'';
- return`<div class="sparebar"><span>${T('Salinan cadangan:')}</span>${r.map(([r,n])=>`<button class="fbtn" data-act="salvAll" data-arg="${kind}:${r}">${T('Lebur {n} ★{r}',{n,r})}</button>`).join('')}</div>`}
+function spareBarHTML(kind){const n=smeltJunk({r:{1:1,2:1,3:1},kinds:{[kind]:1}}).length;
+ return`<div class="sparebar smbar"><button class="btn sm" data-act="smelt"><img class="px" src="${ICON.smelt}">${T('Tungku Peleburan')}${n?`<i class="dot n">${n}</i>`:''}</button><button class="btn sm blue" data-act="eqBest">⚡ ${T('Pasang Terbaik')}</button></div>`}
 // bagian salinan di detail senjata/perlengkapan: tempa (+1) memakai salinan cadangan, daftar salinan, lebur
 function copiesHTML(kind,k){const isW=kind==='w',st=isW?S.weapons:S.gear,o=st[k],keys=invKeys(st,baseId(k)),fod=isW?wFodder(k):gFodder(k),hold=isW?wHolder:gearHolder,D=isW?WD:GDD,icon=isW?weaponIcon:gearIcon,act=isW?'wpn':'gear';
  const canRef=o.ref<DUPE_MAX&&fod.length;
@@ -86,7 +86,7 @@ function openHero(id){const h=HD[id],o=S.heroes[id],sp=sprite(h.spr);
  <div class="tagl"><span class="tag">${eic(h.el,12)}${EL[h.el].n}</span><span class="tag">${ROLE[h.role].n}</span><span class="tag" style="color:var(--hl)">${stars(h.r)}</span><span class="tag cpt">CP ${fmt(powerOf(s))}</span></div>
  <div class="lbrow">Limit Break: ${[1,2,3,4,5].map(i=>`<i class="${o.lb>=i?'on':''}"></i>`).join('')} <span style="color:var(--mut)">${T('(dari hero duplikat)')}</span></div>
  <div class="stats"><div><span>${T('Level')}</span><b>${o.lv}/${ml}</b></div><div><span>HP</span><b>${fmt(s.hp)}</b></div><div><span>ATK</span><b>${fmt(s.atk)}</b></div><div><span>DEF</span><b>${fmt(s.def)}</b></div><div><span>Crit</span><b>${s.crit}%</b></div><div><span>CP</span><b style="color:var(--hl)">${fmt(powerOf(s))}</b></div></div>
- <div class="sec">${T('Perlengkapan')}</div>${equipHTML(id)}
+ <div class="sec eqsec">${T('Perlengkapan')}<button class="fbtn" data-act="eqBest" data-arg="${id}">⚡ ${T('Pasang Terbaik')}</button></div>${equipHTML(id)}
  <div class="skbox"><b>${h.sk}</b> <span style="color:var(--mut)">· ${SKT[h.skill]}</span><br>${skd}</div>
  <div class="lore">"${h.lore}"</div>
  <div class="mrow">${pos>=0?(pos===0?`<button class="btn gray" disabled>${T('Leader Tim')}</button>`:`<button class="btn blue" data-act="leader" data-arg="${id}">${T('Jadikan Leader')}</button>`):`<button class="btn blue" data-act="addTeam" data-arg="${id}">${T('Masukkan ke Tim')}</button>`}</div>

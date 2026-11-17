@@ -14,6 +14,7 @@ css/missions.css
 css/battle.css
 css/arena.css
 css/chat.css
+css/smelt.css
 css/boot.css
 css/studio.css
 css/skin.css
@@ -88,6 +89,7 @@ js/systems/arena.js
 js/systems/topup.js
 js/systems/chat.js
 js/systems/botsale.js
+js/systems/smelt.js
 
 # --- UI layar ---
 js/ui/core.js
@@ -106,6 +108,7 @@ js/ui/leaderboard.js
 js/ui/arena.js
 js/ui/topup.js
 js/ui/chat.js
+js/ui/smelt.js
 js/ui/splash.js
 js/ui/boot.js
 

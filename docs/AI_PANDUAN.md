@@ -40,6 +40,9 @@ Ubah/tambah teks di sini bila ada fitur baru yang perlu dijelaskan dengan kata-k
 - Senjata/perlengkapan duplikat disimpan sebagai salinan: pasang ke hero lain, Tempa (lebur salinan ke senjata utama, +10% stat, maks 5), atau Lebur jadi material.
 - Pelindung (HP+DEF) & Aksesori (ATK+Crit) untuk semua hero, bisa di-enhance (+5/+10/+15 menurut bintang) dengan emas & bijih. Bos dunia memberi item pasti pada kemenangan pertama.
 
+- **Pasang Terbaik** (tombol di layar Tim, detail hero, dan koleksi): otomatis memasang senjata, pelindung, dan aksesori yang membuat CP tiap hero tim paling tinggi (signature ikut diperhitungkan). Formasi Terbaik sekarang juga memasang perlengkapan terbaik. Ada pilihan pasang otomatis saat dapat barang baru.
+- **Tungku Peleburan** (Hero › Senjata/Perlengkapan, atau layar Tim): lebur salinan cadangan jadi emas (★1 1.000, ★2 3.000, ★3 8.000), Bijih Tempa (★1: 4 kecil; ★2: 2 kecil + 2 biru; ★3: 2 biru + 2 ungu), dan material Limit Break (★2: 1 Serpihan Bintang, ★3: 1 Kristal Bintang). Barang yang pernah ditingkatkan mengembalikan 80% material & 50% emas yang dipakai. Salinan terbaik tiap jenis & yang dipakai tidak pernah dilebur. Bisa lebur otomatis salinan ★1 (bawaan) atau ★1–★2 saat dapat barang.
+
 ## Ekonomi & hadiah
 - Permata dari: kemenangan pertama tahap, misi harian, pencapaian, event, Kotak Surat, hadiah Arena, Top Up.
 - Misi harian (reset 00:00 WIB) + bonus semua misi. Pencapaian permanen. Event: Login Pemula 7 Hari (hari ke-7 pilih hero ★3), Misi Pemula, event terbatas seperti Festival Badai Raijin.

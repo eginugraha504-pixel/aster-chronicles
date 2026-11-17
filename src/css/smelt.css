@@ -1,0 +1,25 @@
+/* =====================================================================
+   TUNGKU PELEBURAN & PASANG TERBAIK (ui/smelt.js)
+   ===================================================================== */
+.smbar .btn{display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px}
+.smbar .btn img{width:20px;height:20px}.smbar .btn .dot{position:relative;top:0;right:0;margin-left:2px}
+.smhead{display:flex;gap:10px;align-items:center;margin:4px 0 8px;padding:8px 10px;border-radius:12px;background:#fff3d6;border:2px solid var(--parch4)}
+.smhead img{width:40px;height:40px;flex:none}.smhead p{margin:0;font-size:12.5px;line-height:1.4}
+.smf{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}.smf i{width:1px;height:20px;background:rgba(74,42,23,.25);margin:0 2px}
+.smup{display:flex;gap:6px;align-items:flex-start;font-size:12px;color:var(--mut);font-weight:800;margin:4px 0 8px}
+.smup input{margin-top:2px;width:16px;height:16px;accent-color:#d2780a}
+.smgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:6px;max-height:230px;overflow-y:auto;padding:4px;border-radius:12px;background:rgba(74,42,23,.06)}
+.smit{position:relative;aspect-ratio:1;padding:0;border-radius:10px;border:2.5px solid #c9a070;background:linear-gradient(180deg,#fffaf0,#efd9a8);opacity:.55;transition:.12s}
+.smit.r2{border-color:#6ab4f0;background:linear-gradient(180deg,#eef7ff,#bfe0ff)}.smit.r3{border-color:var(--gold2);background:linear-gradient(180deg,#fff6cf,#ffd88a)}
+.smit.on{opacity:1;box-shadow:0 0 0 2px var(--ink),0 3px 0 rgba(74,42,23,.4)}
+.smit img{width:78%;height:78%;margin-top:6%}
+.smit .st{position:absolute;left:3px;top:1px;font-size:8px;color:var(--hl);-webkit-text-stroke:1.5px #fff;paint-order:stroke fill}
+.smit .lv{position:absolute;right:3px;bottom:2px;font-family:var(--fh);font-size:10px;color:#fff;-webkit-text-stroke:2px var(--ink);paint-order:stroke fill}
+.smit i{position:absolute;right:-5px;top:-5px;width:18px;height:18px;border-radius:50%;font-style:normal;font-size:11px;line-height:15px;text-align:center;color:#fff;background:#4cc24a;border:2px solid var(--ink)}
+.smsel{display:flex;gap:6px;align-items:center;margin:6px 0;font-size:12px;font-weight:800;color:var(--mut)}.smsel span{margin-left:auto}
+.smempty{text-align:center;padding:16px 0}
+.smout{margin:8px 0 2px;padding:8px;border-radius:12px;background:#fff;border:2px dashed var(--parch4);text-align:center}
+.smout>b{font-family:var(--fh);font-size:14px}.smout .rw{margin:4px 0 0}
+.smuse{margin:4px 0 6px;padding-left:4px;list-style:none;font-size:12.5px;line-height:1.45}.smuse li{margin:4px 0}.smuse img{vertical-align:-3px}
+.eqsec{display:flex;align-items:center;gap:8px}.eqsec .fbtn{margin-left:auto;font-size:11.5px;padding:3px 9px}
+.eqauto{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}.eqauto .fbtn{font-size:11.5px;display:flex;align-items:center;gap:4px}.eqauto img{width:16px;height:16px}
