@@ -92,5 +92,5 @@ const SFX_LIB={
 // penyeimbang volume per efek
 const SFX_GAIN={click:3,tab:2.6,open:3,close:3,tap:2.4,swing:5,hurt:3,die:2,block:1.8,card:1.4,deny:1.5,hit:1.4};
 const SFX_GAP={hit:55,swing:45,hurt:80,click:30,card:40,heal:150,block:90,die:60,sparkle:120};
-function sfx(k,o){if(typeof S==='undefined'||!S||!S.sound)return;const fn=SFX_LIB[k];if(!fn)return;
+function sfx(k,o){if(typeof S==='undefined'||!S||!S.sound)return;if(typeof B!=='undefined'&&B&&B.sim)return;const fn=SFX_LIB[k];if(!fn)return;
  try{const A=audInit();if(A.state==='suspended')A.resume();const now=performance.now(),gap=SFX_GAP[k]||0;if(gap&&now-(AUD.last[k]||0)<gap)return;AUD.last[k]=now;AUD.k=SFX_GAIN[k]||1;fn(o||{});AUD.k=1}catch(e){}}

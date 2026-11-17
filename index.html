@@ -931,6 +931,114 @@ i.on{display:inline-block;width:9px;height:9px;border-radius:50%;background:#3ad
 #cutin.spc{padding-left:0}
 #cutin .cspl{flex:0 0 150px;height:100%;background-repeat:no-repeat;background-size:260% auto;-webkit-mask-image:linear-gradient(90deg,#000 70%,transparent);mask-image:linear-gradient(90deg,#000 70%,transparent)}
 
+/* ==== css/arena.css ==== */
+/* =====================================================================
+   ARENA PvP — layar arena, kartu lawan, tim bertahan, riwayat, hasil
+   ===================================================================== */
+.hplate.ar{background:linear-gradient(180deg,#ffe2e0,#ff9d8c)}
+.arwrap{--lc:#c7804a;--lc2:#7a4420}
+.arhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.arhead .arback{width:40px;height:40px;padding:0;font-size:24px;line-height:1;flex:none}
+.arhead h2{font-size:28px;letter-spacing:1px;-webkit-text-stroke-width:5px}
+.arsea{margin-left:auto;display:flex;align-items:center;gap:3px;flex-wrap:wrap;justify-content:flex-end;font-size:11px;font-weight:900;color:#fff;background:rgba(46,24,10,.72);border:2px solid var(--ink);border-radius:12px;padding:4px 8px;text-align:right;max-width:52%}
+.arsea b{color:var(--gold)}
+.arload{text-align:center;padding:36px 0}
+/* kartu liga milikku */
+.panel.arme{display:flex;align-items:center;gap:10px;padding:8px;overflow:hidden;color:#fff;border:10px solid transparent;border-radius:8px;border-image:var(--ui-card-r3) 24 / 10px stretch;
+ background:radial-gradient(ellipse at 18% 40%,color-mix(in srgb,var(--lc) 70%,#fff),var(--lc2) 70%,#24123a);background-clip:padding-box;box-shadow:var(--sh)}
+.arme .rays{position:absolute;left:14%;top:50%;width:420px;height:420px;margin:-210px;background:repeating-conic-gradient(rgba(255,255,255,.16) 0 10deg,transparent 10deg 20deg);animation:spin 24s linear infinite;pointer-events:none}
+.arme .arlg{position:relative;width:76px;height:76px;flex:none;filter:drop-shadow(0 3px 0 rgba(0,0,0,.35));animation:arbob 2.6s ease-in-out infinite}
+@keyframes arbob{50%{transform:translateY(-3px)}}
+.armi{position:relative;display:flex;flex-direction:column;flex:1;min-width:0}
+.armi>small{font-size:11px;font-weight:900;opacity:.9}
+.armi>b{font-size:26px;line-height:1.05}
+.arpts{font-size:12px;font-weight:900}.arpts b{font-family:var(--fh);font-size:18px;font-weight:400;color:var(--gold)}
+.arbar{display:block;height:8px;margin:4px 0 3px;border-radius:6px;background:rgba(0,0,0,.35);border:1.5px solid rgba(255,255,255,.5);overflow:hidden}
+.arbar i{display:block;height:100%;background:linear-gradient(90deg,#fff3a0,var(--gold))}
+.arst{position:relative;display:flex;flex-direction:column;gap:4px;flex:none}
+.arst>*{display:flex;flex-direction:column;align-items:center;min-width:64px;padding:3px 6px;border-radius:10px;background:rgba(0,0,0,.28);border:1.5px solid rgba(255,255,255,.35);color:#fff;font:inherit}
+.arst b{font-family:var(--fh);font-weight:400;font-size:16px;line-height:1.1}
+.arst span{font-size:9.5px;font-weight:900;opacity:.9;white-space:nowrap}
+.arst button{cursor:pointer}
+.artix{display:flex;align-items:center;gap:8px;margin:10px 0;padding:6px 10px;border-radius:12px;background:#fff8e6;border:2.5px solid var(--ink);font-size:13px;font-weight:900}
+.artix .tk{display:flex;align-items:center;gap:4px}.artix .tk b{color:var(--hl);font-family:var(--fh);font-weight:400;font-size:17px}
+.artix small{font-size:11px;color:var(--mut)}
+.artix .cp{margin-left:auto}.artix .cp b{font-family:var(--fh);font-weight:400;font-size:16px;color:#5b3fc4}
+.artabs{margin-bottom:10px}.artabs .btn{position:relative;font-size:13px;padding:8px 6px}.artabs .dot{top:-6px;right:-4px}
+/* kartu lawan */
+.aropp{display:flex;align-items:center;gap:8px;padding:10px 8px 10px 10px;margin-bottom:9px;border-left:8px solid var(--oc)}
+.ardf{position:absolute;top:-9px;left:12px;font-size:10px;font-weight:900;letter-spacing:.5px;padding:1px 8px;border-radius:8px;border:2px solid var(--ink);color:#fff}
+.ardf.easy{background:#3fae4a}.ardf.even{background:#e79a1c}.ardf.hard{background:#d8443d}
+.aroav{position:relative;width:56px;height:56px;flex:none;border-radius:14px;border:3px solid var(--ink);background:radial-gradient(circle at 50% 35%,#fff7da,#e9c886);overflow:hidden;padding:0}
+.aroav img{width:100%;height:100%}.aroav .on{position:absolute;right:3px;bottom:3px;width:10px;height:10px;border-radius:50%;background:#4cd65a;border:2px solid #fff}
+.aroi{display:flex;flex-direction:column;flex:1;min-width:0;gap:1px}
+.aroi>b{font-family:var(--fh);font-weight:400;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aroi>span{font-size:11.5px;font-weight:800;color:var(--mut)}.aroi>span b{color:var(--txt)}
+.arteam{display:flex;gap:3px;margin-top:3px}
+.arteam span{position:relative;width:30px;height:30px;border-radius:8px;border:2px solid var(--ink);background:#f6e7c2;overflow:hidden}
+.arteam span.r2{background:#cfe6ff}.arteam span.r3{background:linear-gradient(135deg,#fff3a6,#ffc84a)}
+.arteam img{width:100%;height:100%}.arteam .el{position:absolute;left:0;top:0;width:11px;height:11px}
+.arteam i{position:absolute;right:0;bottom:0;font-style:normal;font-size:8.5px;font-weight:900;color:#fff;background:rgba(46,24,10,.8);padding:0 2px;border-radius:4px 0 0 0;line-height:1.2}
+.aroa{display:flex;flex-direction:column;align-items:stretch;gap:5px;flex:none;width:84px}
+.arex{display:flex;justify-content:space-between;font-family:var(--fh);font-size:13px}
+.arex em{font-style:normal}.aup{color:#2f9a3a}.adn{color:#d8443d}
+.aroa .btn{font-size:14px;padding:7px 4px}
+.btn.sm{font-size:12px!important;padding:5px 4px!important;border-radius:11px}
+.btn.lk{filter:saturate(.35) brightness(.95)}
+.arnote{margin-top:8px;text-align:center}
+/* riwayat */
+.arlogs{display:flex;flex-direction:column;gap:6px}
+.arlog{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:13px;background:#fff8e6;border:2.5px solid rgba(74,42,23,.3)}
+.arlog.l{background:#fdeeea}
+.arlog>img,.arlog .noav{width:38px;height:38px;border-radius:10px;border:2px solid var(--ink);background:#f6e7c2;flex:none}
+.ark{writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;font-weight:900;letter-spacing:1px;color:#fff;padding:4px 2px;border-radius:6px}
+.ark.atk{background:#d8443d}.ark.def{background:#3f7fd8}
+.ali{display:flex;flex-direction:column;flex:1;min-width:0}
+.ali b{font-family:var(--fh);font-weight:400;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ali small{font-size:10.5px;font-weight:800;color:var(--mut)}
+.ard{font-family:var(--fh);font-size:18px;min-width:38px;text-align:right}
+/* hadiah */
+.arrw{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.arrwh,.arrwr{display:grid;grid-template-columns:1.15fr 1fr 1.25fr;align-items:center;gap:6px}
+.arrwh{font-size:11px;font-weight:900;color:var(--mut);padding:0 8px}
+.arrwr{padding:6px 8px;border-radius:13px;background:#fff8e6;border:2.5px solid rgba(74,42,23,.3);border-left:7px solid var(--lc)}
+.arrwr.cur{background:#fff1b8;border-color:var(--ink);box-shadow:0 0 0 2px var(--gold)}
+.arrwr .lgn{display:grid;grid-template-columns:30px 1fr;align-items:center;column-gap:4px}
+.arrwr .lgn img{grid-row:span 2;width:30px;height:30px}.arrwr .lgn b{font-family:var(--fh);font-weight:400;font-size:14px;line-height:1}.arrwr .lgn small{font-size:10px;font-weight:900;color:var(--mut)}
+.arrwr .mrw{display:flex;flex-wrap:wrap;gap:2px 6px;font-size:11.5px;font-weight:900}
+/* hasil pertarungan */
+.arres h3{font-size:30px}.arres h3.lose{color:#c0392b}
+.arvs{display:flex;align-items:center;justify-content:center;gap:12px;margin:6px 0 8px}
+.arvs span{display:flex;flex-direction:column;align-items:center;gap:2px;width:96px}
+.arvs img{width:52px;height:52px;border-radius:14px;border:3px solid var(--ink);background:radial-gradient(circle at 50% 35%,#fff7da,#e9c886)}
+.arvs b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.arvs i{font-style:normal;font-size:26px;color:#fff;-webkit-text-stroke-width:5px}
+.arpd{display:flex;align-items:center;justify-content:center;gap:8px;margin:4px 0}
+.arpd img{width:40px;height:40px}.arpd span{display:flex;flex-direction:column;align-items:flex-start}
+.arpd span b{font-family:var(--fh);font-weight:400;font-size:20px}.arpd span small{font-size:11px;font-weight:900;color:var(--mut)}
+.arpd em{font-style:normal;font-family:var(--fh);font-size:26px}
+.arpromo{display:inline-block;margin:2px 0 6px;padding:3px 12px;border-radius:10px;font-weight:900;font-size:14px;color:#fff;border:2px solid var(--ink)}
+.arpromo.up{background:linear-gradient(90deg,#ffb12e,#ff6a3c);animation:pop .5s}.arpromo.dn{background:#8a7a9a}
+.armvp{display:flex;align-items:center;justify-content:center;gap:6px;margin:6px 0}
+.armvp span{font-family:var(--fh);font-size:13px;color:#fff;background:#d2780a;border:2px solid var(--ink);border-radius:8px;padding:0 6px}
+.armvp img{width:30px;height:30px;border-radius:8px;border:2px solid var(--ink)}
+.armvp b{font-size:14px}.armvp small{font-size:11px;font-weight:800;color:var(--mut)}
+.artl{display:block;font-size:11px;font-weight:900;color:var(--mut);margin-top:4px}
+.arresbox{text-align:center}
+.ardmg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 2px}
+.ardm{display:flex;flex-direction:column;gap:3px}
+.ardm>div{display:grid;grid-template-columns:24px 1fr 40px;align-items:center;gap:4px}
+.ardm>div.ko{opacity:.5}
+.ardm img{width:24px;height:24px;border-radius:6px;border:1.5px solid var(--ink)}
+.ardm .bar{height:7px;border-radius:5px;background:#e8d6ae;overflow:hidden}
+.ardm .bar i{display:block;height:100%;background:linear-gradient(90deg,#5bc4ff,#2a7ad0)}
+.ardm.enemy .bar i{background:linear-gradient(90deg,#ff9a7a,#d8443d)}
+.ardm b{font-size:10.5px;text-align:right}
+.armi>b,.armi .arpts,.armi>small{text-shadow:0 2px 0 rgba(0,0,0,.35)}
+#bWave.rage{background:#d8443d;color:#fff;animation:blink 1s steps(2) infinite}
+.arhead h2{white-space:nowrap}
+.aroa .btn.sm{white-space:nowrap;font-size:11px!important}
+
 /* ==== css/boot.css ==== */
 /* ================= LOADING SCREEN, LOGIN & TRANSISI ================= */
 #boot,#login,.trans{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;overflow:hidden}
@@ -1584,6 +1692,49 @@ const BOT_CFG={
  SYL:['ra','ki','no','sa','ri','ta','ka','mi','yu','to','ze','lu','ar','en','ko','vi','ba','do','na','ha','shi','ren','dar','vel','mo','ji','ga','ru','ne','fa'],
 };
 
+/* ==== js/data/arena.js ==== */
+/* =====================================================================
+   ARENA PvP — semua angka penyetel ada di sini
+   (mesin: systems/arena.js, tampilan: ui/arena.js + css/arena.css)
+   ---------------------------------------------------------------------
+   - Lawan = pemain bot dari Peringkat (tim & CP asli mereka, data/bots.js).
+   - 5 tiket per hari (reset 00:00 WIB). Musim = 1 minggu (Senin 00:00 WIB).
+   - Poin Arena memakai rumus Elo: menang melawan yang lebih kuat = poin lebih besar.
+   - Hadiah harian (sesuai liga, bila bertarung hari itu) & mingguan (liga akhir musim) dikirim lewat Kotak Surat.
+   ===================================================================== */
+const ARENA_CFG={
+ tix:5,                 // tiket per hari
+ start:1000,            // poin awal
+ soft:.5,               // awal musim: poin = start + (poin - start) × soft
+ kAtk:40,kDef:16,       // faktor Elo saat menyerang / saat tim bertahan diserang
+ minWin:6,minLose:3,    // perubahan poin minimum
+ limit:90,              // detik; waktu habis = penyerang kalah
+ teamBonus:true,
+ // Kemarahan Arena: setelah `at` detik semua damage naik `per` (×) tiap detik, supaya tim penuh penyembuh tidak buntu sampai waktu habis
+ rage:{at:15,per:.07},healMul:.7,          // penyembuhan di Arena ×0.7
+        // bonus CP tim (resonansi elemen, formasi seimbang, dst.) ikut menguatkan stat di Arena
+ refreshCd:10,          // detik jeda tombol "Cari Lawan Lain"
+ // serangan bot ke tim bertahanmu: peluang per jam & batas per kali hitung (setelah pertama kali bertarung)
+ defPerHour:.17,defMax:8,
+ // hadiah per pertarungan
+ battle:{win:{gold:2500,exp:40},lose:{gold:800,exp:15}},
+ // liga: min = poin minimum. day = hadiah harian, week = hadiah akhir musim
+ leagues:[
+  {id:'bronze',  n:'Perunggu',min:0,   c:'#c7804a',c2:'#7a4420',day:{gems:20, gold:5000}, week:{gems:100, gold:20000}},
+  {id:'silver',  n:'Perak',   min:1150,c:'#b9c4d6',c2:'#5e6b82',day:{gems:30, gold:8000}, week:{gems:200, gold:35000}},
+  {id:'gold',    n:'Emas',    min:1300,c:'#ffc83d',c2:'#a8650e',day:{gems:45, gold:12000},week:{gems:350, gold:50000,tixH:1}},
+  {id:'platinum',n:'Platinum',min:1450,c:'#6fe0d2',c2:'#21786e',day:{gems:60, gold:16000},week:{gems:500, gold:70000,tixH:2}},
+  {id:'diamond', n:'Berlian', min:1600,c:'#7fb4ff',c2:'#2f4fae',day:{gems:80, gold:20000},week:{gems:750, gold:90000,tixH:3}},
+  {id:'legend',  n:'Legenda', min:1800,c:'#ff7ad0',c2:'#7a1f8a',day:{gems:100,gold:25000},week:{gems:1000,gold:120000,tixH:5}},
+ ],
+ // poin bot: target = start + span × (persentil CP)^curve ± jitter; makin lama musim berjalan makin dekat ke target
+ bot:{span:1150,curve:1.6,jitter:220,speed:{santai:.35,reguler:.55,rajin:.8,hardcore:1.1}},
+ // pencarian lawan: 3 kartu (lebih lemah / setara / lebih kuat) dalam rentang poin ini
+ match:[[-220,-40],[-40,40],[40,220]],
+ matchCp:[[0,.92],[.88,1.12],[1.08,9]],   // rentang CP lawan dibanding CP timmu untuk tiap kartu
+ bg:'castle',           // latar pertarungan (img/bg/w_<bg>.webp)
+};
+
 /* ==== js/data/enemies.js ==== */
 /* =====================================================================
    DAFTAR MUSUH
@@ -2006,6 +2157,9 @@ I18D.en={
  subn:{crit:'Crit',hp:'HP',def:'DEF'}
 };
 
+/* ---- Arena PvP ---- */
+Object.assign(I18N.en,{"Akhir Musim": "Season End", "Arena": "Arena", "Atur Tim Serang": "Set Attack Team", "Aturan Arena": "Arena Rules", "BERTAHAN": "DEFENSE", "Balas": "Revenge", "Belum ada lawan yang cocok. Coba lagi sebentar.": "No suitable opponents yet. Try again shortly.", "Belum ada pertarungan. Tantang lawan pertamamu!": "No battles yet. Challenge your first opponent!", "Berlian": "Diamond", "Beruntun": "Streak", "Bonus CP tim (resonansi elemen, formasi seimbang, dll.) ikut menguatkan stat hero di Arena.": "Team CP bonuses (element resonance, balanced formation, etc.) also boost hero stats in the Arena.", "CP TIM BERTAHAN": "DEFENSE TEAM CP", "CP tim dipakai untuk pencocokan lawan di Arena. Guild War segera hadir!": "Team CP is used for Arena matchmaking. Guild War coming soon!", "Cari Lawan Lain": "Find Other Opponents", "Cepat": "Quick", "Hadiah Harian Arena · Liga {l}": "Arena Daily Reward · {l} League", "Hadiah Musim Arena · Liga {l}": "Arena Season Reward · {l} League", "Hadiah harian dikirim ke Kotak Surat besok bila kamu bertarung hari ini.": "Daily rewards arrive in your Mailbox tomorrow if you fight today.", "Isi ulang dalam": "Refills in", "Kamu kalah dari": "You lost to", "Kamu menang melawan": "You defeated", "Kemarahan Arena!": "Arena Fury!", "Kembali ke Arena": "Back to Arena", "Lawan": "Opponents", "Lawan belum punya tim.": "This opponent has no team yet.", "Legenda": "Legend", "Liga": "League", "Liga tertinggi!": "Top league!", "Liga {l}": "{l} League", "Menahan serangan": "Held off an attack from", "Menang melawan lawan yang lebih kuat memberi poin lebih banyak.": "Beating stronger opponents earns more points.", "Menangkan 1 pertarungan Arena dulu untuk membuka Pertarungan Cepat.": "Win 1 Arena battle first to unlock Quick Battle.", "Menangkan 1 pertarungan untuk membuka Pertarungan Cepat.": "Win 1 battle to unlock Quick Battle.", "Menang–Kalah": "Win–Loss", "Mencari lawan di Arena...": "Searching for Arena opponents...", "Mudah": "Easy", "Musim Arena telah berakhir! Kamu menutup musim di Liga {l} dengan {p} poin ({w} menang, {k} kalah). Musim baru sudah dimulai — poinmu disesuaikan ulang.": "The Arena season has ended! You finished in the {l} League with {p} points ({w} wins, {k} losses). A new season has begun — your points have been adjusted.", "Musim berakhir dalam": "Season ends in", "Musim berganti tiap Senin 00:00 WIB. Hadiah musim sesuai liga akhirmu, lalu poin di atas {s} dipotong setengah.": "Seasons reset every Monday 00:00 WIB (UTC+7). Season rewards follow your final league, then points above {s} are halved.", "Naik ke Liga {l}!": "Promoted to {l} League!", "Pemain lain bisa menyerang Tim Bertahanmu kapan saja, juga saat kamu offline. Bertahan = poin naik sedikit, kalah = poin turun.": "Other players can attack your Defense Team at any time, even while you're offline. Hold = points go up a little, lose = points go down.", "Penjaga Arena": "Arena Keeper", "Perak": "Silver", "Perunggu": "Bronze", "Platinum": "Platinum", "Rekor bertahan: {w} menang dari {n}.": "Defense record: {w} wins out of {n}.", "Riwayat": "History", "SERANG": "ATTACK", "Salin Tim Utama": "Copy Main Team", "Setara": "Even", "Sulit": "Hard", "Tantang": "Challenge", "Terima kasih sudah bertarung di Arena kemarin! Ini hadiah harian untuk Liga {l} ({p} poin).": "Thanks for fighting in the Arena yesterday! Here is your daily reward for the {l} League ({p} points).", "Tiap pertarungan: menang {a} Emas, kalah {b} Emas.": "Each battle: win {a} Gold, lose {b} Gold.", "Tiket Arena habis! Tiket terisi lagi pukul 00:00 WIB.": "Out of Arena tickets! Tickets refill at 00:00 WIB (UTC+7).", "Tiket tersisa {n}/{m}": "Tickets left {n}/{m}", "Tiket {a}/{b}": "Tickets {a}/{b}", "Tim Bertahan": "Defense Team", "Tim Bertahan · Slot {n}": "Defense Team · Slot {n}", "Tim Bertahanmu diserang {n}× saat kamu pergi! Cek Riwayat.": "Your Defense Team was attacked {n}× while you were away! Check History.", "Tim Bertahanmu diserang {n}×! Cek Riwayat.": "Your Defense Team was attacked {n}×! Check History.", "Tim serangmu = formasi di menu Tim. Hero lawan dikendalikan otomatis. Waktu {s} detik: bila habis, penyerang kalah.": "Your attack team = your formation in the Team menu. Enemy heroes are auto-controlled. {s}-second limit: if time runs out, the attacker loses.", "Tim utama disalin ke Tim Bertahan.": "Main team copied to Defense Team.", "Timmu dikalahkan": "Your team was defeated by", "Turun ke Liga {l}": "Demoted to {l} League", "VS {n}": "VS {n}", "damage": "damage", "poin": "pts", "pulih": "healed", "{d} hari {h} jam": "{d}d {h}h", "{h} jam {m} mnt": "{h}h {m}m", "{n} poin lagi ke Liga {l}": "{n} more points to {l} League", "{n} tiket per hari, terisi ulang pukul 00:00 WIB.": "{n} tickets per day, refilled at 00:00 WIB (UTC+7).", "Setelah {s} detik, Kemarahan Arena aktif: damage terus naik dan penyembuhan berkurang.": "After {s} seconds, Arena Fury kicks in: damage keeps rising and healing is reduced."});
+
 /* ==== js/lang/ja.js ==== */
 /* =====================================================================
    日本語 — UI文字列（キー＝インドネシア語の原文）＋データ上書き
@@ -2197,6 +2351,9 @@ I18D.ja={
  wclass:{sword:'剣',bow:'弓',staff:'杖',shield:'盾',axe:'斧'},
  subn:{crit:'会心',hp:'HP',def:'防御'}
 };
+
+/* ---- Arena PvP ---- */
+Object.assign(I18N.ja,{"Akhir Musim": "シーズン終了", "Arena": "アリーナ", "Atur Tim Serang": "攻撃編成", "Aturan Arena": "アリーナのルール", "BERTAHAN": "防衛", "Balas": "リベンジ", "Belum ada lawan yang cocok. Coba lagi sebentar.": "条件に合う相手がいません。少し後でもう一度。", "Belum ada pertarungan. Tantang lawan pertamamu!": "まだ対戦がありません。最初の相手に挑もう！", "Berlian": "ダイヤ", "Beruntun": "連勝", "Bonus CP tim (resonansi elemen, formasi seimbang, dll.) ikut menguatkan stat hero di Arena.": "パーティ戦力ボーナス（属性共鳴・バランス編成など）はアリーナでヒーローのステータスも強化します。", "CP TIM BERTAHAN": "防衛パーティ戦力", "CP tim dipakai untuk pencocokan lawan di Arena. Guild War segera hadir!": "パーティ戦力はアリーナのマッチングに使われます。ギルド戦は近日公開！", "Cari Lawan Lain": "相手を再検索", "Cepat": "スキップ", "Hadiah Harian Arena · Liga {l}": "アリーナ日次報酬・{l}リーグ", "Hadiah Musim Arena · Liga {l}": "アリーナシーズン報酬・{l}リーグ", "Hadiah harian dikirim ke Kotak Surat besok bila kamu bertarung hari ini.": "今日対戦すると、明日メールボックスに日次報酬が届きます。", "Isi ulang dalam": "回復まで", "Kamu kalah dari": "敗北：", "Kamu menang melawan": "勝利：", "Kemarahan Arena!": "アリーナの怒り！", "Kembali ke Arena": "アリーナに戻る", "Lawan": "対戦相手", "Lawan belum punya tim.": "この相手はまだ編成がありません。", "Legenda": "レジェンド", "Liga": "リーグ", "Liga tertinggi!": "最高リーグ！", "Liga {l}": "{l}リーグ", "Menahan serangan": "防衛成功：", "Menang melawan lawan yang lebih kuat memberi poin lebih banyak.": "強い相手に勝つほど多くのポイントを獲得。", "Menangkan 1 pertarungan Arena dulu untuk membuka Pertarungan Cepat.": "アリーナで1勝するとスキップバトルが解放されます。", "Menangkan 1 pertarungan untuk membuka Pertarungan Cepat.": "1勝するとスキップバトルが解放されます。", "Menang–Kalah": "勝–敗", "Mencari lawan di Arena...": "アリーナの対戦相手を検索中...", "Mudah": "格下", "Musim Arena telah berakhir! Kamu menutup musim di Liga {l} dengan {p} poin ({w} menang, {k} kalah). Musim baru sudah dimulai — poinmu disesuaikan ulang.": "アリーナシーズンが終了しました！{l}リーグ・{p}ポイント（{w}勝{k}敗）でシーズンを終えました。新シーズンが始まり、ポイントが調整されました。", "Musim berakhir dalam": "シーズン終了まで", "Musim berganti tiap Senin 00:00 WIB. Hadiah musim sesuai liga akhirmu, lalu poin di atas {s} dipotong setengah.": "シーズンは毎週月曜0:00（WIB）に更新。最終リーグに応じた報酬の後、{s}を超えるポイントは半分になります。", "Naik ke Liga {l}!": "{l}リーグに昇格！", "Pemain lain bisa menyerang Tim Bertahanmu kapan saja, juga saat kamu offline. Bertahan = poin naik sedikit, kalah = poin turun.": "他のプレイヤーはオフライン中でも防衛パーティに挑戦できます。防衛成功でポイント少し上昇、敗北で減少。", "Penjaga Arena": "アリーナの番人", "Perak": "シルバー", "Perunggu": "ブロンズ", "Platinum": "プラチナ", "Rekor bertahan: {w} menang dari {n}.": "防衛記録：{n}戦中{w}勝。", "Riwayat": "履歴", "SERANG": "攻撃", "Salin Tim Utama": "メイン編成をコピー", "Setara": "互角", "Sulit": "格上", "Tantang": "挑戦", "Terima kasih sudah bertarung di Arena kemarin! Ini hadiah harian untuk Liga {l} ({p} poin).": "昨日はアリーナでの対戦お疲れさま！{l}リーグ（{p}ポイント）の日次報酬です。", "Tiap pertarungan: menang {a} Emas, kalah {b} Emas.": "1戦ごと：勝利で{a}ゴールド、敗北で{b}ゴールド。", "Tiket Arena habis! Tiket terisi lagi pukul 00:00 WIB.": "アリーナチケットがありません！0:00（WIB）に回復します。", "Tiket tersisa {n}/{m}": "残りチケット {n}/{m}", "Tiket {a}/{b}": "チケット {a}/{b}", "Tim Bertahan": "防衛編成", "Tim Bertahan · Slot {n}": "防衛編成・枠{n}", "Tim Bertahanmu diserang {n}× saat kamu pergi! Cek Riwayat.": "留守中に防衛パーティが{n}回挑戦されました！履歴を確認しよう。", "Tim Bertahanmu diserang {n}×! Cek Riwayat.": "防衛パーティが{n}回挑戦されました！履歴を確認しよう。", "Tim serangmu = formasi di menu Tim. Hero lawan dikendalikan otomatis. Waktu {s} detik: bila habis, penyerang kalah.": "攻撃パーティ＝編成メニューの編成。相手ヒーローは自動で戦います。制限時間{s}秒：時間切れは攻撃側の負け。", "Tim utama disalin ke Tim Bertahan.": "メイン編成を防衛編成にコピーしました。", "Timmu dikalahkan": "防衛失敗：", "Turun ke Liga {l}": "{l}リーグに降格", "VS {n}": "VS {n}", "damage": "ダメージ", "poin": "pt", "pulih": "回復", "{d} hari {h} jam": "{d}日{h}時間", "{h} jam {m} mnt": "{h}時間{m}分", "{n} poin lagi ke Liga {l}": "{l}リーグまであと{n}pt", "{n} tiket per hari, terisi ulang pukul 00:00 WIB.": "1日{n}枚、0:00（WIB）に回復。", "Setelah {s} detik, Kemarahan Arena aktif: damage terus naik dan penyembuhan berkurang.": "{s}秒経過で「アリーナの怒り」発動：ダメージが上がり続け、回復量が減少。"});
 
 /* ==== js/art/icons.js ==== */
 /* =====================================================================
@@ -4243,7 +4400,7 @@ const SFX_LIB={
 // penyeimbang volume per efek
 const SFX_GAIN={click:3,tab:2.6,open:3,close:3,tap:2.4,swing:5,hurt:3,die:2,block:1.8,card:1.4,deny:1.5,hit:1.4};
 const SFX_GAP={hit:55,swing:45,hurt:80,click:30,card:40,heal:150,block:90,die:60,sparkle:120};
-function sfx(k,o){if(typeof S==='undefined'||!S||!S.sound)return;const fn=SFX_LIB[k];if(!fn)return;
+function sfx(k,o){if(typeof S==='undefined'||!S||!S.sound)return;if(typeof B!=='undefined'&&B&&B.sim)return;const fn=SFX_LIB[k];if(!fn)return;
  try{const A=audInit();if(A.state==='suspended')A.resume();const now=performance.now(),gap=SFX_GAP[k]||0;if(gap&&now-(AUD.last[k]||0)<gap)return;AUD.last[k]=now;AUD.k=SFX_GAIN[k]||1;fn(o||{});AUD.k=1}catch(e){}}
 
 /* ==== js/systems/voice.js ==== */
@@ -4380,7 +4537,7 @@ function dashPose(u){const D=u.dash;if(D.ph==='in')return{pose:'back'};if(D.ph==
 const TINT=new WeakMap();
 function tinted(c,col){let m=TINT.get(c);if(!m){m={};TINT.set(c,m)}if(m[col])return m[col];const t=document.createElement('canvas');t.width=c.width;t.height=c.height;const g=t.getContext('2d');g.drawImage(c,0,0);g.globalCompositeOperation='source-in';g.fillStyle=col;g.fillRect(0,0,t.width,t.height);return m[col]=t}
 function drawTrail(g,u){if(!u.trail||!u.trail.length)return;const hero=u.side==='hero',sc=u.scale,col=EL[u.el].c;
- const fr=hero?heroFrame(u):mobFrame(u),tc=tinted(fr.c,col),wc=tinted(fr.c,'#ffffff');
+ const fr=isHU(u)?heroFrame(u):mobFrame(u),tc=tinted(fr.c,col),wc=tinted(fr.c,'#ffffff');
  for(const p of u.trail){const x=Math.round(u.x+u.ox+p.dx),y=u.y+p.dy;g.globalAlpha=Math.max(0,p.a)*.55;
   if(hero)g.drawImage(tc,x-22,y-39,44,44);else{g.save();g.translate(x,0);g.scale(-1,1);g.drawImage(tc,-22*sc,y-39*sc,44*sc,44*sc);g.restore()}}
  // garis kecepatan saat melesat
@@ -4403,7 +4560,8 @@ function fxFrame(row,i){if(!hasSpr('fx_melee'))return null;return sprCanvas('fx_
 /* ================= BATTLE ================= */
 let B=null;
 const HPOS=[[86,140],[86,184],[46,128],[46,172]],EPOS=[[160,140],[160,184],[200,128],[200,172]];
-const uh=u=>u.side==='hero'?34:((ENEMY[u.etype]||{}).h||28)*u.scale;
+const isHU=u=>u.side==='hero'||!!u.ph;  // unit berwujud hero (termasuk hero lawan di Arena)
+const uh=u=>isHU(u)?34:((ENEMY[u.etype]||{}).h||28)*u.scale;
 function mkUnit(side,o){return Object.assign({side,alive:true,cd:.4+Math.random()*.8,charge:side==='hero'?30:0,lungeT:0,hitT:0,deathT:0,shieldT:0,tauntT:0,atkUpT:0,ox:0,scale:1},o)}
 function startBattle(key){const st=STAGES[key];const ids=S.team.filter(Boolean);if(!ids.length)return toast(T('Tim kosong! Pilih hero dulu.'),1);regen();if(S.stam<st.cost)return toast(T('Stamina tidak cukup!'),1);
  S.stam-=st.cost;save();closeModal();lobby=null;
@@ -4413,60 +4571,64 @@ function startBattle(key){const st=STAGES[key];const ids=S.team.filter(Boolean);
  ord.forEach((id,i)=>{const h=HD[id],s=heroStats(id);B.units.push(mkUnit('hero',{id,i,name:h.name,el:h.el,role:h.role,skill:h.skill,sk:h.sk,mult:h.mult,spr:sprite(h.spr),hp:s.hp,maxHp:s.hp,atk:s.atk,def:s.def,crit:s.crit,sig:s.sig,x:HPOS[i][0],y:HPOS[i][1],cdMax:1.25*ROLE[h.role].cd}))});
  spawnWave();
  $('#bTitle').textContent=st.dg?st.name:st.key+' '+st.name;$('#bSub').textContent=st.dg?T('Dungeon'):WORLDS[st.wi].n;
- $('#bHeroes').innerHTML=B.units.filter(u=>u.side==='hero').map((u,i)=>`<button class="bh" data-act="cast" data-arg="${i}"><img class="px" src="${portrait(u.id)}"><img class="px bel" src="${ICON.el[u.el]}"><span class="bn">${u.name}</span><span class="bsk">${HD[u.id]?HD[u.id].sk:''}</span><span class="bar hp"><i></i></span><span class="bar sp"><i></i></span></button>`).join('');
- B.cards=[...$('#bHeroes').children];updBtns();$('#bOver').classList.remove('on');$('#battle').classList.add('on');$('#bHint').textContent=T('Ketuk kartu hero saat bar biru penuh untuk memakai skill.');$('#bEl').innerHTML=`<b>${T('Keunggulan Elemen')}</b><span>${['api','tanah','air','api'].map(e=>`<img class="px" src="${ICON.el[e]}">`).join('<i>›</i>')}</span><span>${`<img class="px" src="${ICON.el.cahaya}"><i>⇄</i><img class="px" src="${ICON.el.gelap}">`}</span><small>${T('Unggul: +30% damage · Kalah: −25%')}</small>`;banner(T('Gelombang {a}/{b}',{a:1,b:st.waves.length}));sfx('start')}
+ battleUI();banner(T('Gelombang {a}/{b}',{a:1,b:st.waves.length}));sfx('start')}
+// kartu hero, tombol & info elemen di layar pertarungan (dipakai juga oleh Arena)
+function battleUI(){$('#bHeroes').innerHTML=B.units.filter(u=>u.side==='hero').map((u,i)=>`<button class="bh" data-act="cast" data-arg="${i}"><img class="px" src="${portrait(u.id)}"><img class="px bel" src="${ICON.el[u.el]}"><span class="bn">${u.name}</span><span class="bsk">${HD[u.id]?HD[u.id].sk:''}</span><span class="bar hp"><i></i></span><span class="bar sp"><i></i></span></button>`).join('');
+ B.cards=[...$('#bHeroes').children];updBtns();$('#bOver').classList.remove('on');$('#battle').classList.add('on');$('#bHint').textContent=T('Ketuk kartu hero saat bar biru penuh untuk memakai skill.');$('#bEl').innerHTML=`<b>${T('Keunggulan Elemen')}</b><span>${['api','tanah','air','api'].map(e=>`<img class="px" src="${ICON.el[e]}">`).join('<i>›</i>')}</span><span>${`<img class="px" src="${ICON.el.cahaya}"><i>⇄</i><img class="px" src="${ICON.el.gelap}">`}</span><small>${T('Unggul: +30% damage · Kalah: −25%')}</small>`;}
 function spawnWave(){const st=B.st,w=st.waves[B.wave],n=st.n;B.units=B.units.filter(u=>u.side==='hero');
  w.forEach((d,i)=>{const E=ENEMY[d.t];const g=diffG(n);let hp=DIFF.hp*g*E.hp,atk=DIFF.atk*Math.pow(g,DIFF.atkExp)*E.atk,def=DIFF.def*Math.sqrt(g)*E.def;if(d.boss){hp*=BOSS_MUL.hp;atk*=BOSS_MUL.atk;def*=BOSS_MUL.def}
   const p=d.boss?[186,180]:EPOS[(w[0].boss?i+1:i)%4];B.units.push(mkUnit('enemy',{i,name:E.n,el:d.el,role:E.role,boss:!!d.boss,spr:sprite(E.spr(d.el)),hp:Math.round(hp),maxHp:Math.round(hp),atk:Math.round(atk),def:Math.round(def),x:p[0],y:p[1],ox:110+i*14,cdMax:(d.boss?1.6:1.4)*ROLE[E.role].cd,etype:d.t,scale:d.boss?2:1,skill:d.boss?'aoe':null,mult:1.7,sk:d.boss?T(pick(['Hantaman Murka','Gempa Kegelapan','Raungan Penguasa'])):''}))});
  B.state='enter';B.enterT=1;$('#bWave').textContent=T('Gelombang {a}/{b}',{a:B.wave+1,b:st.waves.length})}
 // jeda antar gelombang: hero yang masih hidup pulih WAVE_HEAL × HP maks
 function waveHeal(){for(const u of alive('hero')){const h=Math.round(u.maxHp*WAVE_HEAL),add=Math.min(h,u.maxHp-u.hp);if(add>0){u.hp+=add;addText(u.x,u.y-uh(u)-4,'+'+fmt(add),'#7dff9a')}}}
-function banner(t){const b=$('#bbanner');b.textContent=t;b.classList.remove('on');void b.offsetWidth;b.classList.add('on')}
+function banner(t){if(B&&B.sim)return;const b=$('#bbanner');b.textContent=t;b.classList.remove('on');void b.offsetWidth;b.classList.add('on')}
 const alive=side=>B.units.filter(u=>u.side===side&&u.alive);
 function target(u){const foes=alive(u.side==='hero'?'enemy':'hero');if(!foes.length)return null;
  const t=foes.filter(f=>f.tauntT>0);if(t.length)return pick(t);
  // pemanah/penyihir: hero mengincar HP terendah; musuh hanya 45% (sisanya acak) supaya tim tanpa healer tidak langsung runtuh berantai
- if(u.role==='ranger'&&(u.side==='hero'||Math.random()<ENEMY_FOCUS))return foes.slice().sort((a,b)=>a.hp-b.hp)[0];
+ if(u.role==='ranger'&&(isHU(u)||Math.random()<ENEMY_FOCUS))return foes.slice().sort((a,b)=>a.hp-b.hp)[0];
  if(u.role==='ranger')return pick(foes);
  if(u.side==='hero'){const mn=Math.min(...foes.map(f=>f.x));return pick(foes.filter(f=>f.x===mn))}
- const mx=Math.max(...foes.map(f=>f.x));const front=foes.filter(f=>f.x===mx);return Math.random()<.75?pick(front):pick(foes)}
+ const mx=Math.max(...foes.map(f=>f.x));const front=foes.filter(f=>f.x===mx);return u.ph||Math.random()<.75?pick(front):pick(foes)}
 function addText(x,y,t,c,big){B.texts.push({x:x+rnd(-4,4),y,t,c,big,life:.9})}
-function hit(a,d,mult,opt={}){if(!d.alive)return;const em=elMult(a.el,d.el);let dmg=a.atk*(a.atkUpT>0?(a.atkUpK||1.4):1)*mult*em*rnd(.9,1.1)*100/(100+d.def);const crit=Math.random()<(a.crit?a.crit/100:.1);if(crit)dmg*=1.5;if(d.shieldT>0)dmg*=.5;dmg=Math.max(1,Math.round(dmg));
- d.hp-=dmg;d.hitT=.15;if(!d.anim||d.anim==='hit'){d.anim='hit';d.animT=0}d.charge=Math.min(100,d.charge+4);
+function hit(a,d,mult,opt={}){if(!d.alive)return;const em=elMult(a.el,d.el);let dmg=a.atk*(a.atkUpT>0?(a.atkUpK||1.4):1)*mult*em*arRage()*rnd(.9,1.1)*100/(100+d.def);const crit=Math.random()<(a.crit?a.crit/100:.1);if(crit)dmg*=1.5;if(d.shieldT>0)dmg*=.5;dmg=Math.max(1,Math.round(dmg));
+ a.dmg=(a.dmg||0)+Math.min(dmg,Math.max(0,d.hp));d.hp-=dmg;d.hitT=.15;if(!d.anim||d.anim==='hit'){d.anim='hit';d.animT=0}d.charge=Math.min(100,d.charge+4);
  addText(d.x,d.y-uh(d)-4,fmt(dmg)+(crit?'!':''),crit?'#ffd23f':em>1?'#ff6a3c':em<1?'#bfb2e2':'#fff',crit||opt.big);
  if(em>1&&Math.random()<.3)addText(d.x,d.y-uh(d)-14,T('EFEKTIF'),'#ff9a5a');
  B.fx.push({k:'spark',x:d.x,y:d.y-uh(d)*.45,t:0,dur:.25,c:EL[a.el].c});sfx('hit',{crit});if(d.side==='hero')sfx(d.shieldT>0?'block':'hurt');
  if(d.hp<=0){d.hp=0;d.alive=false;d.deathT=.6;sfx('die');B.fx.push({k:'poof',x:d.x,y:d.y-uh(d)*.35,t:0,dur:.5,c:'#fff'})}}
-function heal(u,amt){if(!u.alive)return;amt=Math.round(amt);u.hp=Math.min(u.maxHp,u.hp+amt);addText(u.x,u.y-uh(u)-4,'+'+fmt(amt),'#7ee07a');B.fx.push({k:'heal',x:u.x,y:u.y,t:0,dur:.7})}
-function act(u){const foeSide=u.side==='hero'?'enemy':'hero';if(!alive(foeSide).length)return;if(u.side==='hero')sfx('swing');if(u.anim!=='skill'){u.anim='attack';u.animT=0}
- if(u.role==='support'&&u.side==='hero'){const low=alive('hero').filter(a=>a.hp/a.maxHp<.65).sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];if(low){heal(low,u.atk*1.3);u.charge=Math.min(100,u.charge+14);return}}
- const t=target(u);if(!t)return;u.charge=Math.min(100,u.charge+(u.side==='hero'?13:9));
+function heal(u,amt,by){if(!u.alive)return;amt=Math.round(amt*(B.st.arena?ARENA_CFG.healMul:1));if(by)by.healed=(by.healed||0)+Math.min(amt,u.maxHp-u.hp);u.hp=Math.min(u.maxHp,u.hp+amt);addText(u.x,u.y-uh(u)-4,'+'+fmt(amt),'#7ee07a');B.fx.push({k:'heal',x:u.x,y:u.y,t:0,dur:.7})}
+function act(u){const foeSide=u.side==='hero'?'enemy':'hero';if(!alive(foeSide).length)return;if(isHU(u))sfx('swing');if(u.anim!=='skill'){u.anim='attack';u.animT=0}
+ if(u.role==='support'&&isHU(u)){const low=alive(u.side).filter(a=>a.hp/a.maxHp<.65).sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];if(low){heal(low,u.atk*1.3,u);u.charge=Math.min(100,u.charge+14);return}}
+ const t=target(u);if(!t)return;u.charge=Math.min(100,u.charge+(isHU(u)?13:9));
  if(ROLE[u.role].melee){u.face=t;if(u.dash){u.lungeT=.3;B.pend.push({t:.15,f:()=>{hit(u,t,1);meleeFx(u,t)}})}else dashTo(u,t,()=>{hit(u,t,1);meleeFx(u,t)})}
  else{const kind=u.role==='support'?'orb':(HD[u.id]&&HD[u.id].spr.weapon==='gun')?'bullet':(u.etype==='mage')?'orb':'arrow';B.proj.push({x:u.x+(u.side==='hero'?14:-8),y:u.y-uh(u)*.5,sx:u.x,sy:u.y-12,tx:t.x,ty:t.y-uh(t)*.45,t:0,dur:.28,kind,c:EL[u.el].c,f:()=>hit(u,t,1)})}}
 function cast(u){if(!u.alive||u.charge<100||B.state!=='fight')return;u.charge=0;const allies=alive(u.side),foes=alive(u.side==='hero'?'enemy':'hero');if(!foes.length)return;
- const col=EL[u.el].c;B.flash=.5;B.flashC=col;B.shake=.25;sfx('skill',{el:u.el});const S0=u.side==='hero'?HERO_ART[u.id].strike:0,SG=1+(u.sig||0);u.anim='skill';u.animT=0;if(u.side==='hero')u.cd=Math.max(u.cd,S0+.6)
- if(u.side==='hero')cutin(u);else banner(u.name+': '+u.sk);
+ const col=EL[u.el].c;B.flash=.5;B.flashC=col;B.shake=.25;sfx('skill',{el:u.el});const S0=isHU(u)?HERO_ART[u.id].strike:0,SG=1+(u.sig||0);u.anim='skill';u.animT=0;if(isHU(u))u.cd=Math.max(u.cd,S0+.6)
+ if(u.side==='hero')cutin(u);else banner(u.ph?u.sk:u.name+': '+u.sk);
  if(u.skill==='aoe'){foes.forEach((f,i)=>B.pend.push({t:S0+.15+i*.08,f:()=>{hit(u,f,u.mult*SG,{big:1});B.fx.push({k:'boom',x:f.x,y:f.y-uh(f)*.45,t:0,dur:.45,c:col})}}))}
  if(u.skill==='single'){const t=foes.slice().sort((a,b)=>a.hp-b.hp)[0];const sk=()=>{hit(u,t,u.mult*SG,{big:1});B.fx.push({k:'x',x:t.x,y:t.y-uh(t)*.45,t:0,dur:.5,c:col});B.shake=.35;meleeFx(u,t,1)};
   if(ROLE[u.role].melee&&!u.dash)dashTo(u,t,sk,{delay:Math.max(.05,S0+.06),hold:.26,skill:1});else B.pend.push({t:S0+.2,f:sk})}
- if(u.skill==='heal'){B.pend.push({t:S0,f:()=>{sfx('heal');alive(u.side).forEach(a=>heal(a,(a.maxHp*u.mult+u.atk*.5)*SG))}})}
+ if(u.skill==='heal'){B.pend.push({t:S0,f:()=>{sfx('heal');alive(u.side).forEach(a=>heal(a,(a.maxHp*u.mult+u.atk*.5)*SG,u))}})}
  if(u.skill==='shield'){sfx('shield');allies.forEach(a=>{a.shieldT=u.sig?8:6;B.fx.push({k:'ring',x:a.x,y:a.y-10,t:0,dur:.6,c:'#7fe3ff'})});u.tauntT=6;addText(u.x,u.y-uh(u)-8,T('PROVOKASI'),'#7fe3ff',1)}
  if(u.skill==='buff'){sfx('buff');allies.forEach(a=>{a.atkUpT=u.sig?11:8;a.atkUpK=u.sig?1.5:1.4;if(a!==u)a.charge=Math.min(100,a.charge+20);B.fx.push({k:'up',x:a.x,y:a.y,t:0,dur:.8})});addText(u.x,u.y-uh(u)-8,T('ATK NAIK!'),'#ffd23f',1)}}
-function cutin(u){const c=$('#cutin');if(u.side==='hero'&&typeof voice==='function')voice(u.id+'_sk');c.style.setProperty('--cc',EL[u.el].c);const su=u.side==='hero'&&splash(u.id),fc=su&&splashFocus(u.id);c.classList.toggle('spc',!!su);c.innerHTML=`${su?`<span class="cspl" style="background-image:url(${su});background-position:${fc[0]}% ${fc[1]}%"></span>`:`<img class="px" src="${u.side==='hero'?artFrame(u.id,{face:'skill'}).url:u.spr.url}">`}<div><b>${u.sk}!</b><small>${u.name}</small></div>`;c.classList.remove('on');void c.offsetWidth;c.classList.add('on')}
+function cutin(u){if(B&&B.sim)return;const c=$('#cutin');if(u.side==='hero'&&typeof voice==='function')voice(u.id+'_sk');c.style.setProperty('--cc',EL[u.el].c);const su=u.side==='hero'&&splash(u.id),fc=su&&splashFocus(u.id);c.classList.toggle('spc',!!su);c.innerHTML=`${su?`<span class="cspl" style="background-image:url(${su});background-position:${fc[0]}% ${fc[1]}%"></span>`:`<img class="px" src="${u.side==='hero'?artFrame(u.id,{face:'skill'}).url:u.spr.url}">`}<div><b>${u.sk}!</b><small>${u.name}</small></div>`;c.classList.remove('on');void c.offsetWidth;c.classList.add('on')}
 function updBtns(){$('#bAuto').className='btn '+(B.auto?'green':'gray');$('#bAuto').textContent=B.auto?T('AUTO: ON'):T('AUTO: OFF');$('#bSpd').textContent='x'+B.speed}
 function tickBattle(dt){if(!B||B.paused)return;if(B.state==='end'){for(const u of B.units){if(u.dash){if(u.dash.ph==='wait'||u.dash.ph==='in'||u.dash.ph==='hold'){u.dash.ph='out';u.dash.t=0;u.dash.cb=null}tickDash(u,dt*B.speed)}}return}if(B.hitstop>0){B.hitstop-=dt;return}dt*=B.speed;B.time+=dt;
  for(const u of B.units){if(u.dash)tickDash(u,dt);else if(u.trail&&u.trail.length){for(const g of u.trail)g.a-=dt*4.5;u.trail=u.trail.filter(g=>g.a>0)}}
  for(const u of B.units){if(u.anim)u.animT+=dt;u.lungeT=Math.max(0,u.lungeT-dt);u.hitT=Math.max(0,u.hitT-dt);if(!u.alive)u.deathT=Math.max(0,u.deathT-dt);['shieldT','tauntT','atkUpT'].forEach(k=>u[k]=Math.max(0,u[k]-dt))}
  if(B.state==='enter'){B.enterT-=dt;for(const u of B.units)if(u.side==='enemy')u.ox=Math.max(0,u.ox-dt*200);if(B.enterT<=0){B.state='fight';B.units.forEach(u=>{if(u.side==='enemy')u.ox=0})}}
- else if(B.state==='fight'){for(const u of B.units){if(!u.alive)continue;u.cd-=dt;if(u.cd<=0){act(u);u.cd=u.cdMax*rnd(.85,1.15)}
-   if(u.charge>=100&&(u.side==='enemy'?u.boss:B.auto))cast(u)}
-  if(!alive('enemy').length){if(B.wave<B.st.waves.length-1){B.state='next';B.nextT=1.1}else{B.state='end';setTimeout(()=>endBattle(true),900)}}
-  else if(!alive('hero').length){B.state='end';setTimeout(()=>endBattle(false),900)}
-  if(B.time>=150&&B.state==='fight'){B.state='end';banner(T('Waktu Habis!'));setTimeout(()=>endBattle(false),900)}}
+ else if(B.state==='fight'){if(B.st.arena&&!B.rageOn&&B.time>=ARENA_CFG.rage.at){B.rageOn=1;banner(T('Kemarahan Arena!'));sfx('boss')}for(const u of B.units){if(!u.alive)continue;u.cd-=dt;if(u.cd<=0){act(u);u.cd=u.cdMax*rnd(.85,1.15)}
+   if(u.charge>=100&&(u.side==='enemy'?(u.boss||u.ph):B.auto))cast(u)}
+  if(!alive('enemy').length){if(B.wave<B.st.waves.length-1){B.state='next';B.nextT=1.1}else battleFin(true)}
+  else if(!alive('hero').length)battleFin(false);
+  if(B.time>=(B.limit||150)&&B.state==='fight'){banner(T('Waktu Habis!'));battleFin(false)}}
  else if(B.state==='next'){B.nextT-=dt;if(B.nextT<=0){B.wave++;waveHeal();spawnWave();sfx(B.st.waves[B.wave][0].boss?'boss':'wave');banner(B.st.waves[B.wave][0].boss?T('⚠ BOS MUNCUL ⚠'):T('Gelombang {a}/{b}',{a:B.wave+1,b:B.st.waves.length}))}}
  for(let i=B.pend.length-1;i>=0;i--){const p=B.pend[i];p.t-=dt;if(p.t<=0){B.pend.splice(i,1);p.f()}}
  for(let i=B.proj.length-1;i>=0;i--){const p=B.proj[i];p.t+=dt;if(p.t>=p.dur){B.proj.splice(i,1);p.f()}}
  B.fx=B.fx.filter(f=>(f.t+=dt)<f.dur);B.texts=B.texts.filter(t=>(t.life-=dt)>0);B.shake=Math.max(0,B.shake-dt);B.flash=Math.max(0,B.flash-dt*1.6)}
+// akhir pertarungan: simulasi (Arena cepat / serangan ke tim bertahan) langsung mencatat hasil tanpa layar
+function battleFin(win){B.state='end';B.result=win;if(B.sim)return;const b=B;setTimeout(()=>{if(B!==b)return;b.st.arena?arenaEnd(win):endBattle(win)},900)}
 function mobFrame(u){let f=null;if(!u.alive)f={face:'hurt'};else if(u.dash&&u.dash.ph!=='wait')f=dashPose(u);else if(u.anim){f=animFrame(ENE_ANIMS[u.anim]||ENE_ANIMS.attack,u.animT*1000*ANIM_SPD);if(!f)u.anim=null}
  if(!f){const A=ENE_ANIMS.idle;f=animFrame(A,(B.time*1000+u.i*310)%840)}return enemyFrame(u.etype,u.el,f)}
 function heroFrame(u){const art=HERO_ART[u.id];let f=null;
@@ -4480,15 +4642,15 @@ function drawBattle(){const g=B.g,st=B.st;g.setTransform(2,0,0,2,0,0);g.imageSmo
  for(const u of us)drawTrail(g,u);
  for(const u of us)if(u.dy){u._y=u.y;u.y+=u.dy}
  for(const u of us){const sc=u.scale,hero=u.side==='hero',dir=hero?1:-1;let x=u.x+u.ox+(u.dx||0);if(u.lungeT>0)x+=dir*Math.sin((1-u.lungeT/.3)*Math.PI)*(hero?8:16);if(u.hitT>0&&!hero)x-=dir*2;x=Math.round(x);
-  g.globalAlpha=u.alive?1:Math.max(.25,u.deathT/.6);const uw=hero?24:(u.etype==='slime'||u.etype==='bSlime'?24:20)*sc;
+  g.globalAlpha=u.alive?1:Math.max(.25,u.deathT/.6);const uw=isHU(u)?24:(u.etype==='slime'||u.etype==='bSlime'?24:20)*sc;
   g.fillStyle='rgba(0,0,0,.25)';g.fillRect(x-uw/2,u.y-1,uw,3);
-  if(hero){const fr=heroFrame(u),hx0=x-22+fr.dx;if(fr.ghost){const a0=g.globalAlpha;for(const[o,al]of[[-16,.2],[-8,.4]]){g.globalAlpha=al;g.drawImage(fr.w,hx0+o,u.y-39,44,44)}g.globalAlpha=a0}
-   g.drawImage(fr.c,hx0,u.y-39,44,44);if(u.hitT>0){g.globalAlpha*=.6;g.drawImage(fr.w,hx0,u.y-39,44,44)}}
+  if(isHU(u)){const fr=heroFrame(u);if(!hero){g.save();g.translate(x,0);g.scale(-1,1)}const hx0=(hero?x:0)-22+fr.dx;if(fr.ghost){const a0=g.globalAlpha;for(const[o,al]of[[-16,.2],[-8,.4]]){g.globalAlpha=al;g.drawImage(fr.w,hx0+o,u.y-39,44,44)}g.globalAlpha=a0}
+   g.drawImage(fr.c,hx0,u.y-39,44,44);if(u.hitT>0){g.globalAlpha*=.6;g.drawImage(fr.w,hx0,u.y-39,44,44)}if(!hero)g.restore()}
   else{const fr=mobFrame(u);g.save();g.translate(x,0);g.scale(-1,1);const dy=u.y-39*sc;g.drawImage(fr.c,-22*sc,dy,44*sc,44*sc);if(u.hitT>0){g.globalAlpha*=.7;g.drawImage(fr.w,-22*sc,dy,44*sc,44*sc)}g.restore()}
   g.globalAlpha=1;const top=u.y-uh(u);
   if(u.shieldT>0){g.strokeStyle='rgba(127,227,255,'+(.5+.3*Math.sin(B.time*8))+')';g.lineWidth=1;g.strokeRect(x-uw/2-2+.5,top-2.5,uw+4,uh(u)+4)}
   if(u.atkUpT>0&&Math.floor(B.time*4)%2){g.fillStyle='#ff6a3c';g.fillRect(x+uw/2+1,top+4,1,4);g.fillRect(x+uw/2,top+5,3,1)}
-  if(u.alive){const bw=hero?22:14*sc,by=top-5;g.fillStyle='#241626';g.fillRect(x-bw/2-1,by-1,bw+2,4);g.fillStyle='#4a2030';g.fillRect(x-bw/2,by,bw,2);g.fillStyle=hero?'#7ee07a':(u.boss?'#ff4f6a':'#ff7a6a');g.fillRect(x-bw/2,by,Math.ceil(bw*u.hp/u.maxHp),2);
+  if(u.alive){const bw=isHU(u)?22:14*sc,by=top-5;g.fillStyle='#241626';g.fillRect(x-bw/2-1,by-1,bw+2,4);g.fillStyle='#4a2030';g.fillRect(x-bw/2,by,bw,2);g.fillStyle=hero?'#7ee07a':(u.boss?'#ff4f6a':'#ff7a6a');g.fillRect(x-bw/2,by,Math.ceil(bw*u.hp/u.maxHp),2);
    if(!hero){g.drawImage(elImg[u.el],x-bw/2-9,by-3,8,8)}}}
  for(const u of us)if(u._y!==undefined){u.y=u._y;delete u._y}
  for(const p of B.proj){const k=p.t/p.dur,x=p.x+(p.tx-p.x)*k,y=p.y+(p.ty-p.y)*k-Math.sin(k*Math.PI)*(p.kind==='arrow'?8:2);
@@ -4507,7 +4669,7 @@ function drawBattle(){const g=B.g,st=B.st;g.setTransform(2,0,0,2,0,0);g.imageSmo
  g.textAlign='center';for(const t of B.texts){const k=1-t.life/.9,y=Math.round(t.y-k*12);g.font=(t.big?'13px':'10px')+' "Lilita One",sans-serif';g.globalAlpha=Math.min(1,t.life*3);g.lineWidth=2;g.strokeStyle='#241626';g.strokeText(t.t,t.x,y);g.fillStyle=t.c;g.fillText(t.t,t.x,y)}g.globalAlpha=1;
  if(B.flash>0){g.setTransform(1,0,0,1,0,0);g.globalAlpha=B.flash*.6;g.fillStyle=B.flashC;g.fillRect(0,0,480,420);g.globalAlpha=1}
  const hs=B.units.filter(u=>u.side==='hero');hs.forEach((u,i)=>{const c=B.cards[i];if(!c)return;c.querySelector('.bar.hp i').style.width=(u.hp/u.maxHp*100)+'%';c.querySelector('.bar.sp i').style.width=u.charge+'%';c.classList.toggle('ready',u.alive&&u.charge>=100);c.classList.toggle('dead',!u.alive)});
- const s=Math.floor(B.time);$('#bTime').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+ if(B.st.arena){const r=arRage();$('#bWave').textContent=r>1?'ATK ×'+r.toFixed(1):'VS';$('#bWave').classList.toggle('rage',r>1)}const s=Math.floor(B.time);$('#bTime').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
 const elImg={};
 function endBattle(win){if(!B)return;const st=B.st;let html;
  if(win){const dead=B.units.some(u=>u.side==='hero'&&!u.alive);const sr=1+(!dead?1:0)+(B.time<=60?1:0);const first=!S.stages[st.key];S.stages[st.key]=Math.max(S.stages[st.key]||0,sr);
@@ -4518,8 +4680,139 @@ function endBattle(win){if(!B)return;const st=B.st;let html;
   <div class="mrow"><button class="btn blue" data-act="bexit">${T('Peta')}</button><button class="btn" data-act="bretry">${T('Ulangi')}<small>${ic('stam',12)} ${st.cost}</small></button>${!st.dg&&nx&&st.s<4?`<button class="btn green" data-act="bnext">${T('Lanjut')}<small>${ic('stam',12)} ${nx.cost}</small></button>`:''}</div></div>`}
  else{sfx('lose');html=`<div class="panel"><h3 style="color:#c0392b">${T('KALAH...')}</h3><p style="font-size:14px;margin:8px 0;line-height:1.4">${T('Tips: naikkan level hero, pakai elemen yang unggul, dan bawa Penjaga di depan serta Pendukung untuk menyembuhkan.')}</p><div class="mrow"><button class="btn blue" data-act="bexit">${T('Peta')}</button><button class="btn" data-act="bretry">${T('Coba Lagi')}<small>${ic('stam',12)} ${st.cost}</small></button></div></div>`}
  const o=$('#bOver');o.innerHTML=html;o.classList.add('on')}
-function exitBattle(){if(B&&B.st.dg){advTab='dg';dgSel=B.st.dg}B=null;$('#battle').classList.remove('on');$('#bOver').classList.remove('on');tab='adv';render()}
+function exitBattle(){if(B&&B.st.arena){B=null;$('#battle').classList.remove('on');$('#bOver').classList.remove('on');tab='arena';render();return}if(B&&B.st.dg){advTab='dg';dgSel=B.st.dg}B=null;$('#battle').classList.remove('on');$('#bOver').classList.remove('on');tab='adv';render()}
 
+
+/* ==== js/systems/arena.js ==== */
+/* =====================================================================
+   ARENA PvP (mesin) — angka penyetel di data/arena.js, tampilan di ui/arena.js
+   - Lawan: pemain bot dari Peringkat. Tim & stat bot dihitung dengan fungsi game asli
+     (heroStats/teamCP) memakai state bot (botState), sama seperti profil pemain.
+   - Poin bot ditentukan dari persentil CP + keaktifan bot selama musim (deterministik,
+     semua orang melihat angka yang sama, naik perlahan selama minggu berjalan).
+   - Pertarungan memakai mesin battle biasa: hero lawan berdiri di sisi kanan (u.ph = true).
+     Mode simulasi (B.sim) menjalankan mesin tanpa layar/suara untuk Pertarungan Cepat
+     dan untuk serangan bot ke Tim Bertahanmu.
+   S.arena = {pts, best, wk, day, tix, wins, losses, wWins, wLoss, streak, def[], opps[], seed,
+              log[], lastDef, unseen, reg, wkFought, foughtDay, refAt}
+   ===================================================================== */
+const arWeek=(t=Date.now())=>Math.floor((wibDay(t)+3)/7);                 // musim mulai Senin 00:00 WIB
+const arWeekStart=w=>(w*7-3)*BDAY-BOT_CFG.TZ*36e5;
+const arWeekLeft=(t=Date.now())=>arWeekStart(arWeek(t)+1)-t;
+const arDayLeft=(t=Date.now())=>(wibDay(t)+1)*BDAY-BOT_CFG.TZ*36e5-t;
+const arRage=()=>B&&B.st&&B.st.arena?1+Math.max(0,B.time-ARENA_CFG.rage.at)*ARENA_CFG.rage.per:1;
+function arLeague(p){const L=ARENA_CFG.leagues;let k=0;for(let i=0;i<L.length;i++)if(p>=L[i].min)k=i;return k}
+const arLg=p=>ARENA_CFG.leagues[arLeague(p)];
+
+/* ---------------- state & pergantian hari / musim ---------------- */
+function arState(){const C=ARENA_CFG,now=Date.now();
+ if(!S.arena||typeof S.arena!=='object')S.arena={pts:C.start,best:C.start,wk:arWeek(now),day:wibDay(now),tix:C.tix,wins:0,losses:0,wWins:0,wLoss:0,streak:0,def:[],opps:[],seed:1,log:[],lastDef:0,unseen:0,reg:false,wkFought:-1,foughtDay:-1,refAt:0};
+ const A=S.arena;
+ // tim bertahan: hanya hero yang dimiliki, kosong -> salin tim utama
+ A.def=(A.def||[]).slice(0,4).map(x=>x&&HD[x]&&S.heroes[x]?x:null);while(A.def.length<4)A.def.push(null);
+ if(!A.def.some(Boolean))A.def=S.team.slice();
+ if(!Array.isArray(A.log))A.log=[];if(!Array.isArray(A.opps))A.opps=[];
+ return A}
+// dipanggil setiap layar digambar: hadiah harian/mingguan lewat surat + reset tiket & poin musim
+function arCheck(now=Date.now()){const A=arState(),C=ARENA_CFG,d=wibDay(now),wk=arWeek(now);let ch=false;
+ if(A.day!==d){
+  if(A.foughtDay===A.day){const L=arLg(A.pts),k=arLeague(A.pts);
+   sendMail({id:'ar_d_'+A.day,from:T('Penjaga Arena'),title:T('Hadiah Harian Arena · Liga {l}',{l:T(L.n)}),body:T('Terima kasih sudah bertarung di Arena kemarin! Ini hadiah harian untuk Liga {l} ({p} poin).',{l:T(L.n),p:fmt(A.pts)}),rw:Object.assign({},L.day),ar:k})}
+  A.day=d;A.tix=C.tix;ch=true}
+ if(A.wk!==wk){
+  if(A.wkFought===A.wk){const L=arLg(A.pts);
+   sendMail({id:'ar_w_'+A.wk,from:T('Penjaga Arena'),title:T('Hadiah Musim Arena · Liga {l}',{l:T(L.n)}),body:T('Musim Arena telah berakhir! Kamu menutup musim di Liga {l} dengan {p} poin ({w} menang, {k} kalah). Musim baru sudah dimulai — poinmu disesuaikan ulang.',{l:T(L.n),p:fmt(A.pts),w:A.wWins,k:A.wLoss}),rw:Object.assign({},L.week)})}
+  if(A.pts>C.start)A.pts=Math.round(C.start+(A.pts-C.start)*C.soft);
+  A.wk=wk;A.wWins=0;A.wLoss=0;A.best=A.pts;A.opps=[];ch=true}
+ if(ch)save();return A}
+
+/* ---------------- poin bot & papan Arena ---------------- */
+const AR={board:null,at:0};
+// saat terakhir bot aktif (<= now); -1 bila belum pernah
+function arBotLast(b,now){let t=-1;for(const[s0,s1]of b.segs){if(now<s0)break;t=Math.min(now,s1)}return t}
+function arBotPts(i,pct,now){const b=botBase(i),C=ARENA_CFG,wk=arWeek(now),ws=arWeekStart(wk),t=arBotLast(b,now);if(t<ws)return null;  // belum aktif di musim ini
+ const tgt=w=>{const r=bRng(bHash(i,5000+w));return Math.max(900,C.start+C.bot.span*Math.pow(pct,C.bot.curve)+(r()-.5)*C.bot.jitter)};
+ const s0=b.join<ws?C.start+Math.max(0,tgt(wk-1)-C.start)*C.soft:C.start;
+ const days=(t-Math.max(ws,b.join))/BDAY,f=1-Math.exp(-Math.max(0,days)*(C.bot.speed[b.pf]||.5)*.9);
+ const h=Math.floor(t/36e5),wig=Math.round(Math.sin(h*1.7+i*.37)*10*f);
+ return Math.max(0,Math.round(s0+(tgt(wk)-s0)*f+wig))}
+function arBoard(now=Date.now()){if(AR.board&&now-AR.at<15e3)return AR.board;
+ const L=botsList(now).filter(e=>!e.me),cps=L.map(e=>e.cp).sort((a,b)=>a-b),n=cps.length;
+ const lb=v=>{let lo=0,hi=n;while(lo<hi){const m=(lo+hi)>>1;if(cps[m]<v)lo=m+1;else hi=m}return lo};
+ const out=[];for(const e of L){const p=arBotPts(e.i,n>1?lb(e.cp)/(n-1):.5,now);if(p!=null)out.push(Object.assign(e,{pts:p}))}
+ AR.board=out;AR.at=now;return out}
+const arMe=()=>({me:true,name:S.name,lv:S.lv,cp:teamPow(),top:S.team.find(Boolean),online:true,last:Date.now(),pts:arState().pts});
+function arRank(){const p=arState().pts;return arBoard().filter(e=>e.pts>p).length+1}
+const arBotPtsNow=i=>{const e=arBoard().find(x=>x.i===i);return e?e.pts:null};
+
+/* ---------------- pencarian lawan ---------------- */
+function arFindOpps(){const A=arState(),Bd=arBoard(),me=A.pts,my=Math.max(1,teamPow()),r=bRng(bHash(+S.uid||7,9000+A.seed)),used=new Set(),out=[];
+ const ok=e=>!used.has(e.i)&&botState(e.i).team.length>0;
+ // 3 kartu: lebih lemah / setara / lebih kuat. Poin dekat dengan poinmu, CP disaring per kartu supaya selalu ada pilihan yang bisa dikalahkan
+ ARENA_CFG.match.forEach(([lo,hi],k)=>{const[c0,c1]=ARENA_CFG.matchCp[k],mid=me+(lo+hi)/2;
+  let pool=Bd.filter(e=>ok(e)&&e.cp>=my*c0&&e.cp<my*c1&&e.pts>=me+lo*3&&e.pts<me+hi*3);if(pool.length<3)pool=Bd.filter(e=>ok(e)&&e.cp>=my*c0&&e.cp<my*c1);if(!pool.length)pool=Bd.filter(ok);
+  pool=pool.sort((a,b)=>Math.abs(a.pts-mid)-Math.abs(b.pts-mid)).slice(0,6);if(!pool.length)return;const e=pool[Math.floor(r()*pool.length)];used.add(e.i);out.push({i:e.i,pts:e.pts})});
+ A.opps=out;save();return out}
+function arOpps(){const A=arState();if(!A.opps.length||A.opps.some(o=>!(o.i<botsVisible())))arFindOpps();return A.opps}
+// perubahan poin (Elo). win = hasil dari sisi "me"
+function arDelta(me,opp,win,K){const C=ARENA_CFG,E=1/(1+Math.pow(10,(opp-me)/400));return win?Math.max(C.minWin,Math.round(K*(1-E))):-Math.max(C.minLose,Math.round(K*E))}
+
+/* ---------------- membangun pertarungan ---------------- */
+// stat tim untuk Arena. src = null (pemain) atau botState(i)
+function arUnits(src,ids){ids=(ids||[]).filter(Boolean);const keep=S;
+ if(src)S={lv:src.lv,heroes:src.heroes,weapons:src.weapons,gear:src.gear,team:ids,mats:{},sound:false};
+ try{const tb=ARENA_CFG.teamBonus?1+teamCP(ids).bonus:1;
+  return ids.map(id=>{const s=heroStats(id);return{id,lv:S.heroes[id].lv,hp:Math.round(s.hp*tb),atk:Math.round(s.atk*tb),def:Math.round(s.def*tb),crit:s.crit,sig:s.sig}})}
+ finally{S=keep}}
+function arMakeB(atk,def,o={}){const C=ARENA_CFG;
+ const st={key:'arena',arena:true,name:T('Arena'),bg:C.bg,art:C.bg,waves:[[]],n:0,cost:0};
+ const b={st,wave:0,time:0,units:[],proj:[],fx:[],texts:[],pend:[],state:'enter',enterT:1,auto:o.auto!=null?o.auto:S.auto,speed:o.speed||S.speed||1,paused:false,shake:0,flash:0,flashC:'#fff',g:o.g||null,nextT:0,limit:C.limit,sim:!!o.sim,ar:o.meta||{}};
+ const mk=(side,list,P)=>list.slice().sort((x,y)=>ROLE[HD[y.id].role].melee-ROLE[HD[x.id].role].melee).forEach((x,i)=>{const h=HD[x.id];
+  b.units.push(mkUnit(side,{id:x.id,i,ph:side==='enemy',name:h.name,el:h.el,role:h.role,skill:h.skill,sk:h.sk,mult:h.mult,spr:sprite(h.spr),hp:x.hp,maxHp:x.hp,atk:x.atk,def:x.def,crit:x.crit,sig:x.sig,
+   x:P[i][0],y:P[i][1],ox:side==='enemy'?110+i*14:0,cdMax:1.25*ROLE[h.role].cd,charge:30}))});
+ mk('hero',atk,HPOS);mk('enemy',def,EPOS);return b}
+// jalankan pertarungan tanpa layar; hasil di b.result
+function arSim(b){const keep=B;B=b;try{let n=0;while(B.state!=='end'&&n<6000){tickBattle(1/30);n++}if(B.state!=='end')B.result=false;return b}finally{B=keep}}
+
+/* ---------------- menantang lawan ---------------- */
+function arCanFight(){const A=arCheck();if(A.tix<=0){toast(T('Tiket Arena habis! Tiket terisi lagi pukul 00:00 WIB.'),1);return false}
+ if(!S.team.some(Boolean)){toast(T('Tim kosong! Pilih hero dulu.'),1);return false}return true}
+function arMeta(i,pts,extra){const st=botState(i);return Object.assign({opp:i,name:BOTS.names[i],pts,cp:st.cp,lv:st.lv,team:st.team.slice()},extra||{})}
+function arenaFight(i,quick,extra){i=+i;if(!arCanFight())return;const A=S.arena,pts=arBotPtsNow(i)??(A.opps.find(o=>o.i===i)||{}).pts??A.pts;
+ const st=botState(i),meta=arMeta(i,pts,extra),atk=arUnits(null,S.team),def=arUnits(st,st.team);if(!def.length){toast(T('Lawan belum punya tim.'),1);return}
+ A.tix--;A.reg=true;save();
+ if(quick){const b=arSim(arMakeB(atk,def,{sim:true,auto:true,speed:1,meta}));const res=arApply(!!b.result,meta);arShowQuick(res,b);return}
+ closeModal();lobby=null;closeSplash();
+ B=arMakeB(atk,def,{g:$('#bc').getContext('2d'),meta});bgArt('w_'+ARENA_CFG.bg);
+ const L=arLg(pts);$('#bTitle').textContent=T('Arena')+' · '+meta.name;$('#bSub').textContent=T('Liga {l}',{l:T(L.n)})+' · '+fmt(pts)+' '+T('poin');
+ battleUI();$('#bWave').textContent='VS';banner(T('VS {n}',{n:meta.name}));sfx('start')}
+// catat hasil serangan pemain
+function arApply(win,meta){const A=arState(),C=ARENA_CFG,before=A.pts,lgB=arLeague(before);const d=arDelta(A.pts,meta.pts,win,C.kAtk);
+ A.pts=Math.max(0,A.pts+d);A.best=Math.max(A.best||0,A.pts);A.reg=true;A.wkFought=A.wk;A.foughtDay=A.day;
+ if(win){A.wins++;A.wWins++;A.streak=(A.streak||0)+1}else{A.losses++;A.wLoss++;A.streak=0}
+ const rw=Object.assign({},win?C.battle.win:C.battle.lose),ups=grant(rw);
+ if(meta.rev!=null){const e=A.log.find(x=>x.id===meta.rev);if(e)e.rev=1}
+ arLog({k:'atk',i:meta.opp,win,d,cp:meta.cp,pts:meta.pts});
+ S.daily.c.arena=(S.daily.c.arena||0)+1;A.seed++;A.opps=[];AR.at=0;save();try{arFindOpps()}catch(e){}
+ return{win,d,before,after:A.pts,lgB,lgA:arLeague(A.pts),rw,ups,meta}}
+function arLog(e){const A=S.arena;e.t=e.t||Date.now();e.id=(A.lid=(A.lid||0)+1);A.log.unshift(e);A.log.sort((a,b)=>b.t-a.t);A.log.length=Math.min(A.log.length,30)}
+
+/* ---------------- serangan bot ke Tim Bertahan ---------------- */
+function arDefTick(now=Date.now()){const A=arState(),C=ARENA_CFG;if(!A.reg||!botsWarmOk())return 0;
+ if(!A.lastDef){A.lastDef=now;save();return 0}
+ const from=Math.max(A.lastDef,now-48*36e5),seed=+S.uid||7,evs=[];
+ for(let h=Math.floor(from/36e5);h<=Math.floor(now/36e5);h++){const r=bRng(bHash(seed,20000+h));if(r()<C.defPerHour){const t=h*36e5+Math.floor(r()*36e5);if(t>A.lastDef&&t<=now)evs.push([t,r()])}}
+ A.lastDef=now;const list=evs.slice(-C.defMax);if(!list.length){save();return 0}
+ const Bd=arBoard(now),def=arUnits(null,A.def);let n=0;
+ const dcp=teamCP(A.def).total;
+ for(const[t,rv]of list){if(!def.length)break;const near=Bd.filter(e=>Math.abs(e.pts-A.pts)<=250&&botState(e.i).team.length);
+  // penyerang dicari seperti matchmaking sungguhan: poin mirip, CP tidak terlalu jauh dari Tim Bertahanmu
+  let pool=near.filter(e=>e.cp>=dcp*.75&&e.cp<=dcp*1.3);if(pool.length<3)pool=near;if(!pool.length)pool=Bd.slice().sort((a,b)=>Math.abs(a.pts-A.pts)-Math.abs(b.pts-A.pts)).slice(0,10);if(!pool.length)break;
+  const e=pool[Math.floor(rv*pool.length)],st=botState(e.i),atk=arUnits(st,st.team);if(!atk.length)continue;
+  const b=arSim(arMakeB(atk,def,{sim:true,auto:true,speed:1})),held=!b.result;
+  const E=1/(1+Math.pow(10,(e.pts-A.pts)/400)),d=held?Math.max(2,Math.round(C.kDef*(1-E))):-Math.max(C.minLose,Math.round(C.kDef*E));
+  A.pts=Math.max(0,A.pts+d);arLog({k:'def',t,i:e.i,win:held,d,cp:st.cp,pts:e.pts});n++}
+ A.unseen=(A.unseen||0)+n;AR.at=0;save();return n}
 
 /* ==== js/ui/core.js ==== */
 /* ================= UI CORE ================= */
@@ -4546,7 +4839,7 @@ function updateTop(){regen();let t='';if(S.stam<STAM_MAX){const ms=STAM_MS-(Date
 function missionClaimable(){checkDaily();return MISSIONS.some(m=>!S.daily.claimed[m.id]&&m.prog()>=m.goal)||ACH.some(a=>!S.ach[a.id]&&a.cond())||anyEvClaimable()}
 function renderNav(){const items=[['home',T('Beranda')],['adv',T('Petualangan')],['team',T('Tim')],['heroes',T('Hero')],['summon',T('Summon')],['mission',T('Misi')]];const ik={home:'home',heroes:'hero',adv:'adv',summon:'summon',mission:'mission',team:'team'};
  $('#nav').innerHTML=items.map(([k,n])=>{const dot=(k==='mission'&&missionClaimable())||(k==='summon'&&S.freeDate!==today());return`<button class="nb ${tab===k?'on':''}" data-act="go" data-arg="${k}"><span class="nbi"><img class="ix" src="${ICON[ik[k]]}"></span><span class="nbl ot">${n}</span>${dot?'<i class="dot"></i>':''}</button>`}).join('')}
-function render(){checkDaily();const nm=deliverMail();if(nm&&S.welcomed)setTimeout(()=>toast(T('{n} surat baru di Kotak Surat!',{n:nm})),300);updateTop();renderNav();const sc=$('#screen');sc.className=tab==='home'?'is-home':'';document.getElementById('app').dataset.tab=tab;const SCR={home:homeHTML,heroes:heroesHTML,adv:advHTML,summon:summonHTML,mission:missionHTML,team:teamHTML};if(!SCR[tab])tab='home';sc.innerHTML=SCR[tab]();if(tab==='home')initLobby();else lobby=null}
+function render(){checkDaily();const nm=deliverMail();if(nm&&S.welcomed)setTimeout(()=>toast(T('{n} surat baru di Kotak Surat!',{n:nm})),300);updateTop();renderNav();const sc=$('#screen');sc.className=tab==='home'?'is-home':'';document.getElementById('app').dataset.tab=tab;const SCR={home:homeHTML,heroes:heroesHTML,adv:advHTML,summon:summonHTML,mission:missionHTML,team:teamHTML,arena:arenaHTML};if(!SCR[tab])tab='home';sc.innerHTML=SCR[tab]();if(tab==='home')initLobby();else lobby=null}
 
 
 /* ==== js/ui/home.js ==== */
@@ -4587,7 +4880,7 @@ function homeHTML(){const ns=nextStage(),id=homeHero(),h=HD[id],mdot=missionClai
  ${splash(id)?`<div class="hstage hsp" data-act="lobbyTap"><div class="hcircle"></div>${splashHTML(id,'hspl')}</div>`:`<div class="hstage"><div class="hcircle"></div><canvas id="lobbyc" width="${LOBBY_PX}" height="${LOBBY_PX}" data-act="lobbyTap"></canvas></div>`}
  <div class="hspeech${HB.hide>Date.now()&&HB.id===id?' on':''}"><p id="bubble">${HB.hide>Date.now()&&HB.id===id?HB.txt:''}</p><span class="hname"><i>${stars(h.r)}</i>${h.name}</span></div>
  <div class="hbtm">
-  <button class="hplate lock" data-act="arena"><span class="hpi"><img class="ix" src="${ICON.arena}"></span><b class="ot">${T('ARENA')}</b><small>${T('Segera hadir')}</small><img class="ix lk" src="${ICON.lock}"></button>
+  ${(()=>{const A=arCheck();return`<button class="hplate ar" data-act="arena"><span class="hpi"><img class="ix" src="${ICON.arena}"></span><b class="ot">${T('ARENA')}</b><small>${T('Tiket {a}/{b}',{a:A.tix,b:ARENA_CFG.tix})}</small>${A.tix>0||A.unseen?'<i class="dot"></i>':''}</button>`})()}
   <button class="hmed" data-act="go" data-arg="adv"><span class="hmr"></span><img class="ix" src="${ICON.adv}"><b class="ot">${T('PETUALANGAN')}</b><small>${ns.key} · ${ns.name}</small></button>
   <button class="hplate ev" data-act="goEvent"><span class="hpi"><img class="ix" src="${ICON.event}"></span><b class="ot">${T('EVENT')}</b><small>${T('{n} aktif',{n:EVENTS.filter(evActive).length})}</small>${edot?'<i class="dot"></i>':''}</button>
  </div></div>`}
@@ -4722,7 +5015,7 @@ function openCP(){const t=teamCP();S.bestCP=Math.max(S.bestCP||0,t.total);save()
  <div class="sec">${T('Hero')}</div>${t.ids.map(id=>{const w=wpnOf(id);return`<div class="cprow"><img class="px" src="${portrait(id)}"><span><b>${HD[id].name}</b><small>Lv${S.heroes[id].lv} · ${EL[HD[id].el].n}${w?' · '+w.name:''}</small></span><em>${fmt(heroPow(id))}</em></div>`}).join('')}
  <div class="sec">${T('Bonus Tim')}</div>${t.parts.length?t.parts.map(([n,b])=>`<div class="kv"><span>${n}</span><b style="color:#2a9a3a">+${Math.round(b*100)}%</b></div>`).join(''):`<p class="sub" style="margin:0">${T('Belum ada bonus. Coba gabungkan elemen yang sama, Penjaga + Pendukung, atau senjata signature.')}</p>`}
  <div class="kv" style="border-top:1px solid #4a3f99;margin-top:6px;padding-top:8px"><span>${T('CP dasar')} ${fmt(t.base)} × ${(1+t.bonus).toFixed(2)}</span><b style="color:var(--hl)">${fmt(t.total)}</b></div>
- <div class="soon"><b>PvP Arena & Guild War</b><br>${T('CP tim ini akan dipakai untuk pencocokan lawan dan peringkat. Segera hadir!')}</div>`)}
+ <div class="soon"><b>Arena PvP</b><br>${T('CP tim dipakai untuk pencocokan lawan di Arena. Guild War segera hadir!')}</div>`)}
 function openHero(id){const h=HD[id],o=S.heroes[id],sp=sprite(h.spr);
  if(!o){modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>???</h3><div class="hdetail"><div class="stage" style="background:#2b1f47"><img class="px" style="filter:brightness(0);opacity:.4" src="${sp.url}"><div class="ped"></div></div></div><div class="tagl"><span class="tag">${eic(h.el,12)}${EL[h.el].n}</span><span class="tag">${ROLE[h.role].n}</span><span class="tag" style="color:var(--hl)">${stars(h.r)}</span></div><p style="font-size:14px;margin-top:6px">${T('Hero ini belum kamu miliki. Dapatkan lewat Summon!')}</p><div class="mrow"><button class="btn" data-act="goSummon">${T('Ke Summon')}</button></div>`);return}
  const s=heroStats(id),ml=maxLv(id),c=lvCost(o.lv),full=o.lv>=ml;
@@ -5053,14 +5346,13 @@ const ACT={
  lobbyTap:()=>homeTap(),homeStep:d=>homeStep(d),
  banStep:d=>{banIdx=(banIdx+(+d)+BANNERS.length)%BANNERS.length;if(lobby)lobby.banT=0;const e=$('#hban');if(e)e.innerHTML=banHTML()},
  banGo:()=>{S.banner=banIdx%BANNERS.length;tab='summon';render()},
- arena:()=>toast(T('Arena PvP segera hadir! CP timmu: {cp}',{cp:fmt(teamPow())})),
  autoTeam:()=>{S.team=bestTeam();save();sfx('equip');toast(T('Formasi terbaik dipasang! CP {cp}',{cp:fmt(teamPow())}));render()},
  cast:i=>{if(!B)return;const u=B.units.filter(u=>u.side==='hero')[+i];if(u&&u.charge>=100)cast(u)},
  bauto:()=>{if(!B)return;B.auto=!B.auto;S.auto=B.auto;save();updBtns()},
  bspeed:()=>{if(!B)return;B.speed=B.speed===1?2:B.speed===2?3:1;S.speed=B.speed;save();updBtns()},
  bpause:()=>{if(!B||B.state==='end')return;B.paused=true;const o=$('#bOver');o.innerHTML=`<div class="panel"><h3>${T('Jeda')}</h3><div class="mrow"><button class="btn red" data-act="bquit">${T('Menyerah')}</button><button class="btn green" data-act="bresume">${T('Lanjut')}</button></div></div>`;o.classList.add('on')},
  bresume:()=>{if(B)B.paused=false;$('#bOver').classList.remove('on')},
- bquit:()=>exitBattle(),bexit:()=>exitBattle(),
+ bquit:()=>{if(B&&B.st.arena&&B.state!=='end'){B.state='end';arApply(false,B.ar)}exitBattle()},bexit:()=>exitBattle(),
  bretry:()=>{if(!B)return;const k=B.st.key;regen();if(S.stam<B.st.cost){toast(T('Stamina tidak cukup!'),1);return}B=null;startBattle(k)},
  bnext:()=>{if(!B)return;const nx=SLIST[B.st.n+1];if(!nx)return exitBattle();regen();if(S.stam<nx.cost){toast(T('Stamina tidak cukup!'),1);return}B=null;startBattle(nx.key)}
 };
@@ -5086,12 +5378,12 @@ function rankSnapUpdate(){const L=botsList(),now=Date.now(),cur=rankMaps(L);let 
  RANK_PREV=snap;if(!snap||now-snap.t>36e5){try{localStorage.setItem(RS_KEY,JSON.stringify({t:now,cp:cur.cp,lv:cur.lv}))}catch(e){}}
  const d=wibDay(now);S.rankDay=S.rankDay||{};if(!S.rankDay.cur||S.rankDay.cur.d!==d){if(S.rankDay.cur)S.rankDay.prev=S.rankDay.cur;S.rankDay.cur={d,cp:cur.cp.me,lv:cur.lv.me};save()}else{S.rankDay.cur.cp=cur.cp.me;S.rankDay.cur.lv=cur.lv.me}}
 function rankDelta(e,k){if(!e.me&&e.isNew)return`<span class="rkd new">${T('BARU')}</span>`;if(!e.me&&e.back)return`<span class="rkd back">${T('KEMBALI')}</span>`;
- const P=RANK_PREV&&RANK_PREV[rankTab];if(!P)return'';const was=P[e.me?'me':e.i];if(!was)return'';const d=was-(k+1);return d>0?`<span class="rkd up">▲${d}</span>`:d<0?`<span class="rkd dn">▼${-d}</span>`:`<span class="rkd eq">–</span>`}
-function rankSorted(){const L=botsList();return L.sort(rankTab==='cp'?(a,b)=>b.cp-a.cp||b.lv-a.lv:(a,b)=>b.lv-a.lv||b.cp-a.cp)}
+ const P=rankTab!=='ar'&&RANK_PREV&&RANK_PREV[rankTab];if(!P)return'';const was=P[e.me?'me':e.i];if(!was)return'';const d=was-(k+1);return d>0?`<span class="rkd up">▲${d}</span>`:d<0?`<span class="rkd dn">▼${-d}</span>`:`<span class="rkd eq">–</span>`}
+function rankSorted(){if(rankTab==='ar'){arCheck();return arBoard().slice().concat([arMe()]).sort((a,b)=>b.pts-a.pts||b.cp-a.cp)}const L=botsList();return L.sort(rankTab==='cp'?(a,b)=>b.cp-a.cp||b.lv-a.lv:(a,b)=>b.lv-a.lv||b.cp-a.cp)}
 function rankRow(e,k){const md=k<3?` m${k+1}`:'';return`<button class="rkrow${e.me?' mine':''}" ${e.me?'data-act="closeModal"':`data-act="botView" data-arg="${e.i}"`}>
  <span class="rkn${md}">${k+1}</span><span class="rkav">${e.top?`<img class="px" src="${portrait(e.top)}">`:''}${e.online?'<i class="on"></i>':''}</span>
- <span class="rknm"><b>${e.name}${e.me?` <em>${T('Kamu')}</em>`:''}${rankDelta(e,k)}</b><small>${e.me&&S.rankDay&&S.rankDay.prev?T('Kemarin #{n}',{n:S.rankDay.prev[rankTab]}):e.online?T('Online'):T('Aktif {t}',{t:agoMs(Date.now()-e.last)})}</small></span>
- <span class="rkv"><b>${rankTab==='cp'?fmt(e.cp):'Lv '+e.lv}</b><small>${rankTab==='cp'?'Lv '+e.lv:'CP '+fmt(e.cp)}</small></span></button>`}
+ <span class="rknm"><b>${e.name}${e.me?` <em>${T('Kamu')}</em>`:''}${rankDelta(e,k)}</b><small>${e.me&&S.rankDay&&S.rankDay.prev&&S.rankDay.prev[rankTab]?T('Kemarin #{n}',{n:S.rankDay.prev[rankTab]}):e.online?T('Online'):T('Aktif {t}',{t:agoMs(Date.now()-e.last)})}</small></span>
+ <span class="rkv">${rankTab==='ar'?`<b>${lgIc(e.pts,14)} ${fmt(e.pts)}</b><small>CP ${fmt(e.cp)}</small>`:`<b>${rankTab==='cp'?fmt(e.cp):'Lv '+e.lv}</b><small>${rankTab==='cp'?'Lv '+e.lv:'CP '+fmt(e.cp)}</small>`}</span></button>`}
 function rankListHTML(){const L=rankSorted(),me=L.findIndex(e=>e.me),n=L.length-1,on=L.filter(e=>e.online&&!e.me).length;
  if(!n)return`<p class="sub" style="text-align:center;padding:30px 0">${BOTS.ready?T('Memanggil para petualang...'):T('Memuat pemain...')}</p>`;
  return`<div class="rkinfo"><span><b>${n}</b> ${T('pemain')}</span><span><i class="on"></i><b>${on}</b> ${T('online')}</span></div>
@@ -5099,7 +5391,7 @@ function rankListHTML(){const L=rankSorted(),me=L.findIndex(e=>e.me),n=L.length-
 function openRank(){botsInit();botsEnsure();botsEnsureBios();rankBot=null;
  if(!botsWarmOk()){modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Peringkat')}</h3><p class="sub" style="text-align:center;padding:30px 0">${T('Memuat peringkat...')}</p>`);botsWarm(()=>{if($('#modal').classList.contains('on')&&!rankBot)openRank()});return}if(!RANK_PREV||!openRank.done){rankSnapUpdate();openRank.done=1}
  modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Peringkat')}</h3>
- <div class="mtabs"><button class="btn ${rankTab==='cp'?'':'blue'}" data-act="rankTab" data-arg="cp">${T('CP Tim')}</button><button class="btn ${rankTab==='lv'?'':'blue'}" data-act="rankTab" data-arg="lv">${T('Level')}</button></div>
+ <div class="mtabs"><button class="btn ${rankTab==='cp'?'':'blue'}" data-act="rankTab" data-arg="cp">${T('CP Tim')}</button><button class="btn ${rankTab==='lv'?'':'blue'}" data-act="rankTab" data-arg="lv">${T('Level')}</button><button class="btn ${rankTab==='ar'?'':'blue'}" data-act="rankTab" data-arg="ar">${T('Arena')}</button></div>
  <div id="rkBody">${rankListHTML()}</div>`);rankStartTimer()}
 function rankRefresh(){const b=$('#rkBody');if(!b)return;const sc=$('#rkScroll'),top=sc?sc.scrollTop:0;b.innerHTML=rankListHTML();const sc2=$('#rkScroll');if(sc2)sc2.scrollTop=top}
 function rankStartTimer(){if(rankTimer)return;BOTS.seen=botsVisible();
@@ -5138,6 +5430,134 @@ function feedTick(){const el=$('#gfeed');if(!el)return;if(!botsWarmOk()){botsWar
  if(!FEED.length){el.classList.remove('on');return}const f=FEED[feedI++%FEED.length];el.dataset.arg=f.i;el.innerHTML=feedText(f);el.classList.remove('on');void el.offsetWidth;el.classList.add('on')}
 Object.assign(ACT,{feedGo:i=>{openBot(i)}});
 function feedReset(){FEED=[];feedI=0;feedAt=0;RANK_PREV=null;const el=$('#gfeed');if(el){el.classList.remove('on');el.innerHTML=''}}
+
+/* ==== js/ui/arena.js ==== */
+/* =====================================================================
+   ARENA PvP (tampilan) — layar tab 'arena', hasil pertarungan, tim bertahan, riwayat
+   Mesin: systems/arena.js · angka: data/arena.js · gaya: css/arena.css
+   ===================================================================== */
+let arTab='opp',arTimer=null;
+// lencana liga (perisai piksel per warna liga)
+(function(){const sh=[[3,2],[13,2],[13,8],[8,14],[3,8]],hx=c=>c;
+ ARENA_CFG.leagues.forEach((L,k)=>{ICON['lg_'+L.id]=pxIcon(K=>{K.poly(sh,L.c2);K.poly([[4,3],[12,3],[12,8],[8,12.6],[4,8]],L.c);K.rect(5,4,3,1,'#ffffffaa');K.rect(5,5,1,2,'#ffffff88');
+  // tanda liga: jumlah bintang/permata kecil di tengah
+  const gem=(x,y,c)=>{K.P(x,y,c);K.P(x-1,y+1,c);K.P(x+1,y+1,c);K.P(x,y+2,c);K.P(x,y+1,'#fff6dc')};
+  if(k<3){for(let j=0;j<=k;j++)gem(8+(j-k/2)*3,6,L.c2)}else{gem(8,5,'#fff6dc');K.P(8,6,L.c2);if(k>=4){K.P(5,9,'#fff6dc');K.P(11,9,'#fff6dc')}if(k>=5){K.rect(6,1,1,2,'#ffd23f');K.rect(8,0,1,3,'#ffd23f');K.rect(10,1,1,2,'#ffd23f')}}},16,4)})})();
+const lgIc=(p,s=16)=>`<img class="ix" src="${ICON['lg_'+arLg(p).id]}" style="width:${s}px;height:${s}px;vertical-align:-3px">`;
+function arCd(ms){const h=Math.floor(ms/36e5),m=Math.floor(ms%36e5/6e4);return h>=24?T('{d} hari {h} jam',{d:Math.floor(h/24),h:h%24}):T('{h} jam {m} mnt',{h,m})}
+
+/* ---------------- layar utama ---------------- */
+function arenaHTML(){
+ if(!botsWarmOk()){botsInit();botsEnsure();botsWarm(()=>{if(tab==='arena')render()});
+  return`<div class="arwrap"><div class="arhead"><button class="btn red arback" data-act="go" data-arg="home">‹</button><h2 class="ot">${T('ARENA')}</h2></div><p class="sub arload">${T('Mencari lawan di Arena...')}</p></div>`}
+ const A=arCheck(),nd=arDefTick();if(nd)setTimeout(()=>toast(T('Tim Bertahanmu diserang {n}× saat kamu pergi! Cek Riwayat.',{n:nd})),400);
+ const k=arLeague(A.pts),L=ARENA_CFG.leagues[k],N=ARENA_CFG.leagues[k+1],pr=N?Math.max(0,Math.min(100,(A.pts-L.min)/(N.min-L.min)*100)):100;
+ const tabs=[['opp',T('Lawan')],['def',T('Tim Bertahan')],['log',T('Riwayat'),A.unseen],['rw',T('Hadiah')]];
+ const body={opp:arOppHTML,def:arDefHTML,log:arLogHTML,rw:arRwHTML}[arTab]||arOppHTML;
+ arStartTimer();
+ return`<div class="arwrap" style="--lc:${L.c};--lc2:${L.c2}">
+ <div class="arhead"><button class="btn red arback" data-act="go" data-arg="home">‹</button><h2 class="ot">${T('ARENA')}</h2><span class="arsea">${ic('hourglass',13)} <span>${T('Musim berakhir dalam')}</span> <b id="arSea">${arCd(arWeekLeft())}</b></span></div>
+ <div class="panel arme"><div class="rays"></div><img class="px arlg" src="${ICON['lg_'+L.id]}">
+  <div class="armi"><small>${T('Liga')}</small><b class="ot">${T(L.n)}</b><span class="arpts"><b>${fmt(A.pts)}</b> ${T('poin')}</span>
+   <span class="arbar"><i style="width:${pr}%"></i></span><small>${N?T('{n} poin lagi ke Liga {l}',{n:fmt(N.min-A.pts),l:T(N.n)}):T('Liga tertinggi!')}</small></div>
+  <div class="arst"><button data-act="arRank"><b>#${fmt(arRank())}</b><span>${T('Peringkat')}</span></button><div><b>${A.wWins}–${A.wLoss}</b><span>${T('Menang–Kalah')}</span></div><div><b>${A.streak||0}</b><span>${T('Beruntun')}</span></div></div></div>
+ <div class="artix"><span class="tk">${ic('arena',18)} ${T('Tiket {a}/{b}',{a:`<b>${A.tix}</b>`,b:ARENA_CFG.tix})}</span><small>${T('Isi ulang dalam')} <b id="arTixCd">${arCd(arDayLeft())}</b></small><span class="cp">CP <b>${fmt(teamPow())}</b></span></div>
+ <div class="mtabs artabs">${tabs.map(([id,n,dot])=>`<button class="btn ${arTab===id?'':'blue'}" data-act="arTab" data-arg="${id}">${n}${dot?'<i class="dot"></i>':''}</button>`).join('')}</div>
+ <div class="arbody">${body()}</div></div>`}
+
+/* ---- lawan ---- */
+function arTeamMini(st,ids){return`<div class="arteam">${ids.map(id=>`<span class="r${HD[id].r}"><img class="px" src="${portrait(id)}"><img class="px el" src="${ICON.el[HD[id].el]}"><i>${st.heroes[id].lv}</i></span>`).join('')}</div>`}
+function arOppHTML(){const A=S.arena,opps=arOpps(),my=teamPow(),qk=A.wins>0;
+ if(!opps.length)return`<p class="sub arload">${T('Belum ada lawan yang cocok. Coba lagi sebentar.')}</p>`;
+ const cards=opps.map(o=>{const st=botState(o.i),pts=arBotPtsNow(o.i)??o.pts,L=arLg(pts),r=st.cp/Math.max(1,my),df=r<.85?['easy',T('Mudah')]:r<1.15?['even',T('Setara')]:['hard',T('Sulit')],p=botPresence(o.i);
+  return`<div class="panel aropp" style="--oc:${L.c}"><span class="ardf ${df[0]}">${df[1]}</span>
+  <button class="aroav" data-act="arBot" data-arg="${o.i}">${st.fav?`<img class="px" src="${portrait(st.fav)}">`:''}${p.online?'<i class="on"></i>':''}</button>
+  <div class="aroi"><b>${esc(BOTS.names[o.i])}</b><span>${lgIc(pts,14)} ${T(L.n)} · <b>${fmt(pts)}</b></span><span>Lv ${st.lv} · CP <b>${fmt(st.cp)}</b></span>${arTeamMini(st,st.team)}</div>
+  <div class="aroa"><span class="arex"><em class="aup">+${arDelta(A.pts,pts,true,ARENA_CFG.kAtk)}</em><em class="adn">${arDelta(A.pts,pts,false,ARENA_CFG.kAtk)}</em></span>
+   <button class="btn" data-act="arFight" data-arg="${o.i}">${T('Tantang')}</button>
+   <button class="btn blue sm${qk?'':' lk'}" data-act="arQuick" data-arg="${o.i}">${qk?'⏩ ':ic('lock',11)+' '}${T('Cepat')}</button></div></div>`}).join('');
+ const cd=Math.max(0,Math.ceil(((A.refAt||0)+ARENA_CFG.refreshCd*1000-Date.now())/1000));
+ return cards+`<div class="mrow"><button class="btn green" data-act="arRefresh"${cd?' disabled':''}>↻ ${T('Cari Lawan Lain')}${cd?` (${cd})`:''}</button><button class="btn blue" data-act="go" data-arg="team">${T('Atur Tim Serang')}</button></div>
+ <p class="sub arnote">${T('Tim serangmu = formasi di menu Tim. Hero lawan dikendalikan otomatis. Waktu {s} detik: bila habis, penyerang kalah.',{s:ARENA_CFG.limit})}${qk?'':' '+T('Menangkan 1 pertarungan untuk membuka Pertarungan Cepat.')}</p>`}
+
+/* ---- tim bertahan ---- */
+function arDefHTML(){const A=S.arena,t=teamCP(A.def);
+ const slot=i=>{const id=A.def[i];if(!id)return`<button class="tslot empty" data-act="arDefSlot" data-arg="${i}"><span class="ph">+</span><small>${T('Pilih hero')}</small></button>`;
+  const h=HD[id],o=S.heroes[id],w=wpnOf(id);
+  return`<button class="tslot r${h.r}" data-act="arDefSlot" data-arg="${i}">${eic(h.el,14)}<img class="px sp" src="${sprite(h.spr).url}">${w?`<img class="px tw" src="${weaponIcon(w.id).url}">`:''}<span class="tinfo"><b>${h.name}</b><small>Lv${o.lv} · ${ROLE[h.role].n}</small><em>CP ${fmt(heroPow(id))}</em></span></button>`};
+ const held=A.log.filter(e=>e.k==='def'),hw=held.filter(e=>e.win).length;
+ return`<div class="panel tcp"><span class="lbl">${T('CP TIM BERTAHAN')}</span><b class="ot">${fmt(t.total)}</b><span class="tb">${t.parts.length?t.parts.map(([n,b])=>`<i>${n} +${Math.round(b*100)}%</i>`).join(''):`<i class="no">${T('Belum ada bonus tim')}</i>`}</span></div>
+ <div class="row2"><span class="rowlbl">${T('Barisan Depan')}</span><span class="rowlbl">${T('Barisan Belakang')}</span></div>
+ <div class="tslots">${[0,1,2,3].map(slot).join('')}</div>
+ <div class="mrow"><button class="btn blue" data-act="arDefCopy">${T('Salin Tim Utama')}</button><button class="btn green" data-act="arDefBest">${T('Formasi Terbaik')}</button></div>
+ <p class="sub arnote">${T('Pemain lain bisa menyerang Tim Bertahanmu kapan saja, juga saat kamu offline. Bertahan = poin naik sedikit, kalah = poin turun.')}${held.length?' '+T('Rekor bertahan: {w} menang dari {n}.',{w:hw,n:held.length}):''}</p>`}
+function arDefPick(i){const A=S.arena,ids=Object.keys(S.heroes).sort((a,b)=>heroPow(b)-heroPow(a));
+ modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Tim Bertahan · Slot {n}',{n:+i+1})}</h3><div class="pick">${ids.map(id=>heroCard(id,'arDefSet').replace(`data-arg="${id}"`,`data-arg="${i}:${id}"`)).join('')}</div>${A.def[i]?`<div class="mrow"><button class="btn red" data-act="arDefClear" data-arg="${i}">${T('Kosongkan Slot')}</button></div>`:''}`)}
+
+/* ---- riwayat ---- */
+function arLogHTML(){const A=S.arena;A.unseen=0;save();
+ if(!A.log.length)return`<p class="sub arload">${T('Belum ada pertarungan. Tantang lawan pertamamu!')}</p>`;
+ return`<div class="arlogs">${A.log.map(e=>{const nm=BOTS.names[e.i]||'???',st=e.i<botsVisible()?botState(e.i):null,me=e.k==='atk';
+  const txt=me?(e.win?T('Kamu menang melawan'):T('Kamu kalah dari')):(e.win?T('Menahan serangan'):T('Timmu dikalahkan'));
+  return`<div class="arlog ${e.win?'w':'l'}"><span class="ark ${me?'atk':'def'}">${me?T('SERANG'):T('BERTAHAN')}</span>${st&&st.fav?`<img class="px" src="${portrait(st.fav)}">`:'<span class="noav"></span>'}
+  <div class="ali"><small>${txt}</small><b>${esc(nm)}</b><small>CP ${fmt(e.cp||0)} · ${agoTxt(e.t)}</small></div><span class="ard ${e.d>=0?'aup':'adn'}">${e.d>=0?'+':''}${e.d}</span>
+  ${!me&&!e.win&&!e.rev&&st?`<button class="btn sm" data-act="arRev" data-arg="${e.id}">${T('Balas')}</button>`:''}</div>`}).join('')}</div>`}
+
+/* ---- hadiah ---- */
+function arRwHTML(){const A=S.arena,k=arLeague(A.pts);
+ return`<div class="arrw"><div class="arrwh"><span>${T('Liga')}</span><span>${T('Harian')}</span><span>${T('Akhir Musim')}</span></div>
+ ${ARENA_CFG.leagues.map((L,i)=>`<div class="arrwr${i===k?' cur':''}" style="--lc:${L.c}"><span class="lgn"><img class="px" src="${ICON['lg_'+L.id]}"><b>${T(L.n)}</b><small>${fmt(L.min)}+</small></span><span class="mrw">${rwMini(L.day)}</span><span class="mrw">${rwMini(L.week)}</span></div>`).reverse().join('')}</div>
+ <div class="panel tips"><b>${T('Aturan Arena')}</b><ul>
+  <li>${T('{n} tiket per hari, terisi ulang pukul 00:00 WIB.',{n:ARENA_CFG.tix})}</li>
+  <li>${T('Menang melawan lawan yang lebih kuat memberi poin lebih banyak.')}</li>
+  <li>${T('Hadiah harian dikirim ke Kotak Surat besok bila kamu bertarung hari ini.')}</li>
+  <li>${T('Musim berganti tiap Senin 00:00 WIB. Hadiah musim sesuai liga akhirmu, lalu poin di atas {s} dipotong setengah.',{s:fmt(ARENA_CFG.start)})}</li>
+  <li>${T('Setelah {s} detik, Kemarahan Arena aktif: damage terus naik dan penyembuhan berkurang.',{s:ARENA_CFG.rage.at})}</li>
+  <li>${T('Bonus CP tim (resonansi elemen, formasi seimbang, dll.) ikut menguatkan stat hero di Arena.')}</li>
+  <li>${T('Tiap pertarungan: menang {a} Emas, kalah {b} Emas.',{a:fmt(ARENA_CFG.battle.win.gold),b:fmt(ARENA_CFG.battle.lose.gold)})}</li></ul></div>`}
+
+/* ---------------- hasil pertarungan ---------------- */
+function arDmgHTML(b){const col=side=>{const us=b.units.filter(u=>u.side===side),mx=Math.max(1,...us.map(u=>(u.dmg||0)+(u.healed||0)));
+  return`<div class="ardm ${side}">${us.sort((x,y)=>(y.dmg||0)+(y.healed||0)-(x.dmg||0)-(x.healed||0)).map(u=>`<div class="${u.alive?'':'ko'}"><img class="px" src="${portrait(u.id)}"><span class="bar"><i style="width:${((u.dmg||0)+(u.healed||0))/mx*100}%"></i></span><b>${fmt(u.healed&&!u.dmg?u.healed:u.dmg||0)}${u.healed&&!u.dmg?' ♥':''}</b></div>`).join('')}</div>`};
+ return`<div class="ardmg">${col('hero')}${col('enemy')}</div>`}
+function arResHTML(res,b,quick){const A=S.arena,m=res.meta,Lb=ARENA_CFG.leagues[res.lgB],La=ARENA_CFG.leagues[res.lgA];
+ const mvp=b.units.filter(u=>u.side==='hero').sort((x,y)=>(y.dmg||0)+(y.healed||0)-(x.dmg||0)-(x.healed||0))[0];
+ return`<h3 class="${res.win?'':'lose'}">${res.win?T('MENANG!'):T('KALAH...')}</h3>
+ <div class="arvs"><span><img class="px" src="${portrait(S.team.find(Boolean))}"><b>${esc(S.name)}</b></span><i class="ot">VS</i><span><img class="px" src="${portrait(m.team[0]||'seraphine')}"><b>${esc(m.name)}</b></span></div>
+ <div class="arpd"><img class="px" src="${ICON['lg_'+La.id]}"><span><b>${fmt(res.before)} → ${fmt(res.after)}</b><small>${T('Liga {l}',{l:T(La.n)})}</small></span><em class="${res.d>=0?'aup':'adn'}">${res.d>=0?'+':''}${res.d}</em></div>
+ ${res.lgA>res.lgB?`<div class="arpromo up">⬆ ${T('Naik ke Liga {l}!',{l:T(La.n)})}</div>`:res.lgA<res.lgB?`<div class="arpromo dn">⬇ ${T('Turun ke Liga {l}',{l:T(La.n)})}</div>`:''}
+ ${rewardHTML(res.rw)}${res.ups?`<div style="font-size:14px;color:#d2780a">⬆ ${T('Level Akun naik ke {lv}! Stamina +{s}',{lv:S.lv,s:res.ups*20})}</div>`:''}
+ ${mvp?`<div class="armvp"><span>MVP</span><img class="px" src="${portrait(mvp.id)}"><b>${mvp.name}</b><small>${fmt(mvp.dmg||0)} ${T('damage')}${mvp.healed?` · ${fmt(mvp.healed)} ${T('pulih')}`:''}</small></div>`:''}
+ ${quick?arDmgHTML(b):''}
+ <small class="artl">${T('Tiket tersisa {n}/{m}',{n:A.tix,m:ARENA_CFG.tix})} · ${Math.floor(b.time)}${T('d')}</small>`}
+function arenaEnd(win){if(!B)return;const res=arApply(win,B.ar);sfx(win?'win':'lose');
+ const o=$('#bOver');o.innerHTML=`<div class="panel arres">${arResHTML(res,B,false)}<div class="mrow"><button class="btn blue" data-act="bexit">${T('Kembali ke Arena')}</button></div></div>`;o.classList.add('on')}
+function arShowQuick(res,b){sfx(res.win?'win':'lose');
+ modal(`<div class="arres quick">${arResHTML(res,b,true)}<div class="mrow"><button class="btn blue" data-act="arClose">${T('Kembali ke Arena')}</button></div></div>`);$('#modal .mbox').classList.add('arresbox')}
+
+/* ---------------- pewaktu layar ---------------- */
+function arStartTimer(){if(arTimer)return;arTimer=setInterval(()=>{if(tab!=='arena'){clearInterval(arTimer);arTimer=null;return}
+ const a=$('#arSea'),b=$('#arTixCd');if(a)a.textContent=arCd(arWeekLeft());if(b)b.textContent=arCd(arDayLeft());
+ if(B||$('#modal').classList.contains('on'))return;const A=S.arena;
+ if(A&&(A.day!==wibDay()||A.wk!==arWeek())){render();return}
+ if(!arStartTimer.n||Date.now()-arStartTimer.n>3e5){arStartTimer.n=Date.now();const n=arDefTick();if(n){toast(T('Tim Bertahanmu diserang {n}×! Cek Riwayat.',{n}));render()}}},20e3)}
+
+Object.assign(ACT,{
+ arena:()=>{closeModal();tab='arena';render()},
+ arTab:t=>{arTab=t;render()},
+ arFight:i=>arenaFight(i,false),
+ arQuick:i=>{if(!(S.arena.wins>0)){toast(T('Menangkan 1 pertarungan Arena dulu untuk membuka Pertarungan Cepat.'),1);return}arenaFight(i,true)},
+ arRefresh:()=>{const A=S.arena;if(Date.now()-(A.refAt||0)<ARENA_CFG.refreshCd*1000)return;A.refAt=Date.now();A.seed++;AR.at=0;arFindOpps();sfx('tap');render();setTimeout(()=>{if(tab==='arena'&&arTab==='opp'&&!B)render()},ARENA_CFG.refreshCd*1000+50)},
+ arRank:()=>{rankTab='ar';openRank()},
+ arBot:i=>{openBot(i);const b=$('#modal .mclose');if(b)b.dataset.act='closeModal'},
+ arDefSlot:i=>arDefPick(i),
+ arDefSet:a=>{const A=S.arena,[i,id]=a.split(':');const j=A.def.indexOf(id);if(j>=0)A.def[j]=A.def[i]||null;A.def[i]=id;save();closeModal();render()},
+ arDefClear:i=>{const A=S.arena;if(A.def.filter(Boolean).length<=1){toast(T('Tim minimal berisi 1 hero.'),1);return}A.def[i]=null;save();closeModal();render()},
+ arDefCopy:()=>{S.arena.def=S.team.slice();save();sfx('equip');toast(T('Tim utama disalin ke Tim Bertahan.'));render()},
+ arDefBest:()=>{S.arena.def=bestTeam();save();sfx('equip');toast(T('Formasi terbaik dipasang! CP {cp}',{cp:fmt(teamCP(S.arena.def).total)}));render()},
+ arRev:id=>{const e=S.arena.log.find(x=>x.id===+id);if(!e)return;arenaFight(e.i,false,{rev:e.id})},
+ arClose:()=>{closeModal();render()},
+});
 
 /* ==== js/ui/splash.js ==== */
 /* =====================================================================

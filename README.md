@@ -147,6 +147,7 @@ Semua angka (rate 3/19/78, pity 80, rate on/off, harga summon, stat dasar, bonus
 | Banner, event, misi, surat, toko | `js/data/banners.js`, `events.js`, `missions.js`, `mail.js`, `shop.js` |
 | Logika battle (target, skill, gelombang) | `js/systems/battle.js` |
 | Bot & peringkat | `js/data/bots.js` (angka), `js/systems/bots.js` (mesin), `js/ui/leaderboard.js` |
+| Arena PvP | `js/data/arena.js` (angka), `js/systems/arena.js` (mesin), `js/ui/arena.js` |
 | Splash art | `src/img/splash/`, `js/art/splash.js`, `js/ui/splash.js` |
 | Teks bahasa Inggris / Jepang | `js/lang/en.js`, `js/lang/ja.js` |
 | Tampilan per layar | `js/ui/<layar>.js` + `css/<layar>.css` |
@@ -364,3 +365,13 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - Keduanya dikompres ke 96 kbps stereo. `tools/build.py` menanamnya sebagai `MUSIC_SRC`, dan `js/systems/music.js` memutarnya: `bgmPlay('login')` di `openLogin`; di `enterGame` musik login memudar (`bgmStop`), lalu `bgmPlay('game')` masuk sekitar 1,5 detik kemudian. Volume per lagu ada di `BGM_VOL`.
 - Diputar lewat **satu** elemen `<audio>` bersama + Web Audio gain (fade/volume berfungsi di iOS). iOS hanya mengizinkan `<audio>` diputar lewat kode kalau elemen itu sudah pernah diputar di dalam sentuhan, jadi `bgmPrime()` memancingnya secara sinkron di `audUnlock()` pada sentuhan pertama mana pun (termasuk saat splash). Kalau splash tidak disentuh, splash menunggu dengan tulisan "Ketuk untuk melanjutkan" supaya musik login langsung terdengar. Musik berhenti saat aplikasi di latar belakang dan lanjut saat kembali.
 - Pengaturan: Musik ON/OFF (`S.music`), berlaku untuk layar mana pun yang sedang tampil.
+
+## Arena PvP (lawan pemain bot)
+- File: `js/data/arena.js` (semua angka: tiket, liga, hadiah, Elo, Kemarahan Arena), `js/systems/arena.js` (mesin), `js/ui/arena.js` (layar tab `arena`), `css/arena.css`.
+- Lawan = pemain bot dari Peringkat; tim & stat bot dihitung dengan `heroStats/teamCP` memakai state bot. Poin bot = persentil CP + keaktifan bot selama musim (deterministik).
+- 5 tiket/hari (00:00 WIB). Musim mingguan (Senin 00:00 WIB). Liga: Perunggu → Perak → Emas → Platinum → Berlian → Legenda.
+- Hadiah harian (bila bertarung hari itu) & akhir musim dikirim lewat Kotak Surat (`ar_d_<hari>`, `ar_w_<minggu>`). Awal musim: poin di atas 1000 dipotong setengah.
+- Pertarungan: mesin battle biasa, hero lawan di sisi kanan (`u.ph`). Batas 90 dtk (habis = penyerang kalah). Setelah 15 dtk "Kemarahan Arena": damage naik 7%/dtk, penyembuhan ×0,7 di Arena. Bonus CP tim ikut menguatkan stat.
+- Pertarungan Cepat (terbuka setelah 1 kemenangan) & serangan bot ke Tim Bertahan memakai simulasi tanpa layar (`B.sim`, ±40 ms per laga).
+- Tim Bertahan diserang ±4×/hari setelah kamu pertama kali bertarung (maks 8 per kali hitung, 48 jam ke belakang). Kekalahan bertahan bisa dibalas (tombol Balas, pakai tiket).
+- Peringkat: tab "Arena" di layar Peringkat.

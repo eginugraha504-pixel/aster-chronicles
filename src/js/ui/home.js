@@ -35,7 +35,7 @@ function homeHTML(){const ns=nextStage(),id=homeHero(),h=HD[id],mdot=missionClai
  ${splash(id)?`<div class="hstage hsp" data-act="lobbyTap"><div class="hcircle"></div>${splashHTML(id,'hspl')}</div>`:`<div class="hstage"><div class="hcircle"></div><canvas id="lobbyc" width="${LOBBY_PX}" height="${LOBBY_PX}" data-act="lobbyTap"></canvas></div>`}
  <div class="hspeech${HB.hide>Date.now()&&HB.id===id?' on':''}"><p id="bubble">${HB.hide>Date.now()&&HB.id===id?HB.txt:''}</p><span class="hname"><i>${stars(h.r)}</i>${h.name}</span></div>
  <div class="hbtm">
-  <button class="hplate lock" data-act="arena"><span class="hpi"><img class="ix" src="${ICON.arena}"></span><b class="ot">${T('ARENA')}</b><small>${T('Segera hadir')}</small><img class="ix lk" src="${ICON.lock}"></button>
+  ${(()=>{const A=arCheck();return`<button class="hplate ar" data-act="arena"><span class="hpi"><img class="ix" src="${ICON.arena}"></span><b class="ot">${T('ARENA')}</b><small>${T('Tiket {a}/{b}',{a:A.tix,b:ARENA_CFG.tix})}</small>${A.tix>0||A.unseen?'<i class="dot"></i>':''}</button>`})()}
   <button class="hmed" data-act="go" data-arg="adv"><span class="hmr"></span><img class="ix" src="${ICON.adv}"><b class="ot">${T('PETUALANGAN')}</b><small>${ns.key} · ${ns.name}</small></button>
   <button class="hplate ev" data-act="goEvent"><span class="hpi"><img class="ix" src="${ICON.event}"></span><b class="ot">${T('EVENT')}</b><small>${T('{n} aktif',{n:EVENTS.filter(evActive).length})}</small>${edot?'<i class="dot"></i>':''}</button>
  </div></div>`}

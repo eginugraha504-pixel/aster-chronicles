@@ -12,6 +12,7 @@ css/adventure.css
 css/summon.css
 css/missions.css
 css/battle.css
+css/arena.css
 css/boot.css
 css/studio.css
 css/skin.css
@@ -26,6 +27,7 @@ js/data/heroes.js
 js/data/weapons.js
 js/data/gear.js
 js/data/bots.js
+js/data/arena.js
 js/data/enemies.js
 js/data/worlds.js
 js/data/banners.js
@@ -76,6 +78,7 @@ js/systems/music.js
 js/systems/platform.js
 js/systems/dash.js
 js/systems/battle.js
+js/systems/arena.js
 
 # --- UI layar ---
 js/ui/core.js
@@ -90,6 +93,7 @@ js/ui/events.js
 js/ui/shop.js
 js/ui/actions.js
 js/ui/leaderboard.js
+js/ui/arena.js
 js/ui/splash.js
 js/ui/boot.js
 

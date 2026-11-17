@@ -28,7 +28,7 @@ function dashPose(u){const D=u.dash;if(D.ph==='in')return{pose:'back'};if(D.ph==
 const TINT=new WeakMap();
 function tinted(c,col){let m=TINT.get(c);if(!m){m={};TINT.set(c,m)}if(m[col])return m[col];const t=document.createElement('canvas');t.width=c.width;t.height=c.height;const g=t.getContext('2d');g.drawImage(c,0,0);g.globalCompositeOperation='source-in';g.fillStyle=col;g.fillRect(0,0,t.width,t.height);return m[col]=t}
 function drawTrail(g,u){if(!u.trail||!u.trail.length)return;const hero=u.side==='hero',sc=u.scale,col=EL[u.el].c;
- const fr=hero?heroFrame(u):mobFrame(u),tc=tinted(fr.c,col),wc=tinted(fr.c,'#ffffff');
+ const fr=isHU(u)?heroFrame(u):mobFrame(u),tc=tinted(fr.c,col),wc=tinted(fr.c,'#ffffff');
  for(const p of u.trail){const x=Math.round(u.x+u.ox+p.dx),y=u.y+p.dy;g.globalAlpha=Math.max(0,p.a)*.55;
   if(hero)g.drawImage(tc,x-22,y-39,44,44);else{g.save();g.translate(x,0);g.scale(-1,1);g.drawImage(tc,-22*sc,y-39*sc,44*sc,44*sc);g.restore()}}
  // garis kecepatan saat melesat

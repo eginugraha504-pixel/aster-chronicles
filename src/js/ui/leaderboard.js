@@ -12,12 +12,12 @@ function rankSnapUpdate(){const L=botsList(),now=Date.now(),cur=rankMaps(L);let 
  RANK_PREV=snap;if(!snap||now-snap.t>36e5){try{localStorage.setItem(RS_KEY,JSON.stringify({t:now,cp:cur.cp,lv:cur.lv}))}catch(e){}}
  const d=wibDay(now);S.rankDay=S.rankDay||{};if(!S.rankDay.cur||S.rankDay.cur.d!==d){if(S.rankDay.cur)S.rankDay.prev=S.rankDay.cur;S.rankDay.cur={d,cp:cur.cp.me,lv:cur.lv.me};save()}else{S.rankDay.cur.cp=cur.cp.me;S.rankDay.cur.lv=cur.lv.me}}
 function rankDelta(e,k){if(!e.me&&e.isNew)return`<span class="rkd new">${T('BARU')}</span>`;if(!e.me&&e.back)return`<span class="rkd back">${T('KEMBALI')}</span>`;
- const P=RANK_PREV&&RANK_PREV[rankTab];if(!P)return'';const was=P[e.me?'me':e.i];if(!was)return'';const d=was-(k+1);return d>0?`<span class="rkd up">▲${d}</span>`:d<0?`<span class="rkd dn">▼${-d}</span>`:`<span class="rkd eq">–</span>`}
-function rankSorted(){const L=botsList();return L.sort(rankTab==='cp'?(a,b)=>b.cp-a.cp||b.lv-a.lv:(a,b)=>b.lv-a.lv||b.cp-a.cp)}
+ const P=rankTab!=='ar'&&RANK_PREV&&RANK_PREV[rankTab];if(!P)return'';const was=P[e.me?'me':e.i];if(!was)return'';const d=was-(k+1);return d>0?`<span class="rkd up">▲${d}</span>`:d<0?`<span class="rkd dn">▼${-d}</span>`:`<span class="rkd eq">–</span>`}
+function rankSorted(){if(rankTab==='ar'){arCheck();return arBoard().slice().concat([arMe()]).sort((a,b)=>b.pts-a.pts||b.cp-a.cp)}const L=botsList();return L.sort(rankTab==='cp'?(a,b)=>b.cp-a.cp||b.lv-a.lv:(a,b)=>b.lv-a.lv||b.cp-a.cp)}
 function rankRow(e,k){const md=k<3?` m${k+1}`:'';return`<button class="rkrow${e.me?' mine':''}" ${e.me?'data-act="closeModal"':`data-act="botView" data-arg="${e.i}"`}>
  <span class="rkn${md}">${k+1}</span><span class="rkav">${e.top?`<img class="px" src="${portrait(e.top)}">`:''}${e.online?'<i class="on"></i>':''}</span>
- <span class="rknm"><b>${e.name}${e.me?` <em>${T('Kamu')}</em>`:''}${rankDelta(e,k)}</b><small>${e.me&&S.rankDay&&S.rankDay.prev?T('Kemarin #{n}',{n:S.rankDay.prev[rankTab]}):e.online?T('Online'):T('Aktif {t}',{t:agoMs(Date.now()-e.last)})}</small></span>
- <span class="rkv"><b>${rankTab==='cp'?fmt(e.cp):'Lv '+e.lv}</b><small>${rankTab==='cp'?'Lv '+e.lv:'CP '+fmt(e.cp)}</small></span></button>`}
+ <span class="rknm"><b>${e.name}${e.me?` <em>${T('Kamu')}</em>`:''}${rankDelta(e,k)}</b><small>${e.me&&S.rankDay&&S.rankDay.prev&&S.rankDay.prev[rankTab]?T('Kemarin #{n}',{n:S.rankDay.prev[rankTab]}):e.online?T('Online'):T('Aktif {t}',{t:agoMs(Date.now()-e.last)})}</small></span>
+ <span class="rkv">${rankTab==='ar'?`<b>${lgIc(e.pts,14)} ${fmt(e.pts)}</b><small>CP ${fmt(e.cp)}</small>`:`<b>${rankTab==='cp'?fmt(e.cp):'Lv '+e.lv}</b><small>${rankTab==='cp'?'Lv '+e.lv:'CP '+fmt(e.cp)}</small>`}</span></button>`}
 function rankListHTML(){const L=rankSorted(),me=L.findIndex(e=>e.me),n=L.length-1,on=L.filter(e=>e.online&&!e.me).length;
  if(!n)return`<p class="sub" style="text-align:center;padding:30px 0">${BOTS.ready?T('Memanggil para petualang...'):T('Memuat pemain...')}</p>`;
  return`<div class="rkinfo"><span><b>${n}</b> ${T('pemain')}</span><span><i class="on"></i><b>${on}</b> ${T('online')}</span></div>
@@ -25,7 +25,7 @@ function rankListHTML(){const L=rankSorted(),me=L.findIndex(e=>e.me),n=L.length-
 function openRank(){botsInit();botsEnsure();botsEnsureBios();rankBot=null;
  if(!botsWarmOk()){modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Peringkat')}</h3><p class="sub" style="text-align:center;padding:30px 0">${T('Memuat peringkat...')}</p>`);botsWarm(()=>{if($('#modal').classList.contains('on')&&!rankBot)openRank()});return}if(!RANK_PREV||!openRank.done){rankSnapUpdate();openRank.done=1}
  modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Peringkat')}</h3>
- <div class="mtabs"><button class="btn ${rankTab==='cp'?'':'blue'}" data-act="rankTab" data-arg="cp">${T('CP Tim')}</button><button class="btn ${rankTab==='lv'?'':'blue'}" data-act="rankTab" data-arg="lv">${T('Level')}</button></div>
+ <div class="mtabs"><button class="btn ${rankTab==='cp'?'':'blue'}" data-act="rankTab" data-arg="cp">${T('CP Tim')}</button><button class="btn ${rankTab==='lv'?'':'blue'}" data-act="rankTab" data-arg="lv">${T('Level')}</button><button class="btn ${rankTab==='ar'?'':'blue'}" data-act="rankTab" data-arg="ar">${T('Arena')}</button></div>
  <div id="rkBody">${rankListHTML()}</div>`);rankStartTimer()}
 function rankRefresh(){const b=$('#rkBody');if(!b)return;const sc=$('#rkScroll'),top=sc?sc.scrollTop:0;b.innerHTML=rankListHTML();const sc2=$('#rkScroll');if(sc2)sc2.scrollTop=top}
 function rankStartTimer(){if(rankTimer)return;BOTS.seen=botsVisible();

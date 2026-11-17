@@ -58,14 +58,13 @@ const ACT={
  lobbyTap:()=>homeTap(),homeStep:d=>homeStep(d),
  banStep:d=>{banIdx=(banIdx+(+d)+BANNERS.length)%BANNERS.length;if(lobby)lobby.banT=0;const e=$('#hban');if(e)e.innerHTML=banHTML()},
  banGo:()=>{S.banner=banIdx%BANNERS.length;tab='summon';render()},
- arena:()=>toast(T('Arena PvP segera hadir! CP timmu: {cp}',{cp:fmt(teamPow())})),
  autoTeam:()=>{S.team=bestTeam();save();sfx('equip');toast(T('Formasi terbaik dipasang! CP {cp}',{cp:fmt(teamPow())}));render()},
  cast:i=>{if(!B)return;const u=B.units.filter(u=>u.side==='hero')[+i];if(u&&u.charge>=100)cast(u)},
  bauto:()=>{if(!B)return;B.auto=!B.auto;S.auto=B.auto;save();updBtns()},
  bspeed:()=>{if(!B)return;B.speed=B.speed===1?2:B.speed===2?3:1;S.speed=B.speed;save();updBtns()},
  bpause:()=>{if(!B||B.state==='end')return;B.paused=true;const o=$('#bOver');o.innerHTML=`<div class="panel"><h3>${T('Jeda')}</h3><div class="mrow"><button class="btn red" data-act="bquit">${T('Menyerah')}</button><button class="btn green" data-act="bresume">${T('Lanjut')}</button></div></div>`;o.classList.add('on')},
  bresume:()=>{if(B)B.paused=false;$('#bOver').classList.remove('on')},
- bquit:()=>exitBattle(),bexit:()=>exitBattle(),
+ bquit:()=>{if(B&&B.st.arena&&B.state!=='end'){B.state='end';arApply(false,B.ar)}exitBattle()},bexit:()=>exitBattle(),
  bretry:()=>{if(!B)return;const k=B.st.key;regen();if(S.stam<B.st.cost){toast(T('Stamina tidak cukup!'),1);return}B=null;startBattle(k)},
  bnext:()=>{if(!B)return;const nx=SLIST[B.st.n+1];if(!nx)return exitBattle();regen();if(S.stam<nx.cost){toast(T('Stamina tidak cukup!'),1);return}B=null;startBattle(nx.key)}
 };

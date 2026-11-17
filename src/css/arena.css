@@ -1,0 +1,106 @@
+/* =====================================================================
+   ARENA PvP — layar arena, kartu lawan, tim bertahan, riwayat, hasil
+   ===================================================================== */
+.hplate.ar{background:linear-gradient(180deg,#ffe2e0,#ff9d8c)}
+.arwrap{--lc:#c7804a;--lc2:#7a4420}
+.arhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.arhead .arback{width:40px;height:40px;padding:0;font-size:24px;line-height:1;flex:none}
+.arhead h2{font-size:28px;letter-spacing:1px;-webkit-text-stroke-width:5px}
+.arsea{margin-left:auto;display:flex;align-items:center;gap:3px;flex-wrap:wrap;justify-content:flex-end;font-size:11px;font-weight:900;color:#fff;background:rgba(46,24,10,.72);border:2px solid var(--ink);border-radius:12px;padding:4px 8px;text-align:right;max-width:52%}
+.arsea b{color:var(--gold)}
+.arload{text-align:center;padding:36px 0}
+/* kartu liga milikku */
+.panel.arme{display:flex;align-items:center;gap:10px;padding:8px;overflow:hidden;color:#fff;border:10px solid transparent;border-radius:8px;border-image:var(--ui-card-r3) 24 / 10px stretch;
+ background:radial-gradient(ellipse at 18% 40%,color-mix(in srgb,var(--lc) 70%,#fff),var(--lc2) 70%,#24123a);background-clip:padding-box;box-shadow:var(--sh)}
+.arme .rays{position:absolute;left:14%;top:50%;width:420px;height:420px;margin:-210px;background:repeating-conic-gradient(rgba(255,255,255,.16) 0 10deg,transparent 10deg 20deg);animation:spin 24s linear infinite;pointer-events:none}
+.arme .arlg{position:relative;width:76px;height:76px;flex:none;filter:drop-shadow(0 3px 0 rgba(0,0,0,.35));animation:arbob 2.6s ease-in-out infinite}
+@keyframes arbob{50%{transform:translateY(-3px)}}
+.armi{position:relative;display:flex;flex-direction:column;flex:1;min-width:0}
+.armi>small{font-size:11px;font-weight:900;opacity:.9}
+.armi>b{font-size:26px;line-height:1.05}
+.arpts{font-size:12px;font-weight:900}.arpts b{font-family:var(--fh);font-size:18px;font-weight:400;color:var(--gold)}
+.arbar{display:block;height:8px;margin:4px 0 3px;border-radius:6px;background:rgba(0,0,0,.35);border:1.5px solid rgba(255,255,255,.5);overflow:hidden}
+.arbar i{display:block;height:100%;background:linear-gradient(90deg,#fff3a0,var(--gold))}
+.arst{position:relative;display:flex;flex-direction:column;gap:4px;flex:none}
+.arst>*{display:flex;flex-direction:column;align-items:center;min-width:64px;padding:3px 6px;border-radius:10px;background:rgba(0,0,0,.28);border:1.5px solid rgba(255,255,255,.35);color:#fff;font:inherit}
+.arst b{font-family:var(--fh);font-weight:400;font-size:16px;line-height:1.1}
+.arst span{font-size:9.5px;font-weight:900;opacity:.9;white-space:nowrap}
+.arst button{cursor:pointer}
+.artix{display:flex;align-items:center;gap:8px;margin:10px 0;padding:6px 10px;border-radius:12px;background:#fff8e6;border:2.5px solid var(--ink);font-size:13px;font-weight:900}
+.artix .tk{display:flex;align-items:center;gap:4px}.artix .tk b{color:var(--hl);font-family:var(--fh);font-weight:400;font-size:17px}
+.artix small{font-size:11px;color:var(--mut)}
+.artix .cp{margin-left:auto}.artix .cp b{font-family:var(--fh);font-weight:400;font-size:16px;color:#5b3fc4}
+.artabs{margin-bottom:10px}.artabs .btn{position:relative;font-size:13px;padding:8px 6px}.artabs .dot{top:-6px;right:-4px}
+/* kartu lawan */
+.aropp{display:flex;align-items:center;gap:8px;padding:10px 8px 10px 10px;margin-bottom:9px;border-left:8px solid var(--oc)}
+.ardf{position:absolute;top:-9px;left:12px;font-size:10px;font-weight:900;letter-spacing:.5px;padding:1px 8px;border-radius:8px;border:2px solid var(--ink);color:#fff}
+.ardf.easy{background:#3fae4a}.ardf.even{background:#e79a1c}.ardf.hard{background:#d8443d}
+.aroav{position:relative;width:56px;height:56px;flex:none;border-radius:14px;border:3px solid var(--ink);background:radial-gradient(circle at 50% 35%,#fff7da,#e9c886);overflow:hidden;padding:0}
+.aroav img{width:100%;height:100%}.aroav .on{position:absolute;right:3px;bottom:3px;width:10px;height:10px;border-radius:50%;background:#4cd65a;border:2px solid #fff}
+.aroi{display:flex;flex-direction:column;flex:1;min-width:0;gap:1px}
+.aroi>b{font-family:var(--fh);font-weight:400;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aroi>span{font-size:11.5px;font-weight:800;color:var(--mut)}.aroi>span b{color:var(--txt)}
+.arteam{display:flex;gap:3px;margin-top:3px}
+.arteam span{position:relative;width:30px;height:30px;border-radius:8px;border:2px solid var(--ink);background:#f6e7c2;overflow:hidden}
+.arteam span.r2{background:#cfe6ff}.arteam span.r3{background:linear-gradient(135deg,#fff3a6,#ffc84a)}
+.arteam img{width:100%;height:100%}.arteam .el{position:absolute;left:0;top:0;width:11px;height:11px}
+.arteam i{position:absolute;right:0;bottom:0;font-style:normal;font-size:8.5px;font-weight:900;color:#fff;background:rgba(46,24,10,.8);padding:0 2px;border-radius:4px 0 0 0;line-height:1.2}
+.aroa{display:flex;flex-direction:column;align-items:stretch;gap:5px;flex:none;width:84px}
+.arex{display:flex;justify-content:space-between;font-family:var(--fh);font-size:13px}
+.arex em{font-style:normal}.aup{color:#2f9a3a}.adn{color:#d8443d}
+.aroa .btn{font-size:14px;padding:7px 4px}
+.btn.sm{font-size:12px!important;padding:5px 4px!important;border-radius:11px}
+.btn.lk{filter:saturate(.35) brightness(.95)}
+.arnote{margin-top:8px;text-align:center}
+/* riwayat */
+.arlogs{display:flex;flex-direction:column;gap:6px}
+.arlog{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:13px;background:#fff8e6;border:2.5px solid rgba(74,42,23,.3)}
+.arlog.l{background:#fdeeea}
+.arlog>img,.arlog .noav{width:38px;height:38px;border-radius:10px;border:2px solid var(--ink);background:#f6e7c2;flex:none}
+.ark{writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;font-weight:900;letter-spacing:1px;color:#fff;padding:4px 2px;border-radius:6px}
+.ark.atk{background:#d8443d}.ark.def{background:#3f7fd8}
+.ali{display:flex;flex-direction:column;flex:1;min-width:0}
+.ali b{font-family:var(--fh);font-weight:400;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ali small{font-size:10.5px;font-weight:800;color:var(--mut)}
+.ard{font-family:var(--fh);font-size:18px;min-width:38px;text-align:right}
+/* hadiah */
+.arrw{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.arrwh,.arrwr{display:grid;grid-template-columns:1.15fr 1fr 1.25fr;align-items:center;gap:6px}
+.arrwh{font-size:11px;font-weight:900;color:var(--mut);padding:0 8px}
+.arrwr{padding:6px 8px;border-radius:13px;background:#fff8e6;border:2.5px solid rgba(74,42,23,.3);border-left:7px solid var(--lc)}
+.arrwr.cur{background:#fff1b8;border-color:var(--ink);box-shadow:0 0 0 2px var(--gold)}
+.arrwr .lgn{display:grid;grid-template-columns:30px 1fr;align-items:center;column-gap:4px}
+.arrwr .lgn img{grid-row:span 2;width:30px;height:30px}.arrwr .lgn b{font-family:var(--fh);font-weight:400;font-size:14px;line-height:1}.arrwr .lgn small{font-size:10px;font-weight:900;color:var(--mut)}
+.arrwr .mrw{display:flex;flex-wrap:wrap;gap:2px 6px;font-size:11.5px;font-weight:900}
+/* hasil pertarungan */
+.arres h3{font-size:30px}.arres h3.lose{color:#c0392b}
+.arvs{display:flex;align-items:center;justify-content:center;gap:12px;margin:6px 0 8px}
+.arvs span{display:flex;flex-direction:column;align-items:center;gap:2px;width:96px}
+.arvs img{width:52px;height:52px;border-radius:14px;border:3px solid var(--ink);background:radial-gradient(circle at 50% 35%,#fff7da,#e9c886)}
+.arvs b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.arvs i{font-style:normal;font-size:26px;color:#fff;-webkit-text-stroke-width:5px}
+.arpd{display:flex;align-items:center;justify-content:center;gap:8px;margin:4px 0}
+.arpd img{width:40px;height:40px}.arpd span{display:flex;flex-direction:column;align-items:flex-start}
+.arpd span b{font-family:var(--fh);font-weight:400;font-size:20px}.arpd span small{font-size:11px;font-weight:900;color:var(--mut)}
+.arpd em{font-style:normal;font-family:var(--fh);font-size:26px}
+.arpromo{display:inline-block;margin:2px 0 6px;padding:3px 12px;border-radius:10px;font-weight:900;font-size:14px;color:#fff;border:2px solid var(--ink)}
+.arpromo.up{background:linear-gradient(90deg,#ffb12e,#ff6a3c);animation:pop .5s}.arpromo.dn{background:#8a7a9a}
+.armvp{display:flex;align-items:center;justify-content:center;gap:6px;margin:6px 0}
+.armvp span{font-family:var(--fh);font-size:13px;color:#fff;background:#d2780a;border:2px solid var(--ink);border-radius:8px;padding:0 6px}
+.armvp img{width:30px;height:30px;border-radius:8px;border:2px solid var(--ink)}
+.armvp b{font-size:14px}.armvp small{font-size:11px;font-weight:800;color:var(--mut)}
+.artl{display:block;font-size:11px;font-weight:900;color:var(--mut);margin-top:4px}
+.arresbox{text-align:center}
+.ardmg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 2px}
+.ardm{display:flex;flex-direction:column;gap:3px}
+.ardm>div{display:grid;grid-template-columns:24px 1fr 40px;align-items:center;gap:4px}
+.ardm>div.ko{opacity:.5}
+.ardm img{width:24px;height:24px;border-radius:6px;border:1.5px solid var(--ink)}
+.ardm .bar{height:7px;border-radius:5px;background:#e8d6ae;overflow:hidden}
+.ardm .bar i{display:block;height:100%;background:linear-gradient(90deg,#5bc4ff,#2a7ad0)}
+.ardm.enemy .bar i{background:linear-gradient(90deg,#ff9a7a,#d8443d)}
+.ardm b{font-size:10.5px;text-align:right}
+.armi>b,.armi .arpts,.armi>small{text-shadow:0 2px 0 rgba(0,0,0,.35)}
+#bWave.rage{background:#d8443d;color:#fff;animation:blink 1s steps(2) infinite}
+.arhead h2{white-space:nowrap}
+.aroa .btn.sm{white-space:nowrap;font-size:11px!important}
