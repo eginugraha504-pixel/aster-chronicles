@@ -4,7 +4,7 @@ Pakai: python3 tools/build.py && python3 tools/sync_repo.py [/path/repo] [--zip 
 Lalu di folder repo: git add -A && git commit && git push.
 
 Isi repo:  index.html (= dist/index.html, dimainkan lewat GitHub Pages) · README.md (kepala repo + README proyek)
-           src/ · tools/ · docs/ · art_src/ (HANYA skrip & data: .py .json .md — PNG mentah tidak ikut)
+           src/ · tools/ · docs/ · bank-worker/ · .github/ · art_src/ (HANYA skrip & data: .py .json .md — PNG mentah tidak ikut)
 README repo: bagian kepala (info cara main, sampai baris '---' pertama) dipertahankan, sisanya diganti README proyek.
 """
 import os,shutil,sys,zipfile
@@ -22,7 +22,7 @@ def copytree(a,b,filt=None):
             s=os.path.join(d,f);t=os.path.join(b,os.path.relpath(s,a));os.makedirs(os.path.dirname(t),exist_ok=True);shutil.copy2(s,t)
 assert os.path.isdir(os.path.join(REPO,'.git')),'bukan repo git: '+REPO
 shutil.copy2(os.path.join(ROOT,'dist','index.html'),os.path.join(REPO,'index.html'))
-for d in ['src','tools','docs']:copytree(os.path.join(ROOT,d),os.path.join(REPO,d),lambda f:not f.endswith('.pyc'))
+for d in ['src','tools','docs','bank-worker','.github']:copytree(os.path.join(ROOT,d),os.path.join(REPO,d),lambda f:not f.endswith('.pyc'))
 copytree(os.path.join(ROOT,'art_src'),os.path.join(REPO,'art_src'),lambda f:f.endswith(TEXT))
 old=open(os.path.join(REPO,'README.md'),encoding='utf-8').read() if os.path.exists(os.path.join(REPO,'README.md')) else ''
 head=old[:old.index('---\n\n')+5] if '---\n\n' in old else ''

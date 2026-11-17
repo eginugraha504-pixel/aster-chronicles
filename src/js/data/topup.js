@@ -1,12 +1,12 @@
 /* =====================================================================
    TOP UP (mikrotransaksi pura-pura) — dibayar lewat bot Telegram "Bank Central Universe"
-   Mesin: systems/topup.js · tampilan: ui/topup.js · sisi bot: tools/bank_topup/aster_topup.py
+   Mesin: systems/topup.js · tampilan: ui/topup.js · sisi bot: bank-worker/ (Cloudflare Workers)
    ---------------------------------------------------------------------
    Alur: game membuat pesanan (ID + paket + harga) -> bot bank menagih & memotong saldo ->
    bot membalas KODE VOUCHER = HMAC-SHA256(secret, "ID|paket|harga") -> kode ditempel di game.
    Kode terikat ke pesanan itu (tidak bisa dipakai di pesanan lain / dipakai dua kali).
-   OTOMATIS: bot juga mengirim {o,s,p,c} ke ntfy.sh/<topik>; game yang punya pesanan menunggu mendengarkan topik itu
-   (EventSource + cek ulang saat aplikasi dibuka lagi) lalu menukar kodenya sendiri. Kode manual = cadangan.
+   OTOMATIS: bot bank jalan di Cloudflare Workers (bank-worker/). Selama ada pesanan menunggu, game menanyakan
+   GET <api>/api/order/<ID>; begitu lunas, server mengembalikan kodenya dan game menukarnya sendiri. Kode manual = cadangan.
    PENTING: `secret` di sini HARUS sama dengan ASTER_SECRET di bot. Uang & permata sama-sama fiktif.
    ===================================================================== */
 const TOPUP_CFG={
@@ -14,7 +14,8 @@ const TOPUP_CFG={
  prefix:'AST',            // awalan ID pesanan
  ttl:24*36e5,             // pesanan kedaluwarsa setelah 24 jam
  merchant:'HUN2 STUDIO',  // nama penerima di bot bank
- ntfy:'https://ntfy.sh',  // jembatan otomatis: bot mengirim bukti bayar ke topik ntfy, game mendengarkan (topik diturunkan dari secret)
+ api:'',                  // alamat server bank (Cloudflare Worker, folder bank-worker/). Kosong = hanya kode voucher manual
+ pollMs:3000,             // jeda cek status pesanan selama menunggu pembayaran
  // Paket Permata. Bonus pembelian pertama tiap paket = permata dasar (2×). Nilai per Rupiah ≈ gacha sungguhan (±Rp40rb per summon)
  packs:[
   {id:'g1',price:16000,  gems:120,  bonus:0},

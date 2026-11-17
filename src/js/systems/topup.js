@@ -61,21 +61,14 @@ function tuDeliver(id){const I=tuState(),o=I.orders[id],p=tuSku(o.sku),rw={};let
 function tuCardTick(){const I=tuState(),d=wibDay(),c=TOPUP_CFG.card;if(I.card.until<d||I.card.last===d)return;I.card.last=d;
  sendMail({id:'mc_'+d,from:TOPUP_CFG.merchant,title:T('Kartu Bulanan · sisa {n} hari',{n:I.card.until-d}),body:T('Permata harian Kartu Bulanan untuk hari ini. Jangan lupa login setiap hari!'),rw:{gems:c.daily}})}
 
-/* ---------------- pengiriman otomatis (ntfy.sh) ---------------- */
-const TU={es:null,busy:0,since:0};
-const tuTopic=()=>TU.topic||(TU.topic='aster-'+Array.from(hmac256(TOPUP_CFG.secret,'ntfy-topic'),b=>b.toString(16).padStart(2,'0')).join('').slice(0,24));
+/* ---------------- pengiriman otomatis (server bank di Cloudflare) ---------------- */
+// Selama ada pesanan menunggu, game menanyakan status pesanan ke server bank tiap beberapa detik
+// (dan langsung saat aplikasi dibuka lagi dari Telegram). Kode dari server tetap diverifikasi seperti input manual.
+const TU={timer:0,busy:0};
 const tuWaiting=()=>Object.entries(tuState().orders).filter(([,o])=>o.st==='wait');
-// satu pesan dari bot: {o: id pesanan, c: kode}. Kode tetap diverifikasi seperti input manual.
-function tuOnPush(raw){let m;try{m=typeof raw==='string'?JSON.parse(raw):raw}catch(e){return}if(!m||!m.o||!m.c)return;
- const o=S.iap.orders[m.o];if(!o||o.st!=='wait')return;const r=tuRedeem(m.c,m.o);if(r.ok)tuAuto(r)}
-const tuSince=()=>Math.floor(Math.min(...tuWaiting().map(([,o])=>o.t))/1000)-60;
-// cek sekali (dipakai saat aplikasi dibuka lagi dari Telegram, karena koneksi live bisa terputus di latar belakang)
-async function tuPoll(){if(TU.busy||!tuWaiting().length)return;TU.busy=1;
- try{const t=await(await fetch(`${TOPUP_CFG.ntfy}/${tuTopic()}/json?poll=1&since=${tuSince()}`,{cache:'no-store'})).text();
-  for(const ln of t.split('\n')){if(!ln.trim())continue;try{const ev=JSON.parse(ln);if(ev.event==='message')tuOnPush(ev.message)}catch(e){}}}catch(e){}finally{TU.busy=0}
- tuListen()}
-// dengarkan langsung selama ada pesanan menunggu
-function tuListen(){if(!tuWaiting().length){tuStopListen();return}if(TU.es||typeof EventSource==='undefined')return;
- try{TU.es=new EventSource(`${TOPUP_CFG.ntfy}/${tuTopic()}/sse?since=${tuSince()}`);TU.es.onmessage=e=>{try{const ev=JSON.parse(e.data);if(ev.event==='message')tuOnPush(ev.message)}catch(x){}}}catch(e){TU.es=null}}
-function tuStopListen(){if(TU.es){TU.es.close();TU.es=null}}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'||typeof S==='undefined'||!S||!S.iap)return;tuStopListen();tuPoll()});
+async function tuPoll(){const api=TOPUP_CFG.api;if(TU.busy||!api)return;const w=tuWaiting();if(!w.length){tuStopListen();return}TU.busy=1;
+ try{for(const[id]of w.slice(0,3)){const r=await(await fetch(`${api}/api/order/${id}`,{cache:'no-store'})).json();
+   if(r&&r.st==='paid'&&S.iap.orders[id]&&S.iap.orders[id].st==='wait'){const res=tuRedeem(r.c,id);if(res.ok)tuAuto(res)}}}catch(e){}finally{TU.busy=0}}
+function tuListen(){if(TU.timer||!TOPUP_CFG.api||!tuWaiting().length)return;TU.timer=setInterval(()=>{if(document.visibilityState==='visible')tuPoll()},TOPUP_CFG.pollMs);tuPoll()}
+function tuStopListen(){clearInterval(TU.timer);TU.timer=0}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&typeof S!=='undefined'&&S&&S.iap){tuListen();tuPoll()}});
