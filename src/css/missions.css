@@ -167,3 +167,6 @@ i.on{display:inline-block;width:9px;height:9px;border-radius:50%;background:#3ad
 .tucard .tuprice{flex:none}
 .tucard .tcm>span{min-width:0}
 .tuvc input::placeholder{text-transform:none;letter-spacing:0;font-size:13px}
+.tulive{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:#eaf7ff;border:2px solid #5fb3e8;font-size:12px;font-weight:800;text-align:left}
+.tulive .spin{flex:none;width:18px;height:18px;border-radius:50%;border:3px solid #9fd2f5;border-top-color:#2a8ad8;animation:spin 1s linear infinite}
+.tuman{margin-top:8px;text-align:left}.tuman summary{font-size:12px;font-weight:900;color:var(--mut);cursor:pointer}

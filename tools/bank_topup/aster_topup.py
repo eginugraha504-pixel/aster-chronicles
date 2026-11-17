@@ -8,7 +8,7 @@ Taruh file ini di folder bot (sebelah bank.py). Bot bank memakai fungsi di sini 
 Kode voucher = HMAC-SHA256(ASTER_SECRET, "ID|paket|harga") -> base32 (tanpa I O 0 1) 10 huruf, format XXXXX-XXXXX.
 ASTER_SECRET HARUS sama dengan TOPUP_CFG.secret di game (src/js/data/topup.js).
 """
-import hashlib, hmac, re
+import hashlib, hmac, json, re, threading, time, urllib.request
 
 ASTER_SECRET = "HUN2-aster-7Qm4Xc9TzR2kLw8B"
 MERCHANT_KEY = "hun2studio"          # kunci rekening merchant di buku besar
@@ -27,6 +27,12 @@ CATALOG = {
 }
 _ID = re.compile(r"^AST[A-Z2-9]{8}$")
 
+# Pengiriman otomatis ke game: bukti bayar dikirim ke topik ntfy.sh (layanan notifikasi gratis, tanpa akun).
+# Game yang sedang menunggu pembayaran membaca topik ini lalu memasukkan permata sendiri (kode voucher tetap dicek).
+# Nama topik diturunkan dari ASTER_SECRET, jadi game & bot otomatis memakai topik yang sama.
+NTFY_URL = "https://ntfy.sh"
+NTFY_TOPIC = "aster-" + hmac.new(ASTER_SECRET.encode(), b"ntfy-topic", hashlib.sha256).hexdigest()[:24]
+
 
 def code_for(order_id: str, sku: str, price: int) -> str:
     mac = hmac.new(ASTER_SECRET.encode(), f"{order_id}|{sku}|{int(price)}".encode(), hashlib.sha256).digest()
@@ -41,6 +47,24 @@ def code_for(order_id: str, sku: str, price: int) -> str:
         if len(out) >= 10:
             break
     return out[:5] + "-" + out[5:]
+
+
+def push_paid(order_id: str, sku: str, price: int, log=None):
+    """Kirim bukti bayar ke game (di thread terpisah supaya bot tidak tertahan). Gagal = pemain tetap bisa tempel kode."""
+    body = json.dumps({"o": order_id, "s": sku, "p": int(price), "c": code_for(order_id, sku, price)}).encode()
+
+    def run():
+        for i in range(3):
+            try:
+                req = urllib.request.Request(f"{NTFY_URL}/{NTFY_TOPIC}", data=body, method="POST",
+                                             headers={"Title": "Aster Chronicles top up", "Content-Type": "application/json"})
+                urllib.request.urlopen(req, timeout=10).read()
+                return
+            except Exception as e:  # noqa: BLE001
+                if log:
+                    log.warning("Top up %s belum terkirim ke game (%s), coba lagi...", order_id, e)
+                time.sleep(2 + i * 3)
+    threading.Thread(target=run, daemon=True).start()
 
 
 def parse(text: str):
@@ -71,10 +95,11 @@ def receipt_text(oid, sku, price, ref, saldo):
     name, _ = CATALOG[sku]
     return (f"✅ <b>Pembayaran berhasil</b>\n\n🛒 {name}\n🏷️ {oid}\n💳 {fmt_rp(price)} ke {MERCHANT_NAME}\n🧾 Ref: <code>{ref}</code>\n\n"
             f"🎟️ Kode voucher (ketuk untuk menyalin):\n<code>{code_for(oid, sku, price)}</code>\n\n"
-            f"Tempel kode ini di game: Toko › Top Up › tagihan pesanan.\n💰 Sisa saldo: <b>{fmt_rp(saldo)}</b>")
+            f"⚡ Permata masuk otomatis begitu kamu kembali ke game. Kalau belum masuk, tempel kode ini di tagihan pesanan.\n"
+            f"💰 Sisa saldo: <b>{fmt_rp(saldo)}</b>")
 
 
 if __name__ == "__main__":   # uji cepat: python aster_topup.py ASTABCDEFGH g3 249000
     import sys
     a = sys.argv[1:] or ["ASTABCDEFGH", "g3", "249000"]
-    print(code_for(a[0], a[1], int(a[2])))
+    print(code_for(a[0], a[1], int(a[2])), NTFY_TOPIC)

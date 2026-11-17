@@ -8,7 +8,10 @@ Sisi bot dari fitur Top Up (sisi game: `src/js/data/topup.js`, `systems/topup.js
 2. Bot bank: `aster_topup.parse(teks)` → tampilkan `invoice_text()` + tombol ✅ Bayar / ❌ Batal.
 3. ✅ Bayar: cek saldo rekening `egi`, catat mutasi `egi → hun2studio` (jenis `bayar`, catatan "Aster Chronicles: <paket> <ID>"),
    tolak bila ID pesanan yang sama sudah pernah dibayar, lalu balas `receipt_text()` yang berisi kode voucher.
-4. Pemain menempel kode di game. Game menghitung ulang `HMAC(secret, "ID|paket|harga")`; kode cocok = permata masuk.
+4. **Otomatis:** bot juga mengirim `{o,s,p,c}` ke `https://ntfy.sh/<NTFY_TOPIC>` (`push_paid`, thread terpisah, 3× coba).
+   Game yang punya pesanan menunggu mendengarkan topik itu (EventSource, dan cek ulang `json?poll=1` saat aplikasi dibuka lagi),
+   lalu memverifikasi kode seperti input manual → permata masuk sendiri. Topik = `aster-` + HMAC(secret, "ntfy-topic")[:24].
+5. Cadangan: pemain menempel kode di tagihan. Game menghitung ulang `HMAC(secret, "ID|paket|harga")`; kode cocok = permata masuk.
 
 ## Yang harus sama di kedua sisi
 - `ASTER_SECRET` (bot) = `TOPUP_CFG.secret` (game)
@@ -17,3 +20,5 @@ Sisi bot dari fitur Top Up (sisi game: `src/js/data/topup.js`, `systems/topup.js
 ## Pemasangan di bot
 `aster_topup.py` diletakkan di folder bot. Handler di `bank.py` (BankLogic) dipasang menyesuaikan struktur bank yang sedang dipakai
 (rekening merchant `hun2studio` dibuat otomatis bila belum ada). Uji: `python aster_topup.py ASTABCDEFGH g3 249000` → `3UNMX-CBJ8V`.
+
+`bank.py` versi yang memakai modul ini ada di PC Egi (`Desktop/cynthia-userbot/`): handler `aster_invoice` / `aster_pay` di `BankLogic`, rekening merchant `hun2studio`.

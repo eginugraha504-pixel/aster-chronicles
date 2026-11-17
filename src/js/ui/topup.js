@@ -29,8 +29,9 @@ function tuOpen(id){const I=tuState(),o=I.orders[id];if(!o)return;const p=tuSku(
  ${o.st==='wait'?`<div class="tustep"><b>1</b><span>${T('Bayar di bot Bank Central Universe')}</span></div>
   ${link?`<a class="btn tutg" href="${link}" target="_blank" rel="noopener">✈️ ${T('Bayar di Telegram')}</a>`:`<button class="btn tutg" data-act="tuBot">✈️ ${T('Atur username bot bank dulu')}</button>`}
   <div class="tucmd"><small>${T('Atau kirim perintah ini ke bot:')}</small><code>${cmd}</code><button class="btn blue sm" data-act="tuCopy" data-arg="${id}">${T('Salin')}</button></div>
-  <div class="tustep"><b>2</b><span>${T('Tempel kode voucher dari bot')}</span></div>
-  <div class="tuvc"><input id="tuCode" placeholder="XXXXX-XXXXX" maxlength="13" autocapitalize="characters" autocomplete="off"><button class="btn green" data-act="tuRedeem" data-arg="${id}">${T('Konfirmasi')}</button></div>
+  <div class="tustep"><b>2</b><span>${T('Kembali ke game')}</span></div>
+  <div class="tulive"><i class="spin"></i><span>${T('Menunggu pembayaran... Permata masuk otomatis setelah kamu menekan ✅ Bayar di bot.')}</span></div>
+  <details class="tuman"><summary>${T('Belum masuk? Tempel kode voucher')}</summary><div class="tuvc"><input id="tuCode" placeholder="XXXXX-XXXXX" maxlength="13" autocapitalize="characters" autocomplete="off"><button class="btn green" data-act="tuRedeem" data-arg="${id}">${T('Konfirmasi')}</button></div></details>
   <small class="tuttl">${T('Berlaku sampai {t}',{t:new Date(o.t+TOPUP_CFG.ttl).toLocaleString(S.lang==='en'?'en-GB':S.lang==='ja'?'ja-JP':'id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})})}</small>`
  :o.st==='paid'?`<p class="sub">${T('Dibayar {t}. {n} Permata sudah masuk.',{t:agoTxt(o.paidT),n:fmt(o.gems||0)})}</p>`:`<div class="mrow"><button class="btn" data-act="tuBuy" data-arg="${o.sku}">${T('Buat Pesanan Baru')}</button></div>`}`)}
 function tuHist(){const I=tuState(),L=Object.entries(I.orders).sort((a,b)=>b[1].t-a[1].t);
@@ -43,11 +44,13 @@ function tuSuccess(r){sfx('rare');const p=tuSku(r.sku);
  ${r.first?`<span class="tufirst big">${T('Bonus pembelian pertama ×2!')}</span>`:''}
  ${r.card?`<p class="sub">${T('Kartu Bulanan aktif, sisa {n} hari. Permata harian dikirim ke Kotak Surat setiap hari.',{n:tuCardLeft()})}</p>`:''}
  <div class="mrow"><button class="btn" data-act="tuBack">${T('Mantap!')}</button></div></div>`);$('#modal .mbox').classList.add('tuokbox');render()}
+// pembayaran masuk otomatis (bisa terjadi di layar mana pun)
+function tuAuto(r){if(B){toast(T('Top up berhasil! +{n} Permata',{n:fmt(r.rw.gems)}));sfx('rare');return}tuSuccess(r)}
 function tuCopyText(t){const done=()=>toast(T('Disalin!'));try{navigator.clipboard.writeText(t).then(done,()=>fb())}catch(e){fb()}
  function fb(){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');done()}catch(e){toast(t)}a.remove()}}
 
 Object.assign(ACT,{
- tuBuy:sku=>{const r=tuOrder(sku);if(!r)return;if(r.err){toast(r.err,1);return}sfx('tap');tuOpen(r.id)},
+ tuBuy:sku=>{const r=tuOrder(sku);if(!r)return;if(r.err){toast(r.err,1);return}sfx('tap');tuOpen(r.id);tuListen()},
  tuOpen:id=>tuOpen(id),
  tuBack:()=>{shopTab='tu';openShop()},
  tuHist:()=>tuHist(),

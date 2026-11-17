@@ -5,6 +5,8 @@
    Alur: game membuat pesanan (ID + paket + harga) -> bot bank menagih & memotong saldo ->
    bot membalas KODE VOUCHER = HMAC-SHA256(secret, "ID|paket|harga") -> kode ditempel di game.
    Kode terikat ke pesanan itu (tidak bisa dipakai di pesanan lain / dipakai dua kali).
+   OTOMATIS: bot juga mengirim {o,s,p,c} ke ntfy.sh/<topik>; game yang punya pesanan menunggu mendengarkan topik itu
+   (EventSource + cek ulang saat aplikasi dibuka lagi) lalu menukar kodenya sendiri. Kode manual = cadangan.
    PENTING: `secret` di sini HARUS sama dengan ASTER_SECRET di bot. Uang & permata sama-sama fiktif.
    ===================================================================== */
 const TOPUP_CFG={
@@ -12,6 +14,7 @@ const TOPUP_CFG={
  prefix:'AST',            // awalan ID pesanan
  ttl:24*36e5,             // pesanan kedaluwarsa setelah 24 jam
  merchant:'HUN2 STUDIO',  // nama penerima di bot bank
+ ntfy:'https://ntfy.sh',  // jembatan otomatis: bot mengirim bukti bayar ke topik ntfy, game mendengarkan (topik diturunkan dari secret)
  // Paket Permata. Bonus pembelian pertama tiap paket = permata dasar (2×). Nilai per Rupiah ≈ gacha sungguhan (±Rp40rb per summon)
  packs:[
   {id:'g1',price:16000,  gems:120,  bonus:0},
