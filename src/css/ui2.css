@@ -1,0 +1,97 @@
+/* =====================================================================
+   ui2.css : ROMBAK UI v2 (18 Nov 2026) — tema "Navy Kerajaan & Emas"
+   Dimuat setelah skin.css, sebelum frames.css. Aset Higgsfield di src/img/ui/n_*.webp
+   (lembar asli: art_src/ui_kit/n_*.png) → variabel --ui-n-*.
+   Prinsip: latar aplikasi navy berpola, isi di atas kartu perkamen berbingkai emas,
+   judul = plakat navy-emas, tab kayu gelap (aktif emas), nav kayu gelap bertrim emas.
+   ===================================================================== */
+:root{--nv1:#0f1733;--nv2:#16213f;--nv3:#24366a;--gd1:#ffe9a0;--gd2:#e8b84a;--gd3:#a86a14;--ivory:#fff3cf;--lt:#e8ecff;--lt2:#b8c2e8}
+
+/* ---------- latar aplikasi ---------- */
+#app{background:
+  radial-gradient(ellipse at 50% 0%,rgba(90,120,220,.22) 0%,transparent 55%),
+  radial-gradient(ellipse at 50% 100%,rgba(8,10,24,.6) 0%,transparent 60%),
+  var(--ui-n-bgtile) 0 0/96px 96px repeat,var(--nv2);
+ box-shadow:0 0 0 2px #0a0f22,0 0 40px rgba(0,0,0,.6)}
+#app:after{display:none}
+#screen .sec{color:#ffd86a;text-shadow:0 2px 0 rgba(0,0,0,.45)}
+#screen .sec:after{background:linear-gradient(90deg,rgba(232,184,74,.7),rgba(232,184,74,0));height:2px}
+#screen > .sub,#screen > p.sub,#screen > div > .sub:not(.panel .sub){color:var(--lt2)}
+.rowlbl{color:#ffd86a!important;text-shadow:0 2px 0 rgba(0,0,0,.5)}
+.panel .sec,.mbox .sec,.box .sec{color:var(--wood3)!important;text-shadow:none!important}
+.panel .sec:after,.mbox .sec:after{background:repeating-linear-gradient(90deg,var(--parch4) 0 6px,transparent 6px 10px)!important;height:3px!important}
+.panel .sub,.mbox .sub,.box .sub{color:var(--mut)!important}
+
+/* ---------- bilah atas ---------- */
+#top{background:linear-gradient(180deg,rgba(10,14,34,.78) 0%,rgba(10,14,34,.35) 70%,transparent 100%)}
+#app:not([data-tab="home"]) #top{padding-bottom:9px;background:linear-gradient(180deg,#22346a 0%,#141d3e 100%);border-bottom:0;
+ box-shadow:inset 0 -2px 0 #e8b84a,inset 0 -3.5px 0 #6a4410,0 5px 12px rgba(0,0,0,.45)}
+#app:not([data-tab="home"]) #top:after{display:none}
+.me .av{border:2px solid #2a1606;background:radial-gradient(circle at 40% 35%,#3a4e8a,#16213f);box-shadow:0 0 0 2px #e8b84a,0 0 0 3.5px #2a1606,0 2px 6px rgba(0,0,0,.5)}
+.me .lvb{background:linear-gradient(180deg,#5a8aff,#2a4ab0);border:1.5px solid #0e1430;box-shadow:0 0 0 1.5px #e8b84a}
+.me b{color:#fff;-webkit-text-stroke:3px #0e1430}
+.xpbar{background:#0e1430;border:1.5px solid #e8b84a;height:6px}
+.chip{height:27px;padding:0 5px 0 19px;border:0;border-radius:14px;background:var(--ui-n-capsule) center/100% 100% no-repeat;box-shadow:0 2px 4px rgba(0,0,0,.4)}
+.chip span{color:#fff;font-size:12.5px;text-shadow:0 1px 0 #000}
+.chip b{width:17px;height:17px;border-radius:50%;border:1.5px solid #2a1606;font-size:14px;color:#3a2006;background:radial-gradient(circle at 40% 30%,#fff6c0,#ffc93a 60%,#c8861a);box-shadow:0 1px 0 rgba(0,0,0,.4)}
+.chip small{-webkit-text-stroke:2.5px #0e1430}
+
+/* ---------- navigasi bawah ---------- */
+#nav{height:78px;background:none;border:0;border-style:solid;border-width:13px 18px 12px;border-image:var(--ui-n-navbar) 26 36 24 36 fill / 13px 18px 12px stretch;
+ padding:0 0 env(safe-area-inset-bottom);gap:0;box-shadow:0 -6px 14px rgba(0,0,0,.45)}
+.nb{justify-content:center;gap:0;margin-top:-6px}
+.nbi{width:44px;height:38px;background:none!important;border:0!important;box-shadow:none!important;border-radius:0;position:relative}
+.nbi img{width:34px;height:34px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.55))}
+.nbl{font-size:10.5px;color:#f6e3b8;-webkit-text-stroke:2.5px #1a0e04;margin-top:-1px}
+.nb.on .nbi{transform:translateY(-9px) scale(1.14)}
+.nb.on .nbi:before{content:'';position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;z-index:-1;
+ background:radial-gradient(circle,rgba(255,226,120,.95) 0%,rgba(255,190,60,.55) 38%,transparent 70%)}
+.nb.on .nbi:after{content:'';position:absolute;left:50%;top:-11px;width:10px;height:10px;margin-left:-5px;rotate:45deg;background:linear-gradient(135deg,#bff4ff,#3aa0ff 60%,#1a4ab0);border:1.5px solid #e8b84a;box-shadow:0 0 6px #7fd8ff}
+.nb.on .nbl{color:#ffe08a}
+.nb .dot{top:-4px;right:calc(50% - 26px)}
+
+/* ---------- judul layar: plakat navy-emas ---------- */
+h2.st{position:relative;justify-content:flex-start;margin:0 0 12px;padding:3px 10px 3px 8px;min-height:46px;border-style:solid;border-width:13px 22px;border-radius:0;
+ border-image:var(--ui-n-plaque) 28 46 fill / 13px 22px stretch;background:none;box-shadow:none;filter:drop-shadow(0 4px 4px rgba(0,0,0,.45));
+ font-size:21px;color:#fff;-webkit-text-stroke:4px #0e1430;text-shadow:0 0 10px rgba(130,170,255,.45)}
+h2.st span{color:#fff3cf;background:rgba(10,14,34,.7);border:1.5px solid #e8b84a;-webkit-text-stroke:0;text-shadow:none}
+
+/* ---------- panel & kartu: perkamen berbingkai emas ---------- */
+.panel{border:9px solid transparent;border-radius:8px;border-image:var(--ui-n-card) 14 fill / 9px stretch;background:none;box-shadow:0 5px 12px rgba(0,0,0,.4)}
+.panel.navy,.panel.tcp{border:11px solid transparent;border-image:var(--ui-n-panel) 18 fill / 11px stretch;background:none;color:var(--lt)}
+.panel.tcp{background:radial-gradient(ellipse at 50% 0%,rgba(120,100,230,.55),transparent 70%) padding-box}
+
+/* ---------- jendela (modal) ---------- */
+#modal{background:rgba(6,8,20,.62)}
+.mbox.panel{border:14px solid transparent;border-image:var(--ui-n-card) 14 fill / 14px stretch;border-radius:12px;padding:0 6px 12px;
+ box-shadow:0 0 0 1px rgba(232,184,74,.35),0 12px 34px rgba(0,0,0,.6)}
+.mbox h3{margin:0 -8px 12px;padding:10px 50px 10px 16px;border-style:solid;border-width:13px 22px;border-image:var(--ui-n-plaque) 28 46 fill / 13px 22px stretch;
+ background:none;box-shadow:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35));color:#fff;-webkit-text-stroke:4px #0e1430;font-size:19px}
+.mclose{top:8px;right:6px}
+
+/* ---------- tab ---------- */
+.mtabs,.btabs,.wtabs{border-bottom:3px solid #e8b84a;box-shadow:0 2px 0 #4a2a08;gap:4px;padding:0 2px}
+.mtabs .btn,.btabs .btn,.wtabs .btn{border-width:8px 8px 4px;border-image:var(--ui-n-tabon) 15 12 6 fill / 8px 8px 4px stretch;color:#fff;-webkit-text-stroke:3px #6a3a04}
+.mtabs .btn.blue,.btabs .btn.blue,.wtabs .btn.blue,.wtabs .btn.gray{border-image:var(--ui-n-taboff) 12 14 6 fill / 8px 8px 4px stretch;color:#f6e3b8;-webkit-text-stroke:0}
+.wtabs .btn.gray{color:#8a7a6a}
+
+/* ---------- pill filter ---------- */
+.fbtn{height:28px;padding:0 12px;border:0;border-radius:14px;color:#fff;background:linear-gradient(180deg,#2a3c74,#141d3e);box-shadow:inset 0 0 0 1.5px #c8962a,0 2px 3px rgba(0,0,0,.4)}
+.fbtn.on{color:#3a2006;background:linear-gradient(180deg,#fff2a0,#ffc93a);box-shadow:inset 0 0 0 1.5px #a86a14,0 0 8px rgba(255,210,80,.6)}
+.panel .fbtn,.mbox .fbtn{color:var(--txt);background:var(--ui-pill) center/100% 100% no-repeat;box-shadow:0 2px 0 rgba(74,42,23,.35)}
+.panel .fbtn.on,.mbox .fbtn.on{background:linear-gradient(180deg,#fff2a0,#ffc93a)}
+
+/* ---------- toast ---------- */
+#toast > *,.toast{border-radius:12px}
+
+/* ---------- per layar ---------- */
+/* summon: catatan di bawah tombol */
+.tixbar{color:#fff3cf!important}.tixbar b{color:#ffd86a!important}.tixbar span{color:var(--lt2)!important}
+.linkbtn{color:#9ec4ff!important}
+/* petualangan: peta berbingkai emas */
+.map{border:3px solid #2a1606;box-shadow:0 0 0 2px #e8b84a,0 0 0 4px #2a1606,0 8px 18px rgba(0,0,0,.5);border-radius:14px}
+/* login: kartu tamu & tombol kaki ikut gaya baru */
+.lgcard{border:14px solid transparent;border-image:var(--ui-n-card) 14 fill / 14px stretch;border-radius:12px;background:none;padding:6px 10px 8px;box-shadow:0 0 0 1px rgba(232,184,74,.35),0 12px 30px rgba(0,0,0,.55)}
+.lgcard h3{margin:-4px -8px 8px;padding:8px 40px;border-style:solid;border-width:13px 22px;border-image:var(--ui-n-plaque) 28 46 fill / 13px 22px stretch;color:#fff;-webkit-text-stroke:4px #0e1430;paint-order:stroke fill;font-size:18px}
+.lgcard .lgx{top:16px!important;right:12px!important;width:26px;height:26px;z-index:3}
+.lgfoot img{width:44px;height:46px;padding:9px 9px 11px;border:0;border-radius:0;background:var(--ui-n-medal) center/100% 100% no-repeat;box-shadow:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}

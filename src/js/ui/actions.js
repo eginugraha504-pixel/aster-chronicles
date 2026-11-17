@@ -56,7 +56,7 @@ const ACT={
  testVoice:()=>{const id=homeHero(),L=HD[id]&&HD[id].poke;voice(`${id}_p${L?Math.floor(Math.random()*L.length):0}`)},
  testSfx:()=>{const L=['claim','lvup','rare','skill'];sfx(L[(ACT._t=(ACT._t||0)+1)%L.length],{el:pick(Object.keys(EL)),r:3})},
  reset:()=>confirmBox(T('Semua hero, tahap, dan Permata akan dihapus. Lanjutkan?'),()=>{try{localStorage.removeItem(SAVE_KEY)}catch(e){}S=defState();save();tab='home';render();welcome()},T('Hapus')),
- lobbyTap:()=>homeTap(),homeStep:d=>homeStep(d),
+ lobbyTap:()=>homeTap(),homeStep:d=>homeStep(d),guild:()=>openGuild(),
  banStep:d=>{banIdx=(banIdx+(+d)+BANNERS.length)%BANNERS.length;if(lobby)lobby.banT=0;const e=$('#hban');if(e)e.innerHTML=banHTML()},
  banGo:()=>{S.banner=banIdx%BANNERS.length;tab='summon';render()},
  autoTeam:()=>{S.team=bestTeam();save();sfx('equip');toast(T('Formasi terbaik dipasang! CP {cp}',{cp:fmt(teamPow())}));render()},

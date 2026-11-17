@@ -18,7 +18,7 @@ function chRow(m,prev){if(m.sys)return`<div class="chsys">${m.hero&&HD[m.hero]?`
 function chListHTML(L){if(!L.length)return`<p class="sub chempty">${botsWarmOk()?T('Belum ada obrolan. Sapa yang lain!'):T('Memuat obrolan...')}</p>`;return L.map((m,k)=>chRow(m,L[k-1])).join('')}
 function chTypingHTML(){const L=chatTyping();if(!L.length)return'';const n=L.map(i=>esc(botName(i)));return`<span class="dots"><i></i><i></i><i></i></span>`+(n.length>1?T('{a} dan {b} sedang mengetik...',{a:n[0],b:n.length>2?T('{n} lainnya',{n:n.length-1}):n[1]}):T('{n} sedang mengetik...',{n:n[0]}))}
 function openChat(){chatInit();chatOpen=true;try{chatPump()}catch(e){}
- modal(`<div class="chhd"><img class="ix" src="${ICON.chat}"><div><h3>${T('Obrolan Dunia')}</h3><small><i class="on"></i><b id="chOn">${chWorld().online}</b> ${T('online')}</small></div><button class="btn red sm" data-act="closeModal">✕</button></div>
+ modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3><img class="ix" src="${ICON.wchat||ICON.chat}" style="width:24px;height:24px"> ${T('Obrolan Dunia')}</h3><div class="chhd"><small><i class="on"></i><b id="chOn">${chWorld().online}</b> ${T('online')}</small></div>
  <div class="chlist" id="chList"></div><div class="chtype" id="chType"></div>
  <div class="chq">${CHQ.map(q=>`<button data-act="chatQuick" data-arg="${esc(q)}">${esc(q)}</button>`).join('')}</div>
  <form class="chin" id="chForm"><input id="chIn" maxlength="100" autocomplete="off" placeholder="${T('Ketik pesan...')}"><button class="btn" type="submit">${T('Kirim')}</button></form>`);

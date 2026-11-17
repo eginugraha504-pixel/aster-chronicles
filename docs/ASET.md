@@ -136,3 +136,7 @@ Aturan umum:
 - Bingkai kartu ★4/★5/★6: satu lembar `gpt_image_2_6` dengan referensi `art_src/ui_kit/cards.png` → `art_src/ui_kit/cards_asc.png`, dipotong `uikit.extract` (lebar 150) → `src/img/ui/card_r4..6.webp` (CSS `--ui-card-r4..6`, slice 30/34/38).
 - Ikon `asc1` Kristal Kebangkitan, `asc2` Inti Surgawi, `asc3` Air Mata Dewi, `tower`: lembar 2×2 latar hijau `art_src/icon_sheets/K.png` → `iconify.cut` → `src/img/icons/*.webp`. Versi kode cadangan ada di `js/art/icons.js`.
 - Latar battle `w_moon`, `w_deep`, `w_void`, `w_tower` + peta `m_*` (90×160, potongan 9:16 tengah): nano banana (3:4, referensi gaya `tall_summit`) → `art_src/tall_<art>.png`, potongan y di `tall_crop.json` (moon 480, deep 460, void 150, tower 420).
+
+## UI v2 (18 Nov 2026, Higgsfield gpt_image_2_6)
+- Mockup arah gaya: beranda & arena (referensi screenshot lama). Elemen: `art_src/ui_kit/n_panel.png, n_card.png, n_plaque.png, n_tabs.png, n_kit.png (medali, pita, kapsul, medali besar), n_tile.png, n_navbar.png` → `src/img/ui/n_*.webp`. Plakat & kartu: ornamen tengah dibuang (sambung kiri+kanan) supaya aman di-9-slice.
+- Ilustrasi ubin beranda `n_artarena.webp`, `n_artevent.webp` (240×240), pola latar `n_bgtile.webp` (192px, diulang 96px).

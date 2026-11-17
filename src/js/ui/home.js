@@ -3,8 +3,9 @@ let LOBBY_SCALE=4,LOBBY_PX=176;
 // layar pendek (iPhone SE dsb) pakai skala 3 agar tidak tertutup tombol
 function lobbyFit(){const h=($('#screen')&&$('#screen').clientHeight)||innerHeight;LOBBY_SCALE=h<600?3:4;LOBBY_PX=44*LOBBY_SCALE}
 /* =====================================================================
-   BERANDA — karakter besar di tengah, banner pick-up, tombol samping,
-   3 tombol utama (Arena · Petualangan · Event)
+   BERANDA (rombak UI v2, 18 Nov 2026) — karakter besar di tengah, banner pick-up,
+   medali samping (kiri: Event/Misi/Hadiah/Toko · kanan: CP/Tim/Peringkat/Guild 🔒/Menu),
+   papan nama hero, ticker obrolan, dok bawah (ubin Arena · medali Petualangan · ubin Event). Gaya: css/ui2.css
    ===================================================================== */
 const LINES=['Hari yang cerah untuk berpetualang!','Ayo selamatkan Aster dari kegelapan!','Aku siap bertarung, Kapten!','Sudah cek misi harian hari ini?','Konon ada hero bercahaya di portal summon...','Jangan lupa naikkan level kami, ya!','Elemen Api kuat melawan Tanah, lho.','Cahaya dan Gelap saling melemahkan!','Kotak Surat sudah dicek belum?'];
 function nextStage(){return SLIST.find(st=>!S.stages[st.key])||SLIST[SLIST.length-1]}
@@ -23,21 +24,23 @@ let banIdx=0;
 function banHTML(){const b=BANNERS[banIdx%BANNERS.length];
  const art=b.weapon?(b.rateUp?`<img class="px bw" src="${weaponIcon(b.rateUp).url}">`:`<span class="bhs">${bannerPool(b,3).slice(0,3).map(w=>`<img class="px" src="${weaponIcon(w.id).url}">`).join('')}</span>`):b.rateUp?`<img class="px bh2" src="${portrait(b.rateUp)}">`:`<span class="bhs">${(b.show||[]).slice(0,3).map(id=>`<img class="px" src="${portrait(id)}">`).join('')}</span>`;
  return`<span class="btag">${b.weapon?T('SENJATA'):b.rateUp?'PICK UP':T('STANDAR')}</span><small>${T('Panggilan')}</small><b class="ot">${b.sn}</b>${art}<span class="bdots">${BANNERS.map((_,i)=>`<i class="${i===banIdx%BANNERS.length?'on':''}"></i>`).join('')}</span>`}
-function homeHTML(){const ns=nextStage(),id=homeHero(),h=HD[id],mdot=missionClaimable(),mp=mailPending(),edot=anyEvClaimable();
- const rb=(act,icon,label,dot,arg)=>`<button class="rb" data-act="${act}"${arg?` data-arg="${arg}"`:''}><span class="rbi">${icon}</span><span class="rbl ot">${label}</span>${dot}</button>`;
+function homeHTML(){const ns=nextStage(),id=homeHero(),h=HD[id],mdot=missionClaimable(),mp=mailPending(),edot=anyEvClaimable(),A=arCheck();
+ // medali samping: cincin emas + pita nama (aset img/ui/n_medal, n_ribbon)
+ const md=(act,arg,icon,label,dot,cls='')=>`<button class="md${cls}" data-act="${act}"${arg?` data-arg="${arg}"`:''}><span class="mdi"><img class="ix" src="${icon}" alt=""></span><span class="mdl">${label}</span>${dot}</button>`;
+ const many=homeList().length>1;
  return`<div class="home">
  ${homeArt()?`<img class="hbg art" src="${BGIMG_SRC[homeArt()]}" alt="">`:`<canvas class="hbg" id="hbgc" width="${HOME_W}" height="${HOME_H}"></canvas>`}<div class="hfx"></div>
- <div class="hbanw"><button class="harrs" data-act="banStep" data-arg="-1">‹</button><button class="hban" id="hban" data-act="banGo">${banHTML()}</button><button class="harrs" data-act="banStep" data-arg="1">›</button></div>
- <div class="rcol l">${rb('goEvent',`<img class="ix" src="${ICON.event}">`,T('Event'),edot?'<i class="dot"></i>':'')}${rb('go',`<img class="ix" src="${ICON.mission}">`,T('Misi'),mdot?'<i class="dot"></i>':'','mission')}${rb('mail',`<img class="ix" src="${ICON.gift}">`,T('Hadiah'),mp?`<i class="dot n">${mp}</i>`:'')}${rb('shop',`<img class="ix" src="${ICON.shop}">`,T('Toko'),'')}</div>
- <div class="rcol r"><button class="cpb" data-act="cpInfo"><span>${T('CP TIM')}</span><b class="ot">${fmt(teamPow())}</b></button>${rb('go',`<img class="ix" src="${ICON.team}">`,T('Tim'),'','team')}${rb('rank',`<img class="ix" src="${ICON.rank}">`,T('Peringkat'),'')}${rb('settings',`<img class="ix" src="${ICON.gear}">`,T('Menu'),'')}</div>
- ${homeList().length>1?`<button class="harr l" data-act="homeStep" data-arg="-1">‹</button><button class="harr r" data-act="homeStep" data-arg="1">›</button>`:''}
- ${splash(id)?`<div class="hstage hsp" data-act="lobbyTap"><div class="hcircle"></div>${splashHTML(id,'hspl')}</div>`:`<div class="hstage"><div class="hcircle"></div><canvas id="lobbyc" width="${LOBBY_PX}" height="${LOBBY_PX}" data-act="lobbyTap"></canvas></div>`}
- <div class="hspeech${HB.hide>Date.now()&&HB.id===id?' on':''}"><p id="bubble">${HB.hide>Date.now()&&HB.id===id?HB.txt:''}</p><span class="hname"><i>${stars(S.heroes[id]?heroStar(id):h.r)}</i>${h.name}</span></div>
+ <div class="hbanw"><button class="harrs l" data-act="banStep" data-arg="-1" aria-label="‹"></button><button class="hban" id="hban" data-act="banGo">${banHTML()}</button><button class="harrs r" data-act="banStep" data-arg="1" aria-label="›"></button></div>
+ <div class="rcol l">${md('goEvent','',ICON.event,T('Event'),edot?'<i class="dot"></i>':'')}${md('go','mission',ICON.mission,T('Misi'),mdot?'<i class="dot"></i>':'')}${md('mail','',ICON.gift,T('Hadiah'),mp?`<i class="dot n">${mp}</i>`:'')}${md('shop','',ICON.shop,T('Toko'),'')}</div>
+ <div class="rcol r"><button class="cpb" data-act="cpInfo"><span>${T('CP TIM')}</span><b>${fmt(teamPow())}</b></button>${md('go','team',ICON.team,T('Tim'),'')}${md('rank','',ICON.rank,T('Peringkat'),'')}${md('guild','',ICON.guild||ICON.team,T('Guild'),`<span class="mdlk"><img class="ix" src="${ICON.lock}" alt=""></span><em class="mdsoon">${T('Segera')}</em>`,' lock')}${md('settings','',ICON.gear,T('Menu'),'')}</div>
+ ${splash(id)?`<div class="hstage hsp" data-act="lobbyTap"><div class="hcircle"><i></i></div>${splashHTML(id,'hspl')}</div>`:`<div class="hstage"><div class="hcircle"><i></i></div><canvas id="lobbyc" width="${LOBBY_PX}" height="${LOBBY_PX}" data-act="lobbyTap"></canvas></div>`}
+ <div class="hnp">${many?`<button class="hnpa l" data-act="homeStep" data-arg="-1" aria-label="‹"></button>`:''}<span class="hnpc"><i class="hnps">${stars(S.heroes[id]?heroStar(id):h.r)}</i><span class="hnpn">${eic(h.el,16)}<b>${h.name}</b></span></span>${many?`<button class="hnpa r" data-act="homeStep" data-arg="1" aria-label="›"></button>`:''}</div>
+ <div class="hspeech${HB.hide>Date.now()&&HB.id===id?' on':''}"><p id="bubble">${HB.hide>Date.now()&&HB.id===id?HB.txt:''}</p></div>
  <button class="hchat" id="hchat" data-act="chat">${typeof chatStripHTML==='function'?chatStripHTML():''}</button>
  <div class="hbtm">
-  ${(()=>{const A=arCheck();return`<button class="hplate ar" data-act="arena"><span class="hpi"><img class="ix" src="${ICON.arena}"></span><b class="ot">${T('ARENA')}</b><small>${T('Tiket {a}/{b}',{a:A.tix,b:ARENA_CFG.tix})}</small>${A.tix>0||A.unseen?'<i class="dot"></i>':''}</button>`})()}
-  <button class="hmed" data-act="go" data-arg="adv"><span class="hmr"></span><img class="ix" src="${ICON.adv}"><b class="ot">${T('PETUALANGAN')}</b><small>${ns.key} · ${ns.name}</small></button>
-  <button class="hplate ev" data-act="goEvent"><span class="hpi"><img class="ix" src="${ICON.event}"></span><b class="ot">${T('EVENT')}</b><small>${T('{n} aktif',{n:EVENTS.filter(evActive).length})}</small>${edot?'<i class="dot"></i>':''}</button>
+  <button class="htile ar" data-act="arena"><span class="hta" style="background-image:var(--ui-n-artarena)"></span><small class="htt">${ic('arena',13)} ${A.tix}/${ARENA_CFG.tix}</small><b>${T('ARENA')}</b>${A.tix>0||A.unseen?'<i class="dot"></i>':''}</button>
+  <button class="hmed" data-act="go" data-arg="adv"><span class="hmr"></span><img class="ix" src="${ICON.adv}" alt=""><b>${T('PETUALANGAN')}</b><small>${ns.key} · ${ns.name}</small></button>
+  <button class="htile ev" data-act="goEvent"><span class="hta" style="background-image:var(--ui-n-artevent)"></span><small class="htt">${T('{n} aktif',{n:EVENTS.filter(evActive).length})}</small><b>${T('EVENT')}</b>${edot?'<i class="dot"></i>':''}</button>
  </div></div>`}
 let lobby=null;
 // latar beranda ilustrasi: versi senja jam 17.00–04.59 (jam perangkat), selain itu versi siang
@@ -74,22 +77,21 @@ function bestTeam(){const ids=Object.keys(S.heroes);let best=null,bv=-1;const n=
  const rec=(st,cur)=>{if(cur.length===k){const v=teamCP(cur).total;if(v>bv){bv=v;best=cur.slice()}return}for(let i=st;i<n;i++){cur.push(ids[i]);rec(i+1,cur);cur.pop()}};rec(0,[]);
  best.sort((a,b)=>{const f=r=>['tanker','warrior'].includes(HD[r].role)?0:1;return f(a)-f(b)||heroPow(b)-heroPow(a)});while(best.length<4)best.push(null);return best}
 // letakkan hero tepat di atas tombol bawah & gelembung di atas kepala hero (dihitung dari ukuran layar sebenarnya)
-function lobbyPlace(){const st=$('.hstage'),cv=$('#lobbyc'),hb=$('.hbtm'),hm=$('.hmed'),sp=$('.hspeech'),root=st&&st.offsetParent;if(!st||!root)return;
- if(!cv){// mode splash: karakter dari bawah banner sampai (sedikit di balik) tombol bawah; gelembung di bawah, tepat di atas tombol Petualangan
-  const rb=root.getBoundingClientRect(),bw=$('.hbanw'),img=st.querySelector('.spl');
-  if(img&&!img.complete)img.addEventListener('load',()=>lobbyPlace(),{once:true});
-  const ar=img&&img.naturalWidth?img.naturalWidth/img.naturalHeight:.74;
-  const btop=Math.min(...[hb,hm].filter(Boolean).map(e=>e.getBoundingClientRect().top))-rb.top,ceil=(bw?bw.getBoundingClientRect().bottom-rb.top:110)+10;
-  const SINK=.1;let H=Math.round((btop-ceil)/(1-SINK));H=Math.max(240,Math.min(Math.min(600,Math.round(rb.height*.7)),H));
-  const foot=Math.round(btop+H*SINK),W=Math.round(H*ar);
-  Object.assign(st.style,{width:W+'px',height:H+'px',marginLeft:(-W/2)+'px',bottom:Math.round(rb.height-foot)+'px'});
-  if(sp){sp.classList.add('hsp');sp.classList.remove('sm');sp.style.right='';sp.style.top='';
-   const mt=hm?hm.getBoundingClientRect().top-rb.top:btop,sw=Math.round(Math.min(rb.width-128,280));
-   Object.assign(sp.style,{width:sw+'px',left:Math.round((rb.width-sw)/2)+'px',bottom:Math.round(rb.height-mt+12)+'px'})}
-  return}
- if(sp){sp.classList.remove('hsp');sp.style.left=sp.style.top=sp.style.width='';sp.style.bottom=''}
- lobbyFit();if(cv.width!==LOBBY_PX){cv.width=cv.height=LOBBY_PX}
- st.style.width=st.style.height=cv.style.width=cv.style.height=LOBBY_PX+'px';st.style.marginLeft=(-LOBBY_PX/2)+'px';
- const rb=root.getBoundingClientRect(),top=Math.min(...[hb,hm].filter(Boolean).map(e=>e.getBoundingClientRect().top));
- const bottom=Math.max(110,Math.round(rb.bottom-top-LOBBY_PX*.12));st.style.bottom=bottom+'px';if(sp){const small=LOBBY_SCALE<4;sp.classList.toggle('sm',small);sp.style.bottom=Math.round(bottom+LOBBY_PX*(small?.12:.62))+'px'}}
+function lobbyPlace(){const st=$('.hstage'),cv=$('#lobbyc'),np=$('.hnp'),sp=$('.hspeech'),root=st&&st.offsetParent;if(!st||!root)return;
+ const rb=root.getBoundingClientRect(),bw=$('.hbanw'),foot=(np?np.getBoundingClientRect().top:rb.bottom-200)-rb.top+14;
+ if(!cv){// mode splash: karakter dari bawah banner sampai papan nama (kaki sedikit di balik papan nama)
+  const img=st.querySelector('.spl');if(img&&!img.complete)img.addEventListener('load',()=>lobbyPlace(),{once:true});
+  const ar=img&&img.naturalWidth?img.naturalWidth/img.naturalHeight:.74,ceil=(bw?bw.getBoundingClientRect().bottom-rb.top:110)+4;
+  let H=Math.round(foot-ceil);H=Math.max(220,Math.min(620,H));const W=Math.round(H*ar);
+  Object.assign(st.style,{width:W+'px',height:H+'px',marginLeft:(-W/2)+'px',bottom:Math.round(rb.height-foot)+'px'})}
+ else{lobbyFit();if(cv.width!==LOBBY_PX){cv.width=cv.height=LOBBY_PX}
+  st.style.width=st.style.height=cv.style.width=cv.style.height=LOBBY_PX+'px';st.style.marginLeft=(-LOBBY_PX/2)+'px';st.style.bottom=Math.round(rb.height-foot+6)+'px'}
+ // gelembung: di atas papan nama, sedikit ke kiri, ekor menunjuk ke karakter
+ if(sp){const sw=Math.round(Math.min(rb.width-150,230));Object.assign(sp.style,{width:sw+'px',left:'74px',bottom:Math.round(rb.height-foot+40)+'px'})}}
 addEventListener('resize',()=>{if(lobby)lobbyPlace()});
+// Guild: masih terkunci (fitur berikutnya) — tombol sudah ada di beranda
+function openGuild(){sfx('deny');modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Guild')}</h3>
+ <div class="guildsoon"><div class="gsart"><img class="px" src="${ICON.crest||ICON.guild||ICON.team}" alt=""><span class="gslk"><img class="ix" src="${ICON.lock}" alt=""></span></div>
+ <b>${T('Segera Hadir')}</b><p>${T('Aula Guild sedang dibangun. Nanti kamu bisa bergabung dengan ksatria lain dan bertualang bersama.')}</p></div>
+ <div class="mrow"><button class="btn blue" data-act="closeModal">${T('Oke')}</button></div>`)}
+

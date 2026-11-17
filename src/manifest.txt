@@ -19,6 +19,7 @@ css/ascend.css
 css/boot.css
 css/studio.css
 css/skin.css
+css/ui2.css
 css/frames.css
 
 js/core/util.js

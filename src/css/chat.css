@@ -1,15 +1,8 @@
 /* =====================================================================
    OBROLAN DUNIA (ui/chat.js)
    ===================================================================== */
-/* strip di beranda: di atas tombol Arena, tidak menutupi tombol Petualangan */
-.hchat{position:absolute;left:8px;width:calc(50% - 4px);bottom:168px;z-index:7;display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:12px;
- background:rgba(28,14,6,.58);border:1.5px solid rgba(255,230,180,.35);color:#fff;text-align:left;font-size:11px;line-height:1.3;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
-.hchat .ix{width:20px;height:20px;flex:none}
-.chsl{display:flex;flex-direction:column;min-width:0;flex:1}
-.chsl span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 0 rgba(0,0,0,.6)}
-.chsl b{color:#ffd56b;font-weight:800}
-.hchat .dot{top:-7px;right:-7px}.hchat .dot.at{background:#3d84c9}
-@media (max-height:700px){.hchat{bottom:150px}.chsl span+span{display:none}}
+/* strip di beranda: gaya ada di css/home.css (.hchat, rombak UI v2) */
+.hchat .dot.at{background:#3d84c9}
 
 /* panel */
 .mbox.chatbox{top:3%;bottom:2.5%;transform:none;max-height:none;display:flex;flex-direction:column;padding:10px 10px 10px;overflow:hidden}

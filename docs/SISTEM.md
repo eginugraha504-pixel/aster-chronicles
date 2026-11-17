@@ -224,3 +224,10 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - **Tempo F2P** (perkiraan): ★4 pertama ±4 hari setelah 5-5; tim ★6 penuh berbulan-bulan (penghambat: 312 Air Mata Dewi). Bahan Kebangkitan tidak dijual.
 - **Bot**: `botAscend` (`systems/bots.js`, angka `BOT_CFG.ASC`) — anggaran bahan sejak CP tim menembus ±27rb, urutan ★4 → ★5 → ★6. Simulasi: 30 hari ke depan top ±145rb, 120 hari ±480rb (★5 pertama), 240 hari ±780rb, belum ada ★6.
 - Pengetahuan Mode AI otomatis memuat bagian "Kebangkitan" (`tools/gen_knowledge.mjs`).
+
+## Rombak UI v2 "Navy Kerajaan & Emas" (18 Nov 2026)
+- Arah gaya dikunci lewat 2 mockup Higgsfield (beranda & arena), lalu tiap elemen digenerate terpisah di latar magenta dan dipotong `art_src/ui_kit/uikit.py` → `src/img/ui/n_*.webp` (variabel CSS `--ui-n-*`).
+- `css/ui2.css` (dimuat setelah skin.css, sebelum frames.css): latar aplikasi navy berpola fleur-de-lis (`n_bgtile`), bilah atas navy bergaris emas, kapsul sumber daya (`n_capsule`), nav kayu gelap bertrim emas (`n_navbar`, tab aktif bercahaya + permata biru), plakat judul navy-emas (`n_plaque`, juga judul modal & login), panel = kartu perkamen berbingkai emas (`n_card`), panel gelap (`.panel.navy`, `.panel.tcp`) = `n_panel`, tab kayu/emas (`n_tabon/off`), pill filter navy.
+- Beranda baru (`ui/home.js` `homeHTML` + `css/home.css`): banner pick-up lebar, medali samping (`n_medal` + pita `n_ribbon`), plakat CP, **tombol Guild terkunci** (`ACT.guild` → modal "Segera Hadir"), papan nama hero + panah ganti hero, gelembung dialog, ticker obrolan, dok bawah: ubin Arena/Event berilustrasi (`n_artarena`, `n_artevent`, bingkai `n_tile`) + medali emas Petualangan (`n_bigmed`). `lobbyPlace()` menyesuaikan tinggi splash antara banner dan papan nama.
+- Ikon baru: `guild`, `crest`, `wchat` (lembar `art_src/icon_sheets/G.png`).
+- UI pertarungan tidak diubah.
