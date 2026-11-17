@@ -14,7 +14,7 @@ const TOPUP_CFG={
  prefix:'AST',            // awalan ID pesanan
  ttl:24*36e5,             // pesanan kedaluwarsa setelah 24 jam
  merchant:'HUN2 STUDIO',  // nama penerima di bot bank
- api:'',                  // alamat server bank (Cloudflare Worker, folder bank-worker/). Kosong = hanya kode voucher manual
+ api:'https://aster-bank.valberryv.workers.dev', // alamat server bank (Cloudflare Worker, folder bank-worker/). Kosong = hanya kode voucher manual
  pollMs:3000,             // jeda cek status pesanan selama menunggu pembayaran
  // Paket Permata. Bonus pembelian pertama tiap paket = permata dasar (2×). Nilai per Rupiah ≈ gacha sungguhan (±Rp40rb per summon)
  packs:[
