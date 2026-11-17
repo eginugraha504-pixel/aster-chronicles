@@ -78,7 +78,7 @@ function heroFrame(u){const art=HERO_ART[u.id];let f=null;
  if(!f){const A=art.anims.idle,tot=A.reduce((s,a)=>s+a.d,0);f=animFrame(A,(B.time*1000+u.i*700)%tot)}
  return artFrame(u.id,f)}
 function drawBattle(){const g=B.g,st=B.st;g.setTransform(2,0,0,2,0,0);g.imageSmoothingEnabled=false;
- if(B.shake>0)g.translate(Math.round(rnd(-2,2)),Math.round(rnd(-1,1)));g.drawImage((st.art&&bgArt('w_'+st.art))||BG[st.bg+'_b'],0,0,240,210);
+ if(B.shake>0)g.translate(Math.round(rnd(-2,2)),Math.round(rnd(-1,1)));{let bg=(st.art&&bgArt('w_'+st.art))||BG[st.bg+'_b'];if(!bg)bg=BG[st.bg+'_b']=makeBG(st.bg||'grass',240,210);g.drawImage(bg,0,0,240,210)}
  const us=B.units.filter(u=>u.alive||u.deathT>0).sort((a,b)=>(a.y+(a.dy||0))-(b.y+(b.dy||0)));
  for(const u of us)drawTrail(g,u);
  for(const u of us)if(u.dy){u._y=u.y;u.y+=u.dy}
