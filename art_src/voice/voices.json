@@ -1,0 +1,406 @@
+{
+ "_baca": [
+  "Satu-satunya sumber data dub Jepang. Dipakai oleh tools/voice.py (lihat ASET.md bagian Suara).",
+  "cast: aktor suara per hero (preset ElevenLabs di Higgsfield). Ganti aktor = ganti voice_id lalu buat ulang semua klip hero itu.",
+  "clips: kunci <hero>_l<i> = HEROES[].lines[i], <hero>_p<i> = HEROES[].poke[i], <hero>_sk = nama skill (cut-in). ja = teks yang diucapkan, id = teks Indonesia di data/heroes.js (diisi otomatis oleh 'voice.py sync').",
+  "Urutan & indeks HARUS sama dengan data/heroes.js. Tambah dialog: tambah di heroes.js -> voice.py sync -> isi 'ja' -> voice.py jobs -> generate di Higgsfield -> voice.py fetch."
+ ],
+ "model": "elevenlabs_v4",
+ "voice_type": "preset",
+ "batch_max": 8,
+ "post": {
+  "lufs": -16,
+  "true_peak": -1.5,
+  "sample_rate": 24000,
+  "kbps": 48,
+  "trim_db": -45
+ },
+ "cast": {
+  "seraphine": {
+   "hero": "Seraphine",
+   "peran": "Putri Fajar",
+   "aktor": "Luna",
+   "voice_id": "375a3398-e3b4-4f91-845d-42181e352899",
+   "audition_job": "ad89dc1a-434d-400f-afeb-2eff3fd78363"
+  },
+  "sakuya": {
+   "hero": "Sakuya",
+   "peran": "Miko Rubah Sakura",
+   "aktor": "Maya",
+   "voice_id": "b0f766b7-8703-4bd1-b973-f857c36837b6",
+   "audition_job": "65780988-57c2-4f2d-9646-8cbbaa8bc125"
+  },
+  "raika": {
+   "hero": "Raika",
+   "peran": "Pemanah Petir Kelana",
+   "aktor": "Helena",
+   "voice_id": "3c2b83c0-2e0a-5ae8-998a-a5fe71b7eccd",
+   "audition_job": "cedea862-9ced-4b1e-8457-f8b618234e86"
+  },
+  "mira": {
+   "hero": "Mira",
+   "peran": "Pemanah Rimba",
+   "aktor": "Zoe",
+   "voice_id": "d0374db1-44b9-4f05-939e-0a9ae9dbbe6a",
+   "audition_job": "6481b86f-88cb-4545-9444-58f78272cb06"
+  },
+  "noa": {
+   "hero": "Noa",
+   "peran": "Penyihir Embun",
+   "aktor": "Chloe",
+   "voice_id": "e9cfbbf0-4476-46be-b396-596eb774b165",
+   "audition_job": "36d1ddee-f66f-41bb-98ee-731826d6b592"
+  },
+  "pia": {
+   "hero": "Pia",
+   "peran": "Ksatria Mungil",
+   "aktor": "Gracie",
+   "voice_id": "09878754-f20b-5330-9790-58a8027ab5b2",
+   "audition_job": "fe1efbf8-6158-4f2b-9376-905f770e2cd1"
+  },
+  "rin": {
+   "hero": "Rin",
+   "peran": "Gadis Kapak",
+   "aktor": "Kayla",
+   "voice_id": "5c615d8a-5135-539d-8ab0-497b7ceabbae",
+   "audition_job": "569d5380-8bb8-4778-884f-c5dbd574ae52"
+  },
+  "vela": {
+   "hero": "Vela",
+   "peran": "Penyihir Bulan Sabit",
+   "aktor": "Sloane",
+   "voice_id": "b57b22a0-f287-405b-bc82-6f08f5e6bb1f",
+   "audition_job": "02da1ee2-2220-41dc-8b8a-f242ecb9bba1"
+  },
+  "bruna": {
+   "hero": "Bruna",
+   "peran": "Penjaga Batu",
+   "aktor": "Petra",
+   "voice_id": "0c63637d-2ecb-5bda-9bbe-38894aa9a876",
+   "audition_job": "c6f818c0-5746-4b5e-82cb-9945072b6170"
+  },
+  "nami": {
+   "hero": "Nami",
+   "peran": "Pemanah Ombak",
+   "aktor": "Skye",
+   "voice_id": "1fb253b8-928b-4d29-a349-f242a71eaddf",
+   "audition_job": "ebca3af0-5ce9-4d41-8334-6f8fc62f85a0"
+  },
+  "kuro": {
+   "hero": "Kuro",
+   "peran": "Ninja Bayangan",
+   "aktor": "Una",
+   "voice_id": "e91c5696-3d9f-5ae6-9c68-8389d2d0d294",
+   "audition_job": "442314b7-a832-4c3a-bbab-9c3eb8dc41f1"
+  },
+  "lumi": {
+   "hero": "Lumi",
+   "peran": "Akolit Cahaya",
+   "aktor": "Annie",
+   "voice_id": "f2801b0f-e345-598e-86f5-8364d886d96b",
+   "audition_job": "fda904b6-b248-4ee5-ab03-1d5ee0231b30"
+  }
+ },
+ "clips": {
+  "seraphine_l0": {
+   "ja": "夜明けは必ず来るわ、キャプテン！",
+   "id": "Fajar akan selalu terbit, Kapten!"
+  },
+  "seraphine_l1": {
+   "ja": "この王冠は重いけど…絶対にあきらめない。",
+   "id": "Mahkota ini berat... tapi aku tak akan menyerah."
+  },
+  "seraphine_l2": {
+   "ja": "オーロラソードはあなたのそばで一番輝くの。",
+   "id": "Pedang Aurora paling terang saat kau di dekatku."
+  },
+  "seraphine_p0": {
+   "ja": "あっ…！キャプテン、王女にはもう少し礼儀を。",
+   "id": "Ah—! Kapten, sopanlah sedikit pada seorang putri."
+  },
+  "seraphine_p1": {
+   "ja": "ふふ、踊りたいの？戦いが終わってからね。",
+   "id": "Hihi, mau berdansa? Nanti saja setelah pertempuran."
+  },
+  "seraphine_p2": {
+   "ja": "ちょっと、王冠が落ちそうよ！",
+   "id": "Hei, mahkotaku hampir jatuh!"
+  },
+  "seraphine_sk": {
+   "ja": "夜明けの光翼！",
+   "id": "Fajar Menyingsing"
+  },
+  "sakuya_l0": {
+   "ja": "わたしの狐火、あなたのために舞うよ～",
+   "id": "Kitsunebi-ku menari untukmu~"
+  },
+  "sakuya_l1": {
+   "ja": "ん？しっぽ見てた？",
+   "id": "Hmm? Kau memperhatikan ekorku?"
+  },
+  "sakuya_l2": {
+   "ja": "一閃、千の花びら。",
+   "id": "Satu tebasan, seribu kelopak."
+  },
+  "sakuya_p0": {
+   "ja": "きゃっ！しっぽを引っ張らないで！",
+   "id": "Kyaa! Jangan tarik ekorku!"
+  },
+  "sakuya_p1": {
+   "ja": "ふふ～、狐耳が気になるの？",
+   "id": "Fufu~ penasaran dengan telinga rubahku?"
+  },
+  "sakuya_p2": {
+   "ja": "もう一度触ったら狐火で焦がしちゃうよ～",
+   "id": "Sentuh sekali lagi, kubakar dengan kitsunebi~"
+  },
+  "sakuya_sk": {
+   "ja": "居合・花吹雪狐火！",
+   "id": "Iai: Hanafubuki Kitsunebi"
+  },
+  "raika_l0": {
+   "ja": "嵐が来る…私と共に。",
+   "id": "Badai datang... dan aku bersamanya."
+  },
+  "raika_l1": {
+   "ja": "この笠？雨よけよ。それと、あなたの視線よけ。",
+   "id": "Topi ini? Melindungiku dari hujan. Dan dari tatapanmu, Kapten."
+  },
+  "raika_l2": {
+   "ja": "弦を一度引けば、千の雷。",
+   "id": "Satu tarikan tali, seribu petir."
+  },
+  "raika_p0": {
+   "ja": "距離を取れ、キャプテン。雷はすぐ走る。",
+   "id": "Jaga jarak, Kapten. Petirku gampang tersulut."
+  },
+  "raika_p1": {
+   "ja": "ふん。今日はずいぶん悪戯好きだな。",
+   "id": "Hm. Kau iseng sekali hari ini."
+  },
+  "raika_p2": {
+   "ja": "…暇なら弓の稽古でもするか。",
+   "id": "...Kalau bosan, ayo latihan memanah."
+  },
+  "raika_sk": {
+   "ja": "雷神の雷雨！",
+   "id": "Hujan Petir Raijin"
+  },
+  "mira_l0": {
+   "ja": "今日は弓日和の風！",
+   "id": "Angin hari ini pas untuk memanah!"
+  },
+  "mira_l1": {
+   "ja": "森がささやいてる…北に敵がいるよ。",
+   "id": "Hutan berbisik... ada musuh di utara."
+  },
+  "mira_p0": {
+   "ja": "え？髪に葉っぱついてる？",
+   "id": "Eh? Ada daun nyangkut di rambutku ya?"
+  },
+  "mira_p1": {
+   "ja": "えへへ、弓を教えてあげよっか？",
+   "id": "Hehe, mau kuajari memanah?"
+  },
+  "mira_p2": {
+   "ja": "ちょっと！驚かせないで、矢が外れちゃう！",
+   "id": "Hei! Jangan kagetkan aku, panahku bisa meleset!"
+  },
+  "mira_sk": {
+   "ja": "森根の矢！",
+   "id": "Panah Akar Rimba"
+  },
+  "noa_l0": {
+   "ja": "ぼ、帽子がまたずれた…",
+   "id": "T-topiku melorot lagi..."
+  },
+  "noa_l1": {
+   "ja": "星の露よ、みんなを癒して！",
+   "id": "Embun bintang, sembuhkan semuanya!"
+  },
+  "noa_p0": {
+   "ja": "ふわぁ…寝ちゃうところだった…",
+   "id": "Hwaa... aku hampir tertidur..."
+  },
+  "noa_p1": {
+   "ja": "ぼ、帽子！押さないで！",
+   "id": "T-topiku! Jangan ditekan!"
+  },
+  "noa_p2": {
+   "ja": "むにゃ…あと五分だけ、キャプテン…",
+   "id": "Mmh... lima menit lagi, Kapten..."
+  },
+  "noa_sk": {
+   "ja": "星露の雨！",
+   "id": "Hujan Embun Bintang"
+  },
+  "pia_l0": {
+   "ja": "わたしの後ろに隠れて！",
+   "id": "Berlindung di belakangku!"
+  },
+  "pia_l1": {
+   "ja": "この盾は絶対に割れない！",
+   "id": "Perisaiku tidak akan retak!"
+  },
+  "pia_p0": {
+   "ja": "ちょっと！子供じゃないもん！",
+   "id": "Hei! Aku bukan anak kecil!"
+  },
+  "pia_p1": {
+   "ja": "頭なでないで、兜がへこんじゃう！",
+   "id": "Jangan tepuk kepalaku, helmku bisa penyok!"
+  },
+  "pia_p2": {
+   "ja": "ふん！本物の騎士はくすぐりなんか怖くない！",
+   "id": "Hmph! Ksatria sejati tidak takut digelitik!"
+  },
+  "pia_sk": {
+   "ja": "ちいさな砦！",
+   "id": "Benteng Mungil"
+  },
+  "rin_l0": {
+   "ja": "いくよ！いくよ！斧がアツアツ！",
+   "id": "Ayo! Ayo! Kapakku sudah panas!"
+  },
+  "rin_l1": {
+   "ja": "薪？ちがう、敵だよ！",
+   "id": "Kayu bakar? Bukan, ini musuh!"
+  },
+  "rin_p0": {
+   "ja": "おっ！腕相撲する？！",
+   "id": "Wah! Mau adu panco?!"
+  },
+  "rin_p1": {
+   "ja": "あははっ！くすぐったい！",
+   "id": "Hahaha! Geli, geli!"
+  },
+  "rin_p2": {
+   "ja": "気をつけて、斧まだ熱いよ！",
+   "id": "Awas, kapakku masih panas lho!"
+  },
+  "rin_sk": {
+   "ja": "炎斧大回転！",
+   "id": "Putaran Kapak Bara"
+  },
+  "vela_l0": {
+   "ja": "三日月があなたに微笑んでる…",
+   "id": "Bulan sabit sedang tersenyum padamu..."
+  },
+  "vela_l1": {
+   "ja": "今夜のあなたの影は強いわ、キャプテン。",
+   "id": "Bayanganmu kuat malam ini, Kapten."
+  },
+  "vela_p0": {
+   "ja": "星が言っていたわ、あなたが触れるって…その通りね。",
+   "id": "Bintang sudah bilang kau akan menyentuhku... dan benar."
+  },
+  "vela_p1": {
+   "ja": "気をつけて、私の影は噛みつくのが好きなの。",
+   "id": "Hati-hati, bayanganku suka menggigit."
+  },
+  "vela_p2": {
+   "ja": "ふふ…自分の運命が気になる？",
+   "id": "Fufu... penasaran dengan takdirmu?"
+  },
+  "vela_sk": {
+   "ja": "三日月の祝福！",
+   "id": "Restu Bulan Sabit"
+  },
+  "bruna_l0": {
+   "ja": "安心して、私は山みたいに頑丈よ！",
+   "id": "Tenang, aku setegar gunung!"
+  },
+  "bruna_l1": {
+   "ja": "岩は退かない、私もね。",
+   "id": "Batu tidak pernah mundur, aku juga tidak."
+  },
+  "bruna_p0": {
+   "ja": "山を押しているぞ、キャプテン。山は動かない。",
+   "id": "Kau mendorong gunung, Kapten. Gunung tidak bergeser."
+  },
+  "bruna_p1": {
+   "ja": "ん？何か用か？",
+   "id": "Hm? Ada perlu?"
+  },
+  "bruna_p2": {
+   "ja": "鎧を叩くな、響くんだ。",
+   "id": "Jangan ketuk zirahku, bunyinya nyaring."
+  },
+  "bruna_sk": {
+   "ja": "山の城壁！",
+   "id": "Tembok Gunung"
+  },
+  "nami_l0": {
+   "ja": "海風は私たちの味方！",
+   "id": "Angin laut berpihak pada kita!"
+  },
+  "nami_l1": {
+   "ja": "準備して、矢の雨が来るよ～",
+   "id": "Siap-siap, hujan panah datang~"
+  },
+  "nami_p0": {
+   "ja": "アホイ！船を揺らさないで～",
+   "id": "Ahoy! Jangan bikin kapalku oleng~"
+  },
+  "nami_p1": {
+   "ja": "えへへ、いたずら見つけた！",
+   "id": "Hehe, ketahuan iseng!"
+  },
+  "nami_p2": {
+   "ja": "海水かけちゃうぞ？",
+   "id": "Mau kucipratkan air laut?"
+  },
+  "nami_sk": {
+   "ja": "波矢の雨！",
+   "id": "Hujan Panah Ombak"
+  },
+  "kuro_l0": {
+   "ja": "…最初からここにいた。",
+   "id": "...Aku sudah di sini dari tadi."
+  },
+  "kuro_l1": {
+   "ja": "影は外さない。",
+   "id": "Bayangan tidak meleset."
+  },
+  "kuro_p0": {
+   "ja": "！？…どうして見えたの？",
+   "id": "!? ...Bagaimana kau bisa melihatku?"
+  },
+  "kuro_p1": {
+   "ja": "マ、マフラーに触らないで…",
+   "id": "J-jangan sentuh syalku..."
+  },
+  "kuro_p2": {
+   "ja": "…近すぎる。",
+   "id": "...Kau terlalu dekat."
+  },
+  "kuro_sk": {
+   "ja": "影無音斬り！",
+   "id": "Tebasan Bayang Senyap"
+  },
+  "lumi_l0": {
+   "ja": "光があなたの道を照らしますように！",
+   "id": "Semoga cahaya menuntun langkahmu!"
+  },
+  "lumi_l1": {
+   "ja": "怪我した人は？手伝うよ～",
+   "id": "Ada yang terluka? Biar aku bantu~"
+  },
+  "lumi_p0": {
+   "ja": "え？あ、治療が必要ですか？",
+   "id": "Eh? Ah, kau butuh disembuhkan?"
+  },
+  "lumi_p1": {
+   "ja": "えへへ、ランタンあったかいでしょ？",
+   "id": "Hihi, lenteraku hangat, kan?"
+  },
+  "lumi_p2": {
+   "ja": "そっとね、キャプテン…ランタンが消えちゃう。",
+   "id": "Pelan-pelan, Kapten... nanti lenteraku padam."
+  },
+  "lumi_sk": {
+   "ja": "小さな灯火の祈り！",
+   "id": "Doa Lentera Kecil"
+  }
+ }
+}

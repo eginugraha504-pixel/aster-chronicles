@@ -1,6 +1,6 @@
 /* =====================================================================
    STAT HERO, SENJATA & COMBAT POWER (CP)
-   teamCP() dipakai juga untuk PvP / Guild War nanti
+   teamCP() dipakai juga untuk Arena PvP (pencocokan lawan & bonus stat tim)
    ===================================================================== */
 const maxLvRaw=id=>MAX_LV[HD[id].r]+S.heroes[id].lb*LB_LV;
 const maxLv=id=>Math.min(maxLvRaw(id),HERO_LV_BY_ACC(S.lv));

@@ -19,7 +19,6 @@ const heroPoke=id=>{const L=HD[id].poke;if(!L||!L.length)return heroLineV(id);le
 function bubbleShow(id,txt,ms){const sp=$('.hspeech'),b=$('#bubble');HB.id=id;HB.txt=txt;HB.last=txt;HB.hide=Date.now()+ms;if(!sp||!b)return;b.textContent=txt;sp.classList.add('on');b.style.animation='none';void b.offsetWidth;b.style.animation='';lobbyPlace()}
 function bubbleHide(){HB.hide=0;const sp=$('.hspeech');if(sp)sp.classList.remove('on')}
 const bubbleMs=t=>Math.min(7000,3200+t.length*45);
-const heroLine=id=>{const L=HD[id].lines;return L&&L.length&&Math.random()<.7?pick(L):T(pick(LINES))};
 let banIdx=0;
 function banHTML(){const b=BANNERS[banIdx%BANNERS.length];
  const art=b.weapon?(b.rateUp?`<img class="px bw" src="${weaponIcon(b.rateUp).url}">`:`<span class="bhs">${bannerPool(b,3).slice(0,3).map(w=>`<img class="px" src="${weaponIcon(w.id).url}">`).join('')}</span>`):b.rateUp?`<img class="px bh2" src="${portrait(b.rateUp)}">`:`<span class="bhs">${(b.show||[]).slice(0,3).map(id=>`<img class="px" src="${portrait(id)}">`).join('')}</span>`;
@@ -68,7 +67,7 @@ function teamHTML(){const t=teamCP();
  <div class="row2"><span class="rowlbl">${T('Barisan Depan')}</span><span class="rowlbl">${T('Barisan Belakang')}</span></div>
  <div class="tslots">${[0,1,2,3].map(slot).join('')}</div>
  <div class="mrow"><button class="btn green" data-act="autoTeam">${T('Formasi Terbaik')}</button><button class="btn blue" data-act="go" data-arg="heroes">${T('Koleksi Hero')}</button></div>
- <div class="panel tips"><b>${T('Bonus CP Tim')}</b><ul><li>${T('2 / 3 / 4 hero elemen sama: +5% / +10% / +15%')}</li><li>${T('Ada Penjaga + Pendukung: +5%')}</li><li>${T('Tim lengkap 4 hero: +3%')}</li><li>${T('Tiap senjata signature dipakai pemiliknya: +2%')}</li></ul><small>${T('Penjaga & Petarung otomatis maju ke barisan depan saat bertarung. CP tim juga dipakai untuk Arena PvP & Guild War nanti.')}</small></div>`}
+ <div class="panel tips"><b>${T('Bonus CP Tim')}</b><ul><li>${T('2 / 3 / 4 hero elemen sama: +5% / +10% / +15%')}</li><li>${T('Ada Penjaga + Pendukung: +5%')}</li><li>${T('Tim lengkap 4 hero: +3%')}</li><li>${T('Tiap senjata signature dipakai pemiliknya: +2%')}</li></ul><small>${T('Penjaga & Petarung otomatis maju ke barisan depan saat bertarung. CP tim juga dipakai untuk pencocokan lawan di Arena.')}</small></div>`}
 function bestTeam(){const ids=Object.keys(S.heroes);let best=null,bv=-1;const n=ids.length,k=Math.min(4,n);
  const rec=(st,cur)=>{if(cur.length===k){const v=teamCP(cur).total;if(v>bv){bv=v;best=cur.slice()}return}for(let i=st;i<n;i++){cur.push(ids[i]);rec(i+1,cur);cur.pop()}};rec(0,[]);
  best.sort((a,b)=>{const f=r=>['tanker','warrior'].includes(HD[r].role)?0:1;return f(a)-f(b)||heroPow(b)-heroPow(a)});while(best.length<4)best.push(null);return best}

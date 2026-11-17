@@ -6,6 +6,7 @@
      <hero>_l<i>  dialog idle ke-i (HD[hero].lines[i])
      <hero>_p<i>  dialog saat disentuh ke-i (HD[hero].poke[i])
      <hero>_sk    teriakan nama skill (cut-in battle)
+   Teks, aktor (voice_id) & pembuatan klip: art_src/voice/voices.json + tools/voice.py (docs/ASET.md).
    Suara selalu berbahasa Jepang apa pun bahasa UI (gaya dub gacha).
    Pengaturan: S.voice (true/false, bawaan hidup), S.vvol (0..1, bawaan .75).
    Hanya satu klip berbunyi pada satu waktu: klip baru memotong yang lama.

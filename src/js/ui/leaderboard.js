@@ -57,10 +57,5 @@ Object.assign(ACT,{rank:()=>openRank(),rankTab:a=>{rankTab=a;openRank()},botView
 // mulai dunia bot sesaat setelah game siap (nama dibuat Claude bila tersedia)
 setTimeout(()=>{botsInit();botsWarm();setInterval(botsEnsure,30e3);setInterval(()=>botsWarm(),120e3)},2500);
 
-/* ---- pengumuman gacha global di beranda (dari hasil gacha bot sungguhan) ---- */
-let FEED=[],feedI=0,feedAt=0;
-function feedText(f){const nm=f.w?WD[f.id].name:HD[f.id].name;return`<img class="px" src="${f.w?weaponIcon(f.id).url:portrait(f.id)}"><span class="gft"><span><b>${esc(f.name)}</b> ${T('mendapat')}</span><em class="${f.lim?'lim':''}">★3 ${nm}${f.n>1?' ×'+f.n:''}!</em></span><small>${agoMs(Date.now()-f.t)}</small>`}
-function feedTick(){const el=$('#gfeed');if(!el)return;if(!botsWarmOk()){botsWarm();return}if(Date.now()-feedAt>6e4||!FEED.length){try{FEED=botsFeed()}catch(e){FEED=[]}feedAt=Date.now()}
- if(!FEED.length){el.classList.remove('on');return}const f=FEED[feedI++%FEED.length];el.dataset.arg=f.i;el.innerHTML=feedText(f);el.classList.remove('on');void el.offsetWidth;el.classList.add('on')}
-Object.assign(ACT,{feedGo:i=>{openBot(i)}});
-function feedReset(){FEED=[];feedI=0;feedAt=0;RANK_PREV=null;const el=$('#gfeed');if(el){el.classList.remove('on');el.innerHTML=''}}
+// awal ulang dunia bot: potret peringkat lama tidak berlaku lagi
+function rankReset(){RANK_PREV=null}

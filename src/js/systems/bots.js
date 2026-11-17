@@ -140,7 +140,7 @@ function botsApplyWorld(w){if(!w||!w.epoch)return;if(w.epoch===BOT_CFG.epoch&&(w
  BOT_CFG.epoch=w.epoch;BOTS.gen=w.gen||0;BOTS.base={};BOTS.cache={};BOTS.seen=0;BOTS.warmAt=0;
  try{localStorage.setItem(BW_KEY,JSON.stringify({epoch:w.epoch,gen:BOTS.gen}));localStorage.removeItem('aster_ranksnap')}catch(e){}
  if(typeof S!=='undefined'&&S&&S.rankDay&&(S.rankDay.gen||0)!==BOTS.gen){S.rankDay={gen:BOTS.gen}}
- if(typeof feedReset==='function')feedReset();BOTS.onChange&&BOTS.onChange();botsEnsure()}
+ if(typeof rankReset==='function')rankReset();BOTS.onChange&&BOTS.onChange();botsEnsure()}
 async function botsResetWorld(){const w={epoch:Date.now(),gen:(BOTS.gen||0)+1};botsApplyWorld(w);
  if(BOTS.db&&BOTS.dbWrite){try{await BOTS.db.doc('bots/world').set(w)}catch(e){}}}
 
@@ -187,16 +187,6 @@ async function botsEnsure(){if(!BOTS.ready||BOTS.busy)return;const need=Math.min
   if(add.length&&BOTS.names.length<need)BOTS.again=(BOTS.again||0)+1;else BOTS.again=0;
  }finally{BOTS.busy=false}
  if(BOTS.again&&BOTS.again<5)setTimeout(botsEnsure,300)}
-
-/* ================= PENGUMUMAN GACHA GLOBAL =================
-   Diambil dari hasil gacha bot yang sebenarnya (★3 dalam rentang waktu terakhir),
-   waktunya digeser ke sesi main bot tersebut. */
-function botsFeed(now=Date.now(),win=3*36e5,max=12){const n=botsVisible(now),out=[];
- for(let i=0;i<n;i++){const b=botBase(i);if(b.endT<now-win)continue;const s=botState(i,now);
-  for(let k=s.ev.length-1;k>=0;k--){const e=s.ev[k];if(e.t<now-win-BDAY)break;const t=botSnap(b,e.t);if(t>now-win&&t<=now)out.push({t,i,name:BOTS.names[i],id:e.id,w:e.w,lim:e.lim})}}
- // gabungkan tarikan yang sama dalam satu sesi (mis. 10x pull) -> "×3"
- const M=new Map();for(const f of out){const k=f.i+'|'+f.id+'|'+Math.round(f.t/6e5);if(M.has(k))M.get(k).n++;else M.set(k,Object.assign(f,{n:1}))}
- return[...M.values()].sort((a,b)=>b.t-a.t).slice(0,max)}
 
 /* ================= BIO / STATUS (integrasi Claude) ================= */
 BOTS.bios=[];BOTS.bioBusy=false;BOTS.bioFail=0;

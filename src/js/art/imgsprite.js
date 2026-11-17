@@ -12,7 +12,6 @@ function sprReady(){if(typeof SPRITE_SRC==='undefined')return Promise.resolve();
    for(const id in PORT)if(HERO_ART[id]&&HERO_ART[id].img)delete PORT[id];
    if(typeof ECACHE!=='undefined')for(const k in ECACHE)if(ECACHE[k].c.width!==SPR_FW&&hasSpr('e_'+k.split('|')[0]))delete ECACHE[k]});
  return SPR_P}
-const sprOK=key=>{const im=SPR_IMG[key];return !!(im&&im.complete&&im.naturalWidth)}
 // pemetaan parameter frame lama (pose/legs/bdy) -> indeks frame strip
 function sprIdx(f){const p=f.pose;
  if(p==='back'||p==='aim'||p==='iai')return 4;if(p==='slash'||p==='follow')return 5;if(p==='hit')return 6;if(p==='raise'||p==='pray')return 7;

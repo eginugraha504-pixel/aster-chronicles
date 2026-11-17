@@ -119,15 +119,6 @@ i.on{display:inline-block;width:9px;height:9px;border-radius:50%;background:#3ad
 .bstat span{font-size:9px;font-weight:800;color:var(--mut)}
 .bstat .lk.hoki b{color:#1e9a3a}.bstat .lk.sial b{color:#d0302a}
 .bhc .fav{position:absolute;bottom:22px;right:3px;color:#ff4a6a;font-size:12px;text-shadow:0 1px 0 #fff}
-/* ---- pengumuman gacha global ---- */
-.gfeed{display:flex;align-items:center;gap:6px;width:calc(100% - 24px);margin:0 auto 6px;padding:3px 10px 3px 4px;border-radius:14px;border:2px solid rgba(74,42,23,.55);background:rgba(36,20,42,.72);color:#fff;font:inherit;font-size:11.5px;text-align:left;cursor:pointer;opacity:0;transform:translateY(-4px);transition:opacity .35s,transform .35s;min-height:28px;visibility:hidden}
-.gfeed.on{opacity:1;transform:none;visibility:visible}
-.gfeed img{width:22px;height:22px;flex:none;border-radius:50%;background:rgba(255,255,255,.15)}
-.gfeed span{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.gfeed b{color:#ffe27a}.gfeed em{font-style:normal;color:#8ae4ff;font-weight:900}.gfeed em.lim{color:#ff9ab0}
-.gfeed small{flex:none;font-size:9.5px;color:#cbbbe0}
-.home .gfeed{position:absolute;top:134px;left:50%;width:min(268px,calc(100% - 132px));margin:0;transform:translate(-50%,-4px);z-index:5}
-.home .gfeed.on{transform:translate(-50%,0)}
-.gfeed .gft{display:flex;flex-direction:column;line-height:1.15}.gfeed .gft>span,.gfeed .gft em{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.gfeed .gft>span{font-size:10.5px}.home .gfeed{min-height:36px}.gfeed img{width:26px;height:26px}
 .claimall{display:block;width:100%;margin:0 0 10px}
 .sitem.big3{border-color:var(--gold2);background:linear-gradient(180deg,#fff8dc,#ffe7a8)}
 .shopgold span{font-size:12px;color:var(--mut);margin-left:4px}
