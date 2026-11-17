@@ -45,6 +45,7 @@ src/
       banners.js · missions.js · events.js · mail.js · shop.js
       bots.js         dunia pemain bot (kurva progres, profil, nama)
       arena.js        Arena PvP (tiket, liga, hadiah, Elo)
+      topup.js        Top Up pura-pura: paket Permata, Kartu Bulanan, secret voucher
     lang/           en.js, ja.js (kunci = teks Indonesia)
     art/            sprite & gambar
       heroes/*.js     sprite kode lama (cadangan) · hero-art.js registri sprite & potret
@@ -71,6 +72,7 @@ tools/
   voice.py          alat dub Jepang (status/sync/jobs/fetch/process)
   subset_ja.py      subset font Jepang
   sync_repo.py      salin ke repo GitHub
+  bank_topup/       sisi bot Telegram Bank Central Universe untuk Top Up
 ```
 
 ## Peta kode — mau ubah apa, buka file mana
@@ -87,6 +89,7 @@ tools/
 | Splash studio, loading, login | `js/ui/boot.js`, `css/studio.css`, `css/boot.css` |
 | Kompatibilitas iPhone | `js/systems/platform.js` |
 | Bot & peringkat | `js/data/bots.js` (angka), `js/systems/bots.js` (mesin), `js/ui/leaderboard.js` |
+| Top Up (Permata, Kartu Bulanan) | `js/data/topup.js` (paket & harga), `js/systems/topup.js`, `js/ui/topup.js`, bot: `tools/bank_topup/` |
 | Arena PvP | `js/data/arena.js` (angka), `js/systems/arena.js` (mesin), `js/ui/arena.js` |
 | Splash art | `src/img/splash/`, `js/art/splash.js`, `js/ui/splash.js` |
 | Teks bahasa Inggris / Jepang | `js/lang/en.js`, `js/lang/ja.js` |

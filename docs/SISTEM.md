@@ -150,3 +150,9 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - Pertarungan Cepat (terbuka setelah 1 kemenangan) & serangan bot ke Tim Bertahan memakai simulasi tanpa layar (`B.sim`, ±40 ms per laga).
 - Tim Bertahan diserang ±4×/hari setelah kamu pertama kali bertarung (maks 8 per kali hitung, 48 jam ke belakang). Kekalahan bertahan bisa dibalas (tombol Balas, pakai tiket).
 - Peringkat: tab "Arena" di layar Peringkat.
+
+## Top Up (mikrotransaksi pura-pura)
+- Tab **Top Up** di Toko (juga dari tombol + permata di bar atas). Paket Permata g1–g6 (Rp16rb–Rp1,599jt, nilai ±Rp40rb per summon) dengan **bonus 2× pada pembelian pertama tiap paket**, dan **Kartu Bulanan** Rp79rb: 600 langsung + 180/hari × 30 hari via Kotak Surat (bisa ditumpuk sampai 180 hari, hari yang terlewat hangus).
+- Pembayaran memakai bot Telegram **Bank Central Universe** milik Egi: game membuat pesanan → bot menagih & memotong saldo → bot membalas kode voucher HMAC-SHA256 yang terikat ke pesanan → kode ditempel di game. Kode tidak bisa dipakai dua kali atau untuk pesanan lain. Pesanan kedaluwarsa 24 jam.
+- Username bot disimpan di `S.iap.bot` (diatur pemain lewat tombol Atur). SHA-256/HMAC ditulis murni JS (tanpa crypto.subtle) agar jalan di file:// dan http://.
+- Secret ada di kode game (repo publik) — wajar karena uang & permata sama-sama fiktif; tujuannya mencegah salah ketik, bukan keamanan sungguhan.

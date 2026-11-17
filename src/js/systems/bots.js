@@ -113,7 +113,7 @@ function botSessions(b,day){const k=b.i*100000+day;if(BSES.has(k))return BSES.ge
  for(let s=0;s<n;s++){let x=r()*tot,h=0;for(;h<23;h++){if(x<W[h])break;x-=W[h]}h=(h+b.chrono+24)%24;
   const st=day*BDAY-C.TZ*36e5+(h*60+Math.floor(r()*60))*6e4,len=(pf.len[0]+r()*(pf.len[1]-pf.len[0]))*6e4;if(botActive(b,st))out.push([st,st+len])}
  out.sort((a,c)=>a[0]-c[0]);if(BSES.size>60000)BSES.clear();BSES.set(k,out);return out}
-const wibDay=t=>Math.floor((t+BOT_CFG.TZ*36e5)/BDAY);
+const wibDay=(t=Date.now())=>Math.floor((t+BOT_CFG.TZ*36e5)/BDAY);
 function botPresence(i,now=Date.now()){const b=botBase(i);if(now<b.join)return{online:false,last:b.join};if(now-b.join<15*6e4)return{online:true,last:now};
  const from=Math.min(now,b.endT),d0=wibDay(from);
  for(let d=d0;d>=d0-14;d--){const ss=botSessions(b,d);for(let k=ss.length-1;k>=0;k--){const[s0,s1]=ss[k];if(s0<=now){if(now<s1)return{online:true,last:now};return{online:false,last:Math.min(s1,now)}}}if(d*BDAY<b.join-BDAY)break}

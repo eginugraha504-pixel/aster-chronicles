@@ -1,9 +1,9 @@
 /* ================= TOKO EMAS (UI) ================= */
 function shopItemName(g){if(g.mats){const[k,n]=Object.entries(g.mats)[0];return`${MD2[k].n} ×${n}`}if(g.stam)return`${T('Stamina')} +${g.stam}`;if(g.tixH)return`${T('Tiket Hero')} ×${g.tixH}`;if(g.tixW)return`${T('Tiket Senjata')} ×${g.tixW}`;return''}
 function shopItemIcon(g){if(g.mats)return MD2[Object.keys(g.mats)[0]].icon;if(g.stam)return'stam';if(g.tixH)return'tixH';if(g.tixW)return'tixW';return'chest'}
-let shopTab='gold';
-const shopTabsHTML=()=>`<div class="mtabs"><button class="btn ${shopTab==='gold'?'':'blue'}" data-act="shopTab" data-arg="gold">${T('Toko Emas')}</button><button class="btn ${shopTab==='x'?'':'blue'}" data-act="shopTab" data-arg="x">${T('Tukar Lencana')}</button></div>`;
-function openShop(){if(shopTab==='x')return openShopX();shopState();
+let shopTab='tu';
+const shopTabsHTML=()=>`<div class="mtabs"><button class="btn ${shopTab==='tu'?'':'blue'}" data-act="shopTab" data-arg="tu">💎 ${T('Top Up')}</button><button class="btn ${shopTab==='gold'?'':'blue'}" data-act="shopTab" data-arg="gold">${T('Toko Emas')}</button><button class="btn ${shopTab==='x'?'':'blue'}" data-act="shopTab" data-arg="x">${T('Tukar Lencana')}</button></div>`;
+function openShop(){if(shopTab==='x')return openShopX();if(shopTab==='tu'){modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${ic('shop',22)} ${T('Toko')}</h3>${shopTabsHTML()}${tuShopHTML()}`);return}shopState();
  modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${ic('shop',22)} ${T('Toko')}</h3>${shopTabsHTML()}<div class="sub">${T('Tukar emas dengan material & tiket. Stok diisi ulang setiap hari.')}</div>
  <div class="shopgold">${ic('gold',20)} <b>${fmt(S.gold)}</b></div>
  <div class="shopgrid">${SHOP.map(it=>{const left=shopLeft(it),can=left>0&&S.gold>=it.cost;return`<div class="sitem ${left<=0?'sold':''}"><span class="sic">${ic(shopItemIcon(it.give),40)}</span><b>${shopItemName(it.give)}</b><small>${T('Sisa {a}/{b}',{a:left,b:it.limit})}</small><button class="btn ${can?'':'gray'}" data-act="shopBuy" data-arg="${it.id}" ${left>0?'':'disabled'}>${left>0?`${ic('gold',12)} ${fmt(it.cost)}`:T('Habis')}</button></div>`}).join('')}</div>`)}
