@@ -314,7 +314,9 @@ async function chAI(kind,cands,extra={}){if(!aiOn()||!cands.length)return null;c
   CHAT.aiErr=null;const byName=new Map(cands.map(i=>[botName(i,now).toLowerCase(),i]));return j.out.map(x=>({i:byName.get(String(x.who).toLowerCase()),text:x.text,delay:x.delay})).filter(x=>x.i!=null)}
  catch(e){CHAT.aiErr='jaringan';return null}}
 // tulis hasil AI ke obrolan: gaya ringan (huruf kecil persona, kadang salah ketik) supaya tetap konsisten dengan bot lain
-function chAIPost(L,start,kind){const out=[];let tt=start;const r=bRng((start^0x9e37)>>>0);
+// pesan panjang dipecah di batas kalimat/koma jadi beberapa gelembung (tidak pernah dipotong di tengah kata)
+function chChunks(s,max=95){const out=[];s=s.trim();while(s.length>max){let k=-1;for(const re of[/[.!?]\s/g,/[,;]\s/g,/\s/g]){let m;re.lastIndex=0;while((m=re.exec(s))&&m.index<max)k=m.index+1;if(k>20)break}if(k<=0)k=max;out.push(s.slice(0,k).trim());s=s.slice(k).trim()}if(s)out.push(s);return out}
+function chAIPost(L,start,kind){L=L.flatMap(x=>chChunks(x.text).map((t,k)=>Object.assign({},x,{text:t,delay:k?2+t.length/12:x.delay})));const out=[];let tt=start;const r=bRng((start^0x9e37)>>>0);
  L.forEach((x,k)=>{tt+=(kind==='scene'?x.delay:x.delay+k*2)*1e3+Math.floor(x.text.length*90);const p=chPersona(x.i),{parts,fix}=chStyle(x.text,Object.assign({},p,{abbr:p.abbr*.2,typo:p.typo*.6,g:Object.assign({},p.g,{emo:p.g.emo*.3,punct:0,split:p.g.split*.5})}),r);
   parts.forEach((s,q)=>out.push({id:'ai:'+x.i+':'+tt+':'+q,t:tt+q*2200,i:x.i,text:s.slice(0,140),k:'ai',ment:/@/.test(s)}));if(fix)out.push({id:'aifx:'+x.i+':'+tt,t:tt+4e3,i:x.i,text:fix,k:'fx'})});
  CHAT.me.push(...out);chatSaveMe();return out.length}

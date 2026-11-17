@@ -16,7 +16,7 @@ const ROLE_TXT = `Kamu adalah "sutradara" Obrolan Dunia (world chat) server game
 Gaya: chat game mobile Indonesia yang sangat natural dan hidup — pendek-pendek, santai, saling menimpali, kadang nyeleneh, bercanda, iri, pamer, curhat gacha, salah paham, berdebat kecil, lalu baikan. Ikuti persona tiap penulis (gaul huruf kecil & singkatan, sopan, campur Inggris, wibu dengan kata Jepang, super singkat, dll). Variasikan panjang; jangan semua pesan berbentuk sama; jangan mengulang kalimat yang sudah ada di obrolan.
 Pemain ini bisa membicarakan apa pun yang wajar: game (hero, banner, pity, arena, tahap, dungeon, event, top up), keadaan akun mereka sendiri (pakai data aslinya, jangan mengarang angka lain), kejadian di server, dan kehidupan sehari-hari (kerja, kuliah, makan, cuaca, ngantuk), sesuai jam WIB yang diberikan.
 Soal pemain manusia yang sedang membaca (disebut PEMAIN): kamu tahu keadaan akunnya dan aktivitas terbarunya. Pakai itu dengan wajar seperti teman satu server yang memperhatikan (mis. lihat pengumuman sistem, lihat peringkat, pernah diserang/menyerangnya di Arena) — boleh sesekali terasa "kok mereka tahu", tapi jangan berlebihan atau menyeramkan, dan jangan setiap kali.
-ATURAN KERAS: fakta game harus benar sesuai pengetahuan di bawah; jangan mengarang fitur yang tidak ada; tanpa emoji (emotikon teks seperti :v xD T_T boleh); tanpa tautan; ramah keluarga; tidak menyebut orang nyata, merek, atau politik; tidak pernah mengaku AI/bot/asisten atau menyebut "sutradara"; tiap pesan maksimal 100 karakter; hanya penulis dari daftar yang boleh bicara. Balas HANYA JSON yang diminta.`;
+ATURAN KERAS: fakta game harus benar sesuai pengetahuan di bawah; jangan mengarang fitur yang tidak ada; tanpa emoji (emotikon teks seperti :v xD T_T boleh); tanpa tautan; ramah keluarga; tidak menyebut orang nyata, merek, atau politik; tidak pernah mengaku AI/bot/asisten atau menyebut "sutradara"; tiap pesan sebaiknya pendek (maks ±90 karakter) — kalau perlu bicara lebih panjang, pecah jadi beberapa pesan beruntun dari penulis yang sama, seperti orang mengetik sungguhan; hanya penulis dari daftar yang boleh bicara. Balas HANYA JSON yang diminta.`;
 
 const clip = (s, n) => String(s ?? '').replace(/[\u0000-\u001f]/g, ' ').slice(0, n);
 const dayKey = () => 'ai:' + new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 10);
@@ -61,8 +61,8 @@ function parseOut(text) {
   const m = String(text).match(/\{[\s\S]*\}/);
   let o = null; try { o = m ? JSON.parse(m[0]) : null } catch (e) { }
   const L = o && (o.out || o.replies || o.msgs) || [];
-  return L.map(x => ({ who: clip(x.who, 20), text: clip(x.text, 110).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/https?\S+/g, '').trim(), delay: Math.max(1, Math.min(60, +x.delay || 5)) }))
-    .filter(x => x.who && x.text).slice(0, 10);
+  return L.map(x => ({ who: clip(x.who, 20), text: clip(x.text, 260).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/https?\S+/g, '').trim(), delay: Math.max(1, Math.min(60, +x.delay || 5)) }))
+    .filter(x => x.who && x.text).slice(0, 12);
 }
 async function bump(env, k, by = 1) {
   const r = await env.DB.prepare("INSERT INTO kv (k,v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = CAST(v AS INTEGER) + ? RETURNING v").bind(k, String(by), by).first();
