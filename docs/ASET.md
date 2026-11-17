@@ -131,3 +131,8 @@ Aturan umum:
 - Sumber: `art_src/tall_<art>.png` (hasil outpaint 1792×2400). Potongan: lebar 1520 (=0,8×1900) di tengah, mulai y sesuai `art_src/tall_crop.json`, diperkecil ke 240×300 → `src/img/bg/w_<art>.webp`.
 - Unit digambar di koordinat lama (240×210) lalu digeser `BTOP=60` ke bawah (`js/ui/battle-hud.js`). Latar lama 240×210 atau prosedural tetap jalan: tepi atas/bawahnya direntangkan otomatis.
 - Dunia baru: outpaint lukisan 4:3 ke 3:4, pilih y potongan sampai unit (posisi kaki y 128–184 + 60) berdiri di tanah.
+
+## Kebangkitan & Bab II (18 Nov 2026, Higgsfield)
+- Bingkai kartu ★4/★5/★6: satu lembar `gpt_image_2_6` dengan referensi `art_src/ui_kit/cards.png` → `art_src/ui_kit/cards_asc.png`, dipotong `uikit.extract` (lebar 150) → `src/img/ui/card_r4..6.webp` (CSS `--ui-card-r4..6`, slice 30/34/38).
+- Ikon `asc1` Kristal Kebangkitan, `asc2` Inti Surgawi, `asc3` Air Mata Dewi, `tower`: lembar 2×2 latar hijau `art_src/icon_sheets/K.png` → `iconify.cut` → `src/img/icons/*.webp`. Versi kode cadangan ada di `js/art/icons.js`.
+- Latar battle `w_moon`, `w_deep`, `w_void`, `w_tower` + peta `m_*` (90×160, potongan 9:16 tengah): nano banana (3:4, referensi gaya `tall_summit`) → `art_src/tall_<art>.png`, potongan y di `tall_crop.json` (moon 480, deep 460, void 150, tower 420).

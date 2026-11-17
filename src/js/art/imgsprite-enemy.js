@@ -2,7 +2,11 @@
    Slime biasa digambar pucat lalu diwarnai sesuai elemen (multiply), jadi tetap 1 gambar untuk semua elemen. */
 /* logam (mis. slime emas): kecerahan tiap piksel dipetakan ke gradasi logam -> berkilau, bukan sekadar diwarnai.
    crown: mahkota kecil di atas kepala (bos). Hasil di-cache per bingkai. */
-const METAL={gold:[[0,[58,30,0]],[.3,[150,88,10]],[.55,[240,160,24]],[.78,[255,214,74]],[1,[255,250,214]]]};
+const METAL={gold:[[0,[58,30,0]],[.3,[150,88,10]],[.55,[240,160,24]],[.78,[255,214,74]],[1,[255,250,214]]],
+ moon:[[0,[18,22,46]],[.35,[78,94,140]],[.6,[158,176,214]],[.82,[214,226,248]],[1,[255,255,255]]],
+ deep:[[0,[4,22,34]],[.35,[12,78,96]],[.6,[34,148,160]],[.82,[110,220,214]],[1,[222,255,250]]],
+ void:[[0,[12,4,22]],[.35,[52,14,80]],[.6,[118,40,160]],[.8,[206,90,220]],[1,[255,212,255]]],
+ celestial:[[0,[44,32,12]],[.35,[140,112,62]],[.6,[228,208,150]],[.8,[255,244,212]],[1,[255,255,255]]]};
 const METAL_C={};
 function metalize(src,key,kind,crown){const ck=key+kind+(crown?'c':'');if(METAL_C[ck])return METAL_C[ck];
  const c=document.createElement('canvas');c.width=src.width;c.height=src.height;const g=c.getContext('2d');g.drawImage(src,0,0);

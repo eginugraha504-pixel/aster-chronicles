@@ -30,4 +30,14 @@ const ENEMY={
 // musuh dungeon emas: memakai sprite slime yang diwarnai emas (sprOf = pinjam strip gambar musuh lain)
 ENEMY.gslime={n:'Slime Emas',role:'warrior',hp:.9,atk:.8,def:.9,h:18,sprOf:'slime',look:{slime:true,metal:'gold',color:'#ffc93a'}};
 ENEMY.bGold={n:'Raja Slime Emas',role:'warrior',hp:1.25,atk:.9,def:1.1,h:20,sprOf:'slime',look:{slime:true,metal:'gold',crown:1,color:'#ffae1a'}};
+// ---- varian logam BAB II (sprite musuh lama dipetakan ke gradasi logam, lihat art/imgsprite-enemy.js METAL) ----
+const vEnemy=(base,n,metal,o={})=>Object.assign({},ENEMY[base],{n,sprOf:base,look:Object.assign({},ENEMY[base].look,{metal,crown:o.crown||0})},o.st||{});
+ENEMY.mKnight=vEnemy('knight','Ksatria Perak','moon');
+ENEMY.dSlime=vEnemy('slime','Slime Palung','deep');
+ENEMY.vKnight=vEnemy('knight','Ksatria Hampa','void');
+ENEMY.vMage=vEnemy('mage','Penyihir Hampa','void');
+ENEMY.bMoon=vEnemy('bKnight','Ksatria Rembulan','moon');
+ENEMY.bDeep=vEnemy('bSlime','Slime Samudra Purba','deep',{crown:1});
+ENEMY.bVoid=vEnemy('bKnight','Raja Kehampaan','void',{crown:1});
+ENEMY.bTower=vEnemy('bKnight','Penjaga Menara','celestial');
 for(const k in ENEMY)ENEMY[k].spr=(el)=>({enemy:k,el});

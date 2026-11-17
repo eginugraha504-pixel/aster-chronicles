@@ -4,7 +4,7 @@ const HPOS=[[86,140],[86,184],[46,128],[46,172]],EPOS=[[160,140],[160,184],[200,
 const isHU=u=>u.side==='hero'||!!u.ph;  // unit berwujud hero (termasuk hero lawan di Arena)
 const uh=u=>isHU(u)?34:((ENEMY[u.etype]||{}).h||28)*u.scale;
 function mkUnit(side,o){return Object.assign({side,alive:true,cd:.4+Math.random()*.8,charge:side==='hero'?30:0,lungeT:0,hitT:0,deathT:0,shieldT:0,tauntT:0,atkUpT:0,ox:0,scale:1},o)}
-function startBattle(key){const st=STAGES[key];const ids=S.team.filter(Boolean);if(!ids.length)return toast(T('Tim kosong! Pilih hero dulu.'),1);regen();if(S.stam<st.cost)return toast(T('Stamina tidak cukup!'),1);
+function startBattle(key){const st=STAGES[key];const ids=S.team.filter(Boolean);if(!ids.length)return toast(T('Tim kosong! Pilih hero dulu.'),1);regen();if(st.dg){checkDaily();if(!dgLeft(st.dg))return toast(T('Kesempatan hari ini habis. Kembali besok!'),1)}if(S.stam<st.cost)return toast(T('Stamina tidak cukup!'),1);
  S.stam-=st.cost;save();closeModal();lobby=null;
  const ord=ids.slice().sort((a,b)=>ROLE[HD[b].role].melee-ROLE[HD[a].role].melee);
  B={st,wave:0,time:0,units:[],proj:[],fx:[],texts:[],pend:[],state:'enter',enterT:1,auto:S.auto,speed:S.speed,paused:false,shake:0,flash:0,flashC:'#fff',g:$('#bc').getContext('2d'),nextT:0};
@@ -14,10 +14,10 @@ function startBattle(key){const st=STAGES[key];const ids=S.team.filter(Boolean);
  $('#bTitle').textContent=st.dg?st.name:st.key+' '+st.name;$('#bSub').textContent=st.dg?T('Dungeon'):WORLDS[st.wi].n;
  battleUI();banner(T('Gelombang {a}/{b}',{a:1,b:st.waves.length}));sfx('start')}
 // kartu hero, tombol & HUD: ui/battle-hud.js (battleUI, hudWave, hudTick, updBtns)
-function spawnWave(){const st=B.st,w=st.waves[B.wave],n=st.n;B.units=B.units.filter(u=>u.side==='hero');
- w.forEach((d,i)=>{const E=ENEMY[d.t];const g=diffG(n);let hp=DIFF.hp*g*E.hp,atk=DIFF.atk*Math.pow(g,DIFF.atkExp)*E.atk,def=DIFF.def*Math.sqrt(g)*E.def;if(d.boss){hp*=BOSS_MUL.hp;atk*=BOSS_MUL.atk;def*=BOSS_MUL.def}
+function spawnWave(){const st=B.st,w=st.waves[B.wave],n=st.n;B.units=B.units.filter(u=>u.side==='hero');B.sc=battleSc(diffG(n));
+ w.forEach((d,i)=>{const E=ENEMY[d.t];const g=diffG(n),eb=enemyBase(g);let hp=eb.hp*E.hp,atk=eb.atk*E.atk,def=eb.def*E.def;if(d.boss){hp*=BOSS_MUL.hp;atk*=BOSS_MUL.atk;def*=BOSS_MUL.def}
   const p=d.boss?[186,180]:EPOS[(w[0].boss?i+1:i)%4];B.units.push(mkUnit('enemy',{i,name:E.n,el:d.el,role:E.role,boss:!!d.boss,spr:sprite(E.spr(d.el)),hp:Math.round(hp),maxHp:Math.round(hp),atk:Math.round(atk),def:Math.round(def),x:p[0],y:p[1],ox:110+i*14,cdMax:(d.boss?1.6:1.4)*ROLE[E.role].cd,etype:d.t,scale:d.boss?2:1,skill:d.boss?'aoe':null,mult:1.7,sk:d.boss?T(pick(['Hantaman Murka','Gempa Kegelapan','Raungan Penguasa'])):''}))});
- B.state='enter';B.enterT=1;hudWave()}
+ B.state='enter';B.enterT=1;if(!B.sim)hudWave()}
 // jeda antar gelombang: hero yang masih hidup pulih WAVE_HEAL × HP maks
 function waveHeal(){for(const u of alive('hero')){const h=Math.round(u.maxHp*WAVE_HEAL),add=Math.min(h,u.maxHp-u.hp);if(add>0){u.hp+=add;addText(u.x,u.y-uh(u)-4,'+'+fmt(add),'#7dff9a')}}}
 function banner(t){if(B&&B.sim)return;const b=$('#bbanner');b.textContent=t;b.classList.remove('on');void b.offsetWidth;b.classList.add('on')}
@@ -30,7 +30,7 @@ function target(u){const foes=alive(u.side==='hero'?'enemy':'hero');if(!foes.len
  if(u.side==='hero'){const mn=Math.min(...foes.map(f=>f.x));return pick(foes.filter(f=>f.x===mn))}
  const mx=Math.max(...foes.map(f=>f.x));const front=foes.filter(f=>f.x===mx);return u.ph||Math.random()<.75?pick(front):pick(foes)}
 function addText(x,y,t,c,big){B.texts.push({x:x+rnd(-4,4),y,t,c,big,life:.9})}
-function hit(a,d,mult,opt={}){if(!d.alive)return;const em=elMult(a.el,d.el);let dmg=a.atk*(a.atkUpT>0?(a.atkUpK||1.4):1)*mult*em*arRage()*rnd(.9,1.1)*100/(100+d.def);const crit=Math.random()<(a.crit?a.crit/100:.1);if(crit)dmg*=1.5;if(d.shieldT>0)dmg*=.5;dmg=Math.max(1,Math.round(dmg));
+function hit(a,d,mult,opt={}){if(!d.alive)return;const em=elMult(a.el,d.el);let dmg=a.atk*(a.atkUpT>0?(a.atkUpK||1.4):1)*mult*em*arRage()*rnd(.9,1.1)*100/(100+d.def/(B.sc||1));const crit=Math.random()<(a.crit?a.crit/100:.1);if(crit)dmg*=1.5;if(d.shieldT>0)dmg*=.5;dmg=Math.max(1,Math.round(dmg));
  a.dmg=(a.dmg||0)+Math.min(dmg,Math.max(0,d.hp));d.hp-=dmg;d.hitT=.15;if(!d.anim||d.anim==='hit'){d.anim='hit';d.animT=0}d.charge=Math.min(100,d.charge+4);
  addText(d.x,d.y-uh(d)-4,fmt(dmg)+(crit?'!':''),crit?'#ffd23f':em>1?'#ff6a3c':em<1?'#bfb2e2':'#fff',crit||opt.big);
  if(em>1&&Math.random()<.3)addText(d.x,d.y-uh(d)-14,T('EFEKTIF'),'#ff9a5a');
@@ -112,7 +112,7 @@ function drawBattle(){const g=B.g,st=B.st;g.setTransform(2,0,0,2,0,0);g.imageSmo
 const elImg={};
 function endBattle(win){if(!B)return;const st=B.st;let html;
  if(win){const dead=B.units.some(u=>u.side==='hero'&&!u.alive);const sr=1+(!dead?1:0)+(B.time<=60?1:0);const first=!S.stages[st.key];S.stages[st.key]=Math.max(S.stages[st.key]||0,sr);
-  const rw={gold:st.dg?dgGold(st,sr):st.gold,exp:st.exp};if(first&&!st.dg)rw.gems=st.gems;if(st.dg){const gd=rollGear(st);if(gd)rw.gear=gd}if(first&&BOSS_GEAR[st.key])rw.gear=BOSS_GEAR[st.key];if(st.dg){rw.mats=rollDrops(st,sr>=3);S.daily.c.dg=(S.daily.c.dg||0)+1}const ups=grant(rw);S.daily.c.clear++;evCount('clear');if(st.boss){S.daily.c.boss++;evCount('boss')}save();sfx('win');for(let i=0;i<sr;i++)setTimeout(()=>sfx('star',{i}),1100+i*250);
+  const rw={gold:st.dg?dgGold(st,sr):st.gold,exp:st.exp};if(first&&!st.dg)rw.gems=st.gems;if(st.dg){const gd=rollGear(st);if(gd)rw.gear=gd}if(first&&BOSS_GEAR[st.key])rw.gear=BOSS_GEAR[st.key];if(st.dg){rw.mats=rollDrops(st,sr>=3);S.daily.c.dg=(S.daily.c.dg||0)+1;dgUse(st.dg,1)}const ups=grant(rw);S.daily.c.clear++;evCount('clear');if(st.boss){S.daily.c.boss++;evCount('boss')}save();sfx('win');for(let i=0;i<sr;i++)setTimeout(()=>sfx('star',{i}),1100+i*250);
   const nx=st.dg?null:SLIST[st.n+1];
   html=`<div class="panel res win"><div class="rrib"><h3>${T('MENANG!')}</h3></div><div class="rstars">${[0,1,2].map(i=>`<span class="${i<sr?'on':''}" style="animation-delay:${.3+i*.25}s">★</span>`).join('')}</div>${mvpHTML(battleMVP(B))}<div class="rcond">${dead?'✗':'✓'} ${T('Tanpa hero gugur')} · ${B.time<=60?'✓':'✗'} ${T('≤ 60 detik')} (${Math.floor(B.time)}${T('d')})</div>
   ${rewardHTML(rw)}<div class="rexp"><b>Lv ${S.lv}</b><span class="bar"><i style="width:${Math.min(100,S.exp/expNeed(S.lv)*100)}%"></i></span><small>${fmt(S.exp)}/${fmt(expNeed(S.lv))}</small></div>${first?`<div style="font-size:13px;color:#2a8ad0">${T('Bonus pertama kali!')}</div>`:''}${ups?`<div style="font-size:15px;color:#d2780a;margin-top:6px">⬆ ${T('Level Akun naik ke {lv}! Stamina +{s}',{lv:S.lv,s:ups*20})}</div>`:''}

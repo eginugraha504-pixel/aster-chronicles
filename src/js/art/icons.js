@@ -81,6 +81,15 @@ const ICON_DRAW={
  gem1:K=>{const p=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?2.3:5.6;p.push([8+Math.cos(a)*rr,8.6+Math.sin(a)*rr])}K.poly(p,'#ffcf3a');K.poly([[8,3],[8,8.6],[4.5,7]],'#fff6b0');K.pts([[2,3],[13,13],[14,2]],'#fff6b0')},
  gem2:K=>{K.poly([[8,1],[13,6],[8,15],[3,6]],'#3fa0ec');K.poly([[8,1],[8,15],[3,6]],'#7fd0ff');K.poly([[3,6],[13,6],[8,8]],'#bfeaff');const p=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?1:2.4;p.push([8+Math.cos(a)*rr,8.5+Math.sin(a)*rr])}K.poly(p,'#ffffff')},
  gem3:K=>{K.ball(8,8,6.6,['#ffe0f4','#ff8ac8','#b04aa0']);K.ring(8,8,4.6,5.8,'#ffd23f');const p=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?1.4:3.2;p.push([8+Math.cos(a)*rr,8.3+Math.sin(a)*rr])}K.poly(p,'#fff6b0');K.pts([[4,4],[5,3]],'#ffffff')},
+ // ---- Kebangkitan ★4–★6 ----
+ asc1:K=>{K.poly([[8,1],[12.5,6],[8,15],[3.5,6]],'#2ab8d8');K.poly([[8,1],[8,15],[3.5,6]],'#7ff0ff');K.poly([[3.5,6],[12.5,6],[8,8]],'#d8ffff');K.line(8,2,8,14,'#ffffff');
+  K.poly([[1,7],[3.5,5.5],[4,9]],'#ffd23f');K.poly([[15,7],[12.5,5.5],[12,9]],'#ffd23f');K.pts([[1,2],[14,1],[2,13],[14,13]],'#fff6b0')},
+ asc2:K=>{K.ring(8,8.5,5.4,7.2,'#ffcf3a');K.ring(8,8.5,6.4,7.2,'#fff6b0');K.ball(8,8.5,4.6,['#ffffff','#ffe8a0','#e8a83a']);
+  const p=[];for(let i=0;i<8;i++){const a=-Math.PI/2+i*Math.PI/4,rr=i%2?1:2.8;p.push([8+Math.cos(a)*rr,8.5+Math.sin(a)*rr])}K.poly(p,'#ffffff');K.rect(7,0,2,2,'#fff6b0');K.pts([[1,3],[15,4],[2,15],[14,15]],'#ffffff')},
+ asc3:K=>{K.poly([[8,0.5],[12.8,9],[11.6,13],[8,15],[4.4,13],[3.2,9]],'#ff6ac8');K.poly([[8,0.5],[8,15],[4.4,13],[3.2,9]],'#ffb0e4');
+  K.rect(5,9,6,1,'#ffd23f');K.rect(4,11,8,1,'#5ec8ff');K.rect(5,13,6,1,'#9cf06a');K.poly([[6,4],[7.6,2],[7.6,7]],'#ffffff');K.pts([[1,2],[14,2],[1,12],[15,10]],'#fff6b0')},
+ tower:K=>{K.rect(5,4,6,11,'#c9ced8');K.rect(5,4,2,11,'#ffffff');K.rect(10,4,1,11,'#8a96aa');K.rect(4,14,8,2,'#8a96aa');K.rect(4,3,8,2,'#ffcf3a');K.rect(4,3,8,1,'#fff6b0');
+  K.poly([[5,3],[8,0],[11,3]],'#7f5ae8');K.rect(7,7,2,3,'#3fa9f5');K.P(7,7,'#bfeaff');K.rect(7,11,2,3,'#3b2416');K.pts([[1,2],[14,6],[2,9]],'#fff6b0')},
  pick:K=>{K.line(3,14,11,6,'#9a5a2a');K.line(4,14,12,6,'#c07a40');K.poly([[5,3],[9,1],[14,3],[15,7],[13,6],[10,4],[7,5]],'#b4bccc');K.poly([[5,3],[9,1],[14,3],[10,3]],'#ffffff');K.pts([[14,7],[15,7]],'#8a96aa')},
  shrine:K=>{K.rect(1,3,14,2,'#e8483b');K.rect(0,3,16,1,'#a8282a');K.rect(2,6,12,1,'#e8483b');K.rect(3,5,2,10,'#e8483b');K.rect(11,5,2,10,'#e8483b');K.rect(3,5,1,10,'#ff7a6a');K.rect(11,5,1,10,'#ff7a6a');
   const p=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?1.2:2.6;p.push([8+Math.cos(a)*rr,10.5+Math.sin(a)*rr])}K.poly(p,'#ffd23f')},

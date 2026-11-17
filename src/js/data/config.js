@@ -24,14 +24,20 @@ const BADGE_DUPE=[0,1,5,25];              // Lencana Ksatria dari hero duplikat 
 // di antaranya diinterpolasi (skala log). Titik CP disarankan = CP tim yang menang ~70% (hasil kalibrasi simulasi).
 // atkExp: ATK musuh tumbuh g^atkExp (lebih lambat dari HP) supaya tahap akhir tidak jadi 'sekali pukul mati'
 const DIFF={hp:975,atk:165,def:28,atkExp:.85,
- pow:[[0,1],[4,2.6],[9,9.6],[14,17.5],[19,25.5],[24,33]],
- rec:[[0,1500],[4,4400],[9,9800],[14,16100],[19,21500],[24,29000]]};
+ pow:[[0,1],[4,2.6],[9,9.6],[14,17.5],[19,25.5],[24,33],[29,170],[34,795],[39,2950]],
+ rec:[[0,1500],[4,4400],[9,9800],[14,16100],[19,21500],[24,29000],[29,150000],[34,700000],[39,2600000]]};   // n 25..39 = BAB II (dikalibrasi tools sim: CP/g ≈ 880–940 berlaku di semua bintang berkat B.sc)
 function lerpLog(A,n){if(n<=A[0][0])return A[0][1];for(let i=1;i<A.length;i++)if(n<=A[i][0]){const[x0,y0]=A[i-1],[x1,y1]=A[i],t=(n-x0)/(x1-x0);return Math.exp(Math.log(y0)+(Math.log(y1)-Math.log(y0))*t)}return A[A.length-1][1]}
 const diffG=n=>lerpLog(DIFF.pow,n);
+// BAB II (g > G0 = kekuatan 5-5): semua stat musuh tumbuh linear & pertahanan dinormalkan skala pertarungan (B.sc),
+// sehingga hero ★6 melawan musuh ×k terasa sama tegangnya dengan hero ★3 di 5-5 — bukan adu-timer tanpa risiko.
+const DIFF_G0=33,ARENA_SC_REF=29000;
+function enemyBase(g){if(g<=DIFF_G0)return{hp:DIFF.hp*g,atk:DIFF.atk*Math.pow(g,DIFF.atkExp),def:DIFF.def*Math.sqrt(g)};
+ const k=g/DIFF_G0;return{hp:DIFF.hp*g,atk:DIFF.atk*Math.pow(DIFF_G0,DIFF.atkExp)*k,def:DIFF.def*Math.sqrt(DIFF_G0)*k}}
+const battleSc=g=>Math.max(1,g/DIFF_G0);
 const recCP=n=>Math.round(lerpLog(DIFF.rec,n)/50)*50;
 // Tahap cerita (n = urutan tahap 0..24)
 // cost/gems: [tahap biasa, tahap bos]   gold/exp: a + b × n   (permata hanya dari kemenangan pertama)
-const STAGE_RW={cost:[6,8],gems:[60,150],gold:[320,160],exp:[10,3]};
+const STAGE_RW={cost:[6,8],gems:[60,150],gold:[320,160],exp:[10,3],goldUp:1.18,expUp:1.08};   // BAB II (n>24): emas ×1.18 & EXP ×1.08 per tahap
 // Level hero dibatasi level akun: maks = level akun × 2 + 10
 // peluang pemanah/penyihir MUSUH mengincar hero ber-HP terendah (sisanya target acak)
 const ENEMY_FOCUS=.45;
@@ -62,7 +68,7 @@ const WPN_LV_CAP=[20,30,40,50,60];        // level maks per tahap Limit Break (0
 const WPN_LB_MAX=4;
 const WPN_ATK_GROWTH=.08,WPN_LB_BONUS=.1,WPN_SUB_LB=.15; // +8% ATK/level, +10% ATK & +15% sub-stat per Limit Break
 const WPN_EXP_GOLD=.4;                    // emas per 1 EXP senjata
-const wExpNeed=(lv,r)=>Math.round((60+lv*25)*[0,1,1.4,1.8][r]);
+const wExpNeed=(lv,r)=>Math.round((60+lv*25)*((typeof ASC!=='undefined'&&ASC.wExpK[r])||[0,1,1.4,1.8][r]||1.8));
 // biaya Limit Break per bintang senjata, per tahap (0->1 .. 3->4)
 const WPN_LB_COST={
  1:[{gem1:3,gold:3000},{gem1:6,gold:6000},{gem1:8,gem2:1,gold:12000},{gem1:12,gem2:3,gold:20000}],

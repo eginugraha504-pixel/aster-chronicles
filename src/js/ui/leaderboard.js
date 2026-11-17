@@ -35,9 +35,9 @@ function rankStartTimer(){if(rankTimer)return;BOTS.seen=botsVisible();
 BOTS.onChange=()=>{if($('#rkBody'))rankRefresh()};
 
 /* ---- profil pemain bot ---- */
-function botHeroCard(s,id,big){const h=s.heroes[id],w=h.wpn&&WD[h.wpn],o=w&&s.weapons[h.wpn];
- return`<div class="bhc r${HD[id].r}${big?' big':''}">${id===s.fav?`<span class="fav" title="${T('Hero favorit')}">♥</span>`:''}<img class="px hp" src="${portrait(id)}"><img class="px el" src="${ICON.el[HD[id].el]}">
- <span class="st">${stars(HD[id].r)}</span>${h.lb?`<span class="lb">+${h.lb}</span>`:''}<b>${HD[id].name}</b><small>Lv ${h.lv}</small>
+function botHeroCard(s,id,big){const h=s.heroes[id],w=h.wpn&&WD[h.wpn],o=w&&s.weapons[h.wpn],hs=h.asc||HD[id].r;
+ return`<div class="bhc r${hs}${big?' big':''}">${id===s.fav?`<span class="fav" title="${T('Hero favorit')}">♥</span>`:''}<img class="px hp" src="${portrait(id)}"><img class="px el" src="${ICON.el[HD[id].el]}">
+ <span class="st">${stars(hs)}</span>${h.lb?`<span class="lb">+${h.lb}</span>`:''}<b>${HD[id].name}</b><small>Lv ${h.lv}</small>
  ${big?`<div class="eqr">${w?`<span title="${w.name}"><img class="px" src="${weaponIcon(h.wpn).url}"><i>${o.lv}</i></span>`:''}${h.ar?`<span><img class="px" src="${gearIcon(h.ar).url}"><i>+${s.gear[h.ar].lv}</i></span>`:''}${h.ac?`<span><img class="px" src="${gearIcon(h.ac).url}"><i>+${s.gear[h.ac].lv}</i></span>`:''}</div>`:''}</div>`}
 function botBodyHTML(i){const s=botState(i),p=botPresence(i),b=botBase(i),now=Date.now();
  const ids=Object.keys(s.heroes).sort((x,y)=>(y===s.fav)-(x===s.fav)||HD[y].r-HD[x].r||s.heroes[y].lv-s.heroes[x].lv);const L=rankSorted(),rk=L.findIndex(e=>e.i===i)+1;

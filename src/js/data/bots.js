@@ -74,6 +74,10 @@ const BOT_CFG={
   rename:{p:.12,days:[2,14],pool:600}}, // peluang ganti nama sekali, kapan (hari), ukuran kolam nama baru (dibuat Claude)
  GEAR_FROM_DAY:2,             // mulai punya Pelindung/Aksesori
  BENCH_LV:[.35,.7],           // level hero cadangan relatif terhadap cap
+ // Kebangkitan bot (★4–★6): mulai setelah CP tim kira-kira menembus 5-5 (minCP). Anggaran bahan per hari main
+ // dalam 'setara Kristal' (asc2 ≈ 3, asc3 ≈ 30 kristal), dikali tier belanja & ketelitian main. Urutan: semua ★4 dulu (hero → senjata → perlengkapan), lalu ★5, lalu ★6.
+ ASC:{minCP:27000,perDay:28,tier:{f2p:1,card:1.15,dolphin:1.3,whale:1.6},
+  cost:{h:{4:60,5:220,6:1200},w:{4:40,5:155,6:810},g:{4:30,5:114,6:570}}},
  // nama: dibuat Claude (integrasi sample) lalu disimpan bersama di db; hanya huruf & angka
  // bio/status profil: dibuat Claude, bertag supaya cocok dengan keadaan bot
  BIO_TAGS:['umum','santai','kompetitif','pemula','sial','hoki','raika','sakuya','farming'],

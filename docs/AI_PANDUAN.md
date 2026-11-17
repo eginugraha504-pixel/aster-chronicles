@@ -70,3 +70,9 @@ Ubah/tambah teks di sini bila ada fitur baru yang perlu dijelaskan dengan kata-k
 - Permata sebaiknya untuk banner rate-up yang diinginkan; Tiket Hero bisa dipakai di banner mana pun.
 - Senjata signature pada pemiliknya = efek tambahan + bonus CP.
 - Bos dunia: 1-5 Raja Goblin, 2-5 Slime Kristal Raksasa, 3-5 Ksatria Kegelapan, 4-5 slime raksasa yang menelan inti api di Sarang Badai, 5-5 Ksatria Kegelapan yang bangkit lagi di Takhta Puncak.
+
+## Kebangkitan (update besar 18 Nov 2026)
+- Kalau pemain tanya cara naik ke ★4/★5/★6: selesaikan 5-5 → buka Menara Kebangkitan di Petualangan > Dungeon (5×/hari) → kumpulkan Kristal Kebangkitan/Inti Surgawi/Air Mata Dewi + Lencana Ksatria + emas → maksimalkan level dulu → tekan pita ungu "Kebangkitan" di detail hero/senjata/perlengkapan.
+- Bab II (Dunia 6–8) memang dirancang untuk tim ★4–★6. Wajar kalau pemain mentok di 6-x berhari-hari.
+- ★6 itu sangat langka dan butuh berbulan-bulan; jangan bilang ada yang bisa membelinya. Penghambat utamanya Air Mata Dewi.
+- Bingkai ★4 ungu ametis, ★5 merah rubi bersayap, ★6 pelangi bersayap berkilau — pemain suka pamer bingkai ★6.

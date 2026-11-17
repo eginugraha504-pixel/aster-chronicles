@@ -1,0 +1,60 @@
+/* =====================================================================
+   BINGKAI ★4 · ★5 · ★6 (Kebangkitan) — makin tinggi makin mewah
+   gambar: img/ui/card_r4..6.webp (Higgsfield, art_src/ui_kit/cards_asc.png) → --ui-card-r4..6
+   ★4 Ametis Kerajaan · ★5 Rubi Surgawi (sayap) · ★6 Prisma Ilahi (sayap + kilau pelangi)
+   Dimuat SETELAH skin.css supaya menimpa bingkai ★1–★3.
+   ===================================================================== */
+.r4{--rf:#9a5ae8;--rg1:#f3e6ff;--rg2:#7a3ad0}
+.r5{--rf:#e8486a;--rg1:#ffe6ec;--rg2:#b8204a}
+.r6{--rf:#ffd23f;--rg1:#ffffff;--rg2:#c8a8ff}
+
+/* ---- bintang ★4–★6 (stars() di ui/core.js) ---- */
+.sx{display:inline-block;letter-spacing:-1px;font-style:normal}
+.sx.s4{color:#c27aff;text-shadow:0 0 5px rgba(170,100,255,.9)}
+.sx.s5{color:#ff4a7a;text-shadow:0 0 6px rgba(255,60,110,.95)}
+.sx.s6{color:#fff;animation:sx6 2.4s linear infinite}
+@keyframes sx6{0%,100%{text-shadow:0 0 6px #ff7ae0}33%{text-shadow:0 0 6px #ffe04a}66%{text-shadow:0 0 6px #5ef0ff}}
+.stars .sx,.bst .sx{font-size:.92em}
+
+/* ---- kartu koleksi hero / senjata / perlengkapan ---- */
+.hcard.r4,.wcard.r4{background:radial-gradient(ellipse at 50% 35%,#fbf2ff 0%,#c9a0ff 42%,#7a3ad0 82%,#2e0f5a 110%)}
+.hcard.r5,.wcard.r5{background:radial-gradient(ellipse at 50% 35%,#fff4f4 0%,#ff9ab0 38%,#d0284e 78%,#4a0a22 112%)}
+.hcard.r6,.wcard.r6{background:radial-gradient(ellipse at 50% 35%,#fff8fe 0%,#ffc8f0 30%,#9ae6ff 55%,#ffe58a 75%,#9a70f0 100%);
+ animation:r6glow 2.6s ease-in-out infinite}
+.hcard.r4:before,.wcard.r4:before,.hcard.r5:before,.wcard.r5:before,.hcard.r6:before,.wcard.r6:before{content:'';position:absolute;inset:0;pointer-events:none;z-index:3;
+ background:linear-gradient(120deg,transparent 40%,rgba(255,255,255,.45) 50%,transparent 60%);background-size:300% 100%;animation:shine 2.6s linear infinite}
+.hcard.r6:before,.wcard.r6:before{background:linear-gradient(120deg,transparent 36%,rgba(255,170,240,.35) 44%,rgba(255,255,255,.6) 50%,rgba(140,240,255,.35) 56%,transparent 64%);background-size:300% 100%;animation:shine 1.9s linear infinite}
+.hcard.r4:after,.wcard.r4:after{border:10px solid transparent;border-image:var(--ui-card-r4) 30 / 10px stretch}
+.hcard.r5:after,.wcard.r5:after{border:11px solid transparent;border-image:var(--ui-card-r5) 34 / 11px round}
+.hcard.r6:after,.wcard.r6:after{border:12px solid transparent;border-image:var(--ui-card-r6) 38 / 12px round;filter:drop-shadow(0 0 3px rgba(255,255,255,.9))}
+.hcard.r5,.wcard.r5{box-shadow:0 3px 0 rgba(74,42,23,.45),0 0 8px rgba(255,60,110,.55)}
+@keyframes r6glow{0%,100%{box-shadow:0 3px 0 rgba(74,42,23,.45),0 0 8px 1px rgba(255,170,240,.7)}50%{box-shadow:0 3px 0 rgba(74,42,23,.45),0 0 14px 3px rgba(140,240,255,.85)}}
+/* ---- slot tim ---- */
+.tslot.r4,.tslot.r5,.tslot.r6{border:0;border-radius:6px}
+.tslot.r4{background:radial-gradient(ellipse at 50% 35%,#fbf2ff,#c9a0ff 45%,#7a3ad0 90%)}
+.tslot.r5{background:radial-gradient(ellipse at 50% 35%,#fff4f4,#ff9ab0 42%,#d0284e 90%)}
+.tslot.r6{background:radial-gradient(ellipse at 50% 35%,#fff,#ffe6fa 30%,#c8f4ff 55%,#fff0b4 75%,#b890ff);animation:r6glow 2.6s ease-in-out infinite}
+.tslot.r4:after,.tslot.r5:after,.tslot.r6:after{content:'';position:absolute;inset:0;z-index:4;pointer-events:none}
+.tslot.r4:after{border:11px solid transparent;border-image:var(--ui-card-r4) 30 / 11px stretch}
+.tslot.r5:after{border:12px solid transparent;border-image:var(--ui-card-r5) 34 / 12px round}
+.tslot.r6:after{border:13px solid transparent;border-image:var(--ui-card-r6) 38 / 13px round;filter:drop-shadow(0 0 3px #fff)}
+
+/* ---- slot perlengkapan & ikon senjata kecil ---- */
+.eqs.r4{background:linear-gradient(180deg,#fbf4ff,#e6d0ff);box-shadow:inset 0 0 0 2px #9a5ae8,0 3px 0 rgba(74,42,23,.45)}
+.eqs.r5{background:linear-gradient(180deg,#fff4f6,#ffd0da);box-shadow:inset 0 0 0 2px #e8486a,0 0 8px rgba(255,60,110,.4),0 3px 0 rgba(74,42,23,.45)}
+.eqs.r6{background:linear-gradient(110deg,#fff6fd,#e8fbff 40%,#fff8de 70%,#f2eaff);box-shadow:inset 0 0 0 2px #ffd23f,0 0 10px rgba(200,160,255,.6),0 3px 0 rgba(74,42,23,.45)}
+.hcard .wb.r4{border-color:#7a3ad0;background:#f3e6ff}.hcard .wb.r5{border-color:#b8204a;background:#ffe6ec}.hcard .wb.r6{border-color:#c89a10;background:linear-gradient(135deg,#ffe6fa,#c8f4ff,#fff0b4)}
+
+/* ---- kartu hero saat bertarung ---- */
+.bh.r4,.bh.r5,.bh.r6{border-color:transparent}
+.bh.r4:after,.bh.r5:after,.bh.r6:after{content:'';position:absolute;inset:0;z-index:4;pointer-events:none}
+.bh.r4:not(.cast):after{border:9px solid transparent;border-image:var(--ui-card-r4) 30 / 9px stretch}
+.bh.r5:not(.cast):after{border:10px solid transparent;border-image:var(--ui-card-r5) 34 / 10px round}
+.bh.r6:not(.cast):after{border:11px solid transparent;border-image:var(--ui-card-r6) 38 / 11px round}
+.bh.r6{animation:bhin .45s cubic-bezier(.2,1.3,.5,1) both,r6glow 2.6s ease-in-out .45s infinite}
+.bh.r4 .bfoot,.bh.r5 .bfoot,.bh.r6 .bfoot{left:9px;right:9px;bottom:9px}
+.bh.r4 .bel,.bh.r5 .bel,.bh.r6 .bel{left:9px;top:9px}
+
+/* ---- hasil hadiah & lain-lain ---- */
+.rw span.it.r4{--rf:#9a5ae8;color:#6a2ac0}.rw span.it.r5{--rf:#e8486a;color:#b8204a}.rw span.it.r6{--rf:#ffd23f;color:#8a5ad0;background:linear-gradient(110deg,#fff6fd,#e8fbff,#fff8de)}
+.bhc.r4{background:linear-gradient(#f0e0ff,#a070e8)}.bhc.r5{background:linear-gradient(#ffe0e8,#e8486a)}.bhc.r6{background:linear-gradient(135deg,#ffe6fa,#c8f4ff 50%,#fff0b4)}

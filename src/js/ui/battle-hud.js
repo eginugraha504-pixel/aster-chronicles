@@ -13,11 +13,11 @@ function drawBattleBg(g,st){let bg=(st.art&&bgArt('w_'+st.art))||BG[st.bg+'_b'];
  g.drawImage(bg,0,0,w,1,0,0,240,BTOP);g.drawImage(bg,0,h-1,w,1,0,BTOP+210,240,BFH-BTOP-210);g.drawImage(bg,0,BTOP,240,210)}
 
 function bhCard(u,i){const h=HD[u.id]||{r:1},sp=splash(u.id),fc=splashFocus(u.id);
- return`<button class="bh r${h.r}" data-act="cast" data-arg="${i}" style="--ec:${EL[u.el].c}">
+ return`<button class="bh r${S.heroes[u.id]?heroStar(u.id):h.r}" data-act="cast" data-arg="${i}" style="--ec:${EL[u.el].c}">
  <span class="bart"${sp?` style="background-image:url(${sp});background-position:${fc[0]}% ${Math.max(0,fc[1]-2)}%"`:''}>${sp?'':`<img class="px" src="${portrait(u.id)}">`}</span>
  <span class="bveil"></span><span class="bshine"></span>
  <img class="px bel" src="${ICON.el[u.el]}">
- <span class="bfoot"><span class="bst">${'★'.repeat(h.r)}</span><b class="bnm">${u.name}</b><span class="bhp"><i class="lag"></i><i class="cur"></i></span></span>
+ <span class="bfoot"><span class="bst">${stars(S.heroes[u.id]?heroStar(u.id):h.r)}</span><b class="bnm">${u.name}</b><span class="bhp"><i class="lag"></i><i class="cur"></i></span></span>
  <span class="brdy">SKILL</span><span class="bko">${T('Gugur')}</span></button>`}
 function battleUI(){const hs=B.units.filter(u=>u.side==='hero');$('#bHeroes').innerHTML=hs.map(bhCard).join('');
  B.cards=[...$('#bHeroes').children];B.cards.forEach((c,k)=>c.style.animationDelay=(k*.07)+'s');B.hud={};updBtns();hudWave();$('#bBoss').innerHTML='';$('#bBoss').className='bboss';

@@ -25,14 +25,14 @@ const ARENA_CFG={
  revenge:{p:{santai:.25,reguler:.45,rajin:.6,hardcore:.8},delay:[2,40]},
  // hadiah per pertarungan
  battle:{win:{gold:2500,exp:40},lose:{gold:800,exp:15}},
- // liga: min = poin minimum. day = hadiah harian, week = hadiah akhir musim
+ // liga: min = poin minimum. day = hadiah harian, week = hadiah akhir musim (mats: bahan Kebangkitan ★4–★6, badge = Lencana Ksatria)
  leagues:[
-  {id:'bronze',  n:'Perunggu',min:0,   c:'#c7804a',c2:'#7a4420',day:{gems:20, gold:5000}, week:{gems:100, gold:20000}},
-  {id:'silver',  n:'Perak',   min:1150,c:'#b9c4d6',c2:'#5e6b82',day:{gems:30, gold:8000}, week:{gems:200, gold:35000}},
-  {id:'gold',    n:'Emas',    min:1300,c:'#ffc83d',c2:'#a8650e',day:{gems:45, gold:12000},week:{gems:350, gold:50000,tixH:1}},
-  {id:'platinum',n:'Platinum',min:1450,c:'#6fe0d2',c2:'#21786e',day:{gems:60, gold:16000},week:{gems:500, gold:70000,tixH:2}},
-  {id:'diamond', n:'Berlian', min:1600,c:'#7fb4ff',c2:'#2f4fae',day:{gems:80, gold:20000},week:{gems:750, gold:90000,tixH:3}},
-  {id:'legend',  n:'Legenda', min:1800,c:'#ff7ad0',c2:'#7a1f8a',day:{gems:100,gold:25000},week:{gems:1000,gold:120000,tixH:5}},
+  {id:'bronze',  n:'Perunggu',min:0,   c:'#c7804a',c2:'#7a4420',day:{gems:20, gold:5000}, week:{gems:100, gold:20000,mats:{asc1:5}}},
+  {id:'silver',  n:'Perak',   min:1150,c:'#b9c4d6',c2:'#5e6b82',day:{gems:30, gold:8000}, week:{gems:200, gold:35000,mats:{asc1:10,badge:5}}},
+  {id:'gold',    n:'Emas',    min:1300,c:'#ffc83d',c2:'#a8650e',day:{gems:45, gold:12000},week:{gems:350, gold:50000,tixH:1,mats:{asc1:15,asc2:3,badge:10}}},
+  {id:'platinum',n:'Platinum',min:1450,c:'#6fe0d2',c2:'#21786e',day:{gems:60, gold:16000},week:{gems:500, gold:70000,tixH:2,mats:{asc1:20,asc2:6,badge:15}}},
+  {id:'diamond', n:'Berlian', min:1600,c:'#7fb4ff',c2:'#2f4fae',day:{gems:80, gold:20000},week:{gems:750, gold:90000,tixH:3,mats:{asc1:25,asc2:10,asc3:1,badge:20}}},
+  {id:'legend',  n:'Legenda', min:1800,c:'#ff7ad0',c2:'#7a1f8a',day:{gems:100,gold:25000},week:{gems:1000,gold:120000,tixH:5,mats:{asc1:30,asc2:15,asc3:2,badge:30}}},
  ],
  // poin bot: target = start + span × (persentil CP)^curve ± jitter; makin lama musim berjalan makin dekat ke target
  bot:{span:1150,curve:1.6,jitter:220,speed:{santai:.35,reguler:.55,rajin:.8,hardcore:1.1}},

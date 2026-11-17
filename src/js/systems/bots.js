@@ -144,6 +144,18 @@ function botGacha(b,P,now=Date.now()){const C=BOT_CFG,total=Math.max(0,botCurve(
 function botBestTeam(ids){const top=ids.map(id=>[id,heroPow(id)]).sort((a,b)=>b[1]-a[1]).slice(0,7).map(x=>x[0]);const k=Math.min(4,top.length);let best=top.slice(0,k),bv=-1;
  const rec=(st,cur)=>{if(cur.length===k){const v=teamCP(cur).total;if(v>bv){bv=v;best=cur.slice()}return}for(let j=st;j<top.length;j++){cur.push(top[j]);rec(j+1,cur);cur.pop()}};rec(0,[]);return best}
 
+/* ---- Kebangkitan bot: anggaran bahan sejak (perkiraan) menembus 5-5, dibelanjakan berurutan ★4 → ★5 → ★6 ---- */
+function botAscend(b,P,opt,core,heroes,weapons,gear,lvF){const A=BOT_CFG.ASC;if(!A)return;
+ const pre=teamCP(core.slice(0,4)).total;if(pre<A.minCP)return;
+ // perkiraan hari sejak CP melewati minCP (CP kira-kira tumbuh sebanding hari main)
+ let B=P*(1-A.minCP/pre)*A.perDay*(A.tier[b.tier.id]||1)*(.55+.45*opt);if(B<=0)return;
+ const steps=[];for(const s of[4,5,6]){for(const id of core.slice(0,4))steps.push(['h',id,s]);for(const id of core.slice(0,4))if(heroes[id].wpn)steps.push(['w',heroes[id].wpn,s]);
+  for(const id of core.slice(0,4))for(const sl of['ar','ac'])if(heroes[id][sl])steps.push(['g',heroes[id][sl],s])}
+ for(const[k,key,s]of steps){const c=A.cost[k][s];if(B<c)break;B-=c;
+  if(k==='h'){heroes[key].asc=Math.max(HD[key].r,s);heroes[key].lv=Math.max(1,Math.round(maxLv(key)*(lvF[key]||.8)))}
+  else if(k==='w'){const o=weapons[key],cap0=wMaxLv(key),fr=Math.min(1,o.lv/cap0);o.asc=Math.max(WD[key].r,s);o.lv=Math.max(1,Math.round(wMaxLv(key)*fr))}
+  else{const o=gear[key];if(!o)continue;const cap0=gearMax(key),fr=cap0?Math.min(1,o.lv/cap0):0;o.asc=Math.max(GDD[key].r,s);o.lv=Math.round(gearMax(key)*fr)}}}
+
 /* ---- keadaan bot pada waktu now ---- */
 function botState(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now),lv=botLv(b.pf,P);
  const sp0=botSpend(b,now),key=Math.floor(P*48)+':'+lv+':'+C.ERAS.length+':'+sp0.gems.length+':'+(b.saver?Math.floor(now/36e5):0);const c=BOTS.cache[i];if(c&&c.key===key)return c;
@@ -155,13 +167,14 @@ function botState(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now
   const firstH=G.ev.find(e=>!e.w),lastLim=G.ev.filter(e=>!e.w&&e.lim).pop(),own=Object.keys(heroes);
   const fav=!b.loyal&&lastLim?lastLim.id:firstH?firstH.id:own[bHash(i,9)%own.length];
   const ids=own.sort((x,y)=>maxLvRaw(y)-maxLvRaw(x)||HD[y].r-HD[x].r||heroes[y].lb-heroes[x].lb||(x<y?-1:1));const core=ids.slice(0,4);if(!core.includes(fav))core.push(fav);
-  ids.forEach(id=>{const f=core.includes(id)?opt+r()*(1-opt):C.BENCH_LV[0]+r()*(C.BENCH_LV[1]-C.BENCH_LV[0])*(.6+.4*opt);heroes[id].lv=Math.max(1,Math.round(maxLv(id)*f))});
+  const lvF={};ids.forEach(id=>{const f=core.includes(id)?opt+r()*(1-opt):C.BENCH_LV[0]+r()*(C.BENCH_LV[1]-C.BENCH_LV[0])*(.6+.4*opt);lvF[id]=f;heroes[id].lv=Math.max(1,Math.round(maxLv(id)*f))});
   const wl=Math.round(botCurve(b.pf,3,P)*(.8+.2*opt)),wlb=Math.floor(botCurve(b.pf,4,P)*(opt>.8?1:.75)+.001),used=new Set();
   for(const id of ids){const cls=HD[id].wcls;const cand=Object.keys(weapons).filter(w=>WD[w].cls===cls&&!used.has(w)).sort((x,y)=>(WD[y].owner===id)-(WD[x].owner===id)||WD[y].r-WD[x].r||weapons[y].ref-weapons[x].ref);
    // pemain kurang optimal kadang lupa memasang senjata terbaik
    const w=cand.length>1&&r()>opt+.15?cand[1]:cand[0];if(!w)continue;used.add(w);heroes[id].wpn=w;const o=weapons[w],isC=core.includes(id);o.lb=Math.min(WPN_LB_MAX,isC?wlb:Math.floor(wlb/2));o.lv=Math.max(1,Math.min(wMaxLv(w),isC?wl:Math.round(wl*.6)))}
   if(P>=C.GEAR_FROM_DAY)for(const slot of['armor','acc'])for(const id of core){if(r()>opt+.2)continue;const rr=P<4?1:P<7?(r()<.6?2:1):(r()<.35?3:2);const pool=GEAR.filter(g=>g.slot===slot&&g.r===rr&&!F.gear[g.id]);if(!pool.length)continue;
    const g=pool[Math.floor(r()*pool.length)];F.gear[g.id]={lv:Math.min(GEAR_MAX_LV[g.r],Math.floor((P-C.GEAR_FROM_DAY)*1.5*(.4+.6*opt)*(.6+r()*.4))),ref:0};heroes[id][gKey(slot)]=g.id}
+  botAscend(b,P,opt,core,heroes,weapons,F.gear,lvF);
   let team=botBestTeam(ids);
   // tidak semua pemain memakai tim optimal: sebagian tetap membawa hero favoritnya
   if(fav&&!team.includes(fav)&&r()>opt){const weak=team.slice().sort((x,y)=>heroPow(x)-heroPow(y))[0];team=team.map(id=>id===weak?fav:id)}

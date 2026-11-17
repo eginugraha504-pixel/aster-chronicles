@@ -84,7 +84,8 @@ function arMakeB(atk,def,o={}){const C=ARENA_CFG;
  const mk=(side,list,P)=>list.slice().sort((x,y)=>ROLE[HD[y.id].role].melee-ROLE[HD[x.id].role].melee).forEach((x,i)=>{const h=HD[x.id];
   b.units.push(mkUnit(side,{id:x.id,i,ph:side==='enemy',name:h.name,el:h.el,role:h.role,skill:h.skill,sk:h.sk,mult:h.mult,spr:sprite(h.spr),hp:x.hp,maxHp:x.hp,atk:x.atk,def:x.def,crit:x.crit,sig:x.sig,
    x:P[i][0],y:P[i][1],ox:side==='enemy'?110+i*14:0,cdMax:1.25*ROLE[h.role].cd,charge:30}))});
- mk('hero',atk,HPOS);mk('enemy',def,EPOS);return b}
+ mk('hero',atk,HPOS);mk('enemy',def,EPOS);
+ const tp=L=>L.reduce((a,x)=>a+powerOf(x),0);b.sc=Math.max(1,Math.sqrt(tp(atk)*tp(def))/ARENA_SC_REF);return b}   // b.sc: skala pertarungan, tim ★6 tidak jadi adu-timer
 // jalankan pertarungan tanpa layar; hasil di b.result
 function arSim(b){const keep=B;B=b;try{let n=0;while(B.state!=='end'&&n<6000){tickBattle(1/30);n++}if(B.state!=='end')B.result=false;return b}finally{B=keep}}
 

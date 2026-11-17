@@ -32,7 +32,7 @@
 .wtabs{flex-wrap:wrap}
 .wtabs .dgtab{flex-basis:100%;display:flex;align-items:center;justify-content:center;gap:4px}
 .wtabs .dgtab img{width:16px;height:16px}
-.dgsel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.dgsel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px}
 .dgc{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 6px 9px;border-radius:16px;background:var(--parch);border:3px solid var(--ink);box-shadow:0 3px 0 rgba(74,42,23,.5)}
 .dgc b{font-size:15px}
 .dgc.on{background:linear-gradient(180deg,#fff2a0,#ffc93a);box-shadow:inset 0 2px 0 #fff,0 3px 0 var(--ink)}
@@ -65,3 +65,17 @@
 .elhint .elc img{width:15px;height:15px}
 .elhint>div>img{width:26px;height:26px;border-radius:50%;background:#efd9a8;border:2px solid var(--ink)}
 .elhint i{color:var(--mut)}.elhint .wk{margin-left:8px;color:#d24a3a}
+
+/* 4 dungeon: kartu pilih mendatar 2×2 */
+.dgsel .dgc{flex-direction:row;align-items:center;gap:7px;padding:7px 8px;text-align:left}
+.dgsel .dgc .dgi{width:42px;height:42px;flex:none}
+.dgsel .dgt{display:flex;flex-direction:column;gap:1px;min-width:0}
+.dgsel .dgc b{font-size:12.5px;line-height:1.1}
+.dgsel .dgc .mrw{justify-content:flex-start;gap:1px}
+.dgday{font-style:normal;font-size:10px;font-weight:800;color:#7a3ad0}
+.dgc.tower{background:linear-gradient(180deg,#f6eeff,#e2d0ff)}.dgc.tower.on{background:linear-gradient(180deg,#fff2a0,#ffc93a)}
+.tg2.day{margin-left:4px;background:linear-gradient(180deg,#c8a0ff,#7a3ad0);color:#fff}
+/* 8 dunia: tab ringkas W1–W8 (nama dunia ada di papan peta); Bab II (W6–W8) berwarna ungu */
+.wtabs .btn:not(.dgtab){font-size:12.5px;padding-left:0;padding-right:0;white-space:nowrap}
+.wtabs .btn:not(.dgtab) img{width:10px!important;height:10px!important;vertical-align:-1px}
+.wtabs .btn.b2.blue:not(.gray){color:#e0c8ff}

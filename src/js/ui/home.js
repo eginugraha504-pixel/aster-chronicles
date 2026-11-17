@@ -32,7 +32,7 @@ function homeHTML(){const ns=nextStage(),id=homeHero(),h=HD[id],mdot=missionClai
  <div class="rcol r"><button class="cpb" data-act="cpInfo"><span>${T('CP TIM')}</span><b class="ot">${fmt(teamPow())}</b></button>${rb('go',`<img class="ix" src="${ICON.team}">`,T('Tim'),'','team')}${rb('rank',`<img class="ix" src="${ICON.rank}">`,T('Peringkat'),'')}${rb('settings',`<img class="ix" src="${ICON.gear}">`,T('Menu'),'')}</div>
  ${homeList().length>1?`<button class="harr l" data-act="homeStep" data-arg="-1">‹</button><button class="harr r" data-act="homeStep" data-arg="1">›</button>`:''}
  ${splash(id)?`<div class="hstage hsp" data-act="lobbyTap"><div class="hcircle"></div>${splashHTML(id,'hspl')}</div>`:`<div class="hstage"><div class="hcircle"></div><canvas id="lobbyc" width="${LOBBY_PX}" height="${LOBBY_PX}" data-act="lobbyTap"></canvas></div>`}
- <div class="hspeech${HB.hide>Date.now()&&HB.id===id?' on':''}"><p id="bubble">${HB.hide>Date.now()&&HB.id===id?HB.txt:''}</p><span class="hname"><i>${stars(h.r)}</i>${h.name}</span></div>
+ <div class="hspeech${HB.hide>Date.now()&&HB.id===id?' on':''}"><p id="bubble">${HB.hide>Date.now()&&HB.id===id?HB.txt:''}</p><span class="hname"><i>${stars(S.heroes[id]?heroStar(id):h.r)}</i>${h.name}</span></div>
  <button class="hchat" id="hchat" data-act="chat">${typeof chatStripHTML==='function'?chatStripHTML():''}</button>
  <div class="hbtm">
   ${(()=>{const A=arCheck();return`<button class="hplate ar" data-act="arena"><span class="hpi"><img class="ix" src="${ICON.arena}"></span><b class="ot">${T('ARENA')}</b><small>${T('Tiket {a}/{b}',{a:A.tix,b:ARENA_CFG.tix})}</small>${A.tix>0||A.unseen?'<i class="dot"></i>':''}</button>`})()}
@@ -62,7 +62,7 @@ function homeStep(d){const L=homeList();if(L.length<2)return;S.homeHero=L[(L.ind
 function teamHTML(){const t=teamCP();
  const slot=i=>{const id=S.team[i];if(!id)return`<button class="tslot empty" data-act="slot" data-arg="${i}"><span class="ph">+</span><small>${T('Pilih hero')}</small></button>`;
   const h=HD[id],o=S.heroes[id],w=wpnOf(id);
-  return`<button class="tslot r${h.r}" data-act="slot" data-arg="${i}">${i===0?`<span class="crown">${T('LEADER')}</span>`:''}${eic(h.el,14)}<img class="px sp" src="${sprite(h.spr).url}">${w?`<img class="px tw" src="${weaponIcon(w.id).url}">`:''}<span class="tinfo"><b>${h.name}</b><small>Lv${o.lv} · ${ROLE[h.role].n}</small><em>CP ${fmt(heroPow(id))}</em></span></button>`};
+  return`<button class="tslot r${heroStar(id)}" data-act="slot" data-arg="${i}">${i===0?`<span class="crown">${T('LEADER')}</span>`:''}${eic(h.el,14)}<img class="px sp" src="${sprite(h.spr).url}">${w?`<img class="px tw" src="${weaponIcon(w.id).url}">`:''}<span class="tinfo"><b>${h.name}</b><small>Lv${o.lv} · ${ROLE[h.role].n}</small><em>CP ${fmt(heroPow(id))}</em></span></button>`};
  return`<h2 class="st">${T('Formasi Tim')} <span>${t.ids.length}/4 ${T('hero')}</span></h2>
  <button class="panel tcp" data-act="cpInfo"><span class="lbl">${T('CP TIM')}</span><b class="ot">${fmt(t.total)}</b><span class="tb">${t.parts.length?t.parts.map(([n,b])=>`<i>${n} +${Math.round(b*100)}%</i>`).join(''):`<i class="no">${T('Belum ada bonus tim')}</i>`}</span></button>
  <div class="row2"><span class="rowlbl">${T('Barisan Depan')}</span><span class="rowlbl">${T('Barisan Belakang')}</span></div>

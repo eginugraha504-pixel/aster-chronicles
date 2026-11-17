@@ -2,14 +2,20 @@
    STAT HERO, SENJATA & COMBAT POWER (CP)
    teamCP() dipakai juga untuk Arena PvP (pencocokan lawan & bonus stat tim)
    ===================================================================== */
-const maxLvRaw=id=>MAX_LV[HD[id].r]+S.heroes[id].lb*LB_LV;
+// bintang efektif (Kebangkitan, data/ascend.js): .asc milikmu, atau bintang dasar
+const heroStar=(id,o)=>((o||(S.heroes&&S.heroes[id])||{}).asc)||HD[id].r;
+const wStar=k=>((S.weapons&&S.weapons[k]&&S.weapons[k].asc)||WD[k].r);
+const gStar=k=>((S.gear&&S.gear[k]&&S.gear[k].asc)||GDD[k].r);
+const maxLvRaw=id=>ASC.heroCap[heroStar(id)]+S.heroes[id].lb*LB_LV;
 const maxLv=id=>Math.min(maxLvRaw(id),HERO_LV_BY_ACC(S.lv));
 const lvCost=lv=>Math.round(80*lv*(1+lv*.06));
 function wpnOf(id){const o=S.heroes[id];return o&&o.wpn&&WD[o.wpn]&&S.weapons[o.wpn]?WD[o.wpn]:null}
 // stat senjata dari level, Limit Break & penempaan senjata itu sendiri
-function wpnStats(wid){const w=WD[wid],o=S.weapons[wid]||newWpn(),ref=o.ref||0,lv=o.lv||1,lb=o.lb||0,k=(1+WPN_REFINE*ref)*(1+WPN_ATK_GROWTH*(lv-1))*(1+WPN_LB_BONUS*lb);
- return{atk:Math.round(w.atk*k),sub:w.sub[0],subv:Math.round(w.sub[1]*(1+WPN_REFINE*ref)*(1+WPN_SUB_LB*lb)*10)/10,ref,lv,lb}}
-function heroStats(id){const h=HD[id],o=S.heroes[id],m=RAR[h.r]*(1+LV_GROWTH*(o.lv-1))*(1+LB_GROWTH*o.lb),ro=ROLE[h.role];
+// pengali Kebangkitan: senjata ★1/★2 yang dinaikkan mengejar ATK standar bintang barunya, ≥★4 dikali ASC.wMul
+function wAscK(wid,st){const r=WD[wid].r;return(st>r?ASC.wAtkR[Math.min(3,st)]/ASC.wAtkR[r]:1)*ASC.wMul[st]}
+function wpnStats(wid){const w=WD[wid],o=S.weapons[wid]||newWpn(),ref=o.ref||0,lv=o.lv||1,lb=o.lb||0,st=o.asc||w.r,k=(1+WPN_REFINE*ref)*(1+WPN_ATK_GROWTH*(lv-1))*(1+WPN_LB_BONUS*lb)*wAscK(wid,st);
+ return{atk:Math.round(w.atk*k),sub:w.sub[0],subv:Math.round(w.sub[1]*(1+WPN_REFINE*ref)*(1+WPN_SUB_LB*lb)*(1+ASC.critStar*Math.max(0,st-3))*10)/10,ref,lv,lb,st}}
+function heroStats(id){const h=HD[id],o=S.heroes[id],m=ASC.heroRar[heroStar(id,o)]*(1+LV_GROWTH*(o.lv-1))*(1+LB_GROWTH*o.lb),ro=ROLE[h.role];
  let hp=Math.round(BASE_STAT.hp*m*ro.hp),atk=Math.round(BASE_STAT.atk*m*ro.atk),def=Math.round(BASE_STAT.def*m*ro.def),crit=BASE_CRIT;
  const w=wpnOf(id);
  if(w){const ws=wpnStats(S.heroes[id].wpn);atk+=ws.atk;if(ws.sub==='crit')crit+=ws.subv;if(ws.sub==='hp')hp=Math.round(hp*(1+ws.subv/100));if(ws.sub==='def')def=Math.round(def*(1+ws.subv/100))}
