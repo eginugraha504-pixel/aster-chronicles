@@ -53,10 +53,9 @@ function botEarlyMood(seed,chaser){const N=BOT_CFG.EMO.early,rng=bRng(seed);let 
  const e=N*RATES[3]/100*1.05,z=(n3-e)/Math.sqrt(e);return z>1?'hoki':z<-1?'sial':'normal'}
 /* nama saat waktu t (bisa sudah ganti nama) */
 BOTS.renames=[];
-function botName(i,t=Date.now()){const b=botBase(i),n=BOTS.names[i];if(!b.rn||t<b.rn.t||b.rn.k>=BOTS.renames.length)return n;
- let m=BOTS.renames[b.rn.k];if(!BOTS.nameSet||BOTS.nameSet.n!==BOTS.names.length){BOTS.nameSet=new Set(BOTS.names.map(s=>s.toLowerCase()));BOTS.nameSet.n=BOTS.names.length}
- if(BOTS.nameSet.has(m.toLowerCase())||(typeof S!=='undefined'&&S&&S.name&&S.name.toLowerCase()===m.toLowerCase()))m=(m+(10+i%89)).slice(0,14);return m}
-const botOldName=(i,t=Date.now())=>{const n=botName(i,t);return n!==BOTS.names[i]?BOTS.names[i]:null};
+// nama = username akun bot di server (admin bisa menggantinya lewat Telegram). Ganti-nama otomatis dimatikan sejak akun bot disimpan di server.
+function botName(i,t=Date.now()){return BOTS.names[i]||botLocalName(i)}
+const botOldName=()=>null;
 
 /* ================= TOP UP BOT =================
    Pembelian ditentukan per hari (seed per bot+hari) -> semua penonton melihat pembelian yang sama.
@@ -187,6 +186,7 @@ function botState(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now
     paid:G.paid,held:G.held,pity:G.pity,spent:G.spend.total,vip:G.spend.vip,card:G.spend.card,buys:G.spend.buys.length}};
  }finally{S=keep}
  let st=null;for(const s of SLIST){if(s.rec<=out.cp*1.08)st=s;else break}out.stage=st?st.key:'1-1';
+ const ov=typeof botOv==='function'&&botOv(i);if(ov){if(ov.lv!=null)out.lv=ov.lv;if(ov.cp!=null)out.cp=ov.cp;if(ov.vip!=null)out.stats.vip=ov.vip}
  return BOTS.cache[i]=out}
 
 /* ---- online / terakhir aktif: sesi harian mengikuti jam ramai WIB ---- */
@@ -205,7 +205,8 @@ function botPresence(i,now=Date.now()){const b=botBase(i);if(now<b.join)return{o
 function botSnap(b,t){for(let d=wibDay(t);d<=wibDay(t)+3;d++){for(const[s0,s1]of botSessions(b,d))if(s1>=t)return Math.max(s0,Math.min(t,s1))}return t}
 
 /* ---- daftar semua bot yang tampil (+ pemain sendiri) ---- */
-function botsList(now=Date.now()){const n=botsVisible(now),L=[];for(let i=0;i<n;i++){const s=botState(i,now),p=botPresence(i,now);L.push({i,name:botName(i,now),vip:s.stats.vip,lv:s.lv,cp:s.cp,top:s.fav||s.team[0],online:p.online,last:p.last,isNew:now-botBase(i).join<BDAY,back:botBase(i).back&&now>=botBase(i).segs[2][0]})}
+function botsList(now=Date.now()){const n=botsVisible(now),L=[];for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const s=botState(i,now),p=botPresence(i,now);L.push({i,name:botName(i,now),vip:s.stats.vip,lv:s.lv,cp:s.cp,top:s.fav||s.team[0],online:p.online,last:p.last,isNew:now-botBase(i).join<BDAY,back:botBase(i).back&&now>=botBase(i).segs[2][0]})}
+ if(typeof NET!=='undefined')for(const p of NET.players){if(NET.acct&&p.uid===NET.acct.uid)continue;L.push({i:'h'+p.uid,h:p.uid,name:p.u,vip:p.vip||0,lv:p.lv,cp:p.cp,top:p.top,online:p.on,last:p.last})}
  L.push({me:true,name:S.name,vip:vipOf(S.iap&&S.iap.spent||0),lv:S.lv,cp:teamPow(),top:S.team.find(Boolean),online:true,last:now});return L}
 
 /* ---- hitung state semua bot sedikit demi sedikit (±10 ms per potong) supaya layar tidak membeku saat bot ribuan ---- */
@@ -224,8 +225,7 @@ function botsApplyWorld(w){if(!w||!w.epoch)return;if(w.epoch===BOT_CFG.epoch&&(w
  try{localStorage.setItem(BW_KEY,JSON.stringify({epoch:w.epoch,gen:BOTS.gen}));localStorage.removeItem('aster_ranksnap')}catch(e){}
  if(typeof S!=='undefined'&&S&&S.rankDay&&(S.rankDay.gen||0)!==BOTS.gen){S.rankDay={gen:BOTS.gen}}
  if(typeof rankReset==='function')rankReset();BOTS.onChange&&BOTS.onChange();botsEnsure()}
-async function botsResetWorld(){const w={epoch:Date.now(),gen:(BOTS.gen||0)+1};botsApplyWorld(w);
- if(BOTS.db&&BOTS.dbWrite){try{await BOTS.db.doc('bots/world').set(w)}catch(e){}}}
+// reset dunia bot HANYA lewat Telegram (/resetbot). Game menerima {epoch, gen} baru dari server (systems/net.js).
 
 /* ================= NAMA (integrasi Claude) ================= */
 function botLocalName(i){const r=bRng(bHash(i,9)),Y=BOT_CFG.SYL;let n='';const k=2+Math.floor(r()*2);for(let j=0;j<k;j++)n+=Y[Math.floor(r()*Y.length)];n=n[0].toUpperCase()+n.slice(1);if(r()<.45)n+=Math.floor(r()*(r()<.5?100:2000));return n.slice(0,14)}
@@ -236,25 +236,19 @@ function botsSetNames(list){const seen=new Set(),out=[];for(const s of list){con
  if(out.length>=BOTS.names.length){BOTS.names=out;botsSaveLocal();BOTS.onChange&&BOTS.onChange()}}
 // nama disimpan di db per potongan 2000 nama: bots/names, bots/names_1, bots/names_2, ... (dokumen tetap kecil walau bot 10.000)
 const NAME_SHARD=2000,shardDoc=k=>k?'bots/names_'+k:'bots/names';
-async function botsPersist(){botsSaveLocal();if(!BOTS.db||!BOTS.dbWrite)return;BOTS.saved=BOTS.saved||[];
+async function botsPersist(){botsSaveLocal();return;BOTS.saved=BOTS.saved||[];
  for(let k=0;k*NAME_SHARD<BOTS.names.length;k++){const part=BOTS.names.slice(k*NAME_SHARD,(k+1)*NAME_SHARD);if(BOTS.saved[k]===part.length)continue;
   try{await BOTS.db.doc(shardDoc(k)).set({list:part,updated:Date.now()});BOTS.saved[k]=part.length}catch(e){if(e&&e.code==='invalid_argument')BOTS.dbWrite=false;return}}}
 async function botsInit(){if(BOTS.init)return;BOTS.init=true;
  try{botsApplyWorld(JSON.parse(localStorage.getItem(BW_KEY)||'null'))}catch(e){}
- try{const ls=JSON.parse(localStorage.getItem('aster_botnames')||'null');if(ls&&Array.isArray(ls.list))botsSetNames(ls.list)}catch(e){}
- const cl=window.claude;if(!cl||typeof cl.use!=='function'){BOTS.ready=true;botsEnsure();return}
- let db=null;try{db=await cl.use('db')}catch(e){}BOTS.db=db;
- if(!db){BOTS.ready=true;botsEnsure();return}
- const to=setTimeout(()=>{if(!BOTS.ready){BOTS.ready=true;botsEnsure()}},10000);
- db.doc('bots/world').onSnapshot(s=>{const d=s.exists?s.data():null;if(d&&d.epoch&&((d.gen||0)>BOTS.gen||((d.gen||0)===BOTS.gen&&d.epoch!==BOT_CFG.epoch)))botsApplyWorld(d)},()=>{});
- BOTS.parts=[];const merge=()=>{const all=[];for(let k=0;k<BOTS.parts.length;k++){const p=BOTS.parts[k];if(!p)break;all.push(...p);if(p.length<NAME_SHARD)break}return all};
- for(let k=1;k*NAME_SHARD<BOT_CFG.max;k++)db.doc(shardDoc(k)).onSnapshot(s=>{const d=s.exists?s.data():null;if(d&&Array.isArray(d.list)&&d.list.length){BOTS.parts[k]=d.list;(BOTS.saved=BOTS.saved||[])[k]=d.list.length;const all=merge();if(all.length>BOTS.names.length)botsSetNames(all)}},()=>{});
- db.doc('bots/names').onSnapshot(s=>{const d=s.exists?s.data():null,L0=d&&Array.isArray(d.list)?d.list:[];if(L0.length){BOTS.parts[0]=L0;(BOTS.saved=BOTS.saved||[])[0]=L0.length}const L=merge();
-   if(L.length)botsSetNames(L);if(!s.metadata.fromCache){clearTimeout(to);const first=!BOTS.ready;BOTS.ready=true;if(first&&!L.length&&BOTS.names.length)botsPersist();botsEnsure()}},
-  ()=>{clearTimeout(to);BOTS.ready=true;botsEnsure()})}
+ if(typeof netStart==='function')netStart();
+ // server belum menjawab dalam 8 dtk -> pakai generator nama lokal (algoritmanya sama persis dengan server)
+ setTimeout(()=>{if(!BOTS.ready){BOTS.ready=true;botsEnsure()}},8000)}
 // pastikan nama cukup untuk bot yang sudah bergabung (+ cadangan)
-async function botsEnsure(){if(!BOTS.ready||BOTS.busy)return;const need=Math.min(BOT_CFG.max,botsJoined()+10);if(BOTS.names.length>=need)return;BOTS.busy=true;
- try{let got=[],allowLocal=true;const cl=window.claude;
+async function botsEnsure(){if(!BOTS.ready||BOTS.busy)return;const need=Math.min(BOT_CFG.max,botsJoined()+10);if(BOTS.names.length>=need)return;
+ if(typeof NET!=='undefined'&&NET.worldOk){if(Date.now()-NET.worldAt>3e4)netWorld();return}  // akun bot dibuat server
+ BOTS.busy=true;
+ try{let got=[],allowLocal=true;const cl=null;
   if(cl&&typeof cl.use==='function'){let sample=null;try{sample=await cl.use('sample')}catch(e){}
    if(sample&&!BOTS.noClaude){allowLocal=false;if(Date.now()-BOTS.failAt<60e3)return;const n=Math.min(150,Math.max(BOT_CFG.NAME_BATCH,need-BOTS.names.length+20));
     try{let arr=null;const p=BOT_CFG.NAME_PROMPT(n);
@@ -279,7 +273,7 @@ function botsSetBios(L){const seen=new Set(),out=[];for(const o of L){const c=bo
 async function botsBiosInit(){if(BOTS.bioInit)return;BOTS.bioInit=true;try{const ls=JSON.parse(localStorage.getItem('aster_botbios')||'null');if(ls&&Array.isArray(ls.list))botsSetBios(ls.list)}catch(e){}
  if(BOTS.db)BOTS.db.doc('bots/bios').onSnapshot(s=>{const d=s.exists?s.data():null;if(d&&Array.isArray(d.list))botsSetBios(d.list)},()=>{})}
 async function botsEnsureBios(){botsBiosInit();const C=BOT_CFG;if(BOTS.bioBusy||BOTS.bios.length>=Math.min(C.BIO_MAX,Math.max(C.BIO_BATCH,botsVisible()*.5)))return;
- const cl=window.claude;if(!cl||typeof cl.use!=='function'||Date.now()-BOTS.bioFail<60e3)return;BOTS.bioBusy=true;
+ const cl=null;if(!cl)return;BOTS.bioBusy=true;
  try{const sample=await cl.use('sample');if(!sample)return;let arr=null;const p=C.BIO_PROMPT(C.BIO_BATCH);
   if(typeof sample.json==='function'){try{arr=await sample.json(p,{modelTier:'quick'})}catch(e){if(e&&(e.code==='not_granted'||e.code==='rate_limited'))throw e}}
   if(arr&&!Array.isArray(arr))arr=Object.values(arr).find(Array.isArray)||null;
@@ -300,7 +294,7 @@ function botBio(i,s,rank,now=Date.now()){const C=BOT_CFG,b=botBase(i),per=Math.m
    Kolam nama terpisah 'bots/renames' (dibuat Claude, sama aturannya dengan nama bot). Bot ke-i memakai renames[rn.k]. */
 const RN_KEY='aster_botrenames';
 function botsSetRenames(L){const seen=new Set(),out=[];for(const x of L){const c=botCleanName(x);if(c&&!seen.has(c.toLowerCase())){seen.add(c.toLowerCase());out.push(c)}}if(out.length>BOTS.renames.length){BOTS.renames=out;try{localStorage.setItem(RN_KEY,JSON.stringify(out))}catch(e){}}}
-async function botsEnsureRenames(){if(!BOTS.rnInit){BOTS.rnInit=1;try{botsSetRenames(JSON.parse(localStorage.getItem(RN_KEY)||'[]'))}catch(e){}
+async function botsEnsureRenames(){return;if(!BOTS.rnInit){BOTS.rnInit=1;try{botsSetRenames(JSON.parse(localStorage.getItem(RN_KEY)||'[]'))}catch(e){}
   if(BOTS.db)BOTS.db.doc('bots/renames').onSnapshot(s=>{const d=s.exists?s.data():null;if(d&&Array.isArray(d.list))botsSetRenames(d.list)},()=>{})}
  const now=Date.now(),n=botsVisible(now);let need=0;for(let i=0;i<n;i++){const b=botBase(i);if(b.rn&&b.rn.t<=now+BDAY)need=Math.max(need,b.rn.k+1)}
  if(BOTS.renames.length>=need||BOTS.rnBusy||Date.now()-(BOTS.rnFail||0)<60e3)return;BOTS.rnBusy=true;

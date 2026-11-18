@@ -269,3 +269,16 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 
 ## Efek suara
 `sfx(kunci, opsi)` (js/systems/sound.js) → `sfxKey` memilih sampel (krit/elemen/kelangkaan) → `sfxPlay` memutar AudioBuffer dari `SFX_SRC` (di-decode saat gestur pertama, `audUnlock`). Jeda anti-tumpuk `SFX_GAP`, volume `SFX_VOL`, variasi pitch ±4% untuk pukulan/klik. Fallback: sintesis `SFX_LIB`.
+
+## Akun, teman, pesan 1:1, obrolan dunia (18 Nov 2026)
+Server: `bank-worker/src/game.js` (Cloudflare Worker `aster-bank` + D1, tabel di `migrations/0004_game.sql`). Game: `js/systems/net.js`, `js/ui/social.js`, `js/ui/chat.js`, kartu Masuk/Daftar di `js/ui/boot.js`.
+- **Akun**: username (3–12 huruf/angka, sekaligus nama Kapten) + password (hash PBKDF2-SHA256 + salt). Sesi = token di localStorage `aster_acct` (tidak ikut data simpanan). Mode **Tamu** tetap ada (simpan lokal saja); tamu bisa "Daftarkan Akun" dari Menu dan progresnya ikut.
+- **Reset**: data simpanan lama (tanpa `se:2`) otomatis mulai dari 0 saat dibuka (`SAVE_SE` di state.js).
+- **Simpanan cloud**: `save()` menandai kotor → diunggah ±12 dtk (+ saat aplikasi disembunyikan). Server memegang versi `sv`; bila versi server lebih baru (diubah admin / perangkat lain) game memakai data server (ditunda selama battle/cerita).
+- **Bot = akun sungguhan**: tiap bot punya baris di `players` (UID 8 angka, username, password acak — hanya hash, tidak bisa login). Nama dibuat server dengan generator yang sama persis dengan game (`tools/gen_botcfg.mjs` → `bank-worker/src/botcfg.js`). Progres bot tetap simulasi deterministik di game (sama untuk semua pemain). Ubahan admin (`ov`: lv/cp/vip, sembunyikan) diterapkan di atasnya. Game mengirim potret 100 bot teratas + bot teman tiap 15 menit untuk dilihat admin.
+- **Reset bot hanya lewat Telegram** (`/resetbot`); opsi di Pengaturan dihapus. Game melihat generasi baru lewat ping dan memuat dunia baru.
+- **Teman**: maks 100. Bot menjawab permintaanmu saat ia online (±62% terima, lebih mudah bila CP-mu mendekati CP-nya) dan 0–2 bot per hari bisa mengajakmu berteman lebih dulu (dihitung deterministik di game, dicatat di server).
+- **Pesan 1:1**: sesama teman, ✓ terkirim / ✓✓ dibaca, cek tiap 3 dtk saat terbuka. Bot tidak membalas.
+- **Obrolan Dunia**: hanya pemain asli (obrolan bot & Mode AI dimatikan). Tamu bisa membaca, menulis butuh akun.
+- **Peringkat**: bot + pemain asli (aktif 45 hari terakhir) + kamu. Ketuk nama → profil (Tambah Teman / Kirim Pesan).
+- **Admin Telegram** (pemilik bot Bank Central Universe): `/akun <UID|username>` (kartu + tombol ubah Permata/Emas/Level/Stamina/Tiket/Username/Password, blokir, data JSON, daftar teman), ketik UID/username langsung, `/cari`, `/pemain`, `/set <UID|username> <kolom> <nilai>` (kolom apa saja di data simpanan, mis. `heroes.nami.lv`; nilai `hapus` = hapus kolom), `/data`, `/resetbot`, tombol 🎮 Akun Game.

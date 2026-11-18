@@ -1376,6 +1376,56 @@ i.on{display:inline-block;width:9px;height:9px;border-radius:50%;background:#3ad
 .chin input{flex:1;min-width:0;font-size:16px;padding:8px 12px;border-radius:12px;border:2px solid #7a4a28;background:#fffaf0;color:#3a2412;outline:none}
 .chin .btn{padding:0 14px}
 
+/* ==== css/social.css ==== */
+/* ================= SOSIAL: teman, pesan 1:1, profil, kartu masuk/daftar ================= */
+.socbox{display:flex;flex-direction:column;max-height:86vh}
+.frme{margin:-2px 0 8px;font-size:12px;text-align:center;color:var(--mut)}
+.frme b{color:var(--ink,#3a2414);letter-spacing:.5px}
+.frcopy{margin-left:6px;padding:2px 8px;border-radius:8px;border:1.5px solid #b98a4a;background:#fff6dc;font:800 11px var(--fb);color:#6b3a10;cursor:pointer}
+.frtabs{flex-wrap:wrap}.frtabs .btn{position:relative;font-size:12px;padding-left:8px;padding-right:8px}
+.frtabs .dot.n{position:absolute;top:-6px;right:-4px}
+#socBody{overflow-y:auto;min-height:120px;flex:1}
+.frlist{display:flex;flex-direction:column;gap:6px}
+.frrow{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:12px;background:#fff8e6;border:2px solid rgba(74,42,23,.22);text-align:left;font:inherit;color:inherit;width:100%;box-sizing:border-box}
+button.frrow{cursor:pointer}
+.frmain{display:flex;align-items:center;gap:8px;flex:1;min-width:0;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.frrow .rknm{flex:1;min-width:0;display:flex;flex-direction:column}
+.frrow .rknm b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frrow .rknm small{font-size:11px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frrow .rknm em.ok{font-style:normal;color:#2f8a3a;font-weight:800}
+.frbt{display:flex;gap:4px;flex:none}
+.btn.sm{min-width:38px;padding:6px 9px;font-size:13px}
+.frempty{text-align:center;padding:26px 10px}
+.frfind{display:flex;gap:6px;margin-bottom:10px}.frfind input{flex:1;min-width:0;padding:9px 10px;border-radius:10px;border:2px solid #b98a4a;background:#fffaf0;font:800 14px var(--fb);color:#3a2414;outline:none}
+.dmth .dmt{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none}.dmth .dmt small{font-size:10px;color:var(--mut)}
+.dmth .dot.n{position:static}
+/* percakapan */
+.dmbox h3.dmh{padding:0}.dmh button{display:flex;align-items:center;gap:8px;margin:0 auto;padding:0;border:0;background:none;font:inherit;color:inherit;cursor:pointer}
+.dmh button span{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15}.dmh small{font-size:11px;font-family:var(--fb);color:var(--mut);-webkit-text-stroke:0}
+.dmlist{flex:1;min-height:200px;max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:8px 4px;margin-bottom:8px;border-radius:12px;background:rgba(74,42,23,.06)}
+.dmm{max-width:78%;align-self:flex-start;padding:7px 10px 4px;border-radius:14px 14px 14px 4px;background:#fff;border:1.5px solid rgba(74,42,23,.18);box-shadow:0 1px 0 rgba(0,0,0,.06)}
+.dmm.me{align-self:flex-end;border-radius:14px 14px 4px 14px;background:#ffe9a8;border-color:#e0b04a}
+.dmm p{margin:0;font-size:13.5px;line-height:1.4;white-space:pre-wrap;word-break:break-word}
+.dmm small{display:block;margin-top:2px;font-size:9.5px;color:var(--mut);text-align:right}
+.dmday{align-self:center;padding:2px 10px;border-radius:10px;background:rgba(74,42,23,.12);font-size:10.5px;font-weight:800;color:var(--mut)}
+.dmnote{text-align:center;margin:4px 0 0;font-size:11px}
+.pfact{margin-top:10px}
+.chguest{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:8px;font-size:12.5px;text-align:center}
+/* kartu masuk / daftar */
+.lgcard.au label{margin-top:0}
+.autab{display:flex;gap:0;margin:0 0 12px;border-radius:12px;overflow:hidden;border:2px solid #b98a4a}
+.autab button{flex:1;padding:8px 0;border:0;background:#fff6dc;font:900 14px var(--fh,var(--fb));color:#8a6a40;cursor:pointer}
+.autab button.on{background:linear-gradient(180deg,#ffd36a,#e39a2c);color:#3a1d06}
+.aupw{position:relative}.aupw input{padding-right:42px!important}
+.aupw button{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:0;background:none;font-size:16px;cursor:pointer;opacity:.6}
+.auguest{display:block;margin:12px auto 0;padding:4px 8px;border:0;background:none;font:800 12.5px var(--fb);color:#8a5a20;text-decoration:underline;cursor:pointer}
+.aubox .lgcard{width:100%;margin:0 auto;animation:none}
+.lgwel em{margin-left:4px;padding:1px 6px;border-radius:8px;background:rgba(255,255,255,.15);font-style:normal;font-size:10px;font-weight:900;color:#cfc4ff}
+.aubox .lgcard{border:0!important;border-image:none!important;box-shadow:none!important;padding:0!important;background:none!important}.aubox .lgcard h3{margin-top:0}
+#lgPanel.card:has(.au){padding-top:calc(19vh + env(safe-area-inset-top))}
+.dmbox .dmlist{height:50vh;flex:none}
+.frrow .rknm small em.ok,.dmh small em.ok{background:none!important;padding:0!important;border:0!important;color:#2f8a3a!important;font-style:normal;font-weight:800}
+
 /* ==== css/smelt.css ==== */
 /* =====================================================================
    TUNGKU PELEBURAN & PASANG TERBAIK (ui/smelt.js)
@@ -3813,6 +3863,10 @@ I18D.en.weapons.rodagigi={name:'Gearwork Greatsword',sigTxt:'Skill +30% damage. 
 Object.assign(I18N.en,{"Batas isi ulang stamina hari ini habis ({n}/{m}). Kembali besok!": "Today's stamina refill limit reached ({n}/{m}). Come back tomorrow!", "Isi ulang hari ini: {n}/{m}": "Refills today: {n}/{m}", "berikutnya {c}": "next {c}", "Batas isi ulang hari ini habis.": "Today's refill limit is used up.", "Tiket masih ada. Reset hanya bisa saat tiket habis.": "You still have tickets. You can only reset when they run out.", "Tiket {d} habis dan batas reset hari ini sudah tercapai. Kembali besok!": "{d} tickets are used up and today's reset limit is reached. Come back tomorrow!", "Tiket {d} habis. Isi ulang {a} dengan {b}?": "{d} tickets are used up. Refill {a} for {b}?", "Reset hari ini: {n}/{m}": "Resets today: {n}/{m}", "Tiket {d} terisi!": "{d} tickets refilled!", "Arsip Cerita": "Story Archive", "Tiket {n}/{m}": "Tickets {n}/{m}", "Tiap jenis dungeon punya {n} tiket per hari (tidak memakai stamina). Tiket hanya terpakai saat menang. Bintang 3 memberi peluang bonus drop.": "Each dungeon type has {n} tickets per day (no stamina needed). Tickets are only used when you win. 3 stars give a chance of bonus drops.", "Batas reset hari ini habis. Kembali besok!": "Today's reset limit is used up. Come back tomorrow!", "Sisa tiket: {n}": "Tickets left: {n}", "Tiket habis!": "Out of tickets!", "Terbuka di Lv {n} akun": "Unlocks at account Lv {n}", "FITUR BARU TERBUKA!": "NEW FEATURE UNLOCKED!", "Nanti": "Later", "Lihat Sekarang": "Check It Out", "LEWATI": "SKIP", "Kapten": "Captain", "Lewati cerita ini? Kamu bisa menontonnya lagi kapan saja dari Arsip Cerita.": "Skip this story? You can rewatch it anytime from the Story Archive.", "Lewati": "Skip", "Prolog": "Prologue", "Sebelum": "Before", "Setelah": "After", "Tutorial selesai! Selamat bertualang, Kapten!": "Tutorial complete! Enjoy your adventure, Captain!", "Ketuk di sini untuk menutup jendela ini dulu.": "Tap here to close this window first.", "Lewati Tutorial": "Skip Tutorial", "Lanjutkan petualangan untuk membuka cerita ini.": "Continue your adventure to unlock this story.", "Pembaruan Besar!": "Big Update!", "Cerita Utama <b>BAB I</b> & <b>BAB II</b> kini hadir, lengkap dengan suara! Adegan baru diputar otomatis saat kamu mencapai tahapnya, dan semuanya bisa ditonton ulang di <b>Petualangan › Arsip Cerita</b>.": "Main Story <b>CHAPTER I</b> & <b>CHAPTER II</b> are here, fully voiced! New scenes play automatically when you reach their stages, and you can rewatch everything in <b>Adventure › Story Archive</b>.", "Dungeon kini memakai <b>tiket</b>: 5 per jenis per hari (tanpa stamina), bisa direset maks 5x dengan permata.": "Dungeons now use <b>tickets</b>: 5 per type per day (no stamina), resettable up to 5 times with gems.", "Isi ulang stamina dengan permata maks <b>5x per hari</b>, harga naik tiap kali.": "Stamina refills with gems are limited to <b>5 per day</b>, and the price rises each time.", "Fitur kini terbuka bertahap sesuai level & kemajuan cerita.": "Features now unlock step by step with your level and story progress.", "Tonton Prolog": "Watch Prologue"});
 Object.assign(I18N.en,{'Menu Login':'Title Screen','Kembali ke menu login? Progres sudah tersimpan otomatis.':'Return to the title screen? Your progress is saved automatically.','Kembali ke menu utama...':'Returning to the title screen...'});
 
+// akun, teman, pesan 1:1, obrolan dunia (18 Nov 2026)
+Object.assign(I18N.en,{"Ada permintaan pertemanan baru": "New friend request", "Akun Diblokir": "Account Banned", "Akun Server": "Server Account", "Akun ini diblokir oleh admin.": "This account was banned by the admin.", "Akun ini tidak bisa dipakai masuk.": "This account can't be used to sign in.", "Akun {n} berhasil dibuat!": "Account {n} created!", "Akun {n} terdaftar! Progresmu kini tersimpan di server.": "Account {n} registered! Your progress is now saved on the server.", "Belum ada pesan. Kirim pesan ke teman dari tab Teman.": "No messages yet. Message a friend from the Friends tab.", "Belum punya teman. Cari pemain lewat tab Cari atau dari Peringkat.": "No friends yet. Find players in the Search tab or from the Leaderboard.", "Buat Akun": "Create Account", "Butuh Akun": "Account Required", "Cari": "Search", "Daftar": "Sign Up", "Daftar & Mulai": "Sign Up & Play", "Daftar teman sudah penuh (100).": "Your friend list is full (100).", "Daftarkan Akun": "Register Account", "Data akunmu diperbarui dari server": "Your account data was updated from the server", "Diminta": "Requested", "Fitur teman, pesan, dan obrolan butuh akun. Daftarkan akun — progres tamu kamu ikut tersimpan.": "Friends, messages and chat need an account. Register one — your guest progress comes with you.", "Hapus Teman": "Remove Friend", "Hapus {n} dari daftar teman?": "Remove {n} from your friends?", "Hari ini": "Today", "Isi username dan password.": "Enter a username and password.", "Kalian belum berteman.": "You're not friends yet.", "Kalian harus berteman untuk saling mengirim pesan.": "You need to be friends to message each other.", "Kalian sekarang berteman!": "You're now friends!", "Kamu bermain sebagai Tamu. Progres hanya tersimpan di browser ini. Daftarkan akun supaya bisa berteman, mengobrol, dan memuat progres di perangkat lain.": "You're playing as a Guest. Progress is only saved in this browser. Register an account to make friends, chat, and load your progress on other devices.", "Keluar": "Sign Out", "Keluar Akun": "Sign Out", "Keluar dari akun {n}? Progres sudah tersimpan di server dan bisa dimuat lagi dengan masuk.": "Sign out of {n}? Your progress is saved on the server and loads again when you sign in.", "Kirim Pesan": "Send Message", "Main sebagai Tamu": "Play as Guest", "Masuk Akun": "Sign In", "Masuk dengan akun untuk ikut mengobrol.": "Sign in with an account to join the chat.", "Masuk sebagai": "Signed in as", "Masuk untuk memuat progres akunmu di perangkat mana pun.": "Sign in to load your account progress on any device.", "Memuat pesan...": "Loading messages...", "Memuat profil...": "Loading profile...", "Mencari...": "Searching...", "Menghubungkan...": "Connecting...", "Menunggu jawaban": "Awaiting reply", "Mulai percakapan!": "Start the conversation!", "Password": "Password", "Password minimal 6 karakter.": "Password must be at least 6 characters.", "Password tidak sama.": "Passwords don't match.", "Pemain ini jarang membalas pesan.": "This player rarely replies to messages.", "Pemain tidak ditemukan.": "Player not found.", "Permintaan": "Requests", "Permintaan ditolak": "Request declined", "Permintaan masuk": "Incoming requests", "Permintaan pertemanan dikirim": "Friend request sent", "Permintaan terkirim": "Request sent", "Pesan": "Messages", "Pesan baru masuk": "New message", "Poin Arena": "Arena Points", "Progres tamu kamu saat ini akan disimpan ke akun baru.": "Your current guest progress will be saved to the new account.", "Progres tersimpan di server. Masuk dengan username & password yang sama di perangkat lain untuk melanjutkan.": "Progress is saved on the server. Sign in with the same username & password on another device to continue.", "Progres tersimpan otomatis di server.": "Progress is saved to the server automatically.", "Selamat datang kembali, {n}!": "Welcome back, {n}!", "Server sedang bermasalah. Coba lagi.": "The server has a problem. Try again.", "Sesi berakhir. Silakan masuk lagi.": "Session ended. Please sign in again.", "Tambah Teman": "Add Friend", "Teman": "Friends", "Terima": "Accept", "Terima Pertemanan": "Accept Friend", "Terlalu banyak percobaan. Coba lagi 10 menit lagi.": "Too many attempts. Try again in 10 minutes.", "Tidak ada permintaan pertemanan.": "No friend requests.", "Tidak bisa terhubung ke server. Periksa internet.": "Can't reach the server. Check your internet.", "Tolak": "Decline", "Tulis pesan...": "Write a message...", "UID disalin": "UID copied", "UID kamu": "Your UID", "Ulangi Password": "Repeat Password", "Username": "Username", "Username atau UID": "Username or UID", "Username atau password salah.": "Wrong username or password.", "Username harus 3–12 huruf atau angka, tanpa spasi.": "Username must be 3–12 letters or numbers, no spaces.", "Username juga menjadi nama Kapten-mu. Simpan password baik-baik — tidak bisa dipulihkan lewat email.": "Your username is also your Captain name. Keep your password safe — it can't be recovered by email.", "Username sudah dipakai.": "That username is taken.", "minimal 6 karakter": "at least 6 characters", "pemain online": "players online", "{n} ingin berteman denganmu": "{n} wants to be your friend", "{n} menerima permintaan pertemananmu!": "{n} accepted your friend request!", "Pelan-pelan, tunggu sebentar.": "Slow down, wait a moment.", "Menghubungkan akun...": "Connecting account...", "Akun": "Account"});
+Object.assign(I18N.en,{'Masuk':'Enter'});
+
 /* ==== js/lang/ja.js ==== */
 /* =====================================================================
    日本語 — UI文字列（キー＝インドネシア語の原文）＋データ上書き
@@ -4046,6 +4100,10 @@ I18D.ja.heroes.coppelia={name:'コッペリア',title:'機械仕掛けの人形�
 I18D.ja.weapons.rodagigi={name:'歯車の大剣',sigTxt:'スキルダメージ+30%。刃の歯車が全開で回転し、二度斬りつける。'};
 Object.assign(I18N.ja,{"Batas isi ulang stamina hari ini habis ({n}/{m}). Kembali besok!": "本日のスタミナ回復上限に達しました（{n}/{m}）。また明日！", "Isi ulang hari ini: {n}/{m}": "本日の回復回数：{n}/{m}", "berikutnya {c}": "次回 {c}", "Batas isi ulang hari ini habis.": "本日の回復上限に達しました。", "Tiket masih ada. Reset hanya bisa saat tiket habis.": "チケットがまだ残っています。リセットはチケットが尽きてからです。", "Tiket {d} habis dan batas reset hari ini sudah tercapai. Kembali besok!": "{d}のチケットが尽き、本日のリセット上限に達しました。また明日！", "Tiket {d} habis. Isi ulang {a} dengan {b}?": "{d}のチケットが尽きました。{b}で{a}を補充しますか？", "Reset hari ini: {n}/{m}": "本日のリセット：{n}/{m}", "Tiket {d} terisi!": "{d}のチケットを補充しました！", "Arsip Cerita": "ストーリー回想", "Tiket {n}/{m}": "チケット {n}/{m}", "Tiap jenis dungeon punya {n} tiket per hari (tidak memakai stamina). Tiket hanya terpakai saat menang. Bintang 3 memberi peluang bonus drop.": "ダンジョンは種類ごとに1日{n}枚のチケット制です（スタミナ不要）。チケットは勝利時のみ消費。★3でボーナスドロップのチャンス。", "Batas reset hari ini habis. Kembali besok!": "本日のリセット上限に達しました。また明日！", "Sisa tiket: {n}": "残りチケット：{n}", "Tiket habis!": "チケットがありません！", "Terbuka di Lv {n} akun": "アカウントLv{n}で解放", "FITUR BARU TERBUKA!": "新機能が解放されました！", "Nanti": "あとで", "Lihat Sekarang": "見てみる", "LEWATI": "スキップ", "Kapten": "キャプテン", "Lewati cerita ini? Kamu bisa menontonnya lagi kapan saja dari Arsip Cerita.": "このストーリーをスキップしますか？「ストーリー回想」からいつでも見直せます。", "Lewati": "スキップ", "Prolog": "プロローグ", "Sebelum": "前", "Setelah": "後", "Tutorial selesai! Selamat bertualang, Kapten!": "チュートリアル完了！良い冒険を、キャプテン！", "Ketuk di sini untuk menutup jendela ini dulu.": "まずここをタップしてウィンドウを閉じましょう。", "Lewati Tutorial": "チュートリアルをスキップ", "Lanjutkan petualangan untuk membuka cerita ini.": "冒険を進めるとこのストーリーが解放されます。", "Pembaruan Besar!": "大型アップデート！", "Cerita Utama <b>BAB I</b> & <b>BAB II</b> kini hadir, lengkap dengan suara! Adegan baru diputar otomatis saat kamu mencapai tahapnya, dan semuanya bisa ditonton ulang di <b>Petualangan › Arsip Cerita</b>.": "メインストーリー<b>第一章</b>・<b>第二章</b>がフルボイスで登場！ステージに到達すると新しい場面が自動で再生され、<b>冒険 › ストーリー回想</b>からいつでも見直せます。", "Dungeon kini memakai <b>tiket</b>: 5 per jenis per hari (tanpa stamina), bisa direset maks 5x dengan permata.": "ダンジョンは<b>チケット制</b>に：種類ごとに1日5枚（スタミナ不要）、ジェムで最大5回リセット可能。", "Isi ulang stamina dengan permata maks <b>5x per hari</b>, harga naik tiap kali.": "ジェムでのスタミナ回復は<b>1日5回まで</b>、回数ごとに価格が上がります。", "Fitur kini terbuka bertahap sesuai level & kemajuan cerita.": "各機能はレベルとストーリーの進行に合わせて段階的に解放されます。", "Tonton Prolog": "プロローグを見る"});
 Object.assign(I18N.ja,{'Menu Login':'タイトルへ','Kembali ke menu login? Progres sudah tersimpan otomatis.':'タイトル画面に戻りますか？進行状況は自動保存されています。','Kembali ke menu utama...':'タイトル画面に戻っています…'});
+
+// akun, teman, pesan 1:1, obrolan dunia (18 Nov 2026)
+Object.assign(I18N.ja,{"Ada permintaan pertemanan baru": "新しいフレンド申請", "Akun Diblokir": "アカウント停止", "Akun Server": "サーバーアカウント", "Akun ini diblokir oleh admin.": "このアカウントは管理者により停止されました。", "Akun ini tidak bisa dipakai masuk.": "このアカウントではログインできません。", "Akun {n} berhasil dibuat!": "アカウント{n}を作成しました！", "Akun {n} terdaftar! Progresmu kini tersimpan di server.": "アカウント{n}を登録！進行状況はサーバーに保存されます。", "Belum ada pesan. Kirim pesan ke teman dari tab Teman.": "メッセージはまだありません。フレンドタブから送信しよう。", "Belum punya teman. Cari pemain lewat tab Cari atau dari Peringkat.": "フレンドがいません。検索タブやランキングから探そう。", "Buat Akun": "アカウント作成", "Butuh Akun": "アカウントが必要", "Cari": "検索", "Daftar": "新規登録", "Daftar & Mulai": "登録してスタート", "Daftar teman sudah penuh (100).": "フレンドが上限（100）です。", "Daftarkan Akun": "アカウント登録", "Data akunmu diperbarui dari server": "サーバーからアカウントデータを更新しました", "Diminta": "申請済み", "Fitur teman, pesan, dan obrolan butuh akun. Daftarkan akun — progres tamu kamu ikut tersimpan.": "フレンド・メッセージ・チャットにはアカウントが必要です。登録するとゲストの進行状況も引き継がれます。", "Hapus Teman": "フレンド解除", "Hapus {n} dari daftar teman?": "{n}をフレンドから外しますか？", "Hari ini": "今日", "Isi username dan password.": "ユーザー名とパスワードを入力してください。", "Kalian belum berteman.": "まだフレンドではありません。", "Kalian harus berteman untuk saling mengirim pesan.": "メッセージはフレンド同士のみ送れます。", "Kalian sekarang berteman!": "フレンドになりました！", "Kamu bermain sebagai Tamu. Progres hanya tersimpan di browser ini. Daftarkan akun supaya bisa berteman, mengobrol, dan memuat progres di perangkat lain.": "ゲストでプレイ中です。進行状況はこのブラウザにのみ保存されます。アカウントを登録するとフレンド・チャット・他端末での引き継ぎができます。", "Keluar": "ログアウト", "Keluar Akun": "ログアウト", "Keluar dari akun {n}? Progres sudah tersimpan di server dan bisa dimuat lagi dengan masuk.": "{n}からログアウトしますか？進行状況はサーバーに保存済みで、再ログインで読み込めます。", "Kirim Pesan": "メッセージ", "Main sebagai Tamu": "ゲストでプレイ", "Masuk Akun": "ログイン", "Masuk dengan akun untuk ikut mengobrol.": "チャットに参加するにはログインしてください。", "Masuk sebagai": "ログイン中：", "Masuk untuk memuat progres akunmu di perangkat mana pun.": "ログインすればどの端末でも進行状況を読み込めます。", "Memuat pesan...": "メッセージを読み込み中...", "Memuat profil...": "プロフィールを読み込み中...", "Mencari...": "検索中...", "Menghubungkan...": "接続中...", "Menunggu jawaban": "返事待ち", "Mulai percakapan!": "会話を始めよう！", "Password": "パスワード", "Password minimal 6 karakter.": "パスワードは6文字以上です。", "Password tidak sama.": "パスワードが一致しません。", "Pemain ini jarang membalas pesan.": "このプレイヤーはあまり返信しません。", "Pemain tidak ditemukan.": "プレイヤーが見つかりません。", "Permintaan": "申請", "Permintaan ditolak": "申請を拒否しました", "Permintaan masuk": "届いた申請", "Permintaan pertemanan dikirim": "フレンド申請を送りました", "Permintaan terkirim": "申請済み", "Pesan": "メッセージ", "Pesan baru masuk": "新着メッセージ", "Poin Arena": "アリーナPt", "Progres tamu kamu saat ini akan disimpan ke akun baru.": "現在のゲスト進行状況を新しいアカウントに保存します。", "Progres tersimpan di server. Masuk dengan username & password yang sama di perangkat lain untuk melanjutkan.": "進行状況はサーバーに保存されています。別の端末でも同じユーザー名とパスワードで続きから遊べます。", "Progres tersimpan otomatis di server.": "進行状況はサーバーに自動保存されます。", "Selamat datang kembali, {n}!": "おかえりなさい、{n}！", "Server sedang bermasalah. Coba lagi.": "サーバーに問題があります。もう一度お試しください。", "Sesi berakhir. Silakan masuk lagi.": "セッションが切れました。再度ログインしてください。", "Tambah Teman": "フレンド申請", "Teman": "フレンド", "Terima": "承認", "Terima Pertemanan": "申請を承認", "Terlalu banyak percobaan. Coba lagi 10 menit lagi.": "試行回数が多すぎます。10分後にお試しください。", "Tidak ada permintaan pertemanan.": "フレンド申請はありません。", "Tidak bisa terhubung ke server. Periksa internet.": "サーバーに接続できません。通信環境を確認してください。", "Tolak": "拒否", "Tulis pesan...": "メッセージを入力...", "UID disalin": "UIDをコピーしました", "UID kamu": "あなたのUID", "Ulangi Password": "パスワード（確認）", "Username": "ユーザー名", "Username atau UID": "ユーザー名またはUID", "Username atau password salah.": "ユーザー名またはパスワードが違います。", "Username harus 3–12 huruf atau angka, tanpa spasi.": "ユーザー名は3〜12文字の英数字（スペースなし）です。", "Username juga menjadi nama Kapten-mu. Simpan password baik-baik — tidak bisa dipulihkan lewat email.": "ユーザー名はキャプテン名にもなります。パスワードはメールで復旧できないので大切に保管してください。", "Username sudah dipakai.": "そのユーザー名は使われています。", "minimal 6 karakter": "6文字以上", "pemain online": "人オンライン", "{n} ingin berteman denganmu": "{n}からフレンド申請が届きました", "{n} menerima permintaan pertemananmu!": "{n}がフレンド申請を承認しました！", "Pelan-pelan, tunggu sebentar.": "少し待ってから送信してください。", "Menghubungkan akun...": "アカウントに接続中...", "Akun": "アカウント"});
+Object.assign(I18N.ja,{'Masuk':'入場'});
 
 /* ==== js/art/icons.js ==== */
 /* =====================================================================
@@ -5395,16 +5453,19 @@ function drawHomeScene(g,t){if(!HOME_SCENE)HOME_SCENE=makeHomeScene();const S0=H
    STATE PEMAIN — simpan / muat / migrasi save
    ===================================================================== */
 let S;
+// generasi data simpanan: data lama (sebelum sistem akun, 18 Nov 2026) direset ke 0 saat dibuka
+const SAVE_SE=2;
 const STARTERS=()=>HEROES.filter(h=>h.starter).map(h=>h.id);
 function defState(){
  const heroes={},weapons={};
  for(const id of STARTERS()){const w=basicWeapon(HD[id].wcls);heroes[id]={lv:1,lb:0,wpn:w};if(w)weapons[w]=newWpn()}
  return{gems:START.gems,gold:START.gold,stam:START.stam,stamTs:Date.now(),lv:1,exp:0,name:'Kapten',
   heroes,weapons,gear:{},team:STARTERS().slice(0,4),stages:{},pity:0,wpity:0,hg:false,wg:false,badge:0,shopX:{},bestCP:0,tixH:0,tixW:0,mail:{},ev:{},mats:{},loginDays:0,
-  lang:'id',daily:{},ach:{},freeDate:'',auto:true,speed:1,sound:true,welcomed:false,named:false,uid:'',world:0,banner:0}}
+  lang:'id',daily:{},ach:{},freeDate:'',auto:true,speed:1,sound:true,welcomed:false,named:false,uid:'',world:0,banner:0,se:SAVE_SE}}
 function load(){
  try{const d=JSON.parse(localStorage.getItem(SAVE_KEY));
-  if(d&&d.heroes){S=Object.assign(defState(),d);if(S.weapons&&S.weapons.aurora){delete S.weapons.aurora;S.auroraRefund=1}if(d.named===undefined)S.named=!!d.welcomed;migrate();return}}catch(e){}  // named: pemain lama tidak perlu membuat nama lagi
+  if(d&&d.heroes&&d.se===SAVE_SE){S=Object.assign(defState(),d);if(S.weapons&&S.weapons.aurora){delete S.weapons.aurora;S.auroraRefund=1}if(d.named===undefined)S.named=!!d.welcomed;migrate();return}
+  if(d&&d.heroes){newGame();if(d.lang)S.lang=d.lang;return}}catch(e){}  // data lama (sebelum akun) -> mulai dari 0, bahasa tetap. named: pemain lama tidak perlu membuat nama lagi
  newGame()}
 // pemain baru: fitur terkunci, tutorial & prolog
 function newGame(){S=defState();S.unl=[];S.tut=0;S.story={seen:{},pend:null}}
@@ -5429,7 +5490,7 @@ function migrate(){
  if(!S.team.some(Boolean))S.team=defState().team;
  if(!S.mail||typeof S.mail!=='object')S.mail={};if(!S.shop)S.shop={date:'',bought:{}};if(!S.ev||typeof S.ev!=='object')S.ev={};S.tixH=S.tixH||0;S.tixW=S.tixW||0;S.loginDays=Math.max(1,S.loginDays||0);
  if(S.banner>=BANNERS.length)S.banner=0;if(S.world>=WORLDS.length)S.world=0}
-function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}if(typeof netMarkDirty==='function')netMarkDirty()}
 function checkDaily(){const d=today();if(S.daily.date!==d){S.daily={date:d,c:{summon:0,clear:0,lvup:0,boss:0,dg:0},claimed:{}};S.loginDays=(S.loginDays||0)+1}}
 function regen(){const now=Date.now();if(S.stam>=STAM_MAX){S.stamTs=now;return}const n=Math.floor((now-S.stamTs)/STAM_MS);if(n>0){S.stam=Math.min(STAM_MAX,S.stam+n);S.stamTs+=n*STAM_MS;if(S.stam>=STAM_MAX)S.stamTs=now}}
 const expNeed=lv=>40+lv*25;
@@ -5621,10 +5682,9 @@ function botEarlyMood(seed,chaser){const N=BOT_CFG.EMO.early,rng=bRng(seed);let 
  const e=N*RATES[3]/100*1.05,z=(n3-e)/Math.sqrt(e);return z>1?'hoki':z<-1?'sial':'normal'}
 /* nama saat waktu t (bisa sudah ganti nama) */
 BOTS.renames=[];
-function botName(i,t=Date.now()){const b=botBase(i),n=BOTS.names[i];if(!b.rn||t<b.rn.t||b.rn.k>=BOTS.renames.length)return n;
- let m=BOTS.renames[b.rn.k];if(!BOTS.nameSet||BOTS.nameSet.n!==BOTS.names.length){BOTS.nameSet=new Set(BOTS.names.map(s=>s.toLowerCase()));BOTS.nameSet.n=BOTS.names.length}
- if(BOTS.nameSet.has(m.toLowerCase())||(typeof S!=='undefined'&&S&&S.name&&S.name.toLowerCase()===m.toLowerCase()))m=(m+(10+i%89)).slice(0,14);return m}
-const botOldName=(i,t=Date.now())=>{const n=botName(i,t);return n!==BOTS.names[i]?BOTS.names[i]:null};
+// nama = username akun bot di server (admin bisa menggantinya lewat Telegram). Ganti-nama otomatis dimatikan sejak akun bot disimpan di server.
+function botName(i,t=Date.now()){return BOTS.names[i]||botLocalName(i)}
+const botOldName=()=>null;
 
 /* ================= TOP UP BOT =================
    Pembelian ditentukan per hari (seed per bot+hari) -> semua penonton melihat pembelian yang sama.
@@ -5755,6 +5815,7 @@ function botState(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now
     paid:G.paid,held:G.held,pity:G.pity,spent:G.spend.total,vip:G.spend.vip,card:G.spend.card,buys:G.spend.buys.length}};
  }finally{S=keep}
  let st=null;for(const s of SLIST){if(s.rec<=out.cp*1.08)st=s;else break}out.stage=st?st.key:'1-1';
+ const ov=typeof botOv==='function'&&botOv(i);if(ov){if(ov.lv!=null)out.lv=ov.lv;if(ov.cp!=null)out.cp=ov.cp;if(ov.vip!=null)out.stats.vip=ov.vip}
  return BOTS.cache[i]=out}
 
 /* ---- online / terakhir aktif: sesi harian mengikuti jam ramai WIB ---- */
@@ -5773,7 +5834,8 @@ function botPresence(i,now=Date.now()){const b=botBase(i);if(now<b.join)return{o
 function botSnap(b,t){for(let d=wibDay(t);d<=wibDay(t)+3;d++){for(const[s0,s1]of botSessions(b,d))if(s1>=t)return Math.max(s0,Math.min(t,s1))}return t}
 
 /* ---- daftar semua bot yang tampil (+ pemain sendiri) ---- */
-function botsList(now=Date.now()){const n=botsVisible(now),L=[];for(let i=0;i<n;i++){const s=botState(i,now),p=botPresence(i,now);L.push({i,name:botName(i,now),vip:s.stats.vip,lv:s.lv,cp:s.cp,top:s.fav||s.team[0],online:p.online,last:p.last,isNew:now-botBase(i).join<BDAY,back:botBase(i).back&&now>=botBase(i).segs[2][0]})}
+function botsList(now=Date.now()){const n=botsVisible(now),L=[];for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const s=botState(i,now),p=botPresence(i,now);L.push({i,name:botName(i,now),vip:s.stats.vip,lv:s.lv,cp:s.cp,top:s.fav||s.team[0],online:p.online,last:p.last,isNew:now-botBase(i).join<BDAY,back:botBase(i).back&&now>=botBase(i).segs[2][0]})}
+ if(typeof NET!=='undefined')for(const p of NET.players){if(NET.acct&&p.uid===NET.acct.uid)continue;L.push({i:'h'+p.uid,h:p.uid,name:p.u,vip:p.vip||0,lv:p.lv,cp:p.cp,top:p.top,online:p.on,last:p.last})}
  L.push({me:true,name:S.name,vip:vipOf(S.iap&&S.iap.spent||0),lv:S.lv,cp:teamPow(),top:S.team.find(Boolean),online:true,last:now});return L}
 
 /* ---- hitung state semua bot sedikit demi sedikit (±10 ms per potong) supaya layar tidak membeku saat bot ribuan ---- */
@@ -5792,8 +5854,7 @@ function botsApplyWorld(w){if(!w||!w.epoch)return;if(w.epoch===BOT_CFG.epoch&&(w
  try{localStorage.setItem(BW_KEY,JSON.stringify({epoch:w.epoch,gen:BOTS.gen}));localStorage.removeItem('aster_ranksnap')}catch(e){}
  if(typeof S!=='undefined'&&S&&S.rankDay&&(S.rankDay.gen||0)!==BOTS.gen){S.rankDay={gen:BOTS.gen}}
  if(typeof rankReset==='function')rankReset();BOTS.onChange&&BOTS.onChange();botsEnsure()}
-async function botsResetWorld(){const w={epoch:Date.now(),gen:(BOTS.gen||0)+1};botsApplyWorld(w);
- if(BOTS.db&&BOTS.dbWrite){try{await BOTS.db.doc('bots/world').set(w)}catch(e){}}}
+// reset dunia bot HANYA lewat Telegram (/resetbot). Game menerima {epoch, gen} baru dari server (systems/net.js).
 
 /* ================= NAMA (integrasi Claude) ================= */
 function botLocalName(i){const r=bRng(bHash(i,9)),Y=BOT_CFG.SYL;let n='';const k=2+Math.floor(r()*2);for(let j=0;j<k;j++)n+=Y[Math.floor(r()*Y.length)];n=n[0].toUpperCase()+n.slice(1);if(r()<.45)n+=Math.floor(r()*(r()<.5?100:2000));return n.slice(0,14)}
@@ -5804,25 +5865,19 @@ function botsSetNames(list){const seen=new Set(),out=[];for(const s of list){con
  if(out.length>=BOTS.names.length){BOTS.names=out;botsSaveLocal();BOTS.onChange&&BOTS.onChange()}}
 // nama disimpan di db per potongan 2000 nama: bots/names, bots/names_1, bots/names_2, ... (dokumen tetap kecil walau bot 10.000)
 const NAME_SHARD=2000,shardDoc=k=>k?'bots/names_'+k:'bots/names';
-async function botsPersist(){botsSaveLocal();if(!BOTS.db||!BOTS.dbWrite)return;BOTS.saved=BOTS.saved||[];
+async function botsPersist(){botsSaveLocal();return;BOTS.saved=BOTS.saved||[];
  for(let k=0;k*NAME_SHARD<BOTS.names.length;k++){const part=BOTS.names.slice(k*NAME_SHARD,(k+1)*NAME_SHARD);if(BOTS.saved[k]===part.length)continue;
   try{await BOTS.db.doc(shardDoc(k)).set({list:part,updated:Date.now()});BOTS.saved[k]=part.length}catch(e){if(e&&e.code==='invalid_argument')BOTS.dbWrite=false;return}}}
 async function botsInit(){if(BOTS.init)return;BOTS.init=true;
  try{botsApplyWorld(JSON.parse(localStorage.getItem(BW_KEY)||'null'))}catch(e){}
- try{const ls=JSON.parse(localStorage.getItem('aster_botnames')||'null');if(ls&&Array.isArray(ls.list))botsSetNames(ls.list)}catch(e){}
- const cl=window.claude;if(!cl||typeof cl.use!=='function'){BOTS.ready=true;botsEnsure();return}
- let db=null;try{db=await cl.use('db')}catch(e){}BOTS.db=db;
- if(!db){BOTS.ready=true;botsEnsure();return}
- const to=setTimeout(()=>{if(!BOTS.ready){BOTS.ready=true;botsEnsure()}},10000);
- db.doc('bots/world').onSnapshot(s=>{const d=s.exists?s.data():null;if(d&&d.epoch&&((d.gen||0)>BOTS.gen||((d.gen||0)===BOTS.gen&&d.epoch!==BOT_CFG.epoch)))botsApplyWorld(d)},()=>{});
- BOTS.parts=[];const merge=()=>{const all=[];for(let k=0;k<BOTS.parts.length;k++){const p=BOTS.parts[k];if(!p)break;all.push(...p);if(p.length<NAME_SHARD)break}return all};
- for(let k=1;k*NAME_SHARD<BOT_CFG.max;k++)db.doc(shardDoc(k)).onSnapshot(s=>{const d=s.exists?s.data():null;if(d&&Array.isArray(d.list)&&d.list.length){BOTS.parts[k]=d.list;(BOTS.saved=BOTS.saved||[])[k]=d.list.length;const all=merge();if(all.length>BOTS.names.length)botsSetNames(all)}},()=>{});
- db.doc('bots/names').onSnapshot(s=>{const d=s.exists?s.data():null,L0=d&&Array.isArray(d.list)?d.list:[];if(L0.length){BOTS.parts[0]=L0;(BOTS.saved=BOTS.saved||[])[0]=L0.length}const L=merge();
-   if(L.length)botsSetNames(L);if(!s.metadata.fromCache){clearTimeout(to);const first=!BOTS.ready;BOTS.ready=true;if(first&&!L.length&&BOTS.names.length)botsPersist();botsEnsure()}},
-  ()=>{clearTimeout(to);BOTS.ready=true;botsEnsure()})}
+ if(typeof netStart==='function')netStart();
+ // server belum menjawab dalam 8 dtk -> pakai generator nama lokal (algoritmanya sama persis dengan server)
+ setTimeout(()=>{if(!BOTS.ready){BOTS.ready=true;botsEnsure()}},8000)}
 // pastikan nama cukup untuk bot yang sudah bergabung (+ cadangan)
-async function botsEnsure(){if(!BOTS.ready||BOTS.busy)return;const need=Math.min(BOT_CFG.max,botsJoined()+10);if(BOTS.names.length>=need)return;BOTS.busy=true;
- try{let got=[],allowLocal=true;const cl=window.claude;
+async function botsEnsure(){if(!BOTS.ready||BOTS.busy)return;const need=Math.min(BOT_CFG.max,botsJoined()+10);if(BOTS.names.length>=need)return;
+ if(typeof NET!=='undefined'&&NET.worldOk){if(Date.now()-NET.worldAt>3e4)netWorld();return}  // akun bot dibuat server
+ BOTS.busy=true;
+ try{let got=[],allowLocal=true;const cl=null;
   if(cl&&typeof cl.use==='function'){let sample=null;try{sample=await cl.use('sample')}catch(e){}
    if(sample&&!BOTS.noClaude){allowLocal=false;if(Date.now()-BOTS.failAt<60e3)return;const n=Math.min(150,Math.max(BOT_CFG.NAME_BATCH,need-BOTS.names.length+20));
     try{let arr=null;const p=BOT_CFG.NAME_PROMPT(n);
@@ -5847,7 +5902,7 @@ function botsSetBios(L){const seen=new Set(),out=[];for(const o of L){const c=bo
 async function botsBiosInit(){if(BOTS.bioInit)return;BOTS.bioInit=true;try{const ls=JSON.parse(localStorage.getItem('aster_botbios')||'null');if(ls&&Array.isArray(ls.list))botsSetBios(ls.list)}catch(e){}
  if(BOTS.db)BOTS.db.doc('bots/bios').onSnapshot(s=>{const d=s.exists?s.data():null;if(d&&Array.isArray(d.list))botsSetBios(d.list)},()=>{})}
 async function botsEnsureBios(){botsBiosInit();const C=BOT_CFG;if(BOTS.bioBusy||BOTS.bios.length>=Math.min(C.BIO_MAX,Math.max(C.BIO_BATCH,botsVisible()*.5)))return;
- const cl=window.claude;if(!cl||typeof cl.use!=='function'||Date.now()-BOTS.bioFail<60e3)return;BOTS.bioBusy=true;
+ const cl=null;if(!cl)return;BOTS.bioBusy=true;
  try{const sample=await cl.use('sample');if(!sample)return;let arr=null;const p=C.BIO_PROMPT(C.BIO_BATCH);
   if(typeof sample.json==='function'){try{arr=await sample.json(p,{modelTier:'quick'})}catch(e){if(e&&(e.code==='not_granted'||e.code==='rate_limited'))throw e}}
   if(arr&&!Array.isArray(arr))arr=Object.values(arr).find(Array.isArray)||null;
@@ -5868,7 +5923,7 @@ function botBio(i,s,rank,now=Date.now()){const C=BOT_CFG,b=botBase(i),per=Math.m
    Kolam nama terpisah 'bots/renames' (dibuat Claude, sama aturannya dengan nama bot). Bot ke-i memakai renames[rn.k]. */
 const RN_KEY='aster_botrenames';
 function botsSetRenames(L){const seen=new Set(),out=[];for(const x of L){const c=botCleanName(x);if(c&&!seen.has(c.toLowerCase())){seen.add(c.toLowerCase());out.push(c)}}if(out.length>BOTS.renames.length){BOTS.renames=out;try{localStorage.setItem(RN_KEY,JSON.stringify(out))}catch(e){}}}
-async function botsEnsureRenames(){if(!BOTS.rnInit){BOTS.rnInit=1;try{botsSetRenames(JSON.parse(localStorage.getItem(RN_KEY)||'[]'))}catch(e){}
+async function botsEnsureRenames(){return;if(!BOTS.rnInit){BOTS.rnInit=1;try{botsSetRenames(JSON.parse(localStorage.getItem(RN_KEY)||'[]'))}catch(e){}
   if(BOTS.db)BOTS.db.doc('bots/renames').onSnapshot(s=>{const d=s.exists?s.data():null;if(d&&Array.isArray(d.list))botsSetRenames(d.list)},()=>{})}
  const now=Date.now(),n=botsVisible(now);let need=0;for(let i=0;i<n;i++){const b=botBase(i);if(b.rn&&b.rn.t<=now+BDAY)need=Math.max(need,b.rn.k+1)}
  if(BOTS.renames.length>=need||BOTS.rnBusy||Date.now()-(BOTS.rnFail||0)<60e3)return;BOTS.rnBusy=true;
@@ -7012,6 +7067,141 @@ async function botSaleReport(){const api=TOPUP_CFG.api;if(!api||BSALE.busy||!bot
  catch(e){}finally{BSALE.busy=false}}
 setTimeout(()=>{botSaleReport();setInterval(botSaleReport,6e4)},2e4);
 
+/* ==== js/systems/net.js ==== */
+/* =====================================================================
+   NET — akun & dunia bersama lewat server (bank-worker/src/game.js, alamat = TOPUP_CFG.api)
+   ---------------------------------------------------------------------
+   • Akun: username + password. Sesi (token) di localStorage 'aster_acct' — TIDAK ikut data simpanan.
+   • Simpanan cloud: save() menandai kotor -> diunggah tiap ±12 dtk (+ saat aplikasi ditutup/disembunyikan).
+     Server memegang nomor versi (sv). Bila versi server lebih baru (diubah admin lewat Telegram atau dimainkan
+     di perangkat lain) -> data server dipakai.
+   • Dunia bot: {epoch, gen} + UID & username setiap bot dari server (sama untuk semua pemain).
+     Ubahan admin untuk bot (lv/cp/vip/sembunyi) diterapkan di atas hasil simulasi.
+   • Ping tiap 20 dtk: versi data, jumlah pesan & permintaan teman baru, id obrolan dunia terakhir, generasi bot.
+   • Tindakan bot terhadap pertemanan (meminta / menerima / menolak) dihitung di sini secara deterministik
+     (hash bot + UID pemain), hanya saat bot sedang online, lalu dicatat di server.
+   Tamu: tidak ada akun; semua fitur sosial meminta masuk/daftar.
+   ===================================================================== */
+const NET={acct:null,dirty:false,pushAt:0,pushing:false,pingAt:0,sv:0,fr:0,dm:0,wc:0,wcSeen:0,players:[],plAt:0,
+ friends:{friends:[],inc:[],out:[]},frAt:0,worldAt:0,worldOk:false,snapAt:0,pend:null,ban:false};
+const ACCT_KEY='aster_acct',WORLD_KEY='aster_world2';
+const netApi=()=>(typeof TOPUP_CFG!=='undefined'&&TOPUP_CFG.api||'').replace(/\/$/,'');
+async function api(path,body,opt={}){if(!netApi())return{ok:false,e:'net'};
+ try{const r=await fetch(netApi()+path,body!==undefined?{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body),keepalive:!!opt.keep}:{cache:'no-store'});
+  const o=await r.json();if(o&&o.e==='ban')netBanned();else if(o&&o.e==='auth'&&NET.acct&&body&&body.tok)netSessionLost();return o}catch(e){return{ok:false,e:'net'}}}
+const netTok=()=>NET.acct&&NET.acct.tok;
+const loggedIn=()=>!!(NET.acct&&NET.acct.tok);
+function acctLoad(){try{const a=JSON.parse(localStorage.getItem(ACCT_KEY)||'null');NET.acct=a&&a.tok?a:null}catch(e){NET.acct=null}}
+function acctSave(){try{NET.acct?localStorage.setItem(ACCT_KEY,JSON.stringify(NET.acct)):localStorage.removeItem(ACCT_KEY)}catch(e){}}
+acctLoad();
+
+/* ---------------- potret profil publik (dilihat pemain lain & admin) ---------------- */
+function netProf(){const team=S.team.filter(Boolean),heroes={},weapons={},gear={};
+ for(const id in S.heroes){const h=S.heroes[id];heroes[id]={lv:h.lv||1,lb:h.lb||0,asc:h.asc||0,wpn:h.wpn||null,ar:h.ar||null,ac:h.ac||null};
+  if(h.wpn&&S.weapons[h.wpn]){const w=S.weapons[h.wpn];weapons[h.wpn]={lv:w.lv||1,lb:w.lb||0,ref:w.ref||0,asc:w.asc||0}}
+  for(const k of['ar','ac'])if(h[k]&&S.gear[h[k]])gear[h[k]]={lv:S.gear[h[k]].lv||0,asc:S.gear[h[k]].asc||0}}
+ let st=null;for(const s of SLIST)if(S.stages[s.key])st=s.key;
+ return{lv:S.lv,cp:teamPow(),vip:vipOf(S.iap&&S.iap.spent||0),top:S.homeHero&&S.heroes[S.homeHero]?S.homeHero:team[0]||null,team,heroes,weapons,gear,stage:st||'-',
+  days:S.loginDays||1,nh:Object.keys(S.heroes).length,nw:Object.keys(S.weapons).length,ng:Object.keys(S.gear).length,ar:S.arena&&S.arena.pts||0,bio:S.bio||''}}
+const saveBody=()=>{const o=Object.assign({},S);delete o.acct;return o};
+
+/* ---------------- sinkron simpanan ---------------- */
+function netMarkDirty(){if(loggedIn())NET.dirty=true}
+async function netPush(force,keep){if(!loggedIn()||NET.pushing||(!NET.dirty&&!force)||NET.pend)return;NET.pushing=true;NET.dirty=false;NET.pushAt=Date.now();
+ try{const o=await api('/api/save',{tok:netTok(),base:NET.acct.sv,save:saveBody(),prof:netProf()},{keep});
+  if(o.ok){NET.acct.sv=o.sv;acctSave()}else if(o.conflict){if(o.save)netAdopt(o.save,o.sv);else{NET.acct.sv=o.sv;acctSave();NET.dirty=true}}else NET.dirty=true}
+ finally{NET.pushing=false}}
+// pakai data dari server (admin mengubah lewat Telegram / perangkat lain). Ditunda selama battle/cerita berlangsung.
+function netAdopt(save,sv){if(!save)return;if((typeof B!=='undefined'&&B)||(typeof SP!=='undefined'&&SP)){NET.pend={save,sv};return}
+ NET.pend=null;const lang=S&&S.lang;S=Object.assign(defState(),save);S.se=SAVE_SE;if(lang)S.lang=lang;try{migrate()}catch(e){}NET.acct.sv=sv;acctSave();
+ try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}
+ const L=document.getElementById('login');if(L&&L.classList.contains('on'))return;
+ try{if($('#modal').classList.contains('on'))closeModal()}catch(e){}try{refreshScreen()}catch(e){}toast(T('Data akunmu diperbarui dari server'))}
+async function netPull(){const o=await api('/api/load',{tok:netTok()});if(o.ok&&o.save&&o.sv!==NET.acct.sv)netAdopt(o.save,o.sv)}
+function netBanned(){if(NET.ban)return;NET.ban=true;const was=loggedIn();netClearLocal();if(was)setTimeout(()=>{try{backToLogin()}catch(e){}setTimeout(()=>modal(`<h3>${T('Akun Diblokir')}</h3><p style="text-align:center">${T('Akun ini diblokir oleh admin.')}</p><div class="mrow"><button class="btn" data-act="closeModal">OK</button></div>`),1800)},50)}
+function netSessionLost(){if(!loggedIn())return;netClearLocal();setTimeout(()=>{try{backToLogin()}catch(e){}setTimeout(()=>toast(T('Sesi berakhir. Silakan masuk lagi.')),1800)},50)}
+// keluar: data lokal dibersihkan (data aman di server)
+function netClearLocal(){NET.acct=null;acctSave();NET.dirty=false;NET.pend=null;NET.friends={friends:[],inc:[],out:[]};NET.fr=NET.dm=0;
+ try{localStorage.removeItem(SAVE_KEY)}catch(e){}const lg=S&&S.lang;newGame();if(lg)S.lang=lg;S.uid=''}
+async function netLogout(){if(loggedIn()){await netPush(true);await api('/api/acc/logout',{tok:netTok()})}netClearLocal();backToLogin()}
+
+/* ---------------- daftar / masuk ---------------- */
+const ERR_TXT={uname:'Username harus 3–12 huruf atau angka, tanpa spasi.',pw:'Password minimal 6 karakter.',taken:'Username sudah dipakai.',cred:'Username atau password salah.',
+ botacc:'Akun ini tidak bisa dipakai masuk.',ban:'Akun ini diblokir oleh admin.',slow:'Terlalu banyak percobaan. Coba lagi 10 menit lagi.',net:'Tidak bisa terhubung ke server. Periksa internet.',empty:'Isi username dan password.',server:'Server sedang bermasalah. Coba lagi.'};
+const netErr=e=>T(ERR_TXT[e]||'Terjadi kesalahan.');
+async function netRegister(u,p,keep){const body={u,p};if(keep){S.name=u;S.named=true;body.save=saveBody();body.prof=netProf()}
+ const o=await api('/api/acc/register',body);if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv};acctSave();
+ if(!keep){const lg=S.lang;newGame();S.lang=lg}S.name=o.u;S.named=true;S.uid=o.uid;save();NET.dirty=true;netPush(true);return o}
+async function netLogin(u,p){const o=await api('/api/acc/login',{u,p});if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv};acctSave();
+ const lg=S.lang;if(o.save&&o.save.heroes){S=Object.assign(defState(),o.save);S.se=SAVE_SE;try{migrate()}catch(e){}}else{newGame();S.lang=lg}
+ S.name=o.u;S.named=true;S.uid=o.uid;try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}if(!o.save)NET.dirty=true;return o}
+
+/* ---------------- dunia bot dari server ---------------- */
+function netApplyWorld(d,full){if(!d||!d.ok)return;const L=d.bots||[];
+ if(full||d.from===0){BOTS.uids=L.map(x=>x[0]);BOTS.srvNames=L.map(x=>x[1])}else{for(let k=0;k<L.length;k++){BOTS.uids[d.from+k]=L[k][0];BOTS.srvNames[d.from+k]=L[k][1]}}
+ BOTS.ov=d.ov||{};BOTS.uidIdx=null;BOTS.cache={};
+ botsApplyWorld({epoch:d.epoch,gen:d.gen});BOTS.names=BOTS.srvNames.slice();BOTS.nameSet=null;BOTS.ready=true;NET.worldOk=true;NET.gen=d.gen;
+ try{localStorage.setItem(WORLD_KEY,JSON.stringify({epoch:d.epoch,gen:d.gen,bots:BOTS.uids.map((u,k)=>[u,BOTS.srvNames[k]]),ov:BOTS.ov}))}catch(e){}
+ BOTS.onChange&&BOTS.onChange()}
+function netWorldCache(){try{const c=JSON.parse(localStorage.getItem(WORLD_KEY)||'null');if(c&&c.bots)netApplyWorld({ok:true,from:0,...c},true)}catch(e){}}
+async function netWorld(full){NET.worldAt=Date.now();const from=full||!BOTS.uids?0:BOTS.uids.length;const d=await api('/api/world?from='+from);
+ if(d.ok){if(BOTS.uids&&d.gen!==NET.gen)return netWorld(true);netApplyWorld(d,from===0)}return d.ok}
+const botUid=i=>BOTS.uids&&BOTS.uids[i];
+function botIdxOf(uid){if(!BOTS.uids)return-1;if(!BOTS.uidIdx){BOTS.uidIdx=new Map();BOTS.uids.forEach((u,k)=>BOTS.uidIdx.set(u,k))}const k=BOTS.uidIdx.get(uid);return k==null?-1:k}
+const botOv=i=>BOTS.ov&&BOTS.ov[i]||null;
+const botHidden=i=>{const o=botOv(i);return!!(o&&o.ban)};
+
+/* ---------------- pemain asli (peringkat) ---------------- */
+async function netPlayers(force){if(!force&&Date.now()-NET.plAt<45e3)return;NET.plAt=Date.now();const o=await api('/api/players');if(o.ok){NET.players=o.list||[];BOTS.onChange&&BOTS.onChange()}}
+
+/* ---------------- teman ---------------- */
+async function netFriends(){if(!loggedIn())return NET.friends;const o=await api('/api/fr/list',{tok:netTok()});if(o.ok){NET.friends={friends:o.friends,inc:o.inc,out:o.out};NET.frAt=Date.now();NET.fr=o.inc.length}return NET.friends}
+const isFriend=uid=>NET.friends.friends.some(f=>f.uid===uid);
+const frState=uid=>isFriend(uid)?'ok':NET.friends.out.some(f=>f.uid===uid)?'out':NET.friends.inc.some(f=>f.uid===uid)?'inc':null;
+// keputusan bot: menerima permintaanku (±70%, lebih mudah bila CP-ku mendekati CP-nya) saat ia online
+function botAccepts(i){const s=botState(i),me=teamPow(),r=bHash(i,7700+(+NET.acct.uid%100000))%100;const near=me>=s.cp*.5?12:me>=s.cp*.2?0:-15;return r<62+near}
+const BFR_KEY='aster_botfr';
+async function netBotFriends(){if(!loggedIn()||!botsWarmOk()||!BOTS.uids)return;const now=Date.now();let changed=false;
+ // 1) jawab permintaanku yang menunggu, hanya saat bot itu sudah online setelah permintaan dikirim
+ for(const f of NET.friends.out){if(f.bot==null)continue;const i=f.bot;if(!(i<botsVisible())||botHidden(i))continue;const pr=botPresence(i,now);
+  if(!(pr.online||pr.last>f.ts+6e4))continue;const ok=botAccepts(i);
+  const o=await api('/api/fr/bot',{tok:netTok(),uid:f.uid,act:ok?'ok':'no'});if(o.ok){changed=true;if(o.st==='ok')toast(T('{n} menerima permintaan pertemananmu!',{n:botName(i)}))}}
+ // 2) bot mengajak berteman: 0–2 bot per hari (acak per pemain), dikirim saat sesi pertama bot itu hari ini dimulai
+ let done={};try{done=JSON.parse(localStorage.getItem(BFR_KEY)||'{}')}catch(e){}const d=wibDay(now),seed=+NET.acct.uid%1000003,n=botsVisible();
+ if(n>5){const k=[0,0,1,1,1,2][bHash(seed,8800+d)%6];
+  for(let j=0;j<k;j++){const i=bHash(seed,8900+d*7+j)%n,key=NET.gen+':'+d+':'+i;if(done[key]||botHidden(i))continue;const ss=botSessions(botBase(i),d);if(!ss.length){done[key]=1;continue}
+   if(ss[0][0]>now)continue;done[key]=1;const uid=botUid(i);if(!uid||frState(uid))continue;
+   const o=await api('/api/fr/bot',{tok:netTok(),uid,act:'req'});if(o.ok&&o.st==='req'){changed=true;toast(T('{n} ingin berteman denganmu',{n:botName(i)}))}}
+  for(const x in done)if(+x.split(':')[1]<d-3)delete done[x];try{localStorage.setItem(BFR_KEY,JSON.stringify(done))}catch(e){}}
+ if(changed){await netFriends();refreshBadges()}}
+
+/* ---------------- potret bot untuk admin ---------------- */
+async function netBotSnap(){if(!loggedIn()||!botsWarmOk()||Date.now()-NET.snapAt<15*6e4)return;NET.snapAt=Date.now();const now=Date.now(),n=botsVisible(),L=[];
+ for(let i=0;i<n;i++)L.push(i);const fr=new Set(NET.friends.friends.concat(NET.friends.out,NET.friends.inc).filter(f=>f.bot!=null).map(f=>f.bot));
+ const pick=L.map(i=>[i,botState(i,now).cp]).sort((a,b)=>b[1]-a[1]).slice(0,100).map(x=>x[0]);fr.forEach(i=>{if(i<n&&!pick.includes(i))pick.push(i)});
+ const list=pick.slice(0,120).map(i=>{const s=botState(i,now);return{i,lv:s.lv,cp:s.cp,vip:s.stats.vip,top:s.fav||s.team[0],stage:s.stage,team:s.team.map(id=>HD[id]?HD[id].name:id),online:botPresence(i,now).online}});
+ api('/api/bots/snap',{tok:netTok(),list})}
+
+/* ---------------- ping & loop ---------------- */
+async function netPing(){if(!loggedIn())return;NET.pingAt=Date.now();const o=await api('/api/ping',{tok:netTok()});if(!o.ok)return;
+ if(o.u&&o.u!==NET.acct.u){NET.acct.u=o.u;acctSave()}
+ if(o.sv!==NET.acct.sv&&!NET.pushing)await netPull();
+ if(NET.gen!=null&&o.gen!==NET.gen)netWorld(true);
+ const frUp=o.fr>NET.fr,dmUp=o.dm>NET.dm;if(frUp){toast(T('Ada permintaan pertemanan baru'));netFriends()}if(dmUp&&!(typeof dmOpenWith!=='undefined'&&dmOpenWith))toast(T('Pesan baru masuk'));
+ NET.fr=o.fr;NET.dm=o.dm;NET.wc=o.wc;refreshBadges()}
+function refreshBadges(){try{const b=document.getElementById('frBadge');if(b){const n=NET.fr+NET.dm;b.textContent=n>99?'99+':n;b.style.display=n?'':'none'}}catch(e){}}
+let netLoopOn=false;
+function netStart(){if(netLoopOn)return;netLoopOn=true;netWorldCache();netWorld();
+ setInterval(()=>{const L=document.getElementById('login');if(NET.pend&&!(typeof B!=='undefined'&&B)&&!(typeof SP!=='undefined'&&SP))netAdopt(NET.pend.save,NET.pend.sv);
+  if(!loggedIn()||(L&&L.classList.contains('on')))return;const now=Date.now();
+  if(NET.dirty&&now-NET.pushAt>12e3)netPush();
+  if(now-NET.pingAt>20e3)netPing();
+  if(now-NET.frAt>90e3)netFriends().then(()=>netBotFriends());
+  if(now-NET.worldAt>3*6e4)netWorld();
+  netBotSnap()},4000);
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&NET.dirty)netPush(false,true)});
+ window.addEventListener('pagehide',()=>{if(NET.dirty)netPush(false,true)})}
+
 /* ==== js/systems/smelt.js ==== */
 /* =====================================================================
    PASANG OTOMATIS & TUNGKU PELEBURAN  (tampilan: ui/smelt.js)
@@ -7217,7 +7407,7 @@ function homeHTML(){const ns=nextStage(),id=homeHero(),h=HD[id],mdot=missionClai
  return`<div class="home">
  ${homeArt()?`<img class="hbg art" src="${BGIMG_SRC[homeArt()]}" alt="">`:`<canvas class="hbg" id="hbgc" width="${HOME_W}" height="${HOME_H}"></canvas>`}<div class="hfx"></div>
  <div class="hbanw"><button class="harrs l" data-act="banStep" data-arg="-1" aria-label="‹"></button><button class="hban" id="hban" data-act="banGo">${banHTML()}</button><button class="harrs r" data-act="banStep" data-arg="1" aria-label="›"></button></div>
- <div class="rcol l">${md('goEvent','',ICON.event,T('Event'),LK('event')?lkB:edot?'<i class="dot"></i>':'',LK('event')?' lock':'')}${md('go','mission',ICON.mission,T('Misi'),LK('mission')?lkB:mdot?'<i class="dot"></i>':'',LK('mission')?' lock':'')}${md('mail','',ICON.gift,T('Hadiah'),mp?`<i class="dot n">${mp}</i>`:'')}${md('shop','',ICON.shop,T('Toko'),LK('shop')?lkB:'',LK('shop')?' lock':'')}</div>
+ <div class="rcol l">${md('goEvent','',ICON.event,T('Event'),LK('event')?lkB:edot?'<i class="dot"></i>':'',LK('event')?' lock':'')}${md('go','mission',ICON.mission,T('Misi'),LK('mission')?lkB:mdot?'<i class="dot"></i>':'',LK('mission')?' lock':'')}${md('mail','',ICON.gift,T('Hadiah'),mp?`<i class="dot n">${mp}</i>`:'')}${md('friends','',ICON.friend,T('Teman'),`<i class="dot n" id="frBadge"${NET.fr+NET.dm?'':' style="display:none"'}>${Math.min(99,NET.fr+NET.dm)}</i>`)}${md('shop','',ICON.shop,T('Toko'),LK('shop')?lkB:'',LK('shop')?' lock':'')}</div>
  <div class="rcol r"><button class="cpb" data-act="cpInfo"><span>${T('CP TIM')}</span><b>${fmt(teamPow())}</b></button>${md('go','team',ICON.team,T('Tim'),'')}${md('rank','',ICON.rank,T('Peringkat'),LK('rank')?lkB:'',LK('rank')?' lock':'')}${md('guild','',ICON.guild||ICON.team,T('Guild'),`<span class="mdlk"><img class="ix" src="${ICON.lock}" alt=""></span><em class="mdsoon">${T('Segera')}</em>`,' lock')}${md('settings','',ICON.gear,T('Menu'),'')}</div>
  ${splash(id)?`<div class="hstage hsp" data-act="lobbyTap"><div class="hcircle"><i></i></div>${splashHTML(id,'hspl')}</div>`:`<div class="hstage"><div class="hcircle"><i></i></div><canvas id="lobbyc" width="${LOBBY_PX}" height="${LOBBY_PX}" data-act="lobbyTap"></canvas></div>`}
  <div class="hnp">${many?`<button class="hnpa l" data-act="homeStep" data-arg="-1" aria-label="‹"></button>`:''}<span class="hnpc"><i class="hnps">${stars(S.heroes[id]?heroStar(id):h.r)}</i><span class="hnpn">${eic(h.el,16)}<b>${h.name}</b></span></span>${many?`<button class="hnpa r" data-act="homeStep" data-arg="1" aria-label="›"></button>`:''}</div>
@@ -7765,11 +7955,9 @@ const ACT={
  refill:()=>refillUI(),dgReset:id=>dgResetUI(id),
  rename:()=>modal(`<h3>${T('Nama Kapten')}</h3><input class="nm" id="nmIn" maxlength="12" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" value="${esc(S.name)}"><div class="mrow"><button class="btn gray" data-act="closeModal">${T('Batal')}</button><button class="btn" data-act="saveName">${T('Simpan')}</button></div>`),
  saveName:()=>{const v=$('#nmIn').value.trim();if(!NAME_OK.test(v)){toast(T('Nama harus 3–12 huruf atau angka, tanpa spasi atau simbol.'),1);return}S.name=v;S.named=true;save();closeModal();render()},
- settings:()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Pengaturan')}</h3><div class="sec">${T('Bahasa')}</div><div class="volrow" style="margin-top:0">${Object.keys(LANGS).map(l=>`<button class="fbtn ${LANG===l?'on':''}" data-act="setLang" data-arg="${l}">${LANGS[l].n}</button>`).join('')}</div><div class="sec">${T('Efek Suara')}</div><div class="mrow" style="margin-top:0"><button class="btn ${S.sound?'green':'gray'}" data-act="toggleSound">${S.sound?'ON':'OFF'}</button></div><div class="volrow">${[[T('Pelan'),.35],[T('Sedang'),.65],[T('Keras'),1]].map(([n,v])=>`<button class="fbtn ${Math.abs((S.vol??.8)-v)<.05?'on':''}" data-act="setVol" data-arg="${v}">${n}</button>`).join('')}<button class="fbtn" data-act="testSfx">▶ ${T('Coba')}</button></div><div class="sec">${T('Musik')}</div><div class="mrow" style="margin-top:0"><button class="btn ${S.music!==false?'green':'gray'}" data-act="toggleMusic">${S.music!==false?'ON':'OFF'}</button></div><div class="sec">${T('Suara Karakter')} <span style="font-size:11px;color:var(--mut)">(${T('dub Jepang')})</span></div><div class="mrow" style="margin-top:0"><button class="btn ${S.voice!==false?'green':'gray'}" data-act="toggleVoice">${S.voice!==false?'ON':'OFF'}</button></div><div class="volrow">${[[T('Pelan'),.45],[T('Sedang'),.75],[T('Keras'),1]].map(([n,v])=>`<button class="fbtn ${Math.abs((S.vvol??.75)-v)<.05?'on':''}" data-act="setVVol" data-arg="${v}">${n}</button>`).join('')}<button class="fbtn" data-act="testVoice">▶ ${T('Coba')}</button></div><div class="sec">${T('Mode AI Obrolan')} <span style="font-size:11px;color:var(--mut)">(Claude Haiku 5.5)</span></div><div class="mrow" style="margin-top:0"><button class="btn ${S.aiMode!==false?'green':'gray'}" data-act="toggleAI">${S.aiMode!==false?'ON':'OFF'}</button></div><p id="aiStat" style="font-size:12px;color:var(--mut);margin:4px 0 0">${T('Pemain lain di Obrolan Dunia ditulis langsung oleh AI: membalas pesanmu dan mengobrol sendiri sesuai keadaan akun mereka.')}</p><div class="mrow"><button class="btn blue" data-act="toLogin">${T('Menu Login')}</button><button class="btn red" data-act="reset">${T('Hapus Progres')}</button></div><p style="font-size:12px;color:var(--mut);margin-top:10px">${T('Progres tersimpan otomatis di browser ini.')}</p>
- <div class="sec">${T('Dunia Bot (sementara)')}</div><p style="font-size:12px;color:var(--mut);margin:0 0 6px">${T('Pemain bot: {n} dari maks {m} · hari ke-{d}',{n:fmt(botsVisible()),m:fmt(BOT_CFG.max),d:Math.max(1,Math.ceil((Date.now()-BOT_CFG.epoch)/BDAY))})}</p><div class="mrow" style="margin-top:0"><button class="btn blue" data-act="botReset">${T('Reset Bot ke Hari 1')}</button></div>`),
- botReset:()=>confirmBox(T('Semua pemain bot dihapus dan dunia bot mulai lagi dari hari 1 dengan 0 pemain, lalu bertambah perlahan sampai {m}. Reset ini berlaku untuk semua yang membuka game ini. Progres kamu tidak berubah. Lanjutkan?',{m:fmt(BOT_CFG.max)}),()=>{botsResetWorld();toast(T('Dunia bot direset ke hari 1.'));render()},T('Reset')),
+ settings:()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Pengaturan')}</h3><div class="sec">${T('Bahasa')}</div><div class="volrow" style="margin-top:0">${Object.keys(LANGS).map(l=>`<button class="fbtn ${LANG===l?'on':''}" data-act="setLang" data-arg="${l}">${LANGS[l].n}</button>`).join('')}</div><div class="sec">${T('Efek Suara')}</div><div class="mrow" style="margin-top:0"><button class="btn ${S.sound?'green':'gray'}" data-act="toggleSound">${S.sound?'ON':'OFF'}</button></div><div class="volrow">${[[T('Pelan'),.35],[T('Sedang'),.65],[T('Keras'),1]].map(([n,v])=>`<button class="fbtn ${Math.abs((S.vol??.8)-v)<.05?'on':''}" data-act="setVol" data-arg="${v}">${n}</button>`).join('')}<button class="fbtn" data-act="testSfx">▶ ${T('Coba')}</button></div><div class="sec">${T('Musik')}</div><div class="mrow" style="margin-top:0"><button class="btn ${S.music!==false?'green':'gray'}" data-act="toggleMusic">${S.music!==false?'ON':'OFF'}</button></div><div class="sec">${T('Suara Karakter')} <span style="font-size:11px;color:var(--mut)">(${T('dub Jepang')})</span></div><div class="mrow" style="margin-top:0"><button class="btn ${S.voice!==false?'green':'gray'}" data-act="toggleVoice">${S.voice!==false?'ON':'OFF'}</button></div><div class="volrow">${[[T('Pelan'),.45],[T('Sedang'),.75],[T('Keras'),1]].map(([n,v])=>`<button class="fbtn ${Math.abs((S.vvol??.75)-v)<.05?'on':''}" data-act="setVVol" data-arg="${v}">${n}</button>`).join('')}<button class="fbtn" data-act="testVoice">▶ ${T('Coba')}</button></div><div class="mrow"><button class="btn blue" data-act="toLogin">${T('Menu Login')}</button><button class="btn red" data-act="reset">${T('Hapus Progres')}</button></div><div class="sec">${T('Akun')}</div>${loggedIn()?`<p style="font-size:12px;margin:0 0 6px">${T('Masuk sebagai')} <b>${esc(NET.acct.u)}</b> · UID <b>${NET.acct.uid}</b><br><span style="color:var(--mut)">${T('Progres tersimpan otomatis di server.')}</span></p><div class="mrow" style="margin-top:0"><button class="btn red" data-act="accLogout">${T('Keluar Akun')}</button></div>`
+ :`<p style="font-size:12px;color:var(--mut);margin:0 0 6px">${T('Kamu bermain sebagai Tamu. Progres hanya tersimpan di browser ini. Daftarkan akun supaya bisa berteman, mengobrol, dan memuat progres di perangkat lain.')}</p><div class="mrow" style="margin-top:0"><button class="btn green" data-act="accLink">${T('Daftarkan Akun')}</button></div>`}`),
  setLang:l=>{setLang(l);save();render();ACT.settings()},
- toggleAI:()=>{S.aiMode=S.aiMode===false;save();ACT.settings();if(S.aiMode&&CHAT)CHAT.aiNext=0,CHAT.aiBlock=0},
  toggleSound:()=>{S.sound=!S.sound;save();ACT.settings();sfx('claim')},
  setVol:v=>{S.vol=+v;save();audSetVol();ACT.settings();sfx('coin')},
  toggleMusic:()=>{S.music=S.music===false;save();if(!S.music)bgmStop(.4);else bgmPlay(bgmScene());ACT.settings()},
@@ -7777,7 +7965,7 @@ const ACT={
  setVVol:v=>{S.vvol=+v;save();voxSetVol();ACT.settings();ACT.testVoice()},
  testVoice:()=>{const id=homeHero(),L=HD[id]&&HD[id].poke;voice(`${id}_p${L?Math.floor(Math.random()*L.length):0}`)},
  testSfx:()=>{const L=['claim','lvup','rare','skill'];sfx(L[(ACT._t=(ACT._t||0)+1)%L.length],{el:pick(Object.keys(EL)),r:3})},
- reset:()=>confirmBox(T('Semua hero, tahap, dan Permata akan dihapus. Lanjutkan?'),()=>{try{localStorage.removeItem(SAVE_KEY)}catch(e){}const lg=S.lang;newGame();S.lang=lg;save();backToLogin()},T('Hapus')),
+ reset:()=>confirmBox(T('Semua hero, tahap, dan Permata akan dihapus. Lanjutkan?'),()=>{try{localStorage.removeItem(SAVE_KEY)}catch(e){}const lg=S.lang;newGame();S.lang=lg;if(loggedIn()){S.name=NET.acct.u;S.named=true;S.uid=NET.acct.uid}save();if(loggedIn())netPush(true);backToLogin()},T('Hapus')),
  toLogin:()=>confirmBox(T('Kembali ke menu login? Progres sudah tersimpan otomatis.'),()=>backToLogin(),T('Kembali')),
  lobbyTap:()=>homeTap(),homeStep:d=>homeStep(d),guild:()=>openGuild(),
  banStep:d=>{banIdx=(banIdx+(+d)+BANNERS.length)%BANNERS.length;if(lobby)lobby.banT=0;const e=$('#hban');if(e)e.innerHTML=banHTML()},
@@ -7827,7 +8015,7 @@ function rankSnapUpdate(){const L=botsList(),now=Date.now(),cur=rankMaps(L);let 
 function rankDelta(e,k){if(!e.me&&e.isNew)return`<span class="rkd new">${T('BARU')}</span>`;if(!e.me&&e.back)return`<span class="rkd back">${T('KEMBALI')}</span>`;
  const P=rankTab!=='ar'&&RANK_PREV&&RANK_PREV[rankTab];if(!P)return'';const was=P[e.me?'me':e.i];if(!was)return'';const d=was-(k+1);return d>0?`<span class="rkd up">▲${d}</span>`:d<0?`<span class="rkd dn">▼${-d}</span>`:`<span class="rkd eq">–</span>`}
 function rankSorted(){if(rankTab==='ar'){arCheck();return arBoard().slice().concat([arMe()]).sort((a,b)=>b.pts-a.pts||b.cp-a.cp)}const L=botsList();return L.sort(rankTab==='cp'?(a,b)=>b.cp-a.cp||b.lv-a.lv:(a,b)=>b.lv-a.lv||b.cp-a.cp)}
-function rankRow(e,k){const md=k<3?` m${k+1}`:'';return`<button class="rkrow${e.me?' mine':''}" ${e.me?'data-act="closeModal"':`data-act="botView" data-arg="${e.i}"`}>
+function rankRow(e,k){const md=k<3?` m${k+1}`:'';return`<button class="rkrow${e.me?' mine':''}" ${e.me?'data-act="closeModal"':e.h?`data-act="profView" data-arg="${e.h}"`:`data-act="botView" data-arg="${e.i}"`}>
  <span class="rkn${md}">${k+1}</span><span class="rkav">${e.top?`<img class="px" src="${portrait(e.top)}">`:''}${e.online?'<i class="on"></i>':''}</span>
  <span class="rknm"><b>${e.vip?`<i class="vip v${Math.min(7,e.vip)}">VIP${e.vip}</i>`:''}${esc(e.name)}${e.me?` <em>${T('Kamu')}</em>`:''}${rankDelta(e,k)}</b><small>${e.me&&S.rankDay&&S.rankDay.prev&&S.rankDay.prev[rankTab]?T('Kemarin #{n}',{n:S.rankDay.prev[rankTab]}):e.online?T('Online'):T('Aktif {t}',{t:agoMs(Date.now()-e.last)})}</small></span>
  <span class="rkv">${rankTab==='ar'?`<b>${lgIc(e.pts,14)} ${fmt(e.pts)}</b><small>CP ${fmt(e.cp)}</small>`:`<b>${rankTab==='cp'?fmt(e.cp):'Lv '+e.lv}</b><small>${rankTab==='cp'?'Lv '+e.lv:'CP '+fmt(e.cp)}</small>`}</span></button>`}
@@ -7835,7 +8023,7 @@ function rankListHTML(){const L=rankSorted(),me=L.findIndex(e=>e.me),n=L.length-
  if(!n)return`<p class="sub" style="text-align:center;padding:30px 0">${BOTS.ready?T('Memanggil para petualang...'):T('Memuat pemain...')}</p>`;
  return`<div class="rkinfo"><span><b>${n}</b> ${T('pemain')}</span><span><i class="on"></i><b>${on}</b> ${T('online')}</span></div>
  <div class="rklist" id="rkScroll">${L.slice(0,100).map(rankRow).join('')}</div>${me>=100?`<div class="rkme">${rankRow(L[me],me)}</div>`:''}`}
-function openRank(){botsInit();botsEnsure();botsEnsureBios();rankBot=null;
+function openRank(){botsInit();botsEnsure();botsEnsureBios();rankBot=null;netPlayers();
  if(!botsWarmOk()){modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Peringkat')}</h3><p class="sub" style="text-align:center;padding:30px 0">${T('Memuat peringkat...')}</p>`);botsWarm(()=>{if($('#modal').classList.contains('on')&&!rankBot)openRank()});return}if(!RANK_PREV||!openRank.done){rankSnapUpdate();openRank.done=1}
  modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Peringkat')}</h3>
  <div class="mtabs"><button class="btn ${rankTab==='cp'?'':'blue'}" data-act="rankTab" data-arg="cp">${T('CP Tim')}</button><button class="btn ${rankTab==='lv'?'':'blue'}" data-act="rankTab" data-arg="lv">${T('Level')}</button><button class="btn ${rankTab==='ar'?'':'blue'}" data-act="rankTab" data-arg="ar">${T('Arena')}</button></div>
@@ -7843,7 +8031,7 @@ function openRank(){botsInit();botsEnsure();botsEnsureBios();rankBot=null;
 function rankRefresh(){const b=$('#rkBody');if(!b)return;const sc=$('#rkScroll'),top=sc?sc.scrollTop:0;b.innerHTML=rankListHTML();const sc2=$('#rkScroll');if(sc2)sc2.scrollTop=top}
 function rankStartTimer(){if(rankTimer)return;BOTS.seen=botsVisible();
  rankTimer=setInterval(()=>{const open=$('#modal').classList.contains('on')&&($('#rkBody')||$('#botBody'));if(!open){clearInterval(rankTimer);rankTimer=null;return}
-  botsEnsure();const n=botsVisible();if(n>BOTS.seen){for(let i=BOTS.seen;i<n&&i<BOTS.seen+3;i++)toast(T('{n} bergabung ke Aster!',{n:botName(i)}));BOTS.seen=n}
+  botsEnsure();netPlayers();const n=botsVisible();if(n>BOTS.seen){for(let i=BOTS.seen;i<n&&i<BOTS.seen+3;i++)toast(T('{n} bergabung ke Aster!',{n:botName(i)}));BOTS.seen=n}
   if($('#rkBody'))rankRefresh();else if($('#botBody')&&rankBot!=null)$('#botBody').innerHTML=botBodyHTML(rankBot)},5000)}
 BOTS.onChange=()=>{if($('#rkBody'))rankRefresh()};
 
@@ -7856,7 +8044,7 @@ function botBodyHTML(i){const s=botState(i),p=botPresence(i),b=botBase(i),now=Da
  const ids=Object.keys(s.heroes).sort((x,y)=>(y===s.fav)-(x===s.fav)||HD[y].r-HD[x].r||s.heroes[y].lv-s.heroes[x].lv);const L=rankSorted(),rk=L.findIndex(e=>e.i===i)+1;
  const bio=botBio(i,s,rk,now),st=s.stats,LUCK={hoki:T('Hoki'),normal:T('Normal'),sial:T('Apes')},old=botOldName(i,now);
  return`<div class="bprof"><div class="bpav">${s.fav?`<img class="px" src="${portrait(s.fav)}">`:''}${p.online?'<i class="on"></i>':''}</div>
-  <div class="bpinf"><b>${st.vip?`<i class="vip v${Math.min(7,st.vip)}">VIP${st.vip}</i>`:''}${esc(botName(i,now))}</b>${old?`<small class="bold">${T('Sebelumnya: {n}',{n:esc(old)})}</small>`:''}<span>${p.online?`<em class="ok">${T('Online')}</em>`:T('Aktif {t}',{t:agoMs(now-p.last)})}${b.back&&now>=b.segs[2][0]?` · <em class="ok">${T('Kembali bermain!')}</em>`:''}</span><span>${T('Bergabung {t}',{t:agoMs(now-b.join)})}</span></div></div>
+  <div class="bpinf"><b>${st.vip?`<i class="vip v${Math.min(7,st.vip)}">VIP${st.vip}</i>`:''}${esc(botName(i,now))}</b>${botUid(i)?`<small class="bold">UID ${botUid(i)}</small>`:''}${old?`<small class="bold">${T('Sebelumnya: {n}',{n:esc(old)})}</small>`:''}<span>${p.online?`<em class="ok">${T('Online')}</em>`:T('Aktif {t}',{t:agoMs(now-p.last)})}${b.back&&now>=b.segs[2][0]?` · <em class="ok">${T('Kembali bermain!')}</em>`:''}</span><span>${T('Bergabung {t}',{t:agoMs(now-b.join)})}</span></div></div>
  ${st.card||st.held>=10?`<div class="bbadges">${st.card?`<span class="bb card">${T('Kartu Bulanan')}</span>`:''}${st.held>=10?`<span class="bb save">${T('Menabung {n} tarikan',{n:st.held})}</span>`:''}</div>`:''}
  ${bio?`<div class="bbio">“${esc(bio)}”</div>`:''}
  <div class="stats"><div><span>${T('Level')}</span><b>${s.lv}</b></div><div><span>CP</span><b>${fmt(s.cp)}</b></div><div><span>${T('Peringkat')}</span><b>#${rk}</b></div><div><span>${T('Tahap')}</span><b>${s.stage}</b></div></div>
@@ -7864,8 +8052,9 @@ function botBodyHTML(i){const s=botState(i),p=botPresence(i),b=botBase(i),now=Da
  <div class="sec">${T('Tim Utama')}</div><div class="bteam">${s.team.map(id=>botHeroCard(s,id,true)).join('')}</div>
  <div class="sec">${T('Koleksi Hero')} · ${ids.length}/${HEROES.length}</div><div class="broster">${ids.map(id=>botHeroCard(s,id,false)).join('')}</div>
  <p class="sub" style="text-align:center;margin-top:6px">${T('Senjata dimiliki: {n}',{n:Object.keys(s.weapons).length})} · ${T('Perlengkapan: {n}',{n:Object.keys(s.gear).length})}</p>`}
-function openBot(i,back){i=+i;if(!(i<botsVisible()))return;rankBot=i;botsEnsureBios();
- modal(`<button class="btn red mclose" data-act="${back||'rank'}">‹</button><h3>${T('Profil Pemain')}</h3><div id="botBody">${botBodyHTML(i)}</div>`);rankStartTimer()}
+function openBot(i,back){i=+i;if(!(i<botsVisible())||botHidden(i))return;rankBot=i;botsEnsureBios();const uid=botUid(i);
+ modal(`<button class="btn red mclose" data-act="${back||'rank'}">‹</button><h3>${T('Profil Pemain')}</h3><div id="botBody">${botBodyHTML(i)}</div>${uid?profActions(uid):''}`);rankStartTimer();
+ if(uid&&loggedIn()&&Date.now()-NET.frAt>15e3)netFriends().then(()=>{const pa=$('#modal .pfact');if(pa&&rankBot===i)pa.outerHTML=profActions(uid)})}
 
 Object.assign(ACT,{rank:()=>openRank(),rankTab:a=>{rankTab=a;openRank()},botView:i=>openBot(i)});
 // mulai dunia bot sesaat setelah game siap (nama dibuat Claude bila tersedia)
@@ -8067,50 +8256,146 @@ Object.assign(ACT,{
 
 /* ==== js/ui/chat.js ==== */
 /* =====================================================================
-   OBROLAN DUNIA — tampilan (mesin: systems/chat.js, gaya: css/chat.css)
-   Strip 2 pesan terakhir di beranda + panel obrolan penuh (modal).
+   OBROLAN DUNIA — pemain sungguhan (server: bank-worker/src/game.js /api/wc)
+   Sejak 18 Nov 2026 obrolan bot & Mode AI dimatikan; yang tampil hanya pesan pemain asli.
+   Strip 2 pesan terakhir di beranda + panel obrolan penuh (modal). Gaya: css/chat.css
    ===================================================================== */
 ICON.chat=pxIcon(K=>{K.rect(2,3,12,8,'#fff6e0');K.rect(1,4,1,6,'#fff6e0');K.rect(14,4,1,6,'#fff6e0');K.rect(4,11,3,2,'#fff6e0');K.rect(4,13,1,1,'#fff6e0');
  K.rect(4,6,2,2,'#c98a1a');K.rect(7,6,2,2,'#c98a1a');K.rect(10,6,2,2,'#c98a1a')});
 const CHQ=['halo semua','gg','wkwk','ada tips?','lagi gacha','pity berapa?','siapa top 1?','bye'];
+const WC={list:[],last:0,at:0,busy:false,seen:0};
 let chatOpen=false,chatSig='';
 const chTime=t=>{const d=new Date(t+BOT_CFG.TZ*36e5);return String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0')};
-function chMine(m){return!m.me&&m.ment&&S.name&&m.text.toLowerCase().includes('@'+S.name.toLowerCase())}
-function chAvatar(m){if(m.me){const id=S.team.find(Boolean);return id?`<img class="px" src="${portrait(id)}">`:''}if(m.i==null||m.i>=botsVisible())return'';const s=botState(m.i);return s.fav?`<img class="px" src="${portrait(s.fav)}">`:''}
-function chVip(m){if(m.me){const v=vipOf(S.iap&&S.iap.spent||0);return v?`<i class="vip v${Math.min(7,v)}">VIP${v}</i>`:''}if(m.i==null||m.i>=botsVisible())return'';const v=botState(m.i).stats.vip;return v?`<i class="vip v${Math.min(7,v)}">VIP${v}</i>`:''}
-function chRow(m,prev){if(m.sys)return`<div class="chsys">${m.hero&&HD[m.hero]?`<img class="px" src="${portrait(m.hero)}">`:''}<span>${esc(m.text)}</span></div>`;
- const same=prev&&!prev.sys&&prev.me===m.me&&prev.i===m.i&&m.t-prev.t<3*6e4,nm=esc(chName(m));
- if(m.me)return`<div class="chm self${same?' cont':''}">${same?'':`<div class="chn"><small>${chTime(m.t)}</small>${chVip(m)}<b>${nm}</b></div>`}<p>${esc(m.text)}</p></div>`;
- return`<div class="chm${same?' cont':''}${chMine(m)?' at':''}">${same?'<span class="chav sp"></span>':`<button class="chav" data-act="chatBot" data-arg="${m.i}">${chAvatar(m)}</button>`}
-  <div class="chb">${same?'':`<div class="chn"><button data-act="chatBot" data-arg="${m.i}">${chVip(m)}<b>${nm}</b></button><small>${chTime(m.t)}</small></div>`}<p>${esc(m.text)}</p></div></div>`}
-function chListHTML(L){if(!L.length)return`<p class="sub chempty">${botsWarmOk()?T('Belum ada obrolan. Sapa yang lain!'):T('Memuat obrolan...')}</p>`;return L.map((m,k)=>chRow(m,L[k-1])).join('')}
-function chTypingHTML(){const L=chatTyping();if(!L.length)return'';const n=L.map(i=>esc(botName(i)));return`<span class="dots"><i></i><i></i><i></i></span>`+(n.length>1?T('{a} dan {b} sedang mengetik...',{a:n[0],b:n.length>2?T('{n} lainnya',{n:n.length-1}):n[1]}):T('{n} sedang mengetik...',{n:n[0]}))}
-function openChat(){chatInit();chatOpen=true;try{chatPump()}catch(e){}
- modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3><img class="ix" src="${ICON.wchat||ICON.chat}" style="width:24px;height:24px"> ${T('Obrolan Dunia')}</h3><div class="chhd"><small><i class="on"></i><b id="chOn">${chWorld().online}</b> ${T('online')}</small></div>
- <div class="chlist" id="chList"></div><div class="chtype" id="chType"></div>
- <div class="chq">${CHQ.map(q=>`<button data-act="chatQuick" data-arg="${esc(q)}">${esc(q)}</button>`).join('')}</div>
- <form class="chin" id="chForm"><input id="chIn" maxlength="100" autocomplete="off" placeholder="${T('Ketik pesan...')}"><button class="btn" type="submit">${T('Kirim')}</button></form>`);
- $('#modal .mbox').classList.add('chatbox');$('#chForm').onsubmit=e=>{e.preventDefault();const v=$('#chIn').value;if(chatSend(v)){$('#chIn').value='';chatSig='';chatRefresh(true);sfx('tap')}};
+try{WC.seen=+localStorage.getItem('aster_wcseen')||0}catch(e){}
+async function wcFetch(){if(WC.busy)return;WC.busy=true;WC.at=Date.now();
+ try{const o=await api('/api/wc?after='+WC.last);if(o.ok&&o.list.length){WC.list=WC.list.concat(o.list).slice(-150);WC.last=WC.list[WC.list.length-1].id}}finally{WC.busy=false}}
+const wcMine=m=>loggedIn()&&m.uid===NET.acct.uid;
+const chAt=m=>!wcMine(m)&&loggedIn()&&m.txt.toLowerCase().includes('@'+NET.acct.u.toLowerCase());
+function chRow(m,prev){const me=wcMine(m),same=prev&&prev.uid===m.uid&&m.ts-prev.ts<3*6e4,nm=esc(m.u),vip=m.vip?`<i class="vip v${Math.min(7,m.vip)}">VIP${m.vip}</i>`:'';
+ const av=m.top&&HD[m.top]?`<img class="px" src="${portrait(m.top)}">`:'';
+ if(me)return`<div class="chm self${same?' cont':''}">${same?'':`<div class="chn"><small>${chTime(m.ts)}</small>${vip}<b>${nm}</b></div>`}<p>${esc(m.txt)}</p></div>`;
+ return`<div class="chm${same?' cont':''}${chAt(m)?' at':''}">${same?'<span class="chav sp"></span>':`<button class="chav" data-act="profView" data-arg="${m.uid}">${av}</button>`}
+  <div class="chb">${same?'':`<div class="chn"><button data-act="profView" data-arg="${m.uid}">${vip}<b>${nm}</b></button><small>${chTime(m.ts)}</small></div>`}<p>${esc(m.txt)}</p></div></div>`}
+function chListHTML(L){if(!L.length)return`<p class="sub chempty">${WC.at?T('Belum ada obrolan. Sapa yang lain!'):T('Memuat obrolan...')}</p>`;return L.map((m,k)=>chRow(m,L[k-1])).join('')}
+const wcOnline=()=>NET.players.filter(p=>p.on).length+(loggedIn()&&!NET.players.some(p=>p.uid===NET.acct.uid&&p.on)?1:0);
+function openChat(){chatOpen=true;wcFetch().then(()=>chatRefresh(true));netPlayers();
+ modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3><img class="ix" src="${ICON.wchat||ICON.chat}" style="width:24px;height:24px"> ${T('Obrolan Dunia')}</h3><div class="chhd"><small><i class="on"></i><b id="chOn">${wcOnline()}</b> ${T('pemain online')}</small></div>
+ <div class="chlist" id="chList"></div>
+ ${loggedIn()?`<div class="chq">${CHQ.map(q=>`<button data-act="chatQuick" data-arg="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+ <form class="chin" id="chForm"><input id="chIn" maxlength="120" autocomplete="off" placeholder="${T('Ketik pesan...')}"><button class="btn" type="submit">${T('Kirim')}</button></form>`
+ :`<div class="chguest">${T('Masuk dengan akun untuk ikut mengobrol.')} <button class="btn green" data-act="accLink">${T('Daftarkan Akun')}</button></div>`}`);
+ $('#modal .mbox').classList.add('chatbox');const f=$('#chForm');
+ if(f)f.onsubmit=async e=>{e.preventDefault();const i=$('#chIn'),v=(i.value||'').trim();if(!v)return;i.value='';sfx('tap');
+  const o=await api('/api/wc',{tok:netTok(),txt:v});if(!o.ok){i.value=v;toast(o.e==='fast'?T('Pelan-pelan, tunggu sebentar.'):netErr(o.e));return}await wcFetch();chatSig='';chatRefresh(true)};
  chatSig='';chatRefresh(true)}
-function chatRefresh(force){const box=$('#chList');if(!box){chatOpen=false;return}const L=chatVisible(),last=L[L.length-1],sig=L.length+':'+(last?last.id:'');
+function chatRefresh(force){const box=$('#chList');if(!box){chatOpen=false;return}const L=WC.list,last=L[L.length-1],sig=L.length+':'+(last?last.id:'');
  const nearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;
- if(sig!==chatSig){chatSig=sig;box.innerHTML=chListHTML(L);if(force||nearBottom)box.scrollTop=box.scrollHeight}
- const ty=$('#chType');if(ty)ty.innerHTML=chTypingHTML();const on=$('#chOn');if(on)on.textContent=chWorld().online;
- CHAT.seenT=Date.now();CHAT.mem.seenT=CHAT.seenT;CHAT.unread=0;CHAT.mention=0}
+ if(sig!==chatSig||force){chatSig=sig;box.innerHTML=chListHTML(L);if(force||nearBottom)box.scrollTop=box.scrollHeight}
+ const on=$('#chOn');if(on)on.textContent=wcOnline();if(last){WC.seen=last.id;try{localStorage.setItem('aster_wcseen',WC.seen)}catch(e){}}}
 /* ---- strip di beranda ---- */
-function chatStripHTML(){const L=chatVisible().filter(m=>!m.sys||m.me).slice(-2);
- const n=CHAT.unread,at=CHAT.mention;
- return`<img class="ix" src="${ICON.chat}"><span class="chsl">${L.length?L.map(m=>`<span><b>${esc(chName(m))}:</b> ${esc(m.text)}</span>`).join(''):`<span>${T('Obrolan Dunia')}</span>`}</span>${at?'<i class="dot n at">@</i>':n?`<i class="dot n">${n>99?'99+':n}</i>`:''}`}
-function chatTick(){if(!botsWarmOk()||!BOTS.names.length)return;try{chatPump()}catch(e){console.error(e)}const now=Date.now();
- if(chatOpen&&$('#chList'))chatRefresh();else{chatOpen=false;const L=chatVisible(now).filter(m=>m.t>CHAT.seenT&&!m.me);CHAT.unread=L.filter(m=>!m.sys).length;
-  const at=L.filter(chMine);if(at.length>CHAT.mention){const m=at[at.length-1];toast(T('{n} menyebutmu di obrolan',{n:chName(m)}))}CHAT.mention=at.length}
- try{chatAiScene(now)}catch(e){}
- const st=$('#hchat');if(st)st.innerHTML=chatStripHTML();if(now-(CHAT.coAt||0)>6e4){CHAT.coAt=now;try{chatCallouts(now)}catch(e){}}}
+function chatStripHTML(){const L=WC.list.slice(-2),n=Math.max(0,(NET.wc||WC.last)-WC.seen);
+ return`<img class="ix" src="${ICON.chat}"><span class="chsl">${L.length?L.map(m=>`<span><b>${esc(m.u)}:</b> ${esc(m.txt)}</span>`).join(''):`<span>${T('Obrolan Dunia')}</span>`}</span>${n?`<i class="dot n">${n>99?'99+':n}</i>`:''}`}
+function chatTick(){const now=Date.now(),L=document.getElementById('login');if(L&&L.classList.contains('on'))return;
+ if(chatOpen&&$('#chList')){if(now-WC.at>2500)wcFetch().then(()=>chatRefresh());}
+ else{chatOpen=false;if(now-WC.at>20e3||(NET.wc>WC.last&&now-WC.at>3e3))wcFetch().then(()=>{const m=WC.list.filter(x=>x.id>WC.seen&&chAt(x)).pop();if(m&&m.id>(WC.atSeen||0)){WC.atSeen=m.id;toast(T('{n} menyebutmu di obrolan',{n:m.u}))}})}
+ const st=$('#hchat');if(st)st.innerHTML=chatStripHTML()}
 setTimeout(()=>setInterval(chatTick,1500),3500);
-Object.assign(ACT,{chat:()=>openChat(),chatQuick:q=>{const i=$('#chIn');if(i){i.value=q;i.focus()}},chatBot:i=>{chatOpen=false;openBot(+i,'chat')}});
-// status server AI di Pengaturan
-{const _set=ACT.settings;ACT.settings=(...a)=>{_set(...a);if(!aiOn())return;fetch(TOPUP_CFG.api.replace(/\/$/,'')+'/api/ai/status').then(r=>r.json()).then(o=>{const e=$('#aiStat');if(!e)return;
- e.insertAdjacentHTML('beforeend',`<br><b style="color:${o.on?'#2f8a3a':'#b03a2a'}">${o.on?T('Server AI aktif · {n}/{m} panggilan hari ini',{n:fmt(o.today),m:fmt(o.limit)}):T('Server AI belum aktif (token belum dipasang di GitHub secret ANTHROPIC_API_KEY).')}</b>`)}).catch(()=>{})}}
+Object.assign(ACT,{chat:()=>openChat(),chatQuick:q=>{const i=$('#chIn');if(i){i.value=q;i.focus()}}});
+
+/* ==== js/ui/social.js ==== */
+/* =====================================================================
+   SOSIAL — Teman, Permintaan, Cari pemain, Pesan 1:1, profil pemain asli
+   Data dari server lewat systems/net.js. Bot juga punya akun (UID + username) dan bisa berteman:
+   bot menjawab permintaanmu saat ia online, dan kadang mengajakmu berteman lebih dulu.
+   Pesan 1:1 hanya untuk sesama teman. Bot tidak membalas pesan (obrolan bot dimatikan).
+   ===================================================================== */
+ICON.friend=pxIcon(K=>{K.rect(3,3,4,4,'#ffd9b0');K.rect(2,8,6,5,'#4fa3ff');K.rect(9,4,4,4,'#ffd9b0');K.rect(8,9,6,5,'#ff8a5c');K.rect(3,2,4,2,'#5a3a22');K.rect(9,3,4,2,'#2a2a44');K.rect(12,12,3,3,'#3ad06a');K.rect(13,11,1,5,'#fff');K.rect(11,13,5,1,'#fff')});
+let socTab='fr',dmOpenWith=null,dmTimer=null,dmLast=0,dmSeen=0,dmList=[];
+const needAcct=()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Butuh Akun')}</h3><p style="text-align:center;font-size:13px">${T('Fitur teman, pesan, dan obrolan butuh akun. Daftarkan akun — progres tamu kamu ikut tersimpan.')}</p><div class="mrow"><button class="btn green" data-act="accLink">${T('Daftarkan Akun')}</button></div>`);
+const onDot=p=>p.bot!=null?botPresence(p.bot).online:p.on;
+const lastSeen=p=>p.bot!=null?botPresence(p.bot).last:p.last;
+function socAv(p){const top=p.bot!=null&&p.bot<botsVisible()?(botState(p.bot).fav||botState(p.bot).team[0]):p.top;return`<span class="rkav">${top&&HD[top]?`<img class="px" src="${portrait(top)}">`:''}${onDot(p)?'<i class="on"></i>':''}</span>`}
+function socName(p){const v=p.bot!=null&&p.bot<botsVisible()?botState(p.bot).stats.vip:p.vip;return`${v?`<i class="vip v${Math.min(7,v)}">VIP${v}</i>`:''}${esc(p.bot!=null?botName(p.bot):p.u)}`}
+function socSub(p){const s=p.bot!=null&&p.bot<botsVisible()?botState(p.bot):p;return`Lv ${s.lv} · CP ${fmt(s.cp)} · ${onDot(p)?`<em class="ok">${T('Online')}</em>`:T('Aktif {t}',{t:agoMs(Date.now()-lastSeen(p))})}`}
+function socRow(p,btns){return`<div class="frrow"><button class="frmain" data-act="profView" data-arg="${p.uid}">${socAv(p)}<span class="rknm"><b>${socName(p)}</b><small>${socSub(p)}</small></span></button><span class="frbt">${btns}</span></div>`}
+function socBody(){const F=NET.friends;
+ if(socTab==='fr'){const L=F.friends.slice().sort((a,b)=>onDot(b)-onDot(a)||lastSeen(b)-lastSeen(a));
+  return L.length?`<div class="frlist">${L.map(p=>socRow(p,`<button class="btn sm" data-act="dmOpen" data-arg="${p.uid}">💬</button>`)).join('')}</div>`:`<p class="sub frempty">${T('Belum punya teman. Cari pemain lewat tab Cari atau dari Peringkat.')}</p>`}
+ if(socTab==='rq'){return(F.inc.length?`<div class="sec">${T('Permintaan masuk')}</div><div class="frlist">${F.inc.map(p=>socRow(p,`<button class="btn sm green" data-act="frResp" data-arg="${p.uid}:1">✓</button><button class="btn sm red" data-act="frResp" data-arg="${p.uid}:0">✕</button>`)).join('')}</div>`:'')+
+  (F.out.length?`<div class="sec">${T('Menunggu jawaban')}</div><div class="frlist">${F.out.map(p=>socRow(p,`<button class="btn sm gray" data-act="frDel" data-arg="${p.uid}">${T('Batal')}</button>`)).join('')}</div>`:'')||`<p class="sub frempty">${T('Tidak ada permintaan pertemanan.')}</p>`}
+ if(socTab==='dm')return`<div id="dmThreads"><p class="sub frempty">${T('Memuat pesan...')}</p></div>`;
+ return`<form class="frfind" id="frFind"><input id="frQ" maxlength="14" autocomplete="off" placeholder="${T('Username atau UID')}"><button class="btn" type="submit">${T('Cari')}</button></form><div id="frRes"></div>`}
+function openSocial(tab){if(!loggedIn())return needAcct();if(tab)socTab=tab;
+ const F=NET.friends,dmN=NET.dm;
+ modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3><img class="ix" src="${ICON.friend}" style="width:24px;height:24px"> ${T('Teman')}</h3>
+ <div class="frme">${T('UID kamu')}: <b>${NET.acct.uid}</b> · ${esc(NET.acct.u)} <button class="frcopy" data-act="frCopy">${T('Salin')}</button></div>
+ <div class="mtabs frtabs">${[['fr',T('Teman')+` ${F.friends.length}/100`],['dm',T('Pesan')+(dmN?` <i class="dot n">${dmN}</i>`:'')],['rq',T('Permintaan')+(F.inc.length?` <i class="dot n">${F.inc.length}</i>`:'')],['cari',T('Cari')]].map(([k,n])=>`<button class="btn ${socTab===k?'':'blue'}" data-act="socTab" data-arg="${k}">${n}</button>`).join('')}</div>
+ <div id="socBody">${socBody()}</div>`);$('#modal .mbox').classList.add('socbox');
+ if(socTab==='dm')dmThreads();
+ const f=$('#frFind');if(f)f.onsubmit=async e=>{e.preventDefault();const q=($('#frQ').value||'').trim();if(q.length<2)return;const r=$('#frRes');r.innerHTML=`<p class="sub frempty">${T('Mencari...')}</p>`;
+  const o=await api('/api/find?q='+encodeURIComponent(q));if(!$('#frRes'))return;const L=(o.list||[]).filter(p=>p.uid!==NET.acct.uid&&(p.bot==null||(p.bot<botsVisible()&&!botHidden(p.bot))));
+  r.innerHTML=L.length?`<div class="frlist">${L.map(p=>socRow(p,frBtn(p.uid))).join('')}</div>`:`<p class="sub frempty">${o.ok?T('Pemain tidak ditemukan.'):netErr(o.e)}</p>`}}
+function frBtn(uid){const st=frState(uid);return st==='ok'?`<button class="btn sm" data-act="dmOpen" data-arg="${uid}">💬</button>`:st==='out'?`<button class="btn sm gray" disabled>${T('Diminta')}</button>`:st==='inc'?`<button class="btn sm green" data-act="frResp" data-arg="${uid}:1">${T('Terima')}</button>`:`<button class="btn sm green" data-act="frAdd" data-arg="${uid}">+ ${T('Teman')}</button>`}
+async function dmThreads(){const o=await api('/api/dm/threads',{tok:netTok()}),box=$('#dmThreads');if(!box)return;const L=o.list||[];
+ box.innerHTML=L.length?`<div class="frlist">${L.map(p=>`<button class="frrow dmth" data-act="dmOpen" data-arg="${p.uid}">${socAv(p)}<span class="rknm"><b>${socName(p)}</b><small>${p.msg.me?T('Kamu')+': ':''}${esc(p.msg.txt)}</small></span><span class="dmt"><small>${agoMs(Date.now()-p.msg.ts)}</small>${p.unread?`<i class="dot n">${p.unread}</i>`:''}</span></button>`).join('')}</div>`:`<p class="sub frempty">${T('Belum ada pesan. Kirim pesan ke teman dari tab Teman.')}</p>`}
+
+/* ---------------- pesan 1:1 ---------------- */
+function dmPeer(uid){const all=NET.friends.friends.concat(NET.friends.inc,NET.friends.out);return all.find(p=>p.uid===uid)||{uid,u:'?',bot:null}}
+function dmRowsHTML(){if(!dmList.length)return`<p class="sub frempty">${T('Mulai percakapan!')}</p>`;let out='',day='';
+ for(const m of dmList){const d=new Date(m.ts+BOT_CFG.TZ*36e5).toISOString().slice(0,10);if(d!==day){day=d;out+=`<div class="dmday">${d===new Date(Date.now()+BOT_CFG.TZ*36e5).toISOString().slice(0,10)?T('Hari ini'):d.split('-').reverse().join('/')}</div>`}
+  out+=`<div class="dmm${m.me?' me':''}"><p>${esc(m.txt)}</p><small>${chTime(m.ts)}${m.me?(m.id<=dmSeen?' ✓✓':' ✓'):''}</small></div>`}return out}
+async function dmPoll(force){if(!dmOpenWith)return;const o=await api('/api/dm/get',{tok:netTok(),uid:dmOpenWith,after:force?0:dmLast});if(!o.ok||!dmOpenWith)return;
+ const box=$('#dmList');if(!box){dmClose();return}const near=box.scrollHeight-box.scrollTop-box.clientHeight<80;let ch=o.seen!==dmSeen;dmSeen=o.seen;
+ if(force)dmList=[];if(o.list.length){dmList=dmList.concat(o.list.filter(m=>!dmList.some(x=>x.id===m.id)));dmLast=dmList[dmList.length-1].id;ch=true}
+ if(ch||force){box.innerHTML=dmRowsHTML();if(force||near)box.scrollTop=box.scrollHeight}
+ if(o.list.some(m=>!m.me)){NET.dm=Math.max(0,NET.dm-o.list.filter(m=>!m.me).length);refreshBadges()}}
+function dmClose(){dmOpenWith=null;clearInterval(dmTimer);dmTimer=null}
+function openDM(uid){if(!loggedIn())return needAcct();const p=dmPeer(uid);dmOpenWith=uid;dmLast=0;dmSeen=0;dmList=[];
+ const bot=p.bot!=null;
+ modal(`<button class="btn red mclose" data-act="dmBack">‹</button><h3 class="dmh"><button data-act="profView" data-arg="${uid}">${socAv(p)}<span><b>${socName(p)}</b><small>${onDot(p)?T('Online'):T('Aktif {t}',{t:agoMs(Date.now()-lastSeen(p))})}</small></span></button></h3>
+ <div class="dmlist" id="dmList"><p class="sub frempty">${T('Memuat pesan...')}</p></div>
+ ${isFriend(uid)?`<form class="chin" id="dmForm"><input id="dmIn" maxlength="300" autocomplete="off" placeholder="${T('Tulis pesan...')}"><button class="btn" type="submit">${T('Kirim')}</button></form>${bot?`<p class="sub dmnote">${T('Pemain ini jarang membalas pesan.')}</p>`:''}`:`<p class="sub frempty">${T('Kalian harus berteman untuk saling mengirim pesan.')}</p>`}`);
+ $('#modal .mbox').classList.add('socbox','dmbox');
+ const f=$('#dmForm');if(f)f.onsubmit=async e=>{e.preventDefault();const i=$('#dmIn'),v=(i.value||'').trim();if(!v)return;i.value='';sfx('tap');
+  const o=await api('/api/dm/send',{tok:netTok(),uid,txt:v});if(!o.ok){i.value=v;toast(o.e==='fast'?T('Pelan-pelan, tunggu sebentar.'):o.e==='notfriend'?T('Kalian belum berteman.'):netErr(o.e));return}dmPoll()};
+ dmPoll(true);clearInterval(dmTimer);dmTimer=setInterval(()=>{if(!$('#dmList')){dmClose();return}dmPoll()},3000)}
+
+/* ---------------- profil pemain asli ---------------- */
+function profBodyHTML(o){const s=o.prof||{},heroes=s.heroes||{},ids=Object.keys(heroes).filter(id=>HD[id]);
+ const P={heroes,weapons:s.weapons||{},gear:s.gear||{},fav:s.top};ids.sort((x,y)=>(y===s.top)-(x===s.top)||(heroes[y].asc||HD[y].r)-(heroes[x].asc||HD[x].r)||heroes[y].lv-heroes[x].lv);
+ const L=rankSorted(),rk=L.findIndex(e=>e.h===o.uid||(e.me&&loggedIn()&&o.uid===NET.acct.uid))+1;
+ return`<div class="bprof"><div class="bpav">${s.top&&HD[s.top]?`<img class="px" src="${portrait(s.top)}">`:''}${o.on?'<i class="on"></i>':''}</div>
+  <div class="bpinf"><b>${o.vip?`<i class="vip v${Math.min(7,o.vip)}">VIP${o.vip}</i>`:''}${esc(o.u)}</b><small class="bold">UID ${o.uid}</small><span>${o.on?`<em class="ok">${T('Online')}</em>`:T('Aktif {t}',{t:agoMs(Date.now()-o.last)})}</span></div></div>
+ ${s.bio?`<div class="bbio">“${esc(s.bio)}”</div>`:''}
+ <div class="stats"><div><span>${T('Level')}</span><b>${o.lv}</b></div><div><span>CP</span><b>${fmt(o.cp)}</b></div><div><span>${T('Peringkat')}</span><b>${rk?'#'+rk:'—'}</b></div><div><span>${T('Tahap')}</span><b>${esc(s.stage||'-')}</b></div></div>
+ <div class="bstat"><div><b>${s.days||1}</b><span>${T('Hari login')}</span></div><div><b>${s.nh||ids.length}</b><span>${T('Hero')}</span></div><div><b>${s.nw||0}</b><span>${T('Senjata')}</span></div><div><b>${fmt(s.ar||0)}</b><span>${T('Poin Arena')}</span></div></div>
+ ${(s.team||[]).filter(id=>heroes[id]).length?`<div class="sec">${T('Tim Utama')}</div><div class="bteam">${s.team.filter(id=>heroes[id]&&HD[id]).map(id=>botHeroCard(P,id,true)).join('')}</div>`:''}
+ ${ids.length?`<div class="sec">${T('Koleksi Hero')} · ${ids.length}/${HEROES.length}</div><div class="broster">${ids.map(id=>botHeroCard(P,id,false)).join('')}</div>`:''}`}
+function profActions(uid){if(!loggedIn()||uid===NET.acct.uid)return'';const st=frState(uid);
+ return`<div class="mrow pfact">${st==='ok'?`<button class="btn" data-act="dmOpen" data-arg="${uid}">💬 ${T('Kirim Pesan')}</button><button class="btn gray" data-act="frDelAsk" data-arg="${uid}">${T('Hapus Teman')}</button>`
+  :st==='out'?`<button class="btn gray" disabled>${T('Permintaan terkirim')}</button><button class="btn red" data-act="frDel" data-arg="${uid}">${T('Batal')}</button>`
+  :st==='inc'?`<button class="btn green" data-act="frResp" data-arg="${uid}:1">${T('Terima Pertemanan')}</button><button class="btn red" data-act="frResp" data-arg="${uid}:0">${T('Tolak')}</button>`
+  :`<button class="btn green" data-act="frAdd" data-arg="${uid}">+ ${T('Tambah Teman')}</button>`}</div>`}
+let profBack=null;
+async function openProfile(uid,back){profBack=back||null;const bi=botIdxOf(uid);if(bi>=0){openBot(bi,back||'closeModal');return}
+ if(loggedIn()&&uid===NET.acct.uid){closeModal();return}
+ modal(`<button class="btn red mclose" data-act="${back||'closeModal'}">‹</button><h3>${T('Profil Pemain')}</h3><div id="pfBody"><p class="sub frempty">${T('Memuat profil...')}</p></div>`);
+ const o=await api('/api/prof?uid='+uid);const b=$('#pfBody');if(!b)return;if(!o.ok){b.innerHTML=`<p class="sub frempty">${T('Pemain tidak ditemukan.')}</p>`;return}
+ if(o.bot!=null){openBot(o.bot,back||'closeModal');return}
+ b.innerHTML=profBodyHTML(o)+profActions(uid)}
+async function frAct(path,uid,extra){if(!loggedIn())return needAcct();const o=await api('/api/fr/'+path,{tok:netTok(),uid,...extra});if(!o.ok){toast(o.e==='full'?T('Daftar teman sudah penuh (100).'):netErr(o.e));return o}await netFriends();refreshBadges();return o}
+Object.assign(ACT,{
+ friends:()=>{const t=NET.fr?'rq':NET.dm?'dm':'fr';netFriends().then(()=>{if($('#socBody')&&!$('#frRes')&&!$('#dmThreads'))openSocial()});openSocial(t)},
+ socTab:k=>{socTab=k;sfx('tab');openSocial()},
+ frCopy:()=>{try{navigator.clipboard.writeText(NET.acct.uid)}catch(e){}toast(T('UID disalin'))},
+ profView:uid=>{const back=$('#chList')?'chat':$('#socBody')?'friends':null;openProfile(String(uid),back)},
+ frAdd:async uid=>{const o=await frAct('add',uid);if(!o||!o.ok)return;sfx('claim');toast(o.st==='ok'?T('Kalian sekarang berteman!'):T('Permintaan pertemanan dikirim'));const pa=$('#modal .pfact');if(pa)pa.outerHTML=profActions(uid);else if($('#frRes'))$('#frFind').requestSubmit();},
+ frResp:async a=>{const[uid,ok]=a.split(':');const o=await frAct('resp',uid,{ok:ok==='1'});if(!o||!o.ok)return;sfx(ok==='1'?'claim':'close');toast(ok==='1'?T('Kalian sekarang berteman!'):T('Permintaan ditolak'));const pa=$('#modal .pfact');if(pa)pa.outerHTML=profActions(uid);else openSocial()},
+ frDel:async uid=>{await frAct('del',uid);const pa=$('#modal .pfact');if(pa)pa.outerHTML=profActions(uid);else openSocial()},
+ frDelAsk:uid=>{const p=dmPeer(uid);confirmBox(T('Hapus {n} dari daftar teman?',{n:esc(p.bot!=null?botName(p.bot):p.u)}),async()=>{await frAct('del',uid);openSocial('fr')},T('Hapus'))},
+ dmOpen:uid=>openDM(uid),
+ dmBack:()=>{dmClose();openSocial('dm')},
+});
 
 /* ==== js/ui/smelt.js ==== */
 /* =====================================================================
@@ -8286,6 +8571,7 @@ async function bootStart(){await sprReady();if(location.hash==='#skipboot'){awai
  bootSet(62,'Menempa senjata...');for(let i=0;i<WEAPONS.length;i++){await bootStep(()=>weaponIcon(WEAPONS[i].id));if(i%4===3){bootSet(62+Math.round(14*i/WEAPONS.length));await nextFrame()}}await bootStep(()=>GEAR.forEach(g=>gearIcon(g.id)));
  bootSet(78,'Membangun Kerajaan Aster...');await nextFrame();await bootStep(initCore);await bootStep(()=>{if(typeof HOME_SCENE!=='undefined'&&!HOME_SCENE)HOME_SCENE=makeHomeScene()});await nextFrame();
  bootSet(90,'Memanggil para petualang...');await bootStep(()=>{botsInit()});await nextFrame();
+ if(loggedIn()){bootSet(95,'Menghubungkan akun...');await bootStep(()=>Promise.race([netPull(),sleep(5000)]));if(S.uid!==NET.acct.uid){S.uid=NET.acct.uid;S.name=NET.acct.u}}
  const wait=2300-(performance.now()-t0);if(wait>0)await sleep(wait);
  bootSet(100,'Siap!');await sleep(450);clearInterval(tipT);
  const b=document.getElementById('boot');b.classList.add('out');setTimeout(()=>{b.remove();cancelAnimationFrame(bootRAF)},500);
@@ -8300,16 +8586,35 @@ function openLogin(){cancelAnimationFrame(loginRAF);if(typeof bgmPlay==='functio
  L.innerHTML=`${KA?`<img id="lgbg" class="kart" src="${BGIMG_SRC.key}" alt="">`:`<canvas id="lgbg" width="${HOME_W}" height="${HOME_H}"></canvas>`}<div class="lgrays"></div><div class="lgtint"></div>
  <div class="lgfx">${Array.from({length:18},(_,i)=>`<i style="left:${(i*53)%100}%;animation-delay:${(i*.37)%5}s;animation-duration:${5+(i%4)}s"></i>`).join('')}</div>
  ${logoHTML()}
- <div id="lgPanel" class="${lgMode==='name'?'card':''}">${lgMode==='name'?loginNameHTML():loginTapHTML()}</div>
+ <div id="lgPanel" class="${lgMode!=='tap'?'card':''}">${lgMode==='name'?loginNameHTML():lgMode==='auth'?authHTML():loginTapHTML()}</div>
  <div class="lgside"><button data-act="lgNews"><img class="px" src="${ICON.mission}" alt=""><span>${T('Pengumuman')}</span></button><button data-act="lgLang"><img class="px" src="${ICON.gear}" alt=""><span>${T('Bahasa')}</span></button><button data-act="lgAcc"><img class="px" src="${ICON.team}" alt=""><span>${T('Akun')}</span></button></div>
  <div class="lgver"><span>v${GAME_VER} · UID ${S.uid.replace(/(\d{4})(\d{4})/,'$1 $2')}</span><span>© HUN2 STUDIO</span></div>`;
  L.classList.add('on');L.classList.toggle('again',lgOpened);lgOpened=true;if(KA)return;const cv=document.getElementById('lgbg'),g=cv.getContext('2d');g.imageSmoothingEnabled=false;
  const t0=performance.now();const step=n=>{if(cv!==document.getElementById('lgbg'))return;drawHomeScene(g,(n-t0)/1000);loginRAF=requestAnimationFrame(step)};loginRAF=requestAnimationFrame(step)}
-function loginTapHTML(){return`<button class="lgtap" data-act="lgStart">${S.named?`<span class="lgwel"><i>Lv${S.lv||1}</i><small>${T('Selamat datang kembali,')}</small><b>${esc(S.name)}</b></span>`:''}<span class="lgcta"><span>${T('KETUK UNTUK MULAI')}</span></span></button>`}
+function loginTapHTML(){return`<button class="lgtap" data-act="lgStart">${loggedIn()||S.named?`<span class="lgwel"><i>Lv${S.lv||1}</i><small>${T('Selamat datang kembali,')}</small><b>${esc(loggedIn()?NET.acct.u:S.name)}</b>${loggedIn()?'':`<em>${T('Tamu')}</em>`}</span>`:''}<span class="lgcta"><span>${T('KETUK UNTUK MULAI')}</span></span></button>`}
 function loginNameHTML(){return`<div class="lgcard"><button class="lgx" data-act="lgBack" aria-label="✕">✕</button><h3>${T('Masuk sebagai Tamu')}</h3><p>${T('Data petualanganmu disimpan di perangkat ini.')}</p>
  <label for="lgName">${T('Nama Kapten')}</label><input class="nm" id="lgName" maxlength="12" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" value="${S.name&&S.name!=='Kapten'?esc(S.name):''}" placeholder="${T('3–12 huruf atau angka')}">
  <small class="lgrule" id="lgRule">${T('Hanya huruf dan angka, tanpa spasi atau simbol.')}</small>
  <div class="mrow"><button class="btn gray" data-act="lgDice">🎲 ${T('Acak')}</button><button class="btn" data-act="lgGo">${T('Mulai Petualangan')}</button></div></div>`}
+// kartu Masuk / Daftar (akun server). mode 'link' = dari Pengaturan: daftarkan progres tamu saat ini
+let auTab='in';
+function authHTML(link){const reg=auTab==='up'||link;return`<div class="lgcard au">${link?'':'<button class="lgx" data-act="lgBack" aria-label="✕">✕</button>'}<h3>${link?T('Daftarkan Akun'):reg?T('Buat Akun'):T('Masuk Akun')}</h3>
+ ${link?`<p>${T('Progres tamu kamu saat ini akan disimpan ke akun baru.')}</p>`:`<div class="autab"><button class="${reg?'':'on'}" data-act="auTab" data-arg="in">${T('Masuk Akun')}</button><button class="${reg?'on':''}" data-act="auTab" data-arg="up">${T('Daftar')}</button></div>`}
+ <label for="auU">${T('Username')}</label><input class="nm" id="auU" maxlength="12" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${T('3–12 huruf atau angka')}">
+ <label for="auP" style="margin-top:10px">${T('Password')}</label><div class="aupw"><input class="nm" id="auP" type="password" maxlength="64" autocomplete="${reg?'new-password':'current-password'}" placeholder="${T('minimal 6 karakter')}"><button data-act="auEye" aria-label="👁">👁</button></div>
+ ${reg?`<label for="auP2" style="margin-top:10px">${T('Ulangi Password')}</label><input class="nm" id="auP2" type="password" maxlength="64" autocomplete="new-password">`:''}
+ <small class="lgrule" id="auErr">${reg?T('Username juga menjadi nama Kapten-mu. Simpan password baik-baik — tidak bisa dipulihkan lewat email.'):T('Masuk untuk memuat progres akunmu di perangkat mana pun.')}</small>
+ <div class="mrow"><button class="btn" id="auGo" data-act="auGo" data-arg="${link?'link':''}">${reg?T('Daftar & Mulai'):T('Masuk Akun')}</button></div>
+ ${link?'':`<button class="auguest" data-act="lgGuest">${T('Main sebagai Tamu')} ›</button>`}</div>`}
+async function authGo(link){const u=($('#auU').value||'').trim(),p=$('#auP').value||'',reg=auTab==='up'||link,er=$('#auErr'),bt=$('#auGo');
+ const bad=m=>{er.className='lgrule bad';er.textContent=m;sfx('deny')};
+ if(!NAME_OK.test(u))return bad(netErr('uname'));if(p.length<6)return bad(netErr('pw'));if(reg&&p!==$('#auP2').value)return bad(T('Password tidak sama.'));
+ bt.disabled=true;const old=bt.textContent;bt.textContent=T('Menghubungkan...');er.className='lgrule';er.textContent='';
+ const o=reg?await netRegister(u,p,!!link):await netLogin(u,p);bt.disabled=false;bt.textContent=old;
+ if(!o.ok)return bad(netErr(o.e));
+ sfx('claim');document.activeElement&&document.activeElement.blur&&document.activeElement.blur();
+ if(link){closeModal();toast(T('Akun {n} terdaftar! Progresmu kini tersimpan di server.',{n:o.u}));try{refreshScreen()}catch(e){}return}
+ toast(reg?T('Akun {n} berhasil dibuat!',{n:o.u}):T('Selamat datang kembali, {n}!',{n:o.u}));enterGame()}
 // layar transisi: latar key art buram + ilustrasi hero acak + tips + bar terisi (senada dengan loading)
 function transEl(msg,flash){const tr=document.createElement('div');tr.className='trans';const KA=hasBgArt('key'),id=pickArtHero();
  tr.innerHTML=`<div class="bbg"${KA?` style="background-image:url(${BGIMG_SRC.key})"`:''}></div><div class="bvig"></div><div class="bstars">${motes(10)}</div>
@@ -8333,20 +8638,31 @@ async function backToLogin(){if(document.getElementById('login').classList.conta
  tab='home';lgMode='tap';lgOpened=false;openLogin();if(typeof tutSync==='function')tutSync();await sleep(200);tr.classList.remove('on');setTimeout(()=>tr.remove(),500)}
 function lgValidate(v){return NAME_OK.test(v)}
 Object.assign(ACT,{
- lgStart:()=>{if(entering||lgMode==='name')return;if(S.named){enterGame();return}sfx('open');lgMode='name';const P=$('#lgPanel');P.classList.add('card');P.innerHTML=loginNameHTML();setTimeout(()=>{const i=$('#lgName');i&&i.focus()},80)},
+ lgStart:()=>{if(entering||lgMode!=='tap')return;if(loggedIn()||S.named){enterGame();return}sfx('open');lgMode='auth';auTab='in';const P=$('#lgPanel');P.classList.add('card');P.innerHTML=authHTML()},
+ lgGuest:()=>{sfx('open');lgMode='name';const P=$('#lgPanel');P.classList.add('card');P.innerHTML=loginNameHTML();setTimeout(()=>{const i=$('#lgName');i&&i.focus()},80)},
+ auTab:k=>{auTab=k;sfx('tab');const u=$('#auU')&&$('#auU').value;const P=$('#modal .lgcard.au')?$('#modal .mbox'):$('#lgPanel');if($('#modal .lgcard.au'))return;P.innerHTML=authHTML();if(u)$('#auU').value=u},
+ auEye:()=>{const i=$('#auP');if(i)i.type=i.type==='password'?'text':'password'},
+ auGo:a=>authGo(a==='link'),
+ accLink:()=>{auTab='up';modal(`<button class="btn red mclose" data-act="closeModal">✕</button>${authHTML(true)}`);$('#modal .mbox').classList.add('aubox')},
+ accLogout:()=>confirmBox(T('Keluar dari akun {n}? Progres sudah tersimpan di server dan bisa dimuat lagi dengan masuk.',{n:esc(NET.acct?NET.acct.u:'')}),()=>netLogout(),T('Keluar')),
  lgDice:()=>{const i=$('#lgName');if(i){let v='';for(let k=0;k<20&&!NAME_OK.test(v);k++)v=botLocalName(Math.floor(Math.random()*1e6)).replace(/\d+$/,'').slice(0,12);i.value=v;sfx('tap');i.dispatchEvent(new Event('input',{bubbles:true}))}},
  lgGo:()=>{if(entering)return;const v=($('#lgName').value||'').trim();if(!lgValidate(v)){const r=$('#lgRule');r.classList.add('bad');r.textContent=T('Nama harus 3–12 huruf atau angka, tanpa spasi atau simbol.');sfx('deny');return}
   if(BOTS.names.some(n=>n.toLowerCase()===v.toLowerCase())){toast(T('Nama itu sudah dipakai petualang lain!'),1);return}
+  if(!S.uid||S.uid.length!==8)S.uid=String(10000000+Math.floor(Math.random()*89999999));
   S.name=v;S.named=true;save();const i=$('#lgName');i&&i.blur();enterGame()},
- lgBack:()=>{lgMode='tap';sfx('close');const P=$('#lgPanel');P.classList.remove('card');P.innerHTML=loginTapHTML();P.querySelectorAll('.lgwel,.lgcta').forEach(e=>e.style.animationDelay='0s')},
+ lgBack:()=>{if(lgMode==='name'&&!loggedIn()){lgMode='auth';const P=$('#lgPanel');P.innerHTML=authHTML();sfx('close');return}lgMode='tap';sfx('close');const P=$('#lgPanel');P.classList.remove('card');P.innerHTML=loginTapHTML();P.querySelectorAll('.lgwel,.lgcta').forEach(e=>e.style.animationDelay='0s')},
  lgNews:()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Pengumuman')}</h3><div class="news">${NEWS.map(n=>`<div class="nwi"><b>${T(n.t)}</b><p>${T(n.d)}</p></div>`).join('')}</div><p class="sub" style="text-align:center">v${GAME_VER}</p>`),
  lgLang:()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Bahasa')}</h3><div class="mrow" style="flex-direction:column">${[['id','Bahasa Indonesia'],['en','English'],['ja','日本語']].map(([k,n])=>`<button class="btn ${S.lang===k?'':'blue'}" data-act="lgSetLang" data-arg="${k}">${n}</button>`).join('')}</div>`),
  lgSetLang:k=>{if(S.lang===k){closeModal();return}const v=$('#lgName')&&$('#lgName').value;setLang(k);save();closeModal();openLogin();if(v&&$('#lgName')){$('#lgName').value=v;$('#lgName').dispatchEvent(new Event('input',{bubbles:true}))}},
- lgAcc:()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Akun')}</h3><div class="stats"><div><span>${T('Nama Kapten')}</span><b>${S.named?esc(S.name):'—'}</b></div><div><span>UID</span><b>${S.uid}</b></div><div><span>${T('Level')}</span><b>${S.lv}</b></div><div><span>${T('Jenis akun')}</span><b>${T('Tamu')}</b></div></div>
-  <p class="sub">${T('Akun tamu tersimpan di perangkat dan browser ini. Menghapus data browser akan menghapus progresmu.')}</p>`),
+ lgAcc:()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Akun')}</h3>${loggedIn()?`<div class="stats"><div><span>${T('Username')}</span><b>${esc(NET.acct.u)}</b></div><div><span>UID</span><b>${NET.acct.uid}</b></div><div><span>${T('Level')}</span><b>${S.lv}</b></div><div><span>${T('Jenis akun')}</span><b>${T('Akun Server')}</b></div></div>
+  <p class="sub">${T('Progres tersimpan di server. Masuk dengan username & password yang sama di perangkat lain untuk melanjutkan.')}</p><div class="mrow"><button class="btn red" data-act="accLogout">${T('Keluar Akun')}</button></div>`
+  :`<div class="stats"><div><span>${T('Nama Kapten')}</span><b>${S.named?esc(S.name):'—'}</b></div><div><span>UID</span><b>${S.uid||'—'}</b></div><div><span>${T('Level')}</span><b>${S.lv}</b></div><div><span>${T('Jenis akun')}</span><b>${T('Tamu')}</b></div></div>
+  <p class="sub">${T('Akun tamu tersimpan di perangkat dan browser ini. Menghapus data browser akan menghapus progresmu.')}</p><div class="mrow"><button class="btn" data-act="lgAuthOpen" data-arg="in">${T('Masuk Akun')}</button><button class="btn green" data-act="lgAuthOpen" data-arg="up">${T('Daftar')}</button></div>`}`),
+ lgAuthOpen:k=>{closeModal();lgMode='auth';auTab=k;const P=$('#lgPanel');if(!P)return;P.classList.add('card');P.innerHTML=authHTML()},
 });
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='lgName'){const v=e.target.value,r=$('#lgRule');if(!r)return;const ok=!v||lgValidate(v);r.classList.toggle('bad',!ok);r.classList.toggle('good',!!v&&ok);r.textContent=!v?T('Hanya huruf dan angka, tanpa spasi atau simbol.'):ok?T('Nama tersedia!'):T('Nama harus 3–12 huruf atau angka, tanpa spasi atau simbol.')}});
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='lgName'){e.preventDefault();ACT.lgGo()}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='lgName'){e.preventDefault();ACT.lgGo()}
+ if(e.key==='Enter'&&e.target&&/^auP2?$|^auU$/.test(e.target.id)){e.preventDefault();const b=$('#auGo');b&&!b.disabled&&b.click()}});
 
 /* ==== js/ui/story.js ==== */
 /* =====================================================================

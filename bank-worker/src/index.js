@@ -5,12 +5,14 @@
    POST /tg                 webhook Telegram (dicek dengan header secret token)
    GET  /api/order/<ID>     dipakai game: {st:'wait'} atau {st:'paid', c:'XXXXX-XXXXX'}  (CORS terbuka)
    POST /api/ai, GET /api/ai/status   Mode AI obrolan (Claude Haiku 5.5) — lihat src/ai.js
+   /api/acc/*, /api/save, /api/world, /api/fr/*, /api/dm/*, /api/wc ...  akun & sosial game — lihat src/game.js
    POST /api/botsale        dipakai game: penjualan top up para pemain bot -> pemasukan HUN2 STUDIO (ditandatangani HMAC)
    GET  /setup?k=<hook>     pasang webhook + daftar perintah (dipanggil workflow setelah deploy)
    Secret: BOT_TOKEN (wrangler secret). Var: ASTER_SECRET (= TOPUP_CFG.secret di game), SALDO_AWAL.
    Pemilik rekening = akun Telegram pertama yang menekan Start setelah bot dipasang.
    ===================================================================== */
 import { aiRoute } from './ai.js';
+import { gameRoute, adminMessage, adminCallback } from './game.js';
 const BANK = 'Bank Central Universe';
 const MERCHANT = { key: 'hun2studio', name: 'HUN2 STUDIO' };
 // harus sama dengan TOPUP_CFG di game (src/js/data/topup.js)
@@ -19,8 +21,8 @@ const CATALOG = {
   g4: ['3.960 Permata', 479000], g5: ['6.560 Permata', 799000], g6: ['12.960 Permata', 1599000],
   mc: ['Kartu Bulanan (30 hari)', 79000],
 };
-const BTN = { saldo: '💰 Cek Saldo', setor: '📥 Setor Tunai', mutasi: '📜 Mutasi', toko: '🏢 HUN2 STUDIO', bantuan: '❓ Bantuan' };
-const MENU = { keyboard: [[{ text: BTN.saldo }, { text: BTN.setor }], [{ text: BTN.mutasi }, { text: BTN.toko }], [{ text: BTN.bantuan }]], resize_keyboard: true, is_persistent: true };
+const BTN = { saldo: '💰 Cek Saldo', setor: '📥 Setor Tunai', mutasi: '📜 Mutasi', toko: '🏢 HUN2 STUDIO', bantuan: '❓ Bantuan', game: '🎮 Akun Game' };
+const MENU = { keyboard: [[{ text: BTN.saldo }, { text: BTN.setor }], [{ text: BTN.mutasi }, { text: BTN.toko }], [{ text: BTN.game }, { text: BTN.bantuan }]], resize_keyboard: true, is_persistent: true };
 const BIG = 799000;   // notifikasi pembelian bot mulai nominal ini (bila /notif on)
 const B32 = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const enc = new TextEncoder();
@@ -98,7 +100,7 @@ async function cardMutasi(env) {
   const rows = results.map(t => `${wib(t.ts, { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })}  ${t.too === 'egi' ? '+' : '-'}${rp(t.amount)}\n      ${what(t)}`);
   return `📜 <b>Mutasi rekening</b> (12 terakhir)\n\n<code>${esc(rows.join('\n'))}</code>\n\n💰 Saldo: <b>${rp((await acc(env, 'egi')).balance)}</b>`;
 }
-const HELP = `🏦 <b>${BANK}</b>\n\nPakai tombol di bawah, atau ketik:\n• /saldo\n• /mutasi\n• /setor 5jt\n• /tarik 500rb\n• /toko — pemasukan HUN2 STUDIO dari pemain\n• /notif on|off — kabar pembelian besar\n\n🎮 <b>Top Up Aster Chronicles</b>: buka Toko › Top Up di game, pilih paket, lalu tekan <i>Bayar di Telegram</i>. Permata masuk otomatis setelah kamu menekan ✅ Bayar.\n\nNominal boleh ditulis 250000, 250.000, 250rb, 1,5jt.`;
+const HELP = `🏦 <b>${BANK}</b>\n\nPakai tombol di bawah, atau ketik:\n• /saldo\n• /mutasi\n• /setor 5jt\n• /tarik 500rb\n• /toko — pemasukan HUN2 STUDIO dari pemain\n• /notif on|off — kabar pembelian besar\n• /admin — cek & ubah akun pemain/bot Aster (UID atau username)\n\n🎮 <b>Top Up Aster Chronicles</b>: buka Toko › Top Up di game, pilih paket, lalu tekan <i>Bayar di Telegram</i>. Permata masuk otomatis setelah kamu menekan ✅ Bayar.\n\nNominal boleh ditulis 250000, 250.000, 250rb, 1,5jt.`;
 
 /* ---------------- rekening HUN2 STUDIO (penjualan pemain bot) ---------------- */
 const dayStartWIB = ms => { const d = new Date(ms + 7 * 36e5); d.setUTCHours(0, 0, 0, 0); return d.getTime() - 7 * 36e5 };
@@ -193,6 +195,8 @@ async function onMessage(env, m) {
       return send(env, chat, `✅ <b>${kind === 'setor' ? 'Setor' : 'Tarik'} tunai berhasil</b>\n\n💵 Nominal: ${rp(amt)}\n🧾 Ref: <code>${r.ref}</code>\n🕒 ${when(r.ts)}\n\n💰 Sisa saldo: <b>${rp((await acc(env, 'egi')).balance)}</b>`);
     } catch (e) { return send(env, chat, `❌ Gagal: ${e.message}.`) }
   }
+  if (t === BTN.game) return adminMessage(env, chat, '/admin', '/admin', send).then(() => adminMessage(env, chat, '/pemain', '/pemain', send));
+  if (await adminMessage(env, chat, t, low, send)) return;
   return send(env, chat, 'Pilih menu di bawah ya.');
 }
 async function onCallback(env, q) {
@@ -201,7 +205,8 @@ async function onCallback(env, q) {
   await tg(env, 'answerCallbackQuery', { callback_query_id: q.id });
   if (q.message) await tg(env, 'editMessageReplyMarkup', { chat_id: q.message.chat.id, message_id: q.message.message_id, reply_markup: { inline_keyboard: [] } });
   const chat = q.message?.chat.id || q.from.id, d = q.data || '';
-  if (d === 'cancel') return send(env, chat, 'Transaksi dibatalkan.');
+  if (d === 'cancel') return send(env, chat, 'Dibatalkan.');
+  if (await adminCallback(env, chat, d, send)) return;
   const m = d.match(/^pay:(AST[A-Z2-9]{8}):([a-z0-9]+):(\d+)$/);
   if (m) return pay(env, chat, { id: m[1], sku: m[2], price: +m[3] });
 }
@@ -219,6 +224,9 @@ export default {
       return json(o ? { st: 'paid', id: o.id, sku: o.sku, p: o.price, c: o.code, t: o.ts } : { st: 'wait' });
     }
     if (p === '/api/ai' || p === '/api/ai/status') return aiRoute(req, env, url, json, hookSecret);
+    if (p.startsWith('/api/') && !p.startsWith('/api/order') && !p.startsWith('/api/ai') && p !== '/api/botsale') {
+      try { const r = await gameRoute(req, env, url, json); if (r) return r } catch (e) { console.error(e); return json({ ok: false, e: 'server' }, 500) }
+    }
     if (p === '/api/botsale' && req.method === 'POST') { try { return await botSale(env, req) } catch (e) { console.error(e); return json({ ok: false, e: 'server' }, 500) } }
     if (p === '/tg' && req.method === 'POST') {
       if (req.headers.get('X-Telegram-Bot-Api-Secret-Token') !== await hookSecret(env)) return new Response('forbidden', { status: 403 });
@@ -229,7 +237,7 @@ export default {
     if (p === '/setup') {
       if (url.searchParams.get('k') !== await hookSecret(env)) return new Response('forbidden', { status: 403 });
       const a = await tg(env, 'setWebhook', { url: `${url.origin}/tg`, secret_token: await hookSecret(env), allowed_updates: ['message', 'callback_query'], drop_pending_updates: true });
-      const b = await tg(env, 'setMyCommands', { commands: [{ command: 'saldo', description: 'Cek saldo' }, { command: 'mutasi', description: 'Mutasi rekening' }, { command: 'setor', description: 'Setor tunai, mis. /setor 5jt' }, { command: 'tarik', description: 'Tarik tunai, mis. /tarik 500rb' }, { command: 'toko', description: 'Pemasukan HUN2 STUDIO' }, { command: 'notif', description: 'Kabar pembelian besar: /notif on|off' }, { command: 'bantuan', description: 'Bantuan' }] });
+      const b = await tg(env, 'setMyCommands', { commands: [{ command: 'saldo', description: 'Cek saldo' }, { command: 'mutasi', description: 'Mutasi rekening' }, { command: 'setor', description: 'Setor tunai, mis. /setor 5jt' }, { command: 'tarik', description: 'Tarik tunai, mis. /tarik 500rb' }, { command: 'toko', description: 'Pemasukan HUN2 STUDIO' }, { command: 'notif', description: 'Kabar pembelian besar: /notif on|off' }, { command: 'akun', description: 'Cek/ubah akun game: /akun UID|username' }, { command: 'cari', description: 'Cari username pemain/bot' }, { command: 'pemain', description: 'Daftar pemain asli' }, { command: 'set', description: '/set UID kolom nilai' }, { command: 'resetbot', description: 'Reset semua bot ke hari 1' }, { command: 'bantuan', description: 'Bantuan' }] });
       return json({ webhook: a, commands: b });
     }
     if (env.TG_LOG && p === '/__out') { const o = globalThis.__out || []; globalThis.__out = []; return json(o) }

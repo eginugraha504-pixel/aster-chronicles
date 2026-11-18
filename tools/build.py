@@ -81,3 +81,5 @@ import shutil,subprocess
 if shutil.which('node'):
     try:subprocess.run(['node',os.path.join(ROOT,'tools','gen_knowledge.mjs')],check=True)
     except Exception as e:print('gen_knowledge gagal:',e)
+    try:subprocess.run(['node',os.path.join(ROOT,'tools','gen_botcfg.mjs')],check=True)
+    except Exception as e:print('gen_botcfg gagal:',e)

@@ -1,0 +1,2 @@
+// DIBUAT OTOMATIS oleh tools/gen_botcfg.mjs — jangan diedit manual
+export const BOTCFG={"max":10000,"epoch":1794589200000,"launch":0,"tau":12,"SYL":["ra","ki","no","sa","ri","ta","ka","mi","yu","to","ze","lu","ar","en","ko","vi","ba","do","na","ha","shi","ren","dar","vel","mo","ji","ga","ru","ne","fa"],"heroNames":["sakuya","raika","mira","noa","marisa","pia","rin","vela","bruna","nami","kuro","lumi","hilde","celestine","aurelia","lilith","coppelia"]};
