@@ -214,7 +214,29 @@ async function onCallback(env, q) {
 /* ---------------- HTTP ---------------- */
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'content-type', 'Cache-Control': 'no-store' };
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json', ...CORS } });
+/* Cadangan bila webhook Telegram gagal terpasang (mis. DNS Telegram error):
+   cron tiap menit mencoba pasang ulang webhook; bila masih gagal, ambil pesan via getUpdates (long-poll ±50 dtk). */
+async function onUpdate(env, u) {
+  try { if (u.message) await onMessage(env, u.message); else if (u.callback_query) await onCallback(env, u.callback_query) } catch (e) { console.error(e) }
+}
+async function tgGuard(env, origin) {
+  const info = await tg(env, 'getWebhookInfo', {});
+  if (info.ok && info.result && info.result.url) return 'webhook';
+  const a = await tg(env, 'setWebhook', { url: `${origin}/tg`, secret_token: await hookSecret(env), allowed_updates: ['message', 'callback_query'] });
+  if (a.ok) return 'webhook-set';
+  const end = Date.now() + 50000;
+  let off = +(await kvGet(env, 'tg_off') || 0), n = 0;
+  while (Date.now() < end - 3000) {
+    const t = Math.max(1, Math.min(20, Math.floor((end - Date.now()) / 1000) - 3));
+    const r = await tg(env, 'getUpdates', { offset: off, timeout: t, allowed_updates: ['message', 'callback_query'] });
+    if (!r.ok) break;
+    for (const u of r.result || []) { off = u.update_id + 1; await kvSet(env, 'tg_off', off); await onUpdate(env, u); n++ }
+  }
+  return 'poll:' + n + ' (' + (a.description || '') + ')';
+}
+const ORIGIN = 'https://aster-bank.valberryv.workers.dev';
 export default {
+  async scheduled(ev, env, ctx) { if (env.BOT_TOKEN && !env.TG_LOG) ctx.waitUntil(tgGuard(env, ORIGIN).then(r => console.log('tgGuard', r))) },
   async fetch(req, env) {
     const url = new URL(req.url), p = url.pathname;
     if (req.method === 'OPTIONS') return new Response(null, { headers: CORS });
@@ -230,15 +252,15 @@ export default {
     if (p === '/api/botsale' && req.method === 'POST') { try { return await botSale(env, req) } catch (e) { console.error(e); return json({ ok: false, e: 'server' }, 500) } }
     if (p === '/tg' && req.method === 'POST') {
       if (req.headers.get('X-Telegram-Bot-Api-Secret-Token') !== await hookSecret(env)) return new Response('forbidden', { status: 403 });
-      const u = await req.json();
-      try { if (u.message) await onMessage(env, u.message); else if (u.callback_query) await onCallback(env, u.callback_query) } catch (e) { console.error(e) }
+      await onUpdate(env, await req.json());
       return new Response('ok');
     }
     if (p === '/setup') {
       if (url.searchParams.get('k') !== await hookSecret(env)) return new Response('forbidden', { status: 403 });
       const a = await tg(env, 'setWebhook', { url: `${url.origin}/tg`, secret_token: await hookSecret(env), allowed_updates: ['message', 'callback_query'], drop_pending_updates: true });
       const b = await tg(env, 'setMyCommands', { commands: [{ command: 'saldo', description: 'Cek saldo' }, { command: 'mutasi', description: 'Mutasi rekening' }, { command: 'setor', description: 'Setor tunai, mis. /setor 5jt' }, { command: 'tarik', description: 'Tarik tunai, mis. /tarik 500rb' }, { command: 'toko', description: 'Pemasukan HUN2 STUDIO' }, { command: 'notif', description: 'Kabar pembelian besar: /notif on|off' }, { command: 'akun', description: 'Cek/ubah akun game: /akun UID|username' }, { command: 'cari', description: 'Cari username pemain/bot' }, { command: 'pemain', description: 'Daftar pemain asli' }, { command: 'set', description: '/set UID kolom nilai' }, { command: 'resetbot', description: 'Reset semua bot ke hari 1' }, { command: 'ai', description: 'Mode AI Obrolan Dunia: /ai on|off' }, { command: 'bantuan', description: 'Bantuan' }] });
-      return json({ webhook: a, commands: b });
+      const w = await tg(env, 'getWebhookInfo', {});
+      return json({ webhook: a, commands: b, info: w.result ? { url: w.result.url, pending: w.result.pending_update_count, err: w.result.last_error_message } : w });
     }
     if (env.TG_LOG && p === '/__out') { const o = globalThis.__out || []; globalThis.__out = []; return json(o) }
     return new Response(`${BANK} aktif ✅`, { headers: { 'content-type': 'text/plain; charset=utf-8' } });

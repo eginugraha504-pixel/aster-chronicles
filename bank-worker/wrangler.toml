@@ -6,6 +6,9 @@ main = "src/index.js"
 compatibility_date = "2026-11-01"
 workers_dev = true
 
+[triggers]
+crons = ["* * * * *"]   # jaga webhook Telegram / polling cadangan
+
 [vars]
 ASTER_SECRET = "HUN2-aster-7Qm4Xc9TzR2kLw8B"   # harus sama dengan TOPUP_CFG.secret di game
 SALDO_AWAL = "117456000"                        # saldo awal pemilik saat pertama /start (= saldo terakhir di bank lama PC)
