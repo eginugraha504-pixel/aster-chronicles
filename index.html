@@ -8334,10 +8334,13 @@ function socBody(){const F=NET.friends;
  return`<form class="frfind" id="frFind"><input id="frQ" maxlength="14" autocomplete="off" placeholder="${T('Username atau UID')}"><button class="btn" type="submit">${T('Cari')}</button></form><div id="frRes"></div>`}
 function openSocial(tab){if(!loggedIn())return needAcct();if(tab)socTab=tab;
  const F=NET.friends,dmN=NET.dm;
- modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3><img class="ix" src="${ICON.friend}" style="width:24px;height:24px"> ${T('Teman')}</h3>
+ // modal Teman sudah terbuka (ganti tab / data baru masuk) -> isi diganti di tempat, tanpa animasi & suara buka lagi
+ const html=(`<button class="btn red mclose" data-act="closeModal">✕</button><h3><img class="ix" src="${ICON.friend}" style="width:24px;height:24px"> ${T('Teman')}</h3>
  <div class="frme">${T('UID kamu')}: <b>${NET.acct.uid}</b> · ${esc(NET.acct.u)} <button class="frcopy" data-act="frCopy">${T('Salin')}</button></div>
  <div class="mtabs frtabs">${[['fr',T('Teman')+` ${F.friends.length}/100`],['dm',T('Pesan')+(dmN?` <i class="dot n">${dmN}</i>`:'')],['rq',T('Permintaan')+(F.inc.length?` <i class="dot n">${F.inc.length}</i>`:'')],['cari',T('Cari')]].map(([k,n])=>`<button class="btn ${socTab===k?'':'blue'}" data-act="socTab" data-arg="${k}">${n}</button>`).join('')}</div>
- <div id="socBody">${socBody()}</div>`);$('#modal .mbox').classList.add('socbox');
+ <div id="socBody">${socBody()}</div>`);
+ const box=$('#socBody')&&$('#modal').classList.contains('on')?$('#modal .mbox'):null;
+ if(box){if(box.dataset.soc!==html){box.innerHTML=html;box.dataset.soc=html}}else{modal(html);$('#modal .mbox').classList.add('socbox');$('#modal .mbox').dataset.soc=html}
  if(socTab==='dm')dmThreads();
  const f=$('#frFind');if(f)f.onsubmit=async e=>{e.preventDefault();const q=($('#frQ').value||'').trim();if(q.length<2)return;const r=$('#frRes');r.innerHTML=`<p class="sub frempty">${T('Mencari...')}</p>`;
   const o=await api('/api/find?q='+encodeURIComponent(q));if(!$('#frRes'))return;const L=(o.list||[]).filter(p=>p.uid!==NET.acct.uid&&(p.bot==null||(p.bot<botsVisible()&&!botHidden(p.bot))));
@@ -8392,8 +8395,8 @@ async function openProfile(uid,back){profBack=back||null;const bi=botIdxOf(uid);
  b.innerHTML=profBodyHTML(o)+profActions(uid)}
 async function frAct(path,uid,extra){if(!loggedIn())return needAcct();const o=await api('/api/fr/'+path,{tok:netTok(),uid,...extra});if(!o.ok){toast(o.e==='full'?T('Daftar teman sudah penuh (100).'):netErr(o.e));return o}await netFriends();refreshBadges();return o}
 Object.assign(ACT,{
- friends:()=>{const t=NET.fr?'rq':NET.dm?'dm':'fr';netFriends().then(()=>{if($('#socBody')&&!$('#frRes')&&!$('#dmThreads'))openSocial()});openSocial(t)},
- socTab:k=>{socTab=k;sfx('tab');openSocial()},
+ friends:()=>{const t=NET.fr?'rq':NET.dm?'dm':'fr';openSocial(t);netFriends().then(()=>{if($('#socBody')&&!$('#frRes')&&socTab!=='dm')openSocial()})},
+ socTab:k=>{socTab=k;openSocial()},
  frCopy:()=>{try{navigator.clipboard.writeText(NET.acct.uid)}catch(e){}toast(T('UID disalin'))},
  profView:uid=>{const back=$('#chList')?'chat':$('#socBody')?'friends':null;openProfile(String(uid),back)},
  frAdd:async uid=>{const o=await frAct('add',uid);if(!o||!o.ok)return;sfx('claim');toast(o.st==='ok'?T('Kalian sekarang berteman!'):T('Permintaan pertemanan dikirim'));const pa=$('#modal .pfact');if(pa)pa.outerHTML=profActions(uid);else if($('#frRes'))$('#frFind').requestSubmit();},
