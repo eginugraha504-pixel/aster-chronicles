@@ -108,7 +108,7 @@ async function authGo(link){const u=($('#auU').value||'').trim(),p=$('#auP').val
  toast(reg?T('Akun {n} berhasil dibuat!',{n:o.u}):T('Selamat datang kembali, {n}!',{n:o.u}));enterGame()}
 // layar transisi: latar key art buram + ilustrasi hero acak + tips + bar terisi (senada dengan loading)
 function transEl(msg,flash){const tr=document.createElement('div');tr.className='trans';const KA=hasBgArt('key'),id=pickArtHero();
- tr.innerHTML=`<div class="bbg"${KA?` style="background-image:url(${BGIMG_SRC.key})"`:''}></div><div class="bvig"></div><div class="bstars">${motes(10)}</div>
+ tr.innerHTML=`<div class="bbg"${KA?` style="background-image:url(${BGIMG_SRC.key})"`:''}></div><div class="ldvig"></div><div class="bstars">${motes(10)}</div>
  ${id?`<div class="bhero"></div><div class="blogo"><div class="alogo"></div></div><div class="binfo"></div>`:`<div class="trmini"><div class="alogo"></div></div>`}
  <div class="bbot"><div class="btip"><em>TIPS</em><p class="in">${tipTxt(Math.floor(Math.random()*BOOT_TIPS.length))}</p></div>
  <div class="bline"><span>${T(msg)}</span><b></b></div><div class="bfr"><div class="bfill"></div><i class="bglint"></i></div></div>${flash?'<div class="trflash"></div>':''}`;
