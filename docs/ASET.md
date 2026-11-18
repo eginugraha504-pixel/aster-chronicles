@@ -140,3 +140,7 @@ Aturan umum:
 ## UI v2 (18 Nov 2026, Higgsfield gpt_image_2_6)
 - Mockup arah gaya: beranda & arena (referensi screenshot lama). Elemen: `art_src/ui_kit/n_panel.png, n_card.png, n_plaque.png, n_tabs.png, n_kit.png (medali, pita, kapsul, medali besar), n_tile.png, n_navbar.png` → `src/img/ui/n_*.webp`. Plakat & kartu: ornamen tengah dibuang (sambung kiri+kanan) supaya aman di-9-slice.
 - Ilustrasi ubin beranda `n_artarena.webp`, `n_artevent.webp` (240×240), pola latar `n_bgtile.webp` (192px, diulang 96px).
+
+## Petualangan v2 (18 Nov 2026)
+- Peta dunia `src/img/bg/mp_{grass,cave,castle,storm,summit,moon,deep,void}.webp` (540×968): nano banana, 9:16, referensi latar battle tiap dunia; sumber `art_src/maps/map_*.png`.
+- Node tahap `n_node/n_nodeok/n_nodeboss.webp` dari `art_src/ui_kit/n_nodes.png`; banner Event terkunci `n_artevbattle.webp` (`art_src/maps/event_battle.png`).

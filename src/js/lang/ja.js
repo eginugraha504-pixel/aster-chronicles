@@ -214,3 +214,6 @@ Object.assign(I18D.ja.dungeons,{vault:{n:'黄金竜の宝物庫',desc:'黄金ス
 Object.assign(I18D.ja.enemies,{gslime:{n:'黄金スライム'},bGold:{n:'黄金スライムキング'},mKnight:{n:'銀の騎士'},dSlime:{n:'海溝スライム'},vKnight:{n:'虚無の騎士'},vMage:{n:'虚無の魔導士'},bMoon:{n:'月の騎士'},bDeep:{n:'太古の海スライム'},bVoid:{n:'虚無の王'},bTower:{n:'塔の守護者'}});
 Object.assign(I18D.ja.mats,{asc1:{n:'覚醒の結晶',desc:'ヒーロー・武器・装備を★5まで覚醒させる。覚醒の塔で入手。'},asc2:{n:'天界の核',desc:'★5と★6の覚醒素材。覚醒の塔II以上。'},asc3:{n:'女神の涙',desc:'最も希少な素材。★6覚醒に必要。覚醒の塔IV以上。'}});
 Object.assign(I18N.ja,{"Guild":"ギルド","Segera":"近日","Segera Hadir":"近日公開","Aula Guild sedang dibangun. Nanti kamu bisa bergabung dengan ksatria lain dan bertualang bersama.":"ギルドホールは建設中です。もうすぐ他の騎士と一緒に冒険できるようになります。","Oke":"OK"});
+
+// ---- Petualangan v2 ----
+Object.assign(I18N.ja,{"Cerita": "ストーリー", "Kalahkan 5-5": "5-5をクリア", "Tahap berikutnya": "次のステージ", "MAJU": "出撃", "Dunia selesai!": "ワールドクリア！", "Semua bintang terkumpul ✦": "全ての星を獲得 ✦", "Kumpulkan ★3 di semua tahap": "全ステージで★3を集めよう", "SEGERA HADIR": "近日公開", "Battle Event Musiman": "季節イベントバトル", "Pertempuran event bertema musim sedang disiapkan. Pantau Pengumuman untuk jadwal pembukaannya!": "季節のイベントバトルを準備中です。開催日はお知らせをチェック！", "Bos Musiman": "季節ボス", "Hadiah Terbatas": "限定報酬", "Waktu Terbatas": "期間限定", "Sementara itu, event login & misi ada di menu Event beranda.": "それまでの間、ログイン＆ミッションイベントはホームのイベントメニューへ。", "Fajar Aster": "アスターの夜明け"});

@@ -231,3 +231,8 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - Beranda baru (`ui/home.js` `homeHTML` + `css/home.css`): banner pick-up lebar, medali samping (`n_medal` + pita `n_ribbon`), plakat CP, **tombol Guild terkunci** (`ACT.guild` → modal "Segera Hadir"), papan nama hero + panah ganti hero, gelembung dialog, ticker obrolan, dok bawah: ubin Arena/Event berilustrasi (`n_artarena`, `n_artevent`, bingkai `n_tile`) + medali emas Petualangan (`n_bigmed`). `lobbyPlace()` menyesuaikan tinggi splash antara banner dan papan nama.
 - Ikon baru: `guild`, `crest`, `wchat` (lembar `art_src/icon_sheets/G.png`).
 - UI pertarungan tidak diubah.
+
+## Petualangan v2 (18 Nov 2026)
+- `ui/adventure.js`: tiga mode di atas (`advTab`): **Cerita** (`world`), **Dungeon** (`dg`), **Event** (`ev`, terkunci — battle event musiman belum ada; layar "Segera Hadir" `advEventHTML`). Aksi `advMode`.
+- Cerita: pemilih bab (`ADV_CH`: BAB I Dunia 1–5 "Fajar Aster", BAB II Dunia 6–8 "Kebangkitan"), kartu dunia (latar `w_<art>`, bintang x/15, gembok), peta ilustrasi baru `img/bg/mp_<art>.webp` (Higgsfield, fallback `m_<art>`), jalur emas untuk tahap yang sudah dilalui, node medali (`n_node`, `n_nodeok`, `n_nodeboss`), penanda tahap sekarang, bilah "Tahap berikutnya" (CP tim vs disarankan + tombol MAJU). Posisi node `NODEPOS`.
+- Dungeon: kartu pilih berilustrasi (`--dga` = latar dunia dungeon).

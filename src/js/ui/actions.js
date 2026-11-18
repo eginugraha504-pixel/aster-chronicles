@@ -17,7 +17,7 @@ const ACT={
  slot:i=>openSlot(i),
  setSlot:a=>{const[i,id]=a.split(':');const j=S.team.indexOf(id);if(j>=0)S.team[j]=S.team[i]||null;S.team[i]=id;save();closeModal();render()},
  clearSlot:i=>{if(S.team.filter(Boolean).length<=1){toast(T('Tim minimal berisi 1 hero.'),1);return}S.team[i]=null;save();closeModal();render()},
- advDg:()=>{advTab='dg';render()},goDg:()=>{closeModal();advTab='dg';tab='adv';render()},
+ advDg:()=>{advTab='dg';render()},advMode:k=>{if(k==='ev'&&advTab!=='ev')sfx('deny');advTab=k;render()},goDg:()=>{closeModal();advTab='dg';tab='adv';render()},
  wUp:id=>{if(wAtLvCap(id)&&S.weapons[id].lb<WPN_LB_MAX){toast(T('Level maks! Lakukan Limit Break dulu.'),1);return openWpnLB(id)}if(wAtLvCap(id))return toast(T('Level maksimum!'));openWpnUp(id)},
  wLB:id=>openWpnLB(id),
  wOre:a=>{const[id,k,d]=a.split(':');wUpSel[k]=Math.max(0,Math.min(S.mats[k]||0,(wUpSel[k]||0)+(+d)));openWpnUp(id,1)},
