@@ -16,9 +16,15 @@ const NET={acct:null,dirty:false,pushAt:0,pushing:false,pingAt:0,sv:0,fr:0,dm:0,
  friends:{friends:[],inc:[],out:[]},frAt:0,worldAt:0,worldOk:false,snapAt:0,pend:null,ban:false};
 const ACCT_KEY='aster_acct',WORLD_KEY='aster_world2';
 const netApi=()=>(typeof TOPUP_CFG!=='undefined'&&TOPUP_CFG.api||'').replace(/\/$/,'');
+// pemutus sirkuit: server menolak (429 batas harian Cloudflare / 5xx) atau tidak terjangkau -> panggilan LATAR (ping, obrolan,
+// dunia, teman, simpan...) berhenti sementara 30 dtk, 1, 2, 4 ... maks 10 menit, supaya tidak memboroskan kuota permintaan.
+const NET_BG=/^\/api\/(ping|wc|world|players|fr\/list|bots\/snap|dm\/threads|dm\/get|save|load)\b/;
+function netDown(){const b=NET.backoff=Math.min(6e5,(NET.backoff||15e3)*2);NET.downUntil=Date.now()+b;if(!NET.downNote||Date.now()-NET.downNote>6e5){NET.downNote=Date.now();try{toast(T('Server sedang sibuk. Mencoba lagi sebentar lagi...'))}catch(e){}}}
 async function api(path,body,opt={}){if(!netApi())return{ok:false,e:'net'};
+ if(NET.downUntil>Date.now()&&NET_BG.test(path))return{ok:false,e:'net',down:1};
  try{const r=await fetch(netApi()+path,body!==undefined?{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body),keepalive:!!opt.keep}:{cache:'no-store'});
-  const o=await r.json();if(o&&o.e==='ban')netBanned();else if(o&&o.e==='auth'&&NET.acct&&body&&body.tok)netSessionLost();return o}catch(e){return{ok:false,e:'net'}}}
+  if(r.status===429||r.status>=500){let o=null;try{o=await r.json()}catch(e){}if(!o||r.status===429&&!o.e)netDown();return o||{ok:false,e:'server'}}
+  const o=await r.json();NET.backoff=0;if(o&&o.e==='ban')netBanned();else if(o&&o.e==='auth'&&NET.acct&&body&&body.tok)netSessionLost();return o}catch(e){netDown();return{ok:false,e:'net'}}}
 const netTok=()=>NET.acct&&NET.acct.tok;
 const loggedIn=()=>!!(NET.acct&&NET.acct.tok);
 function acctLoad(){try{const a=JSON.parse(localStorage.getItem(ACCT_KEY)||'null');NET.acct=a&&a.tok?a:null}catch(e){NET.acct=null}}
@@ -125,7 +131,7 @@ function netStart(){if(netLoopOn)return;netLoopOn=true;netWorldCache();netWorld(
  setInterval(()=>{const L=document.getElementById('login');if(NET.pend&&!(typeof B!=='undefined'&&B)&&!(typeof SP!=='undefined'&&SP))netAdopt(NET.pend.save,NET.pend.sv);
   if(!loggedIn()||(L&&L.classList.contains('on')))return;const now=Date.now();
   if(NET.dirty&&now-NET.pushAt>12e3)netPush();
-  if(now-NET.pingAt>20e3)netPing();
+  if(now-NET.pingAt>30e3)netPing();
   if(now-NET.frAt>90e3)netFriends().then(()=>netBotFriends());
   if(now-NET.worldAt>3*6e4)netWorld();
   netBotSnap()},4000);

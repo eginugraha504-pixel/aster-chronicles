@@ -56,7 +56,7 @@ function openDM(uid){if(!loggedIn())return needAcct();const p=dmPeer(uid);dmOpen
  $('#modal .mbox').classList.add('socbox','dmbox');
  const f=$('#dmForm');if(f)f.onsubmit=async e=>{e.preventDefault();const i=$('#dmIn'),v=(i.value||'').trim();if(!v)return;i.value='';sfx('tap');
   const o=await api('/api/dm/send',{tok:netTok(),uid,txt:v});if(!o.ok){i.value=v;toast(o.e==='fast'?T('Pelan-pelan, tunggu sebentar.'):o.e==='notfriend'?T('Kalian belum berteman.'):netErr(o.e));return}dmPoll()};
- dmPoll(true);clearInterval(dmTimer);dmTimer=setInterval(()=>{if(!$('#dmList')){dmClose();return}dmPoll()},3000)}
+ dmPoll(true);clearInterval(dmTimer);dmTimer=setInterval(()=>{if(!$('#dmList')){dmClose();return}dmPoll()},4000)}
 
 /* ---------------- profil pemain asli ---------------- */
 function profBodyHTML(o){const s=o.prof||{},heroes=s.heroes||{},ids=Object.keys(heroes).filter(id=>HD[id]);
