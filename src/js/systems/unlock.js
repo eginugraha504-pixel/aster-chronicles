@@ -8,7 +8,7 @@ const FEAT={
  mission:{st:'1-2',icon:'mission',n:['Misi','Missions','ミッション'],d:['Selesaikan misi harian & pencapaian untuk hadiah.','Complete daily missions and achievements for rewards.','デイリーミッションと実績で報酬をゲット。']},
  event:{st:'1-2',icon:'event',n:['Event','Events','イベント'],d:['Hadiah login & event terbatas waktu.','Login rewards and limited-time events.','ログインボーナスと期間限定イベント。']},
  shop:{st:'1-3',icon:'shop',n:['Toko','Shop','ショップ'],d:['Tukar emas & lencana dengan barang berguna.','Trade gold and badges for useful items.','ゴールドやバッジで便利なアイテムと交換。']},
- chat:{lv:3,icon:'wchat',n:['Obrolan Dunia','World Chat','ワールドチャット'],d:['Ngobrol dengan para kapten lain.','Chat with other captains.','他のキャプテンと交流しよう。']},
+ chat:{lv:3,icon:'wchat',n:['Obrolan Dunia','World Chat','ワールドチャット'],d:['Sekarang kamu bisa mengirim pesan di Obrolan Dunia.','You can now send messages in World Chat.','ワールドチャットで発言できるようになりました。']},  // menu obrolan selalu bisa dibuka; yang terkunci hanya mengirim pesan
  dungeon:{st:'1-5',icon:'pick',n:['Dungeon','Dungeons','ダンジョン'],d:['Material senjata, emas & bahan kebangkitan. 5 tiket per jenis per hari.','Weapon materials, gold and ascension items. 5 tickets per type each day.','武器素材・ゴールド・覚醒素材。種類ごとに1日5枚のチケット。']},
  rank:{lv:5,icon:'rank',n:['Peringkat','Rankings','ランキング'],d:['Bandingkan kekuatanmu dengan kapten lain.','Compare your power with other captains.','他のキャプテンと戦力を比べよう。']},
  smelt:{lv:8,icon:'smelt',n:['Peleburan','Smelting','精錬'],d:['Lebur salinan senjata & perlengkapan jadi material.','Smelt spare weapons and gear into materials.','余った武器や装備を素材に変えよう。']},
@@ -22,8 +22,8 @@ function featInit(){if(!Array.isArray(S.unl))S.unl=Object.keys(FEAT).filter(feat
 const featNew=()=>Object.keys(FEAT).filter(k=>featOK(k)&&!S.unl.includes(k));
 // aksi tombol -> fitur (dipakai pengecek klik global di actions.js)
 function featOfAct(a,arg){if(a==='go')return arg==='summon'?'summon':arg==='mission'?'mission':arg==='arena'?'arena':null;
- return{goEvent:'event',shop:'shop',chat:'chat',goDg:'dungeon',advDg:'dungeon',arena:'arena',rank:'rank',smelt:'smelt',goSummon:'summon',goWpnBanner:'summon'}[a]||(a==='advMode'&&arg==='dg'?'dungeon':null)}
-function featDeny(k){if(typeof sfx==='function')sfx('deny');toast(`${ic('lock',14)} ${featName(k)}: ${featReq(k)}`,1)}
+ return{goEvent:'event',shop:'shop',goDg:'dungeon',advDg:'dungeon',arena:'arena',rank:'rank',smelt:'smelt',goSummon:'summon',goWpnBanner:'summon'}[a]||(a==='advMode'&&arg==='dg'?'dungeon':null)}
+function featDeny(k){if(typeof sfx==='function')sfx('deny');toast(`${ic('lock',14)} ${esc(featName(k))}: ${esc(featReq(k))}`,0,true)}
 // popup fitur baru (antre bila sedang bertarung / cerita / modal terbuka)
 function featCheck(){if(!S||!Array.isArray(S.unl))return;if(B||(typeof SP!=='undefined'&&SP)||document.getElementById('login').classList.contains('on')||$('#modal').classList.contains('on')||(typeof TUT_BUSY==='function'&&TUT_BUSY()))return;
  const n=featNew();if(!n.length)return;const k=n[0];S.unl.push(k);save();const f=FEAT[k];if(typeof sfx==='function')sfx('rare');

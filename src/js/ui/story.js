@@ -45,6 +45,11 @@ function storyPreload(s){const P=[];const add=p=>{if(stHas(p)){const im=new Imag
   if(R){if(gl){l2dTC(id);if(e&&R.ex&&R.ex[e]){l2dTCEx(id,e);if(R.ex[e+'2'])l2dTCEx(id,e+'2')}}else{add((R.npc?'npc/':'tc/')+id);if(e&&R.ex&&R.ex[e])add('tc/'+id+'_'+e)}}
   else if(!HD[id])add('npc/'+id);else if(e&&e!=='n'&&e!=='-')add('ex/'+id+'_'+e)}}return P}
 const SVOX=new Audio();SVOX.preload='auto';
+// WAV hening 0,05 dtk (8 kHz, 8-bit) untuk membuka kunci audio iOS tanpa bunyi
+const SILENT_WAV=(()=>{const n=400,b=new Uint8Array(44+n),v=new DataView(b.buffer),w=(o,s)=>[...s].forEach((c,i)=>b[o+i]=c.charCodeAt(0));
+ w(0,'RIFF');v.setUint32(4,36+n,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,'data');v.setUint32(40,n,true);b.fill(128,44);
+ let s='';b.forEach(x=>s+=String.fromCharCode(x));return'data:audio/wav;base64,'+btoa(s)})();
+let SP_UNLOCKED=false;
 function stVoice(k){try{SVOX.pause()}catch(e){}if(typeof voxStop==='function')voxStop();if(!k||!voxOn()||!stHas('v/'+k))return false;SVOX.muted=false;SVOX.src=stUrl('v/'+k);SVOX.volume=Math.min(1,voxVol()*1.15);const p=SVOX.play();if(p&&p.catch)p.catch(()=>{});return true}
 function storyPlay(id,done){const s=STD[id];if(!s){done&&done();return}
  if(SP)storyEnd(true);splashDims();
@@ -58,7 +63,8 @@ function storyPlay(id,done){const s=STD[id];if(!s){done&&done();return}
  stBg(s.bg,true);el.querySelector('[data-sb=auto]').classList.toggle('on',SP.auto);
  el.addEventListener('click',stTap);requestAnimationFrame(()=>el.classList.add('on'));
  // iOS: pancing elemen suara di dalam sentuhan yang membuka cerita supaya klip berikutnya boleh diputar oleh timer
- try{const fi=s.L.findIndex(l=>Array.isArray(l)&&l[0]!=='n'&&stHas('v/st_'+s.id+'_'+s.L.indexOf(l)));if(fi>=0&&voxOn()){SVOX.muted=true;SVOX.src=stUrl('v/st_'+s.id+'_'+fi);const p=SVOX.play();if(p&&p.then)p.then(()=>{if(SVOX.muted){SVOX.pause();SVOX.muted=false}}).catch(()=>{SVOX.muted=false});else SVOX.muted=false}}catch(e){SVOX.muted=false}
+ // buka kunci audio iOS dengan klip HENING (dulu memakai suara baris pertama yang dibisukan -> di iOS kadang bocor terdengar)
+ try{if(voxOn()&&!SP_UNLOCKED){SVOX.src=SILENT_WAV;const p=SVOX.play();if(p&&p.then)p.then(()=>{SP_UNLOCKED=true}).catch(()=>{})}}catch(e){}
  if(typeof bgmPlay==='function')bgmPlay(STORY_BGM[id]||'st_hangat');
  if(typeof sfx==='function')sfx('open');
  setTimeout(()=>{if(!SP||SP.el!==el)return;el.querySelector('.stitle').classList.add('out');stNext()},1700)}

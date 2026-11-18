@@ -24,7 +24,7 @@ const wcOnline=()=>NET.players.filter(p=>p.on).length+(loggedIn()&&!NET.players.
 function openChat(){chatOpen=true;wcFetch().then(()=>chatRefresh(true));netPlayers();
  modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3><img class="ix" src="${ICON.wchat||ICON.chat}" style="width:24px;height:24px"> ${T('Obrolan Dunia')}</h3><div class="chhd"><small><i class="on"></i><b id="chOn">${wcOnline()}</b> ${T('pemain online')}</small></div>
  <div class="chlist" id="chList"></div>
- ${loggedIn()?`<div class="chq">${CHQ.map(q=>`<button data-act="chatQuick" data-arg="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+ ${!featOK('chat')?`<div class="chguest">${ic('lock',14)} ${T('Kirim pesan')} · ${featReq('chat')}</div>`:loggedIn()?`<div class="chq">${CHQ.map(q=>`<button data-act="chatQuick" data-arg="${esc(q)}">${esc(q)}</button>`).join('')}</div>
  <form class="chin" id="chForm"><input id="chIn" maxlength="120" autocomplete="off" placeholder="${T('Ketik pesan...')}"><button class="btn" type="submit">${T('Kirim')}</button></form>`
  :`<div class="chguest">${T('Masuk dengan akun untuk ikut mengobrol.')} <button class="btn green" data-act="accLink">${T('Daftarkan Akun')}</button></div>`}`);
  $('#modal .mbox').classList.add('chatbox');const f=$('#chForm');

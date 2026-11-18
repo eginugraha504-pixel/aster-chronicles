@@ -1,6 +1,11 @@
 /* ================= UI CORE ================= */
 let tab='home',heroFilter='all',misTab='daily',heroTab='hero',wFilter='all';
-function toast(m,bad){if(bad)sfx('deny');const d=document.createElement('div');d.className='tst';d.textContent=m;$('#toast').appendChild(d);setTimeout(()=>d.remove(),2300)}
+// kabar surat baru: ditahan selama battle, cerita, tutorial, atau layar login; muncul sekali saat kembali bebas
+let MAILNOTE=0;
+function mailNoteFlush(){if(!MAILNOTE||!S.welcomed)return;const L=document.getElementById('login');
+ if((typeof B!=='undefined'&&B)||(typeof SP!=='undefined'&&SP)||(S.tut!=='done'&&S.tut!==undefined)||(L&&L.classList.contains('on'))){if(!mailNoteFlush.t)mailNoteFlush.t=setTimeout(()=>{mailNoteFlush.t=0;mailNoteFlush()},1500);return}
+ const n=MAILNOTE;MAILNOTE=0;setTimeout(()=>toast(T('{n} surat baru di Kotak Surat!',{n})),300)}
+function toast(m,bad,html){if(bad)sfx('deny');const d=document.createElement('div');d.className='tst';if(html)d.innerHTML=m;else d.textContent=m;$('#toast').appendChild(d);setTimeout(()=>d.remove(),2300)}
 function modal(html){const m=$('#modal');m.dataset.key='';m.innerHTML=`<div class="mback" data-act="closeModal"></div><div class="mbox panel">${html}</div>`;m.classList.add('on');sfx('open')}
 // modal yang sama dibuka ulang (mis. setelah naik level): posisi scroll dipertahankan & tanpa animasi muncul
 function modalKeep(key,html){const m=$('#modal'),old=m.classList.contains('on')&&m.dataset.key===key?$('#modal .mbox'):null,sc=old?old.scrollTop:0;
@@ -23,7 +28,7 @@ function missionClaimable(){checkDaily();return MISSIONS.some(m=>!S.daily.claime
 const NAV_FEAT={summon:'summon',mission:'mission'};
 function renderNav(){const items=[['home',T('Beranda')],['adv',T('Petualangan')],['team',T('Tim')],['heroes',T('Hero')],['summon',T('Summon')],['mission',T('Misi')]];const ik={home:'home',heroes:'hero',adv:'adv',summon:'summon',mission:'mission',team:'team'};
  $('#nav').innerHTML=items.map(([k,n])=>{const dot=(k==='mission'&&missionClaimable())||(k==='summon'&&S.freeDate!==today());const lk=NAV_FEAT[k]&&typeof featOK==='function'&&!featOK(NAV_FEAT[k]);return`<button class="nb ${tab===k?'on':''}${lk?' lk':''}" data-act="go" data-arg="${k}"><span class="nbi"><img class="ix" src="${ICON[ik[k]]}">${lk?`<img class="ix nblk" src="${ICON.lock}">`:''}</span><span class="nbl ot">${n}</span>${dot&&!lk?'<i class="dot"></i>':''}</button>`}).join('')}
-function render(){checkDaily();tuCardTick();if(S.iap&&!TU.timer&&tuWaiting().length)tuListen();const nm=deliverMail();if(nm&&S.welcomed)setTimeout(()=>toast(T('{n} surat baru di Kotak Surat!',{n:nm})),300);updateTop();renderNav();const sc=$('#screen');sc.className=tab==='home'?'is-home':'';document.getElementById('app').dataset.tab=tab;const SCR={home:homeHTML,heroes:heroesHTML,adv:advHTML,summon:summonHTML,mission:missionHTML,team:teamHTML,arena:arenaHTML};if(!SCR[tab])tab='home';sc.innerHTML=SCR[tab]();if(tab==='home')initLobby();else lobby=null;if(typeof tutSync==='function')setTimeout(tutSync,40);if(typeof featCheck==='function')setTimeout(featCheck,450)}
+function render(){checkDaily();tuCardTick();if(S.iap&&!TU.timer&&tuWaiting().length)tuListen();const nm=deliverMail();if(nm)MAILNOTE+=nm;mailNoteFlush();updateTop();renderNav();const sc=$('#screen');sc.className=tab==='home'?'is-home':'';document.getElementById('app').dataset.tab=tab;const SCR={home:homeHTML,heroes:heroesHTML,adv:advHTML,summon:summonHTML,mission:missionHTML,team:teamHTML,arena:arenaHTML};if(!SCR[tab])tab='home';sc.innerHTML=SCR[tab]();if(tab==='home')initLobby();else lobby=null;if(typeof tutSync==='function')setTimeout(tutSync,40);if(typeof featCheck==='function')setTimeout(featCheck,450)}
 
 
 /* ---- Stamina & tiket dungeon: isi ulang terbatas per hari, harga naik ---- */

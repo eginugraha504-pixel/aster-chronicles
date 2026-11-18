@@ -7307,7 +7307,7 @@ const FEAT={
  mission:{st:'1-2',icon:'mission',n:['Misi','Missions','ミッション'],d:['Selesaikan misi harian & pencapaian untuk hadiah.','Complete daily missions and achievements for rewards.','デイリーミッションと実績で報酬をゲット。']},
  event:{st:'1-2',icon:'event',n:['Event','Events','イベント'],d:['Hadiah login & event terbatas waktu.','Login rewards and limited-time events.','ログインボーナスと期間限定イベント。']},
  shop:{st:'1-3',icon:'shop',n:['Toko','Shop','ショップ'],d:['Tukar emas & lencana dengan barang berguna.','Trade gold and badges for useful items.','ゴールドやバッジで便利なアイテムと交換。']},
- chat:{lv:3,icon:'wchat',n:['Obrolan Dunia','World Chat','ワールドチャット'],d:['Ngobrol dengan para kapten lain.','Chat with other captains.','他のキャプテンと交流しよう。']},
+ chat:{lv:3,icon:'wchat',n:['Obrolan Dunia','World Chat','ワールドチャット'],d:['Sekarang kamu bisa mengirim pesan di Obrolan Dunia.','You can now send messages in World Chat.','ワールドチャットで発言できるようになりました。']},  // menu obrolan selalu bisa dibuka; yang terkunci hanya mengirim pesan
  dungeon:{st:'1-5',icon:'pick',n:['Dungeon','Dungeons','ダンジョン'],d:['Material senjata, emas & bahan kebangkitan. 5 tiket per jenis per hari.','Weapon materials, gold and ascension items. 5 tickets per type each day.','武器素材・ゴールド・覚醒素材。種類ごとに1日5枚のチケット。']},
  rank:{lv:5,icon:'rank',n:['Peringkat','Rankings','ランキング'],d:['Bandingkan kekuatanmu dengan kapten lain.','Compare your power with other captains.','他のキャプテンと戦力を比べよう。']},
  smelt:{lv:8,icon:'smelt',n:['Peleburan','Smelting','精錬'],d:['Lebur salinan senjata & perlengkapan jadi material.','Smelt spare weapons and gear into materials.','余った武器や装備を素材に変えよう。']},
@@ -7321,8 +7321,8 @@ function featInit(){if(!Array.isArray(S.unl))S.unl=Object.keys(FEAT).filter(feat
 const featNew=()=>Object.keys(FEAT).filter(k=>featOK(k)&&!S.unl.includes(k));
 // aksi tombol -> fitur (dipakai pengecek klik global di actions.js)
 function featOfAct(a,arg){if(a==='go')return arg==='summon'?'summon':arg==='mission'?'mission':arg==='arena'?'arena':null;
- return{goEvent:'event',shop:'shop',chat:'chat',goDg:'dungeon',advDg:'dungeon',arena:'arena',rank:'rank',smelt:'smelt',goSummon:'summon',goWpnBanner:'summon'}[a]||(a==='advMode'&&arg==='dg'?'dungeon':null)}
-function featDeny(k){if(typeof sfx==='function')sfx('deny');toast(`${ic('lock',14)} ${featName(k)}: ${featReq(k)}`,1)}
+ return{goEvent:'event',shop:'shop',goDg:'dungeon',advDg:'dungeon',arena:'arena',rank:'rank',smelt:'smelt',goSummon:'summon',goWpnBanner:'summon'}[a]||(a==='advMode'&&arg==='dg'?'dungeon':null)}
+function featDeny(k){if(typeof sfx==='function')sfx('deny');toast(`${ic('lock',14)} ${esc(featName(k))}: ${esc(featReq(k))}`,0,true)}
 // popup fitur baru (antre bila sedang bertarung / cerita / modal terbuka)
 function featCheck(){if(!S||!Array.isArray(S.unl))return;if(B||(typeof SP!=='undefined'&&SP)||document.getElementById('login').classList.contains('on')||$('#modal').classList.contains('on')||(typeof TUT_BUSY==='function'&&TUT_BUSY()))return;
  const n=featNew();if(!n.length)return;const k=n[0];S.unl.push(k);save();const f=FEAT[k];if(typeof sfx==='function')sfx('rare');
@@ -7333,7 +7333,12 @@ function featCheck(){if(!S||!Array.isArray(S.unl))return;if(B||(typeof SP!=='und
 /* ==== js/ui/core.js ==== */
 /* ================= UI CORE ================= */
 let tab='home',heroFilter='all',misTab='daily',heroTab='hero',wFilter='all';
-function toast(m,bad){if(bad)sfx('deny');const d=document.createElement('div');d.className='tst';d.textContent=m;$('#toast').appendChild(d);setTimeout(()=>d.remove(),2300)}
+// kabar surat baru: ditahan selama battle, cerita, tutorial, atau layar login; muncul sekali saat kembali bebas
+let MAILNOTE=0;
+function mailNoteFlush(){if(!MAILNOTE||!S.welcomed)return;const L=document.getElementById('login');
+ if((typeof B!=='undefined'&&B)||(typeof SP!=='undefined'&&SP)||(S.tut!=='done'&&S.tut!==undefined)||(L&&L.classList.contains('on'))){if(!mailNoteFlush.t)mailNoteFlush.t=setTimeout(()=>{mailNoteFlush.t=0;mailNoteFlush()},1500);return}
+ const n=MAILNOTE;MAILNOTE=0;setTimeout(()=>toast(T('{n} surat baru di Kotak Surat!',{n})),300)}
+function toast(m,bad,html){if(bad)sfx('deny');const d=document.createElement('div');d.className='tst';if(html)d.innerHTML=m;else d.textContent=m;$('#toast').appendChild(d);setTimeout(()=>d.remove(),2300)}
 function modal(html){const m=$('#modal');m.dataset.key='';m.innerHTML=`<div class="mback" data-act="closeModal"></div><div class="mbox panel">${html}</div>`;m.classList.add('on');sfx('open')}
 // modal yang sama dibuka ulang (mis. setelah naik level): posisi scroll dipertahankan & tanpa animasi muncul
 function modalKeep(key,html){const m=$('#modal'),old=m.classList.contains('on')&&m.dataset.key===key?$('#modal .mbox'):null,sc=old?old.scrollTop:0;
@@ -7356,7 +7361,7 @@ function missionClaimable(){checkDaily();return MISSIONS.some(m=>!S.daily.claime
 const NAV_FEAT={summon:'summon',mission:'mission'};
 function renderNav(){const items=[['home',T('Beranda')],['adv',T('Petualangan')],['team',T('Tim')],['heroes',T('Hero')],['summon',T('Summon')],['mission',T('Misi')]];const ik={home:'home',heroes:'hero',adv:'adv',summon:'summon',mission:'mission',team:'team'};
  $('#nav').innerHTML=items.map(([k,n])=>{const dot=(k==='mission'&&missionClaimable())||(k==='summon'&&S.freeDate!==today());const lk=NAV_FEAT[k]&&typeof featOK==='function'&&!featOK(NAV_FEAT[k]);return`<button class="nb ${tab===k?'on':''}${lk?' lk':''}" data-act="go" data-arg="${k}"><span class="nbi"><img class="ix" src="${ICON[ik[k]]}">${lk?`<img class="ix nblk" src="${ICON.lock}">`:''}</span><span class="nbl ot">${n}</span>${dot&&!lk?'<i class="dot"></i>':''}</button>`}).join('')}
-function render(){checkDaily();tuCardTick();if(S.iap&&!TU.timer&&tuWaiting().length)tuListen();const nm=deliverMail();if(nm&&S.welcomed)setTimeout(()=>toast(T('{n} surat baru di Kotak Surat!',{n:nm})),300);updateTop();renderNav();const sc=$('#screen');sc.className=tab==='home'?'is-home':'';document.getElementById('app').dataset.tab=tab;const SCR={home:homeHTML,heroes:heroesHTML,adv:advHTML,summon:summonHTML,mission:missionHTML,team:teamHTML,arena:arenaHTML};if(!SCR[tab])tab='home';sc.innerHTML=SCR[tab]();if(tab==='home')initLobby();else lobby=null;if(typeof tutSync==='function')setTimeout(tutSync,40);if(typeof featCheck==='function')setTimeout(featCheck,450)}
+function render(){checkDaily();tuCardTick();if(S.iap&&!TU.timer&&tuWaiting().length)tuListen();const nm=deliverMail();if(nm)MAILNOTE+=nm;mailNoteFlush();updateTop();renderNav();const sc=$('#screen');sc.className=tab==='home'?'is-home':'';document.getElementById('app').dataset.tab=tab;const SCR={home:homeHTML,heroes:heroesHTML,adv:advHTML,summon:summonHTML,mission:missionHTML,team:teamHTML,arena:arenaHTML};if(!SCR[tab])tab='home';sc.innerHTML=SCR[tab]();if(tab==='home')initLobby();else lobby=null;if(typeof tutSync==='function')setTimeout(tutSync,40);if(typeof featCheck==='function')setTimeout(featCheck,450)}
 
 
 /* ---- Stamina & tiket dungeon: isi ulang terbatas per hari, harga naik ---- */
@@ -7412,7 +7417,7 @@ function homeHTML(){const ns=nextStage(),id=homeHero(),h=HD[id],mdot=missionClai
  ${splash(id)?`<div class="hstage hsp" data-act="lobbyTap"><div class="hcircle"><i></i></div>${splashHTML(id,'hspl')}</div>`:`<div class="hstage"><div class="hcircle"><i></i></div><canvas id="lobbyc" width="${LOBBY_PX}" height="${LOBBY_PX}" data-act="lobbyTap"></canvas></div>`}
  <div class="hnp">${many?`<button class="hnpa l" data-act="homeStep" data-arg="-1" aria-label="‹"></button>`:''}<span class="hnpc"><i class="hnps">${stars(S.heroes[id]?heroStar(id):h.r)}</i><span class="hnpn">${eic(h.el,16)}<b>${h.name}</b></span></span>${many?`<button class="hnpa r" data-act="homeStep" data-arg="1" aria-label="›"></button>`:''}</div>
  <div class="hspeech${HB.hide>Date.now()&&HB.id===id?' on':''}"><p id="bubble">${HB.hide>Date.now()&&HB.id===id?HB.txt:''}</p></div>
- <button class="hchat${LK('chat')?' lock':''}" id="hchat" data-act="chat">${LK('chat')?`<span class="hclk">${ic('lock',14)} ${T('Obrolan Dunia')} · ${featReq('chat')}</span>`:typeof chatStripHTML==='function'?chatStripHTML():''}</button>
+ <button class="hchat" id="hchat" data-act="chat">${typeof chatStripHTML==='function'?chatStripHTML():''}</button>
  <div class="hbtm">
   <button class="htile ar${LK('arena')?' lock':''}" data-act="arena"><span class="hta" style="background-image:var(--ui-n-artarena)"></span><small class="htt">${LK('arena')?ic('lock',13)+' Lv '+FEAT.arena.lv:ic('arena',13)+' '+A.tix+'/'+ARENA_CFG.tix}</small><b>${T('ARENA')}</b>${!LK('arena')&&(A.tix>0||A.unseen)?'<i class="dot"></i>':''}</button>
   <button class="hmed" data-act="go" data-arg="adv"><span class="hmr"></span><img class="ix" src="${ICON.adv}" alt=""><b>${T('PETUALANGAN')}</b><small>${ns.key} · ${ns.name}</small></button>
@@ -7989,7 +7994,9 @@ function welcome(){
  if(S.tut===0){if(!storySeen('p0'))storyPlay('p0',()=>tutBegin());else tutBegin();return}
  if(S.welcomed&&storyState().pend&&!B)return storyFlush(()=>render());
  if(S.welcomed&&!storyState().note){storyState().note=1;save();return storyNote()}
- if(S.welcomed)return;S.welcomed=true;save();
+ if(S.welcomed)return;
+ if((typeof B!=='undefined'&&B)||(typeof SP!=='undefined'&&SP)){clearTimeout(welcome.t);welcome.t=setTimeout(welcome,1500);return}  // jangan muncul di tengah battle/cerita (mis. tutorial dilewati saat battle)
+ S.welcomed=true;save();
  modal(`<h3>${S.name&&S.name!=='Kapten'?T('Selamat datang, Kapten {n}!',{n:esc(S.name)}):T('Selamat datang, Kapten!')}</h3><div style="display:flex;justify-content:center;gap:4px;margin:8px 0">${STARTERS().map(id=>`<img class="px" style="width:88px;height:88px" src="${sprite(HD[id].spr).url}">`).join('')}</div><p style="font-size:14px;line-height:1.45">${T('Kegelapan mulai menyelimuti Kerajaan <b>Aster</b>. Empat hero desa siap bertarung bersamamu!')}<br><br>${T('Hadiah pemula yang melimpah sudah menunggu di {i} <b>Kotak Surat</b>: permata, emas, <b>20 tiket summon</b>, dan <b>1 hero ★3 pilihanmu</b>!',{i:ic('mail')})}</p><div class="mrow"><button class="btn green" data-act="mail">${T('Buka Kotak Surat!')}</button></div>`)}
 
 
@@ -8281,7 +8288,7 @@ const wcOnline=()=>NET.players.filter(p=>p.on).length+(loggedIn()&&!NET.players.
 function openChat(){chatOpen=true;wcFetch().then(()=>chatRefresh(true));netPlayers();
  modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3><img class="ix" src="${ICON.wchat||ICON.chat}" style="width:24px;height:24px"> ${T('Obrolan Dunia')}</h3><div class="chhd"><small><i class="on"></i><b id="chOn">${wcOnline()}</b> ${T('pemain online')}</small></div>
  <div class="chlist" id="chList"></div>
- ${loggedIn()?`<div class="chq">${CHQ.map(q=>`<button data-act="chatQuick" data-arg="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+ ${!featOK('chat')?`<div class="chguest">${ic('lock',14)} ${T('Kirim pesan')} · ${featReq('chat')}</div>`:loggedIn()?`<div class="chq">${CHQ.map(q=>`<button data-act="chatQuick" data-arg="${esc(q)}">${esc(q)}</button>`).join('')}</div>
  <form class="chin" id="chForm"><input id="chIn" maxlength="120" autocomplete="off" placeholder="${T('Ketik pesan...')}"><button class="btn" type="submit">${T('Kirim')}</button></form>`
  :`<div class="chguest">${T('Masuk dengan akun untuk ikut mengobrol.')} <button class="btn green" data-act="accLink">${T('Daftarkan Akun')}</button></div>`}`);
  $('#modal .mbox').classList.add('chatbox');const f=$('#chForm');
@@ -8712,6 +8719,11 @@ function storyPreload(s){const P=[];const add=p=>{if(stHas(p)){const im=new Imag
   if(R){if(gl){l2dTC(id);if(e&&R.ex&&R.ex[e]){l2dTCEx(id,e);if(R.ex[e+'2'])l2dTCEx(id,e+'2')}}else{add((R.npc?'npc/':'tc/')+id);if(e&&R.ex&&R.ex[e])add('tc/'+id+'_'+e)}}
   else if(!HD[id])add('npc/'+id);else if(e&&e!=='n'&&e!=='-')add('ex/'+id+'_'+e)}}return P}
 const SVOX=new Audio();SVOX.preload='auto';
+// WAV hening 0,05 dtk (8 kHz, 8-bit) untuk membuka kunci audio iOS tanpa bunyi
+const SILENT_WAV=(()=>{const n=400,b=new Uint8Array(44+n),v=new DataView(b.buffer),w=(o,s)=>[...s].forEach((c,i)=>b[o+i]=c.charCodeAt(0));
+ w(0,'RIFF');v.setUint32(4,36+n,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,'data');v.setUint32(40,n,true);b.fill(128,44);
+ let s='';b.forEach(x=>s+=String.fromCharCode(x));return'data:audio/wav;base64,'+btoa(s)})();
+let SP_UNLOCKED=false;
 function stVoice(k){try{SVOX.pause()}catch(e){}if(typeof voxStop==='function')voxStop();if(!k||!voxOn()||!stHas('v/'+k))return false;SVOX.muted=false;SVOX.src=stUrl('v/'+k);SVOX.volume=Math.min(1,voxVol()*1.15);const p=SVOX.play();if(p&&p.catch)p.catch(()=>{});return true}
 function storyPlay(id,done){const s=STD[id];if(!s){done&&done();return}
  if(SP)storyEnd(true);splashDims();
@@ -8725,7 +8737,8 @@ function storyPlay(id,done){const s=STD[id];if(!s){done&&done();return}
  stBg(s.bg,true);el.querySelector('[data-sb=auto]').classList.toggle('on',SP.auto);
  el.addEventListener('click',stTap);requestAnimationFrame(()=>el.classList.add('on'));
  // iOS: pancing elemen suara di dalam sentuhan yang membuka cerita supaya klip berikutnya boleh diputar oleh timer
- try{const fi=s.L.findIndex(l=>Array.isArray(l)&&l[0]!=='n'&&stHas('v/st_'+s.id+'_'+s.L.indexOf(l)));if(fi>=0&&voxOn()){SVOX.muted=true;SVOX.src=stUrl('v/st_'+s.id+'_'+fi);const p=SVOX.play();if(p&&p.then)p.then(()=>{if(SVOX.muted){SVOX.pause();SVOX.muted=false}}).catch(()=>{SVOX.muted=false});else SVOX.muted=false}}catch(e){SVOX.muted=false}
+ // buka kunci audio iOS dengan klip HENING (dulu memakai suara baris pertama yang dibisukan -> di iOS kadang bocor terdengar)
+ try{if(voxOn()&&!SP_UNLOCKED){SVOX.src=SILENT_WAV;const p=SVOX.play();if(p&&p.then)p.then(()=>{SP_UNLOCKED=true}).catch(()=>{})}}catch(e){}
  if(typeof bgmPlay==='function')bgmPlay(STORY_BGM[id]||'st_hangat');
  if(typeof sfx==='function')sfx('open');
  setTimeout(()=>{if(!SP||SP.el!==el)return;el.querySelector('.stitle').classList.add('out');stNext()},1700)}

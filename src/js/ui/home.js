@@ -36,7 +36,7 @@ function homeHTML(){const ns=nextStage(),id=homeHero(),h=HD[id],mdot=missionClai
  ${splash(id)?`<div class="hstage hsp" data-act="lobbyTap"><div class="hcircle"><i></i></div>${splashHTML(id,'hspl')}</div>`:`<div class="hstage"><div class="hcircle"><i></i></div><canvas id="lobbyc" width="${LOBBY_PX}" height="${LOBBY_PX}" data-act="lobbyTap"></canvas></div>`}
  <div class="hnp">${many?`<button class="hnpa l" data-act="homeStep" data-arg="-1" aria-label="‹"></button>`:''}<span class="hnpc"><i class="hnps">${stars(S.heroes[id]?heroStar(id):h.r)}</i><span class="hnpn">${eic(h.el,16)}<b>${h.name}</b></span></span>${many?`<button class="hnpa r" data-act="homeStep" data-arg="1" aria-label="›"></button>`:''}</div>
  <div class="hspeech${HB.hide>Date.now()&&HB.id===id?' on':''}"><p id="bubble">${HB.hide>Date.now()&&HB.id===id?HB.txt:''}</p></div>
- <button class="hchat${LK('chat')?' lock':''}" id="hchat" data-act="chat">${LK('chat')?`<span class="hclk">${ic('lock',14)} ${T('Obrolan Dunia')} · ${featReq('chat')}</span>`:typeof chatStripHTML==='function'?chatStripHTML():''}</button>
+ <button class="hchat" id="hchat" data-act="chat">${typeof chatStripHTML==='function'?chatStripHTML():''}</button>
  <div class="hbtm">
   <button class="htile ar${LK('arena')?' lock':''}" data-act="arena"><span class="hta" style="background-image:var(--ui-n-artarena)"></span><small class="htt">${LK('arena')?ic('lock',13)+' Lv '+FEAT.arena.lv:ic('arena',13)+' '+A.tix+'/'+ARENA_CFG.tix}</small><b>${T('ARENA')}</b>${!LK('arena')&&(A.tix>0||A.unseen)?'<i class="dot"></i>':''}</button>
   <button class="hmed" data-act="go" data-arg="adv"><span class="hmr"></span><img class="ix" src="${ICON.adv}" alt=""><b>${T('PETUALANGAN')}</b><small>${ns.key} · ${ns.name}</small></button>

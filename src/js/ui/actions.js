@@ -77,7 +77,9 @@ function welcome(){
  if(S.tut===0){if(!storySeen('p0'))storyPlay('p0',()=>tutBegin());else tutBegin();return}
  if(S.welcomed&&storyState().pend&&!B)return storyFlush(()=>render());
  if(S.welcomed&&!storyState().note){storyState().note=1;save();return storyNote()}
- if(S.welcomed)return;S.welcomed=true;save();
+ if(S.welcomed)return;
+ if((typeof B!=='undefined'&&B)||(typeof SP!=='undefined'&&SP)){clearTimeout(welcome.t);welcome.t=setTimeout(welcome,1500);return}  // jangan muncul di tengah battle/cerita (mis. tutorial dilewati saat battle)
+ S.welcomed=true;save();
  modal(`<h3>${S.name&&S.name!=='Kapten'?T('Selamat datang, Kapten {n}!',{n:esc(S.name)}):T('Selamat datang, Kapten!')}</h3><div style="display:flex;justify-content:center;gap:4px;margin:8px 0">${STARTERS().map(id=>`<img class="px" style="width:88px;height:88px" src="${sprite(HD[id].spr).url}">`).join('')}</div><p style="font-size:14px;line-height:1.45">${T('Kegelapan mulai menyelimuti Kerajaan <b>Aster</b>. Empat hero desa siap bertarung bersamamu!')}<br><br>${T('Hadiah pemula yang melimpah sudah menunggu di {i} <b>Kotak Surat</b>: permata, emas, <b>20 tiket summon</b>, dan <b>1 hero ★3 pilihanmu</b>!',{i:ic('mail')})}</p><div class="mrow"><button class="btn green" data-act="mail">${T('Buka Kotak Surat!')}</button></div>`)}
 
 
