@@ -114,7 +114,7 @@ function sfxPlay(k,o){const buf=SBUF[k];if(!buf){sfxLoad(k);return false}
 const SFX_GAIN={click:3,tab:2.6,open:3,close:3,tap:2.4,swing:5,hurt:3,die:2,block:1.8,card:1.4,deny:1.5,hit:1.4};
 const SFX_GAP={hit:55,swing:45,hurt:80,click:30,card:40,heal:150,block:90,die:60,sparkle:120,tab:40,tap:60,star:60,coin:50,skill:90,boom:120};
 function sfx(k,o){if(typeof S==='undefined'||!S||!S.sound)return;if(typeof B!=='undefined'&&B&&B.sim)return;const fn=SFX_LIB[k];if(!fn)return;o=o||{};
- try{const A=audInit();if(A.state==='suspended')A.resume();const now=performance.now(),gap=SFX_GAP[k]||0;if(gap&&now-(AUD.last[k]||0)<gap)return;AUD.last[k]=now;
+ try{const A=audInit();if(A.state!=='running')A.resume().catch(()=>{});const now=performance.now(),gap=SFX_GAP[k]||0;if(gap&&now-(AUD.last[k]||0)<gap)return;AUD.last[k]=now;
   if(!AUD.pre){AUD.pre=1;sfxPreload()}
   if(sfxPlay(sfxKey(k,o),o))return;
   AUD.k=SFX_GAIN[k]||1;fn(o);AUD.k=1}catch(e){}}

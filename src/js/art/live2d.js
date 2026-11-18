@@ -140,7 +140,7 @@ function l2dStory(el,id,t){const R=STORY_ASSET.tc&&STORY_ASSET.tc[id];if(!R)retu
  const W2=c.width,H2=c.height;if(L2D.cv.width<W2||L2D.cv.height<H2){L2D.cv.width=Math.max(W2,L2D.cv.width);L2D.cv.height=Math.max(H2,L2D.cv.height)}
  const tt=t+st.ph,B=.5-.5*Math.cos(tt*2*Math.PI/4.2),e=el.dataset.e,hasEx=!!(e&&R.ex&&R.ex[e]);
  // mulut: buka-tutup acak selama suara tokoh ini berbunyi (atau teks masih diketik bila tanpa suara)
- const talk=!el.classList.contains('dim')&&typeof SP!=='undefined'&&SP&&SP.sp===id&&(SP.hasV?(!SVOX.paused&&!SVOX.ended):!!SP.typing);
+ const talk=!el.classList.contains('dim')&&typeof SP!=='undefined'&&SP&&SP.sp===id&&(SP.hasV?SVOX.talking():!!SP.typing);
  if(talk&&(tx.mouth||hasEx)){if(t>st.mt){st.mo=st.mo?0:1;st.mt=t+(st.mo?.07+Math.random()*.1:.05+Math.random()*.09)+(Math.random()<.08?.18:0)}}else st.mo=0;
  // ekspresi juga berbicara: a/k = mulut terbuka (varian a2/k2 tertutup), d = tertutup (varian d2 terbuka); diam = mulut tertutup
  let ek=null,exT=null;if(hasEx){const op=e==='d'?'d2':e,cl=e==='d'?'d':e+'2';ek=st.mo?op:cl;if(!R.ex[ek])ek=e;exT=l2dTCEx(id,ek);if(!exT&&ek!==e){ek=e;exT=l2dTCEx(id,e)}}

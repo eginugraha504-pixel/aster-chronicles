@@ -26,3 +26,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&AUD.ctx&&
 addEventListener('pagehide',()=>{try{if(S)save()}catch(e){}});
 // set sedini mungkin (tidak perlu sentuhan): sesi 'playback' agar suara tidak dibisukan tombol Silent iOS
 try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
+
+// penjaga audio: iOS bisa menghentikan AudioContext ('interrupted') atau menjeda musik (telepon, notifikasi, pindah aplikasi).
+// Tiap sentuhan & tiap 3 dtk: hidupkan lagi konteks audio dan lanjutkan musik yang seharusnya berbunyi.
+function audWake(){if(document.hidden)return;const A=AUD.ctx;if(A&&A.state!=='running')A.resume().catch(()=>{});
+ try{if(typeof BGM!=='undefined'&&BGM.want&&BGM.primed&&BGM.el&&BGM.el.paused&&bgmOn()&&BGM.key===BGM.want&&!(BGM.want==='win'&&BGM.el.ended))bgmPlay(BGM.want)}catch(e){}}
+document.addEventListener('pointerdown',audWake,true);setInterval(audWake,3000);

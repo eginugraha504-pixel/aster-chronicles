@@ -44,13 +44,21 @@ function storyPreload(s){const P=[];const add=p=>{if(stHas(p)){const im=new Imag
  for(const l of s.L){if(l.bg)add('bg/'+l.bg);if(l.cg)add('cg/'+l.cg);if(Array.isArray(l)&&l[0]!=='n'){const id=l[0],R=STORY_ASSET.tc&&STORY_ASSET.tc[id],e=l[1];
   if(R){if(gl){l2dTC(id);if(e&&R.ex&&R.ex[e]){l2dTCEx(id,e);if(R.ex[e+'2'])l2dTCEx(id,e+'2')}}else{add((R.npc?'npc/':'tc/')+id);if(e&&R.ex&&R.ex[e])add('tc/'+id+'_'+e)}}
   else if(!HD[id])add('npc/'+id);else if(e&&e!=='n'&&e!=='-')add('ex/'+id+'_'+e)}}return P}
-const SVOX=new Audio();SVOX.preload='auto';
-// WAV hening 0,05 dtk (8 kHz, 8-bit) untuk membuka kunci audio iOS tanpa bunyi
-const SILENT_WAV=(()=>{const n=400,b=new Uint8Array(44+n),v=new DataView(b.buffer),w=(o,s)=>[...s].forEach((c,i)=>b[o+i]=c.charCodeAt(0));
- w(0,'RIFF');v.setUint32(4,36+n,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,'data');v.setUint32(40,n,true);b.fill(128,44);
- let s='';b.forEach(x=>s+=String.fromCharCode(x));return'data:audio/wav;base64,'+btoa(s)})();
-let SP_UNLOCKED=false;
-function stVoice(k){try{SVOX.pause()}catch(e){}if(typeof voxStop==='function')voxStop();if(!k||!voxOn()||!stHas('v/'+k))return false;SVOX.muted=false;SVOX.src=stUrl('v/'+k);SVOX.volume=Math.min(1,voxVol()*1.15);const p=SVOX.play();if(p&&p.catch)p.catch(()=>{});return true}
+/* suara cerita lewat Web Audio (bukan elemen <audio>): di iOS elemen <audio> kedua bisa menjeda musik latar,
+   sehingga musik/suara "hilang-hilangan". Antarmuka mirip <audio>: paused, ended, onended, pause(). */
+const SVOX={paused:true,ended:true,onended:null,_s:null,_tk:0,cache:new Map(),
+ talking(){return!!this._s},
+ async playUrl(url,vol){this.stop();const tk=++this._tk;this.paused=false;this.ended=false;
+  try{const A=audInit();if(A.state!=='running')A.resume().catch(()=>{});
+   let b=this.cache.get(url);if(!b){b=fetch(url).then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()}).then(x=>new Promise((res,rej)=>A.decodeAudioData(x,res,rej)));this.cache.set(url,b);
+    if(this.cache.size>8)this.cache.delete(this.cache.keys().next().value)}
+   const buf=await b;if(tk!==this._tk)return;
+   const src=A.createBufferSource(),g=A.createGain();g.gain.value=vol;src.buffer=buf;src.connect(g);g.connect(A.destination);
+   src.onended=()=>{if(this._s!==src)return;this._s=null;this.paused=true;this.ended=true;const f=this.onended;f&&f()};src.start();this._s=src}
+  catch(e){this.cache.delete(url);if(tk===this._tk){this.paused=true;this.ended=true;const f=this.onended;f&&f()}}},
+ stop(){this._tk++;const s=this._s;this._s=null;if(s){try{s.stop()}catch(e){}}this.paused=true;this.ended=false},
+ pause(){this.stop()}};
+function stVoice(k){SVOX.pause();if(typeof voxStop==='function')voxStop();if(!k||!voxOn()||!stHas('v/'+k))return false;SVOX.playUrl(stUrl('v/'+k),Math.min(1.1,voxVol()*1.15));return true}
 function storyPlay(id,done){const s=STD[id];if(!s){done&&done();return}
  if(SP)storyEnd(true);splashDims();
  const el=document.createElement('div');el.id='story';el.innerHTML=`<div class="sbg"><img alt=""></div><div class="schs"></div><div class="scg"><img alt=""></div><div class="sflash"></div>
@@ -63,8 +71,7 @@ function storyPlay(id,done){const s=STD[id];if(!s){done&&done();return}
  stBg(s.bg,true);el.querySelector('[data-sb=auto]').classList.toggle('on',SP.auto);
  el.addEventListener('click',stTap);requestAnimationFrame(()=>el.classList.add('on'));
  // iOS: pancing elemen suara di dalam sentuhan yang membuka cerita supaya klip berikutnya boleh diputar oleh timer
- // buka kunci audio iOS dengan klip HENING (dulu memakai suara baris pertama yang dibisukan -> di iOS kadang bocor terdengar)
- try{if(voxOn()&&!SP_UNLOCKED){SVOX.src=SILENT_WAV;const p=SVOX.play();if(p&&p.then)p.then(()=>{SP_UNLOCKED=true}).catch(()=>{})}}catch(e){}
+
  if(typeof bgmPlay==='function')bgmPlay(STORY_BGM[id]||'st_hangat');
  if(typeof sfx==='function')sfx('open');
  setTimeout(()=>{if(!SP||SP.el!==el)return;el.querySelector('.stitle').classList.add('out');stNext()},1700)}
