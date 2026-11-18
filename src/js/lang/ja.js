@@ -217,3 +217,6 @@ Object.assign(I18N.ja,{"Guild":"ギルド","Segera":"近日","Segera Hadir":"近
 
 // ---- Petualangan v2 ----
 Object.assign(I18N.ja,{"Cerita": "ストーリー", "Kalahkan 5-5": "5-5をクリア", "Tahap berikutnya": "次のステージ", "MAJU": "出撃", "Dunia selesai!": "ワールドクリア！", "Semua bintang terkumpul ✦": "全ての星を獲得 ✦", "Kumpulkan ★3 di semua tahap": "全ステージで★3を集めよう", "SEGERA HADIR": "近日公開", "Battle Event Musiman": "季節イベントバトル", "Pertempuran event bertema musim sedang disiapkan. Pantau Pengumuman untuk jadwal pembukaannya!": "季節のイベントバトルを準備中です。開催日はお知らせをチェック！", "Bos Musiman": "季節ボス", "Hadiah Terbatas": "限定報酬", "Waktu Terbatas": "期間限定", "Sementara itu, event login & misi ada di menu Event beranda.": "それまでの間、ログイン＆ミッションイベントはホームのイベントメニューへ。", "Fajar Aster": "アスターの夜明け"});
+// ---- ヒルデ (hero ke-14) ----
+I18D.ja.heroes.hilde={name:'ヒルデ',title:'山の狂戦士',sk:'山岳ルーンの猛撃',lore:'北の山々に住む狼一族の姫。石斧には祖先のルーンが刻まれ、笑い声はいつも足音より先に届く。',lines:['あはは！最初にやられたいのは誰だ？！','キャプテン、もっとデカい敵を探そうぜ！','山は退かない。あたしもだ！'],poke:['わおっ？！しっぽ引っ張るなって！','力比べする？来いよ！','耳はおもちゃじゃないぞ、キャプテン！…ちょっとだけならいいけど。']};
+I18D.ja.weapons.gunung={name:'山岳ルーンの斧',sigTxt:'スキルダメージ+35%。斧が大地を割り、ルーン岩を撃ち出す。'};

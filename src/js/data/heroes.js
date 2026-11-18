@@ -111,7 +111,15 @@ const HEROES=[
   gen:{hair:'bob',weapon:'staff',collar:'a2',gem:true,hem:true,
   pal:{h1:'#fff6e0',h2:'#ffd9a0',h3:'#f0a868',h4:'#b8703e',e1:'#5a3a08',e2:'#e0a020',e3:'#fff0a0',
    m1:'#ffffff',m2:'#f4eedc',m3:'#d4c8a4',m4:'#9a8c66',k1:'#ffffff',k2:'#efe6cc',k3:'#c8b88e',k4:'#8a7a54',a1:'#fff6b0',a2:'#ffc83d',a3:'#c98a1a',
-   c1:'#fff6b0',c2:'#ffc83d',c3:'#c98a1a',l1:'#ffffff',l2:'#e8e0cc',l3:'#b4a888',f1:'#e0b45a',f2:'#a8782e',f3:'#5e4018',fx:'#fff6b0'}}}
+   c1:'#fff6b0',c2:'#ffc83d',c3:'#c98a1a',l1:'#ffffff',l2:'#e8e0cc',l3:'#b4a888',f1:'#e0b45a',f2:'#a8782e',f3:'#5e4018',fx:'#fff6b0'}}},
+ {id:'hilde',name:'Hilde',title:'Berserker Gunung',r:3,el:'tanah',role:'warrior',skill:'aoe',mult:2.85,sk:'Amukan Rune Gunung',lore:'Putri suku serigala dari pegunungan utara. Kapak batunya diukir rune leluhur, dan tawanya terdengar lebih dulu daripada langkahnya.',
+  lines:['Hahaha! Siapa yang mau duluan, hah?!', 'Kapten, ayo cari musuh yang lebih besar!', 'Gunung tidak pernah mundur. Aku juga!'],
+  poke:['Awoo?! Jangan tarik ekorku!', 'Mau adu kuat? Ayo, sini!', 'Telingaku bukan mainan, Kapten! ...tapi boleh sedikit.'],
+  wcls:'axe',
+  gen:{hair:'long',weapon:'axe',collar:'c2',belt:'#5a3a22',cuff:'#b8862e',
+  pal:{h1:'#ffffff',h2:'#e4e6f0',h3:'#b4b8cc',h4:'#7a7e96',e1:'#5a3008',e2:'#e09a1c',e3:'#ffd27a',
+   m1:'#fff3e2',m2:'#f4dcc0',m3:'#d0a882',m4:'#8a6448',k1:'#7a4a2a',k2:'#5a321c',k3:'#3e2214',k4:'#24140c',a1:'#ffd0a0',a2:'#c0302a',a3:'#7a1a18',
+   c1:'#ffffff',c2:'#e4e6f0',c3:'#b4b8cc',l1:'#8a6448',l2:'#5a3a22',l3:'#3a2414',f1:'#b8862e',f2:'#7a5418',f3:'#4a3010',fx:'#ffc84a'}}}
 ];
 const HD={};HEROES.forEach(h=>{h.spr={hero:h.id};HD[h.id]=h});
 const HERO_WCLASS={};HEROES.forEach(h=>HERO_WCLASS[h.id]=h.wcls);

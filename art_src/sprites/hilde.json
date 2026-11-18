@@ -1,0 +1,9 @@
+{
+ "hero": "hilde",
+ "splash": {"model": "gpt_image_2_6_flare","concept_job": "693c9b0a-1e5e-45d9-8658-62f59cb025ac","job": "2eb1fe32-e3cb-48f9-922c-58b216d0a2bb",
+  "params": {"aspect_ratio": "3:4","quality": "high","resolution": "2k","background": "transparent"},"refs": ["splash seraphine (Egi)","splash marisa"]},
+ "sprite": {"model": "nano_banana_pro","job": "0e93637b-75bb-46d1-9fc4-fb031e0ffbfd","alt_job": "134b53c3-e8f1-411b-9d01-5913e0f46a45",
+  "refs": ["e76edb88-0a55-4e18-bdf6-41f5a1136fc6 (lembar gaya Seraphine)","2eb1fe32-... (splash Hilde)"],"aspect_ratio": "16:9","resolution": "2k",
+  "olah": "spritify.build(target_h=73: frame idle memuat kapak di atas bahu), lalu frame 2 (napas) = frame 1 dengan badan atas turun 1px (frame asli tanpa kapak)"},
+ "eyes_closed_job": "ae3aecc5-885e-420e-b4fb-9a5a8ac44558"
+}

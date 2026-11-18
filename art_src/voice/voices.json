@@ -106,6 +106,18 @@
    "aktor": "Roxie",
    "voice_id": "f6448975-768e-4327-b932-1b7c973d58e9",
    "audition_job": "014b6ee1-4a5a-4bdb-8601-a99791e70643"
+  },
+  "hilde": {
+   "hero": "Hilde",
+   "peran": "Berserker Gunung",
+   "aktor": "Kaia",
+   "voice_id": "bb9db352-f345-59f3-90b3-fa9432bcff91",
+   "audition_job": "9270d07c-20a5-47f5-a5a4-1809f8e1ae35",
+   "audisi_lain": {
+    "Raina": "7718c9ad-e150-493b-afa3-666b4bfa9e80",
+    "Tamsin": "5283b2e7-eb0f-4ea0-a042-9a31a15b97aa",
+    "Juno": "3e0f7e09-a469-456d-a385-166ff6f7b1d1"
+   }
   }
  },
  "clips": {
@@ -436,6 +448,34 @@
   "lumi_sk": {
    "ja": "小さな灯火の祈り！",
    "id": "Doa Lentera Kecil"
+  },
+  "hilde_l0": {
+   "ja": "あはは！最初にやられたいのは誰だ？！",
+   "id": "Hahaha! Siapa yang mau duluan, hah?!"
+  },
+  "hilde_l1": {
+   "ja": "キャプテン、もっとデカい敵を探そうぜ！",
+   "id": "Kapten, ayo cari musuh yang lebih besar!"
+  },
+  "hilde_l2": {
+   "ja": "山は退かない。あたしもだ！",
+   "id": "Gunung tidak pernah mundur. Aku juga!"
+  },
+  "hilde_p0": {
+   "ja": "わおっ？！しっぽ引っ張るなって！",
+   "id": "Awoo?! Jangan tarik ekorku!"
+  },
+  "hilde_p1": {
+   "ja": "力比べする？来いよ！",
+   "id": "Mau adu kuat? Ayo, sini!"
+  },
+  "hilde_p2": {
+   "ja": "耳はおもちゃじゃないぞ、キャプテン！…ちょっとだけならいいけど。",
+   "id": "Telingaku bukan mainan, Kapten! ...tapi boleh sedikit."
+  },
+  "hilde_sk": {
+   "ja": "山岳ルーンの猛撃！",
+   "id": "Amukan Rune Gunung"
   }
  }
 }

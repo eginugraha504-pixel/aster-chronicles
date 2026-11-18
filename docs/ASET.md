@@ -144,3 +144,11 @@ Aturan umum:
 ## Petualangan v2 (18 Nov 2026)
 - Peta dunia `src/img/bg/mp_{grass,cave,castle,storm,summit,moon,deep,void}.webp` (540×968): nano banana, 9:16, referensi latar battle tiap dunia; sumber `art_src/maps/map_*.png`.
 - Node tahap `n_node/n_nodeok/n_nodeboss.webp` dari `art_src/ui_kit/n_nodes.png`; banner Event terkunci `n_artevbattle.webp` (`art_src/maps/event_battle.png`).
+
+## Hilde (hero ke-14, 18 Nov 2026)
+- Konsep: 4 pilihan (Tsubaki, Hilde, Celestine, Ophelia) via `gpt_image_2_6_flare` transparan dengan referensi splash Seraphine & Marisa → Egi memilih **Hilde** (Berserker Gunung, ★3 standar, Tanah · Petarung · Kapak, skill AoE "Amukan Rune Gunung").
+- Splash final: flare 2k transparan (job `2eb1fe32…`) → `art_src/splash/hilde.png` → `src/img/splash/hilde.webp` (839×1100, q80). Fokus wajah `SPLASH_FOCUS.hilde=[59,22]`.
+- Sprite: nano_banana_pro 2 varian, dipilih varian 2 (`art_src/sprites/hilde_sheet.png`, parameter di `hilde.json`), `spritify.build(target_h=73)`; frame napas = frame idle dengan badan atas turun 1px.
+- Ikon senjata khas **Kapak Rune Gunung** (`gunung`): gpt_image_2_6 latar hijau → `W_gunung.png` → `src/img/icons/w_gunung.webp` (glow kuning dibuang, garis tepi gelap).
+- Suara: aktor **Kaia** (audisi Raina/Tamsin/Kaia/Juno di `voices.json`), 7 klip lewat `tools/voice.py`.
+- Live2D: mata tertutup = edit nano_banana_pro (job `ae3aecc5…`), diselaraskan ORB+RANSAC, area mata = selisih dalam 2 elips (`art_src/rig/eyes_hilde.py`). Mask `masks.py hilde`: rambut + ekor serigala (R), jubah & rok bulu (G), rune & energi kuning (B, jenis `amber`). `RIG.hilde`: kilau menyapu gagang kapak, glow berdenyut, partikel amber.

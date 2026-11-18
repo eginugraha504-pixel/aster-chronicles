@@ -1,5 +1,5 @@
 /* =====================================================================
-   LIVE2D-STYLE — splash hidup untuk hero ★3 (Seraphine, Sakuya, Raika, Marisa)
+   LIVE2D-STYLE — splash hidup untuk hero ★3 (Seraphine, Sakuya, Raika, Marisa, Hilde)
    ---------------------------------------------------------------------
    Satu gambar splash HD dilenturkan per piksel oleh shader WebGL:
      napas (dada + badan atas), rambut & kain bergelombang, kedip 3 tahap,
@@ -22,6 +22,8 @@ const RIG={
   sheen:null,glow:2,mote:'150,235,255'},
  marisa:{eye:[373,226,114,71],head:[425,245],chest:[450,380],waist:540,breast:340,
   sheen:[[548,430],[652,165],10,7],glow:1,mote:'170,240,255'},
+ hilde:{eye:[417,200,132,63],head:[483,232],chest:[515,385],waist:520,breast:360,
+  sheen:[[785,228],[300,82],12,15],glow:1,mote:'255,200,110'},
 };
 const L2D={gl:null,cv:null,prog:null,U:{},tex:{},ok:null,last:0,inst:new WeakMap(),q:1,avg:0,n:0};  // q: skala resolusi adaptif (turun bila perangkat lambat)
 const hasRig=id=>!!(RIG[id]&&typeof RIG_SRC!=='undefined'&&RIG_SRC[id+'_mask']&&RIG_SRC[id+'_eyes']);

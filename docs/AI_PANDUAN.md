@@ -76,3 +76,4 @@ Ubah/tambah teks di sini bila ada fitur baru yang perlu dijelaskan dengan kata-k
 - Bab II (Dunia 6–8) memang dirancang untuk tim ★4–★6. Wajar kalau pemain mentok di 6-x berhari-hari.
 - ★6 itu sangat langka dan butuh berbulan-bulan; jangan bilang ada yang bisa membelinya. Penghambat utamanya Air Mata Dewi.
 - Bingkai ★4 ungu ametis, ★5 merah rubi bersayap, ★6 pelangi bersayap berkilau — pemain suka pamer bingkai ★6.
+- Hero ke-14 **Hilde** (18 Nov 2026): ★3 standar, Tanah, Petarung, kapak. Putri suku serigala dari pegunungan utara, ceria & liar, telinga & ekor serigala, kapak batu berukir rune. Skill AoE "Amukan Rune Gunung". Senjata khas Kapak Rune Gunung (★3). Ada di semua banner (bukan limited). Splash Live2D, suara Jepang.

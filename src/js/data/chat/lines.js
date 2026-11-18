@@ -67,7 +67,7 @@ const CHAT_LINES={
   opini:['{rh} underrated menurut gw','{rh} overrated ga sih','support itu penting, jangan cuma damage','tank bikin tim awet','elemen {el} kuat lawan {weak}','tim campur elemen lebih aman',
    'senjata signature beda banget efeknya','limit break lebih penting dari level','jangan lupa pasang pelindung sama aksesori'],
   baru:[{t:'{newh} lucu banget',if:c=>c.newRecent},{t:'ada yang udah dapet {newh}?',if:c=>c.newRecent},{t:'{newh} enak buat heal',if:c=>c.newRecent&&c.newHeal},
-   {t:'splash art {newh} gerak2 cantik',if:c=>c.newRecent},{t:'hero baru {newh} worth ga?',if:c=>c.newRecent},{t:'{newh} tanduknya imut',if:c=>c.newId==='marisa'&&c.newRecent}],
+   {t:'splash art {newh} gerak2 cantik',if:c=>c.newRecent},{t:'hero baru {newh} worth ga?',if:c=>c.newRecent},{t:'{newh} tanduknya imut',if:c=>c.newId==='marisa'&&c.newRecent},{t:'{newh} kuping serigalanya lucu bgt',if:c=>c.newId==='hilde'&&c.newRecent},{t:'kapak batu {newh} gede bgt anjir',if:c=>c.newId==='hilde'&&c.newRecent},{t:'akhirnya ada ★3 tanah, {newh} 🐺',if:c=>c.newId==='hilde'&&c.newRecent}],
   banner:['banner {lim} masih lama ga?','{lim} worth ga sih','rate up {lim}, gas','{limw} perlu ga buat {lim}?','banner senjata bikin bangkrut','{lim} vs {rh}, pilih mana',
    'banner sekarang bagus','nunggu rerun aja deh'],
   topup:[{t:'topup dikit buat kartu bulanan',if:c=>c.paid},{t:'kartu bulanan paling worth sih',if:c=>c.card},'topup ga ya // tahan dulu','yang topup pasti CP nya tinggi',
