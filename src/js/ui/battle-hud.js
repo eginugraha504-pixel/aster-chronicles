@@ -50,6 +50,7 @@ function hudTick(){if(!B||!B.cards)return;const H=B.hud||(B.hud={});
 function pauseHTML(){const st=B.st;return`<div class="panel bpause"><h3>${T('Jeda')}</h3>
  <div class="bpinfo"><b>${esc($('#bTitle').textContent)}</b><small>${esc($('#bSub').textContent)}</small></div>
  <div class="belg"><b>${T('Keunggulan Elemen')}</b><span>${['api','tanah','air','api'].map(e=>`<img class="px" src="${ICON.el[e]}">`).join('<i>›</i>')}</span><span><img class="px" src="${ICON.el.cahaya}"><i>⇄</i><img class="px" src="${ICON.el.gelap}"></span><small>${T('Unggul: +30% damage · Kalah: −25%')}</small></div>
+ ${typeof isGM==='function'&&isGM()?`<div class="mrow"><button class="btn blue" data-act="gmWin">🛡 ${T('Menang Instan (GM)')}</button></div>`:''}
  <div class="mrow"><button class="btn red" data-act="bquit">${T('Menyerah')}</button><button class="btn green" data-act="bresume">${T('Lanjut')}</button></div></div>`}
 // MVP pertarungan (damage + pulih terbanyak di pihakmu)
 function battleMVP(b){return b.units.filter(u=>u.side==='hero').sort((x,y)=>(y.dmg||0)+(y.healed||0)-(x.dmg||0)-(x.healed||0))[0]}

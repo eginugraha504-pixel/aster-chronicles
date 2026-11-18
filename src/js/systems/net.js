@@ -68,7 +68,7 @@ const netErr=e=>T(ERR_TXT[e]||'Terjadi kesalahan.');
 async function netRegister(u,p,keep){const body={u,p};if(keep){S.name=u;S.named=true;body.save=saveBody();body.prof=netProf()}
  const o=await api('/api/acc/register',body);if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv};acctSave();
  if(!keep){const lg=S.lang;newGame();S.lang=lg}S.name=o.u;S.named=true;S.uid=o.uid;save();NET.dirty=true;netPush(true);return o}
-async function netLogin(u,p){const o=await api('/api/acc/login',{u,p});if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv};acctSave();
+async function netLogin(u,p){const o=await api('/api/acc/login',{u,p});if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv,gm:o.gm?1:0};acctSave();
  const lg=S.lang;if(o.save&&o.save.heroes){S=Object.assign(defState(),o.save);S.se=SAVE_SE;try{migrate()}catch(e){}}else{newGame();S.lang=lg}
  S.name=o.u;S.named=true;S.uid=o.uid;try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}if(!o.save)NET.dirty=true;return o}
 
@@ -122,6 +122,7 @@ async function netBotSnap(){if(!loggedIn()||!botsWarmOk()||Date.now()-NET.snapAt
 /* ---------------- ping & loop ---------------- */
 async function netPing(){if(!loggedIn())return;NET.pingAt=Date.now();const o=await api('/api/ping',{tok:netTok()});if(!o.ok)return;
  if(o.u&&o.u!==NET.acct.u){NET.acct.u=o.u;acctSave()}
+ if((o.gm?1:0)!==(NET.acct.gm?1:0)){NET.acct.gm=o.gm?1:0;acctSave();try{toast(o.gm?T('Akun ini sekarang GM. Buka Pengaturan › Panel GM.'):T('Status GM dicabut.'));if(typeof render==='function'&&!B)render()}catch(e){}}
  if(o.sv!==NET.acct.sv&&!NET.pushing)await netPull();
  if(NET.gen!=null&&o.gen!==NET.gen)netWorld(true);
  const frUp=o.fr>NET.fr,dmUp=o.dm>NET.dm;if(frUp){toast(T('Ada permintaan pertemanan baru'));netFriends()}if(dmUp&&!(typeof dmOpenWith!=='undefined'&&dmOpenWith))toast(T('Pesan baru masuk'));

@@ -262,7 +262,7 @@ export async function gameRoute(req, env, url, json) {
     if (r.bot != null) return fail('botacc', 403);
     if ((r.ph || '').slice(3) !== await pwHash(pw, r.salt)) { await failCount(env, u.toLowerCase(), true); return fail('cred', 401) }
     if (r.ban) return fail('ban', 403);
-    return json({ ok: true, tok: await newSession(env, r.uid), uid: r.uid, u: r.uname, sv: r.sv, save: pj(r.save) });
+    return json({ ok: true, tok: await newSession(env, r.uid), uid: r.uid, u: r.uname, sv: r.sv, save: pj(r.save), gm: r.gm ? 1 : 0 });
   }
   if (p === '/api/acc/logout') { if (b.tok) await env.DB.prepare('DELETE FROM sessions WHERE tok=?').bind(await sha(String(b.tok))).run(); return json({ ok: true }) }
   if (p === '/api/acc/pw') {
@@ -284,11 +284,11 @@ export async function gameRoute(req, env, url, json) {
     if (!r.meta.changes) return json({ ok: false, conflict: 1 });
     return json({ ok: true, sv });
   }
-  if (p === '/api/load') { const [u, f] = await me(); if (f) return f; return json({ ok: true, sv: u.sv, save: pj(u.save), u: u.uname }) }
+  if (p === '/api/load') { const [u, f] = await me(); if (f) return f; return json({ ok: true, sv: u.sv, save: pj(u.save), u: u.uname, gm: u.gm ? 1 : 0 }) }
   if (p === '/api/ping') {
     const [u, f] = await me(); if (f) return f;
     const [c, w, wc, ai] = await Promise.all([counts(env, u.uid), getWorld(env), env.DB.prepare('SELECT COALESCE(MAX(ts),0) m FROM wchat WHERE ts<=?').bind(now()).first(), aiOnline(env), env.DB.prepare('UPDATE players SET last=? WHERE uid=?').bind(now(), u.uid).run()]);
-    return json({ ok: true, sv: u.sv, u: u.uname, ...c, wc: wc.m, ai, gen: w.gen, epoch: w.epoch, t: now() });
+    return json({ ok: true, sv: u.sv, u: u.uname, gm: u.gm ? 1 : 0, ...c, wc: wc.m, ai, gen: w.gen, epoch: w.epoch, t: now() });
   }
 
   // ---- dunia & pemain ----
@@ -300,7 +300,7 @@ export async function gameRoute(req, env, url, json) {
     return json({ ok: true, epoch: w.epoch, gen: w.gen, from, bots: results.map(r => [r.uid, r.uname]), ov: Object.fromEntries(ov.map(r => [r.bot, pj(r.ov, {})])) });
   }
   if (p === '/api/players') {
-    const { results } = await env.DB.prepare('SELECT uid,uname,bot,lv,cp,prof,ov,last FROM players WHERE bot IS NULL AND ban=0 AND last>? ORDER BY cp DESC LIMIT 500').bind(now() - 45 * DAY).all();
+    const { results } = await env.DB.prepare('SELECT uid,uname,bot,lv,cp,prof,ov,last FROM players WHERE bot IS NULL AND ban=0 AND gm=0 AND last>? ORDER BY cp DESC LIMIT 500').bind(now() - 45 * DAY).all();
     return json({ ok: true, list: results.map(card) });
   }
   if (p === '/api/prof') {
@@ -424,7 +424,7 @@ const ago = ms => { if (!ms) return 'belum pernah'; const m = Math.floor((now() 
 // kolom yang bisa diubah lewat tombol
 const H_FIELDS = { gems: 'Permata', gold: 'Emas', lv: 'Level', stam: 'Stamina', tixH: 'Tiket Hero', tixW: 'Tiket Senjata', uname: 'Username', pw: 'Password' };
 const B_FIELDS = { uname: 'Username', lv: 'Level', cp: 'CP', vip: 'VIP' };
-const ADMIN_HELP = `🛠 <b>Admin Aster Chronicles</b>\n\n• /akun &lt;UID|username&gt; — lihat & ubah akun (pemain atau bot)\n• /cari &lt;teks&gt; — cari username\n• /pemain — daftar pemain asli\n• /set &lt;UID|username&gt; &lt;kolom&gt; &lt;nilai&gt; — ubah apa saja\n   pemain: kolom di data simpanan, mis. <code>gems</code>, <code>heroes.nami.lv</code>, <code>mats.crys</code>\n   bot: <code>lv</code>, <code>cp</code>, <code>vip</code>, <code>uname</code>\n   nilai <code>hapus</code> = menghapus kolom\n• /data &lt;UID|username&gt; — file JSON data simpanan\n• /resetbot — reset semua bot ke hari 1\n• /ai on|off — Mode AI Obrolan Dunia (Claude Haiku 5.5)\n\nKetik UID (8 angka) atau username saja juga bisa.`;
+const ADMIN_HELP = `🛠 <b>Admin Aster Chronicles</b>\n\n• /akun &lt;UID|username&gt; — lihat & ubah akun (pemain atau bot)\n• /cari &lt;teks&gt; — cari username\n• /pemain — daftar pemain asli\n• /set &lt;UID|username&gt; &lt;kolom&gt; &lt;nilai&gt; — ubah apa saja\n   pemain: kolom di data simpanan, mis. <code>gems</code>, <code>heroes.nami.lv</code>, <code>mats.crys</code>\n   bot: <code>lv</code>, <code>cp</code>, <code>vip</code>, <code>uname</code>\n   nilai <code>hapus</code> = menghapus kolom\n• /data &lt;UID|username&gt; — file JSON data simpanan\n• /gm &lt;UID|username&gt; — jadikan/cabut GM (akun testing tanpa batas); /gm saja = daftar GM\n• /resetbot — reset semua bot ke hari 1\n• /ai on|off — Mode AI Obrolan Dunia (Claude Haiku 5.5)\n\nKetik UID (8 angka) atau username saja juga bisa.`;
 
 function setPath(o, path, v) {
   const ks = path.split('.').filter(Boolean); if (!ks.length) return false;
@@ -445,13 +445,14 @@ async function accCard(env, r) {
   const s = pj(r.save, {}) || {}, pr = pj(r.prof, {}) || {};
   const fr = await env.DB.prepare("SELECT COUNT(*) n FROM friends WHERE (a=? OR b=?) AND st='ok'").bind(r.uid, r.uid).first();
   const ses = await env.DB.prepare('SELECT COUNT(*) n FROM sessions WHERE uid=?').bind(r.uid).first();
-  return `👤 <b>Akun Pemain</b>\n\n🆔 UID: <code>${r.uid}</code>\n👤 Username: <b>${esc(r.uname)}</b>\n🔑 Password: tersimpan sebagai hash (bisa diganti)\n📅 Daftar: ${when(r.created)}\n🕒 Terakhir aktif: ${ago(r.last)}${now() - r.last < ONLINE_MS ? ' 🟢' : ''}\n📱 Sesi login: ${ses.n} · 👥 Teman: ${fr.n}\n\n` +
+  return `👤 <b>Akun Pemain</b>${r.gm ? ' · 🛡 <b>GM</b>' : ''}\n\n🆔 UID: <code>${r.uid}</code>\n👤 Username: <b>${esc(r.uname)}</b>\n🔑 Password: tersimpan sebagai hash (bisa diganti)\n📅 Daftar: ${when(r.created)}\n🕒 Terakhir aktif: ${ago(r.last)}${now() - r.last < ONLINE_MS ? ' 🟢' : ''}\n📱 Sesi login: ${ses.n} · 👥 Teman: ${fr.n}\n\n` +
     `⭐ Level <b>${fmt(s.lv ?? r.lv)}</b> · CP <b>${fmt(pr.cp ?? r.cp)}</b> · VIP ${pr.vip || 0}\n💎 Permata: <b>${fmt(s.gems)}</b>\n🪙 Emas: <b>${fmt(s.gold)}</b>\n⚡ Stamina: ${fmt(s.stam)}\n🎟 Tiket Hero ${fmt(s.tixH)} · Tiket Senjata ${fmt(s.tixW)}\n🦸 Hero: ${Object.keys(s.heroes || {}).length} · 🗡 Senjata: ${Object.keys(s.weapons || {}).length}\n🗺 Tahap: ${esc(pr.stage || '-')}\n💾 Versi data: ${r.sv}` + (r.ban ? '\n\n🚫 <b>DIBLOKIR</b>' : '');
 }
 function accKb(r) {
   const F = r.bot != null ? B_FIELDS : H_FIELDS, ks = Object.keys(F), rows = [];
   for (let k = 0; k < ks.length; k += 3) rows.push(ks.slice(k, k + 3).map(f => ({ text: '✏️ ' + F[f], callback_data: `ed:${r.uid}:${f}` })));
   rows.push([{ text: r.ban ? (r.bot != null ? '👁 Tampilkan' : '✅ Buka blokir') : (r.bot != null ? '🙈 Sembunyikan' : '🚫 Blokir'), callback_data: `ban:${r.uid}` }, { text: '🔄 Muat ulang', callback_data: `acc:${r.uid}` }]);
+  if (r.bot == null) rows.push([{ text: r.gm ? '🛡 Cabut GM' : '🛡 Jadikan GM', callback_data: `gm:${r.uid}` }]);
   if (r.bot == null) rows.push([{ text: '📄 Data JSON', callback_data: `dat:${r.uid}` }, { text: '👥 Teman', callback_data: `frl:${r.uid}` }]);
   else rows.push([{ text: '👥 Teman', callback_data: `frl:${r.uid}` }]);
   return { inline_keyboard: rows };
@@ -545,6 +546,19 @@ export async function adminMessage(env, chat, t, low, send) {
       { inline_keyboard: [[{ text: on ? '⚪ Matikan' : '🟢 Nyalakan', callback_data: on ? 'ai:off' : 'ai:on' }]] });
     return true;
   }
+  if ((m = t.match(/^\/gm(?:@\w+)?(?:\s+(\S+))?(?:\s+(on|off))?$/i))) {
+    if (!m[1]) {
+      const { results } = await env.DB.prepare('SELECT uid,uname,last FROM players WHERE gm=1 AND bot IS NULL ORDER BY last DESC').all();
+      await send(env, chat, `🛡 <b>Akun GM</b>\n\n` + (results.length ? results.map(r => `<code>${r.uid}</code> <b>${esc(r.uname)}</b> · ${ago(r.last)}`).join('\n') : 'Belum ada.') + `\n\nJadikan GM: <code>/gm UID|username</code> (ketik lagi untuk mencabut) atau tombol 🛡 di kartu akun.\nGM tidak muncul di Peringkat pemain lain.`);
+      return true;
+    }
+    const r = await byKey(env, m[1]); if (!r) { await send(env, chat, 'Akun tidak ditemukan.'); return true }
+    if (r.bot != null) { await send(env, chat, 'Akun bot tidak bisa dijadikan GM.'); return true }
+    const on = m[2] ? m[2].toLowerCase() === 'on' : !r.gm;
+    await env.DB.prepare('UPDATE players SET gm=? WHERE uid=?').bind(on ? 1 : 0, r.uid).run();
+    await send(env, chat, on ? `🛡 <b>${esc(r.uname)}</b> sekarang <b>GM</b>. Panel GM muncul di game dalam ±30 detik (Menu › Pengaturan › Panel GM).` : `🛡 Status GM <b>${esc(r.uname)}</b> dicabut.`);
+    return true;
+  }
   if (/^\/resetbot(?:@\w+)?$/i.test(t)) {
     const n = await env.DB.prepare('SELECT COUNT(*) n FROM players WHERE bot IS NOT NULL').first(), w = await getWorld(env);
     await send(env, chat, `⚠️ <b>Reset semua bot?</b>\n\nSemua ${fmt(n.n)} akun bot (generasi ${w.gen}) beserta pertemanan & pesan dengan bot akan DIHAPUS, dan seluruh riwayat Obrolan Dunia dikosongkan. Dunia bot mulai lagi dari hari 1 dengan 0 pemain bot, lalu bertambah perlahan sampai ${fmt(BOTCFG.max)}.\n\nAkun pemain asli tidak berubah.`, { inline_keyboard: [[{ text: '♻️ Ya, reset bot', callback_data: 'rbot:yes' }, { text: 'Batal', callback_data: 'cancel' }]] });
@@ -565,6 +579,12 @@ export async function adminCallback(env, chat, d, send) {
     const cur = m[2] === 'uname' ? r.uname : m[2] === 'pw' ? '(rahasia)' : r.bot != null ? (pj(r.ov, {})[m[2]] ?? pj(r.prof, {})?.[m[2]] ?? '-') : (pj(r.save, {}) || {})[m[2]];
     await send(env, chat, `✏️ <b>${F}</b> untuk <b>${esc(r.uname)}</b>\nSekarang: <code>${esc(cur ?? '-')}</code>\n\nKetik nilai baru${r.bot != null && m[2] !== 'uname' ? ' (atau <code>hapus</code> untuk kembali ke nilai asli dari game)' : ''}. /batal untuk membatalkan.`);
     return true;
+  }
+  if ((m = d.match(/^gm:(\d{8})$/))) {
+    const r = await byKey(env, m[1]); if (!r || r.bot != null) return true;
+    await env.DB.prepare('UPDATE players SET gm=? WHERE uid=?').bind(r.gm ? 0 : 1, r.uid).run();
+    await send(env, chat, r.gm ? `🛡 Status GM <b>${esc(r.uname)}</b> dicabut. Panel GM hilang dari game dalam ±30 detik.` : `🛡 <b>${esc(r.uname)}</b> sekarang <b>GM</b>. Panel GM muncul di game dalam ±30 detik (Menu › Pengaturan › Panel GM).`);
+    await showAcc(env, chat, send, r.uid); return true;
   }
   if ((m = d.match(/^ban:(\d{8})$/))) {
     const r = await byKey(env, m[1]); if (!r) return true;

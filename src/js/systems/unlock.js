@@ -14,7 +14,7 @@ const FEAT={
  smelt:{lv:8,icon:'smelt',n:['Peleburan','Smelting','精錬'],d:['Lebur salinan senjata & perlengkapan jadi material.','Smelt spare weapons and gear into materials.','余った武器や装備を素材に変えよう。']},
  arena:{lv:10,icon:'arena',n:['Arena','Arena','アリーナ'],d:['Adu tim melawan kapten lain dan naik liga!','Battle other captains\' teams and climb the leagues!','他のキャプテンと対戦してリーグを駆け上がれ！']}
 };
-const featOK=k=>{const f=FEAT[k];if(!f)return true;if(f.st&&!S.stages[f.st])return false;if(f.lv&&S.lv<f.lv)return false;return true};
+const featOK=k=>{const f=FEAT[k];if(!f)return true;if(typeof gmOpt==='function'&&gmOpt('unl'))return true;if(f.st&&!S.stages[f.st])return false;if(f.lv&&S.lv<f.lv)return false;return true};
 const featName=k=>FEAT[k].n[typeof SL==='function'?SL():0];
 function featReq(k){const f=FEAT[k];return f.st?T('Selesaikan tahap {k} untuk membuka',{k:f.st}):T('Terbuka di Lv {n} akun',{n:f.lv})}
 function featInit(){if(!Array.isArray(S.unl))S.unl=Object.keys(FEAT).filter(featOK)}

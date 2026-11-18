@@ -302,3 +302,10 @@ Server: `bank-worker/src/game.js` (Cloudflare Worker `aster-bank` + D1, tabel di
 ## Catatan visual battle & tutorial (18 Nov 2026)
 - Perisai (skill Pia) tidak lagi digambar sebagai kotak di sekitar unit; diganti ikon perisai kecil di samping bar HP. Efek `ring`/`boom` berbentuk lingkaran; bayangan kaki dibulatkan.
 - Langkah tutorial `pick` (pilih hero ★3 di Kotak Surat): sorotan mengelilingi seluruh daftar hero dan gelembung Noa pindah ke atas layar (`ring`, `pos:'top'`), tombol Lewati Tutorial di kiri.
+
+## Akun GM (18 Nov 2026)
+- Kolom `players.gm` (migrasi 0007). Diatur dari Telegram: `/gm UID|username` (toggle, atau `on`/`off`), `/gm` = daftar GM, tombol 🛡 di kartu akun pemain.
+- Server mengirim `gm` di /api/acc/login, /api/load, /api/ping → `NET.acct.gm` (berubah di game ±30 dtk). GM tidak ikut /api/players (Peringkat pemain lain).
+- Game: `systems/gm.js` (`isGM`, `gmOpt`, `gmTick` tiap 1 dtk) + `ui/gm.js` (Panel GM di Pengaturan, tombol Menang Instan di layar Jeda).
+  Opsi `S.gmo`: `inf` sumber daya tak terbatas, `unl` semua fitur (featOK) & tahap (unlocked) terbuka. Aksi: semua hero/senjata/perlengkapan, level & LB maks, level akun +10, tamatkan semua tahap, lewati tutorial & cerita, reset harian.
+- Mencabut GM tidak menghapus sumber daya yang sudah terkumpul (pakai /set atau Hapus Progres bila perlu).

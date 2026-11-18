@@ -44,6 +44,6 @@ function checkDaily(){const d=today();if(S.daily.date!==d){S.daily={date:d,c:{su
 function regen(){const now=Date.now();if(S.stam>=STAM_MAX){S.stamTs=now;return}const n=Math.floor((now-S.stamTs)/STAM_MS);if(n>0){S.stam=Math.min(STAM_MAX,S.stam+n);S.stamTs+=n*STAM_MS;if(S.stam>=STAM_MAX)S.stamTs=now}}
 const expNeed=lv=>40+lv*25;
 function addExp(x){S.exp+=x;let ups=0;while(S.exp>=expNeed(S.lv)){S.exp-=expNeed(S.lv);S.lv++;S.stam+=20;ups++}return ups}
-const unlocked=st=>st.n===0||!!S.stages[SLIST[st.n-1].key];
+const unlocked=st=>st.n===0||(typeof gmOpt==='function'&&gmOpt('unl'))||!!S.stages[SLIST[st.n-1].key];
 const totalStars=()=>Object.values(S.stages).reduce((a,b)=>a+b,0);
 const owned=()=>Object.keys(S.heroes).length;
