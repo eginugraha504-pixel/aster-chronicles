@@ -18,7 +18,7 @@ const TUT=[
  {id:'mail',sel:'.md[data-act=mail]',on:['mail'],back:3,skip:()=>!mailPending(),t:["Ada hadiah pemula di Kotak Surat! Ketuk Hadiah.","Starter gifts are waiting in the Mailbox! Tap Gifts.","メールボックスに初心者プレゼントが届いています！「プレゼント」をタップ。"]},
  {id:'mailAll',sel:'[data-act=mailAll]:not([disabled])',on:['mailAll'],back:4,skip:()=>!mailList().some(id=>!S.mail[id].claimed&&mailHasRw(id)&&!mailDef(id).rw.pickHero),t:["Ketuk Klaim Semua!","Tap Claim All!","「すべて受け取る」をタップ！"]},
  {id:'pickOpen',sel:'.mitem[data-arg=starter_pick],#modal [data-act=mail]',on:['mailOpen','starter_pick'],back:4,skip:()=>!S.mail.starter_pick||S.mail.starter_pick.claimed,t:["Sang Ratu memberimu 1 hero ★3 pilihan! Buka suratnya.","The Queen grants you a ★3 hero of your choice! Open the letter.","女王から★3英雄を1人選べるプレゼント！手紙を開こう。"]},
- {id:'pick',sel:'.pickh',on:['mailPick'],back:6,skip:()=>!S.mail.starter_pick||S.mail.starter_pick.claimed,t:["Pilih hero ★3 yang paling kamu suka!","Pick the ★3 hero you like best!","好きな★3英雄を選んでください！"]},
+ {id:'pick',sel:'.pickh',ring:'.pick',pos:'top',on:['mailPick'],back:6,skip:()=>!S.mail.starter_pick||S.mail.starter_pick.claimed,t:["Pilih hero ★3 yang paling kamu suka!","Pick the ★3 hero you like best!","好きな★3英雄を選んでください！"]},
  {id:'summon',sel:'#nav [data-arg=summon]',on:['go','summon'],skip:()=>tab==='summon',t:["Menara Panggilan sudah menyala! Ketuk Summon.","The Summoning Tower is lit! Tap Summon.","召喚の塔が光りました！「召喚」をタップ。"]},
  {id:'pull',sel:'[data-act=pull][data-arg="10"]',on:['pull','10'],back:8,skip:()=>!S.tixH&&S.gems<COST10,t:["Pakai 10 Tiket Hero untuk Summon x10!","Use 10 Hero Tickets for a x10 Summon!","ヒーローチケット10枚で10連召喚！"]},
  {id:'sumClose',sel:'#sfx [data-act=sumClose]',on:['sumClose'],t:["Hero baru bergabung! Ketuk OK kalau sudah puas melihat.","New heroes joined! Tap OK when you're done looking.","新しい仲間が加わりました！見終わったら「OK」をタップ。"],wait:()=>!!(typeof SFXQ!=='undefined'&&SFXQ)},
@@ -57,8 +57,11 @@ function tutSync(){if(!tutOn()){if(TUTEL){TUTEL.remove();TUTEL=null}return}
  TUTEL.style.display='';const app=document.getElementById('app').getBoundingClientRect(),ring=TUTEL.querySelector('.tring'),bub=TUTEL.querySelector('.tbub');
  bub.querySelector('p').textContent=txt;bub.querySelector('.tskip').textContent=T('Lewati Tutorial');
  const av=bub.querySelector('.tav');if(!av.src&&HD.noa)av.src=portrait('noa');
+ if(tg&&st.ring&&tg.closest(st.ring))tg=tg.closest(st.ring);
  if(tg){const r=tg.getBoundingClientRect();ring.style.display='';Object.assign(ring.style,{left:r.left-app.left-5+'px',top:r.top-app.top-5+'px',width:r.width+10+'px',height:r.height+10+'px'});
-  const below=r.top-app.top<app.height*.55;bub.style.top=below?(r.bottom-app.top+16)+'px':'';bub.style.bottom=below?'':(app.bottom-r.top+16)+'px'}
+  if(st.pos==='top'&&txt===tutText(st)){bub.style.top='calc(8px + env(safe-area-inset-top))';bub.style.bottom='';TUTEL.classList.add('top')}
+  else{const below=r.top-app.top<app.height*.55;bub.style.top=below?(r.bottom-app.top+16)+'px':'';bub.style.bottom=below?'':(app.bottom-r.top+16)+'px'}}
  else{ring.style.display='none';bub.style.top='';bub.style.bottom='120px'}
+ if(!(tg&&st.pos==='top'&&txt===tutText(st)))TUTEL.classList.remove('top');
  TUTEL.classList.toggle('inbattle',!!B)}
 setInterval(()=>{try{if(S&&tutOn())tutSync()}catch(e){}},500);

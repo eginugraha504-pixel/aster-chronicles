@@ -2048,6 +2048,7 @@ h2.st span{color:#fff3cf;background:rgba(10,14,34,.7);border:1.5px solid #e8b84a
 #tut .tav{width:46px;height:46px;flex:none;border-radius:10px;background:#dde8ff;image-rendering:pixelated}
 #tut .tbub p{margin:0;flex:1;font-size:13.5px;line-height:1.4;font-weight:700;color:#3a2410}
 #tut .tskip{position:absolute;right:8px;bottom:-22px;font:800 11px/1 inherit;color:#fff;background:rgba(10,12,30,.75);border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:4px 9px}
+#tut.top .tskip{right:auto;left:8px}
 #tut.inbattle .tring{box-shadow:0 0 18px 4px rgba(255,220,110,.9)}
 /* kartu penutup bab: karakter memudar, latar meredup */
 #story.fin .schs{opacity:0;transition:opacity .9s}
@@ -6280,7 +6281,7 @@ async function voice(k){if(!voxOn()||!voxHas(k))return;
    tidak bisa diubah di iOS. Permintaan sebelum sentuhan pertama disimpan di BGM.want.
    Pengaturan: S.music (true/false, bawaan hidup).
    ===================================================================== */
-const BGM={el:null,key:null,gain:null,want:null,tm:0,primed:false,url:{},tok:0};
+const BGM={el:null,key:null,gain:null,an:null,want:null,tm:0,primed:false,url:{},tok:0,h:{t:-1,stall:0,mute:0,kick:0,ok:0}};
 const bgmOn=()=>typeof S==='undefined'||!S||S.music!==false;
 const BGM_VOL={login:.55,game:.4,win:.6};  // volume per lagu (bt_* / st_* lihat bgmV)
 /* OST tambahan (18 Nov 2026): bt_w1..bt_w8 (battle per dunia), bt_boss (tahap x-5), bt_final (8-5), bt_dungeon, bt_arena,
@@ -6293,8 +6294,23 @@ function bgmUrl(k){if(BGM.url[k])return BGM.url[k];
  const bin=atob(MUSIC_SRC[k].split(',')[1]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
  return BGM.url[k]=URL.createObjectURL(new Blob([u],{type:'audio/mpeg'}))}
 function bgmElem(){if(BGM.el)return BGM.el;const el=new Audio();el.loop=true;el.preload='auto';el.setAttribute('playsinline','');BGM.el=el;
- try{const A=audInit(),src=A.createMediaElementSource(el),g=A.createGain();g.gain.value=0;src.connect(g);g.connect(A.destination);BGM.gain=g}catch(e){}
+ try{const A=audInit(),src=A.createMediaElementSource(el),an=A.createAnalyser(),g=A.createGain();an.fftSize=256;g.gain.value=0;src.connect(an);an.connect(g);g.connect(A.destination);BGM.gain=g;BGM.an=an}catch(e){}
+ el.addEventListener('error',()=>{BGM.h.stall=9});
  return el}
+/* Penjaga kesehatan BGM (dipanggil tiap 3 dtk oleh audWake): di iPhone/Android musik kadang "jalan tapi bisu"
+   (MediaElementSource berhenti mengeluarkan suara setelah interupsi / ganti lagu) atau macet saat memuat.
+   Deteksi: waktu lagu tidak maju (macet) atau sinyal sebelum volume benar-benar nol (bisu) beberapa kali berturut-turut.
+   Pemulihan 1: jeda lalu putar lagi. Pemulihan 2 (masih bisu): buat elemen <audio> baru di sentuhan berikutnya. */
+function bgmHealth(){const el=BGM.el,h=BGM.h;if(!el||!BGM.want||!BGM.primed||!bgmOn()||document.hidden||BGM.key!==BGM.want||BGM.want==='win'||el.paused){h.stall=h.mute=0;h.t=-1;return}
+ const t=el.currentTime;if(t===h.t)h.stall++;else h.stall=0;h.t=t;
+ if(BGM.an&&AUD.ctx&&AUD.ctx.state==='running'&&h.stall===0&&t>1.5){const d=new Float32Array(BGM.an.fftSize);BGM.an.getFloatTimeDomainData(d);let m=0;for(const v of d)m=Math.max(m,Math.abs(v));h.mute=m<1e-4?h.mute+1:0}else h.mute=0;
+ if(!h.stall&&!h.mute&&++h.ok>20){h.ok=0;h.kick=0}
+ if(h.stall>=2||h.mute>=3){h.ok=0;h.stall=h.mute=0;h.t=-1;h.kick++;
+  if(h.kick>=2&&BGM.gain){BGM.rebuild=true;return}   // perlu sentuhan untuk elemen baru (iOS)
+  try{el.pause();if(el.readyState<2)el.load()}catch(e){}bgmPlay(BGM.want)}}
+// dipanggil di dalam sentuhan bila pemulihan biasa gagal: ganti elemen <audio> dengan yang baru
+function bgmRebuild(){if(!BGM.rebuild)return;BGM.rebuild=false;BGM.h.kick=0;const k=BGM.want;try{BGM.el.pause();BGM.el.removeAttribute('src');BGM.el.load()}catch(e){}
+ try{BGM.gain&&BGM.gain.disconnect()}catch(e){}BGM.el=null;BGM.gain=null;BGM.an=null;BGM.key=null;if(k&&bgmOn()){const el=bgmElem();el.src=bgmUrl(k);BGM.key=k;el.play().then(()=>bgmPlay(k)).catch(()=>{})}}
 // panggil DI DALAM sentuhan: membuka izin putar elemen <audio> di iOS
 function bgmPrime(){if(BGM.primed||typeof MUSIC_SRC==='undefined')return;const k=BGM.want||'login';if(!MUSIC_SRC[k])return;
  const el=bgmElem();if(BGM.key!==k){el.src=bgmUrl(k);BGM.key=k}
@@ -6310,6 +6326,7 @@ function bgmPlay(k){if(typeof MUSIC_SRC!=='undefined'&&!MUSIC_SRC[k]&&k!=='login
   const go=()=>{if(tok!==BGM.tok)return;if(BGM.gain)BGM.gain.gain.value=0;el.src=bgmUrl(k);BGM.key=k;el.loop=k!=='win';
    el.onended=()=>{if(BGM.key==='win'&&BGM.want==='win')BGM.want=null};
    el.play().then(()=>{if(tok===BGM.tok)bgmFade(bgmV(k),k==='win'?.1:1.4)}).catch(()=>{})};
+  BGM.h.stall=BGM.h.mute=0;BGM.h.t=-1;
   if(BGM.key!==k){if(!el.paused&&BGM.key){bgmFade(0,.45);setTimeout(go,480)}else go()}
   else if(!el.paused)bgmFade(bgmV(k),.8);
   else el.play().then(()=>{if(tok===BGM.tok)bgmFade(bgmV(k),1.6)}).catch(()=>{})}catch(e){}}
@@ -6352,7 +6369,9 @@ try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
 
 // penjaga audio: iOS bisa menghentikan AudioContext ('interrupted') atau menjeda musik (telepon, notifikasi, pindah aplikasi).
 // Tiap sentuhan & tiap 3 dtk: hidupkan lagi konteks audio dan lanjutkan musik yang seharusnya berbunyi.
-function audWake(){if(document.hidden)return;const A=AUD.ctx;if(A&&A.state!=='running')A.resume().catch(()=>{});
+function audWake(e){if(document.hidden)return;const A=AUD.ctx;if(A&&A.state!=='running')A.resume().catch(()=>{});
+ if(e&&typeof bgmRebuild==='function')try{bgmRebuild()}catch(x){}
+ if(!e&&typeof bgmHealth==='function')try{bgmHealth()}catch(x){}
  try{if(typeof BGM!=='undefined'&&BGM.want&&BGM.primed&&BGM.el&&BGM.el.paused&&bgmOn()&&BGM.key===BGM.want&&!(BGM.want==='win'&&BGM.el.ended))bgmPlay(BGM.want)}catch(e){}}
 document.addEventListener('pointerdown',audWake,true);setInterval(audWake,3000);
 
@@ -6491,15 +6510,15 @@ function drawBattle(){const g=B.g,st=B.st;g.setTransform(2,0,0,2,0,0);g.imageSmo
  for(const u of us)if(u.dy){u._y=u.y;u.y+=u.dy}
  for(const u of us){const sc=u.scale,hero=u.side==='hero',dir=hero?1:-1;let x=u.x+u.ox+(u.dx||0);if(u.lungeT>0)x+=dir*Math.sin((1-u.lungeT/.3)*Math.PI)*(hero?8:16);if(u.hitT>0&&!hero)x-=dir*2;x=Math.round(x);
   g.globalAlpha=u.alive?1:Math.max(.25,u.deathT/.6);const uw=isHU(u)?24:(u.etype==='slime'||u.etype==='bSlime'?24:20)*sc;
-  g.fillStyle='rgba(0,0,0,.25)';g.fillRect(x-uw/2,u.y-1,uw,3);
+  g.fillStyle='rgba(0,0,0,.22)';g.fillRect(x-uw/2+3,u.y-1,uw-6,3);g.fillRect(x-uw/2+1,u.y,uw-2,1);
   if(isHU(u)){const fr=heroFrame(u);if(!hero){g.save();g.translate(x,0);g.scale(-1,1)}const hx0=(hero?x:0)-22+fr.dx;if(fr.ghost){const a0=g.globalAlpha;for(const[o,al]of[[-16,.2],[-8,.4]]){g.globalAlpha=al;g.drawImage(fr.w,hx0+o,u.y-39,44,44)}g.globalAlpha=a0}
    g.drawImage(fr.c,hx0,u.y-39,44,44);if(u.hitT>0){g.globalAlpha*=.6;g.drawImage(fr.w,hx0,u.y-39,44,44)}if(!hero)g.restore()}
   else{const fr=mobFrame(u);g.save();g.translate(x,0);g.scale(-1,1);const dy=u.y-39*sc;g.drawImage(fr.c,-22*sc,dy,44*sc,44*sc);if(u.hitT>0){g.globalAlpha*=.7;g.drawImage(fr.w,-22*sc,dy,44*sc,44*sc)}g.restore()}
   g.globalAlpha=1;const top=u.y-uh(u);
-  if(u.shieldT>0){g.strokeStyle='rgba(127,227,255,'+(.5+.3*Math.sin(B.time*8))+')';g.lineWidth=1;g.strokeRect(x-uw/2-2+.5,top-2.5,uw+4,uh(u)+4)}
-  if(u.atkUpT>0&&Math.floor(B.time*4)%2){g.fillStyle='#ff6a3c';g.fillRect(x+uw/2+1,top+4,1,4);g.fillRect(x+uw/2,top+5,3,1)}
+    if(u.atkUpT>0&&Math.floor(B.time*4)%2){g.fillStyle='#ff6a3c';g.fillRect(x+uw/2+1,top+4,1,4);g.fillRect(x+uw/2,top+5,3,1)}
   if(u.alive){const bw=isHU(u)?22:14*sc,by=top-5;g.fillStyle='#241626';g.fillRect(x-bw/2-1,by-1,bw+2,4);g.fillStyle='#4a2030';g.fillRect(x-bw/2,by,bw,2);g.fillStyle=hero?'#7ee07a':(u.boss?'#ff4f6a':'#ff7a6a');g.fillRect(x-bw/2,by,Math.ceil(bw*u.hp/u.maxHp),2);
-   if(!hero){g.drawImage(elImg[u.el],x-bw/2-9,by-3,8,8)}}}
+   if(!hero){g.drawImage(elImg[u.el],x-bw/2-9,by-3,8,8)}
+   if(u.shieldT>0){const sx=x+bw/2+2,sy=by-2;g.globalAlpha=.75+.25*Math.sin(B.time*8);g.fillStyle='#1c3a4a';g.fillRect(sx,sy,5,5);g.fillRect(sx+1,sy+5,3,1);g.fillStyle='#7fe3ff';g.fillRect(sx+1,sy+1,3,3);g.fillRect(sx+2,sy+4,1,1);g.globalAlpha=1}}}
  for(const u of us)if(u._y!==undefined){u.y=u._y;delete u._y}
  for(const p of B.proj){const k=p.t/p.dur,x=p.x+(p.tx-p.x)*k,y=p.y+(p.ty-p.y)*k-Math.sin(k*Math.PI)*(p.kind==='arrow'?8:2);
   if(p.kind==='arrow'){g.fillStyle='#fff6dc';const d=Math.sign(p.tx-p.x);g.fillRect(Math.round(x)-(d>0?5:0),Math.round(y),5,1);g.fillStyle=p.c;g.fillRect(Math.round(x)+(d>0?0:-1),Math.round(y)-1,1,3)}
@@ -6509,10 +6528,10 @@ function drawBattle(){const g=B.g,st=B.st;g.setTransform(2,0,0,2,0,0);g.imageSmo
   if(f.k==='spark'){g.fillStyle=f.c;for(let i=0;i<5;i++){const a=i*1.26,r=k*7;g.fillRect(Math.round(f.x+Math.cos(a)*r),Math.round(f.y+Math.sin(a)*r),2,2)}}
   if(f.k==='slash'){g.fillStyle='rgba(255,255,255,'+(1-k)+')';for(let i=0;i<8;i++){g.fillRect(Math.round(f.x-6+i*1.6),Math.round(f.y-6+i*1.6-k*2),2,1)}}
   if(f.k==='poof'){g.fillStyle='rgba(255,255,255,'+(1-k)+')';for(let i=0;i<8;i++){const a=i*.785,r=k*12;g.fillRect(Math.round(f.x+Math.cos(a)*r)-1,Math.round(f.y+Math.sin(a)*r)-1,3,3)}}
-  if(f.k==='boom'){const r=Math.round(4+k*16);g.strokeStyle=f.c;g.globalAlpha=1-k;g.lineWidth=2;g.strokeRect(f.x-r,f.y-r,r*2,r*2);g.fillStyle='#fff';g.fillRect(f.x-r/2,f.y-1,r,2);g.fillRect(f.x-1,f.y-r/2,2,r);g.globalAlpha=1}
+  if(f.k==='boom'){const r=Math.round(4+k*16);g.strokeStyle=f.c;g.globalAlpha=1-k;g.lineWidth=2;g.beginPath();g.arc(f.x,f.y,r,0,7);g.stroke();g.fillStyle='#fff';g.fillRect(f.x-r/2,f.y-1,r,2);g.fillRect(f.x-1,f.y-r/2,2,r);g.globalAlpha=1}
   if(f.k==='x'){g.globalAlpha=1-k;g.fillStyle=f.c;const r=Math.round(6+k*14);for(let i=-r;i<=r;i+=1){g.fillRect(f.x+i,f.y+i,2,2);g.fillRect(f.x+i,f.y-i,2,2)}g.fillStyle='#fff';for(let i=-r/2;i<=r/2;i++){g.fillRect(f.x+i,f.y+i,1,1);g.fillRect(f.x+i,f.y-i,1,1)}g.globalAlpha=1}
   if(f.k==='heal'){g.fillStyle='rgba(126,224,122,'+(1-k)+')';for(let i=0;i<4;i++){const px=f.x-6+i*4,py=f.y-6-k*20-(i%2)*5;g.fillRect(px,py,3,1);g.fillRect(px+1,py-1,1,3)}}
-  if(f.k==='ring'){const r=Math.round(6+k*10);g.strokeStyle=f.c;g.globalAlpha=1-k;g.lineWidth=1;g.strokeRect(f.x-r+.5,f.y-r+.5,r*2,r*2);g.globalAlpha=1}
+  if(f.k==='ring'){const r=Math.round(6+k*10);g.strokeStyle=f.c;g.globalAlpha=1-k;g.lineWidth=1;g.beginPath();g.arc(f.x,f.y,r,0,7);g.stroke();g.globalAlpha=1}
   if(f.k==='up'){g.fillStyle='rgba(255,210,63,'+(1-k)+')';for(let i=0;i<3;i++){const px=f.x-6+i*6,py=f.y-8-k*18-i*3;g.fillRect(px,py,1,4);g.fillRect(px-1,py+1,3,1)}}}
  g.textAlign='center';for(const t of B.texts){const k=1-t.life/.9,y=Math.round(t.y-k*12);g.font=(t.big?'13px':'10px')+' "Lilita One",sans-serif';g.globalAlpha=Math.min(1,t.life*3);g.lineWidth=2;g.strokeStyle='#241626';g.strokeText(t.t,t.x,y);g.fillStyle=t.c;g.fillText(t.t,t.x,y)}g.globalAlpha=1;
  if(B.flash>0){g.setTransform(1,0,0,1,0,0);g.globalAlpha=B.flash*.6;g.fillStyle=B.flashC;g.fillRect(0,0,480,600);g.globalAlpha=1}
@@ -8939,7 +8958,7 @@ const TUT=[
  {id:'mail',sel:'.md[data-act=mail]',on:['mail'],back:3,skip:()=>!mailPending(),t:["Ada hadiah pemula di Kotak Surat! Ketuk Hadiah.","Starter gifts are waiting in the Mailbox! Tap Gifts.","メールボックスに初心者プレゼントが届いています！「プレゼント」をタップ。"]},
  {id:'mailAll',sel:'[data-act=mailAll]:not([disabled])',on:['mailAll'],back:4,skip:()=>!mailList().some(id=>!S.mail[id].claimed&&mailHasRw(id)&&!mailDef(id).rw.pickHero),t:["Ketuk Klaim Semua!","Tap Claim All!","「すべて受け取る」をタップ！"]},
  {id:'pickOpen',sel:'.mitem[data-arg=starter_pick],#modal [data-act=mail]',on:['mailOpen','starter_pick'],back:4,skip:()=>!S.mail.starter_pick||S.mail.starter_pick.claimed,t:["Sang Ratu memberimu 1 hero ★3 pilihan! Buka suratnya.","The Queen grants you a ★3 hero of your choice! Open the letter.","女王から★3英雄を1人選べるプレゼント！手紙を開こう。"]},
- {id:'pick',sel:'.pickh',on:['mailPick'],back:6,skip:()=>!S.mail.starter_pick||S.mail.starter_pick.claimed,t:["Pilih hero ★3 yang paling kamu suka!","Pick the ★3 hero you like best!","好きな★3英雄を選んでください！"]},
+ {id:'pick',sel:'.pickh',ring:'.pick',pos:'top',on:['mailPick'],back:6,skip:()=>!S.mail.starter_pick||S.mail.starter_pick.claimed,t:["Pilih hero ★3 yang paling kamu suka!","Pick the ★3 hero you like best!","好きな★3英雄を選んでください！"]},
  {id:'summon',sel:'#nav [data-arg=summon]',on:['go','summon'],skip:()=>tab==='summon',t:["Menara Panggilan sudah menyala! Ketuk Summon.","The Summoning Tower is lit! Tap Summon.","召喚の塔が光りました！「召喚」をタップ。"]},
  {id:'pull',sel:'[data-act=pull][data-arg="10"]',on:['pull','10'],back:8,skip:()=>!S.tixH&&S.gems<COST10,t:["Pakai 10 Tiket Hero untuk Summon x10!","Use 10 Hero Tickets for a x10 Summon!","ヒーローチケット10枚で10連召喚！"]},
  {id:'sumClose',sel:'#sfx [data-act=sumClose]',on:['sumClose'],t:["Hero baru bergabung! Ketuk OK kalau sudah puas melihat.","New heroes joined! Tap OK when you're done looking.","新しい仲間が加わりました！見終わったら「OK」をタップ。"],wait:()=>!!(typeof SFXQ!=='undefined'&&SFXQ)},
@@ -8978,9 +8997,12 @@ function tutSync(){if(!tutOn()){if(TUTEL){TUTEL.remove();TUTEL=null}return}
  TUTEL.style.display='';const app=document.getElementById('app').getBoundingClientRect(),ring=TUTEL.querySelector('.tring'),bub=TUTEL.querySelector('.tbub');
  bub.querySelector('p').textContent=txt;bub.querySelector('.tskip').textContent=T('Lewati Tutorial');
  const av=bub.querySelector('.tav');if(!av.src&&HD.noa)av.src=portrait('noa');
+ if(tg&&st.ring&&tg.closest(st.ring))tg=tg.closest(st.ring);
  if(tg){const r=tg.getBoundingClientRect();ring.style.display='';Object.assign(ring.style,{left:r.left-app.left-5+'px',top:r.top-app.top-5+'px',width:r.width+10+'px',height:r.height+10+'px'});
-  const below=r.top-app.top<app.height*.55;bub.style.top=below?(r.bottom-app.top+16)+'px':'';bub.style.bottom=below?'':(app.bottom-r.top+16)+'px'}
+  if(st.pos==='top'&&txt===tutText(st)){bub.style.top='calc(8px + env(safe-area-inset-top))';bub.style.bottom='';TUTEL.classList.add('top')}
+  else{const below=r.top-app.top<app.height*.55;bub.style.top=below?(r.bottom-app.top+16)+'px':'';bub.style.bottom=below?'':(app.bottom-r.top+16)+'px'}}
  else{ring.style.display='none';bub.style.top='';bub.style.bottom='120px'}
+ if(!(tg&&st.pos==='top'&&txt===tutText(st)))TUTEL.classList.remove('top');
  TUTEL.classList.toggle('inbattle',!!B)}
 setInterval(()=>{try{if(S&&tutOn())tutSync()}catch(e){}},500);
 

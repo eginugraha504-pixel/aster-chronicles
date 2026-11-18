@@ -251,6 +251,7 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 ## OST (18 Nov 2026)
 - 22 lagu Suno dari Egi di `src/audio/` (112 kbps, hening awal/akhir dipotong): `login`, `game`, `bt_w1..8` (battle per dunia), `bt_boss` (x-5), `bt_final` (8-5), `bt_dungeon`, `bt_arena`, `win` (jingle menang, tidak diulang), `st_prolog/hangat/tegang/sedih/misteri/harapan/kehampaan`.
 - `bgmBattle(st)` dipanggil di `startBattle`; `win` di layar menang (juga Arena); `exitBattle` → `game`. Cerita: `STORY_BGM` per adegan (story.js), direktif `{bgm:'st_...'}` untuk ganti di tengah adegan (c8c → kehampaan saat Mata muncul); selesai cerita → `game`/`login`.
+- Penjaga BGM (`bgmHealth`, tiap 3 dtk lewat `audWake`): bila lagu macet (waktu tidak maju) atau "jalan tapi bisu" (sinyal AnalyserNode sebelum volume nol ±9 dtk) → jeda & putar ulang; gagal lagi → `bgmRebuild` membuat elemen <audio> baru pada sentuhan berikutnya (iOS butuh sentuhan).
 - `bgmPlay` memudar keluar 0,45 dtk lalu memudar masuk; kunci yang belum ada → `game`.
 
 ## Cerita Utama, Tutorial & Syarat Fitur (18 Nov 2026)
@@ -296,3 +297,8 @@ Server: `bank-worker/src/game.js` (Cloudflare Worker `aster-bank` + D1, tabel di
 - **Privasi**: data bot dikirim terpisah PUBLIK (level, CP, VIP, tim, favorit, tahap, liga) vs PRIBADI (pity, hoki/apes, top up, tabungan, hari main — hanya diketahui bot itu sendiri). Data pemain asli yang dikirim hanya yang terlihat di profil; permata, pity, top up & aktivitas TIDAK dikirim.
 - **Stiker**: 12 stiker chibi hero (`src/js/data/stickers.js`, gambar `src/img/stickers/`, dibuat Higgsfield nano_banana_pro lalu dipotong `art_src/sticker_cut.py`). Pesan stiker = `:stk:<kunci>:`. Pemain memilih lewat tombol stiker di samping kolom ketik.
 - **Hemat token**: game mengirim 'tick' ±30 dtk; server memutuskan: adegan AI ±100 dtk sekali bila ada yang membuka Obrolan Dunia (selain itu ±9 menit), di sela itu bot gabut kirim stiker acak **tanpa AI** (80–300 dtk sekali, kadang dibalas stiker bot lain). Claude dipanggil lagi hanya saat pemain asli menulis/membalas. Konteks ringkas (maks 5 penulis), max_tokens 280/400, pengetahuan game di system prompt yang di-cache.
+
+
+## Catatan visual battle & tutorial (18 Nov 2026)
+- Perisai (skill Pia) tidak lagi digambar sebagai kotak di sekitar unit; diganti ikon perisai kecil di samping bar HP. Efek `ring`/`boom` berbentuk lingkaran; bayangan kaki dibulatkan.
+- Langkah tutorial `pick` (pilih hero ★3 di Kotak Surat): sorotan mengelilingi seluruh daftar hero dan gelembung Noa pindah ke atas layar (`ring`, `pos:'top'`), tombol Lewati Tutorial di kiri.

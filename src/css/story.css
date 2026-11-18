@@ -119,6 +119,7 @@
 #tut .tav{width:46px;height:46px;flex:none;border-radius:10px;background:#dde8ff;image-rendering:pixelated}
 #tut .tbub p{margin:0;flex:1;font-size:13.5px;line-height:1.4;font-weight:700;color:#3a2410}
 #tut .tskip{position:absolute;right:8px;bottom:-22px;font:800 11px/1 inherit;color:#fff;background:rgba(10,12,30,.75);border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:4px 9px}
+#tut.top .tskip{right:auto;left:8px}
 #tut.inbattle .tring{box-shadow:0 0 18px 4px rgba(255,220,110,.9)}
 /* kartu penutup bab: karakter memudar, latar meredup */
 #story.fin .schs{opacity:0;transition:opacity .9s}
