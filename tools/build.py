@@ -50,7 +50,7 @@ BGD=os.path.join(SRC,'img','bg')
 bgi={f[:-5]:'data:image/webp;base64,'+base64.b64encode(open(os.path.join(BGD,f),'rb').read()).decode() for f in sorted(os.listdir(BGD)) if f.endswith('.webp')} if os.path.isdir(BGD) else {}
 # aset CERITA (src/story/{bg,cg,ex,npc,v}/*) TIDAK ditanam: disalin ke dist/story/ dan dimuat saat dibutuhkan (lihat js/ui/story.js).
 # STORY_ASSET = daftar file yang ada + geometri patch ekspresi (art_src/story/ex_geo.json) + ukuran gambar NPC.
-STD_=os.path.join(SRC,'story');sta={'f':[],'ex':{},'npc':{}}
+STD_=os.path.join(SRC,'story');sta={'f':[],'ex':{},'npc':{},'tc':{}}
 if os.path.isdir(STD_):
     dst=os.path.join(ROOT,'dist','story')
     if os.path.isdir(dst):_sh.rmtree(dst)
@@ -62,6 +62,9 @@ if os.path.isdir(STD_):
     if os.path.exists(gp):sta['ex']={k:v for k,v in json.load(open(gp)).items() if 'ex/'+k in sta['f']}
     npp=os.path.join(ROOT,'art_src','story','npc_geo.json')
     if os.path.exists(npp):sta['npc']=json.load(open(npp))
+    # tachie live2d cerita (art_src/tachie/rig.py): hanya tokoh yang gambar dasarnya ada
+    tcp=os.path.join(ROOT,'art_src','tachie','tc_rig.json')
+    if os.path.exists(tcp):sta['tc']={k:v for k,v in json.load(open(tcp)).items() if (('npc/' if v.get('npc') else 'tc/')+k) in sta['f']}
 jsb="<script>\n'use strict';\nconst SPLASH_SRC="+json.dumps(spl)+";\nconst BGIMG_SRC="+json.dumps(bgi)+";\nconst ICONIMG_SRC="+json.dumps(ici)+";\nconst SPRITE_SRC="+json.dumps(sps)+";\nconst VOICE_SRC="+json.dumps(vox)+";\nconst RIG_SRC="+json.dumps(rig)+";\nconst MUSIC_SRC="+json.dumps(mus)+";\nconst STORY_ASSET="+json.dumps(sta,separators=(',',':'))+";\n"+'\n'.join(f'/* ==== {p} ==== */\n'+read(p) for p in js)+'</script>'
 # logo studio (src/img/studio/logo.webp) ditanam langsung di HTML agar splash studio tampil sebelum script besar selesai dimuat
 STL=os.path.join(SRC,'img','studio','logo.webp')

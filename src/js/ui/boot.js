@@ -78,6 +78,16 @@ async function enterGame(){if(entering)return;entering=true;sfx('start');if(type
  const tr=document.createElement('div');tr.className='trans';tr.innerHTML=`<div class="trin"><img class="px" src="${sprite(HD[S.team.find(Boolean)||STARTERS()[0]].spr).url}"><b>${T('Memasuki Kerajaan Aster...')}</b><span class="trbar"><i></i></span></div>`;document.body.appendChild(tr);
  await sleep(60);tr.classList.add('on');await sleep(900);cancelAnimationFrame(loginRAF);L.classList.remove('on','enter','again');L.innerHTML='';lgMode='tap';lgOpened=false;
  initUI();await sleep(250);tr.classList.remove('on');setTimeout(()=>tr.remove(),500)}
+// kembali ke layar judul (dari Pengaturan atau setelah Hapus Progres): hentikan battle/cerita/suara, simpan, lalu buka login lagi
+async function backToLogin(){if(document.getElementById('login').classList.contains('on'))return;entering=false;
+ try{$('#modal').classList.contains('on')&&closeModal()}catch(e){}
+ try{if(typeof SP!=='undefined'&&SP)storyEnd(true)}catch(e){}
+ try{if(B){B=null;$('#battle').classList.remove('on');const o=$('#bOver');o&&o.classList.remove('on')}}catch(e){}
+ try{typeof voxStop==='function'&&voxStop()}catch(e){}
+ if(S)save();sfx('open');if(typeof bgmStop==='function')bgmStop(.8);
+ const tr=document.createElement('div');tr.className='trans';tr.innerHTML=`<div class="trin"><b>${T('Kembali ke menu utama...')}</b><span class="trbar"><i></i></span></div>`;document.body.appendChild(tr);
+ await sleep(60);tr.classList.add('on');await sleep(850);
+ tab='home';lgMode='tap';lgOpened=false;openLogin();if(typeof tutSync==='function')tutSync();await sleep(200);tr.classList.remove('on');setTimeout(()=>tr.remove(),500)}
 function lgValidate(v){return NAME_OK.test(v)}
 Object.assign(ACT,{
  lgStart:()=>{if(entering||lgMode==='name')return;if(S.named){enterGame();return}sfx('open');lgMode='name';const P=$('#lgPanel');P.classList.add('card');P.innerHTML=loginNameHTML();setTimeout(()=>{const i=$('#lgName');i&&i.focus()},80)},

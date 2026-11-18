@@ -6,7 +6,8 @@ let LOOP_ERR=0;
 // dipanggil dari layar loading (ui/boot.js): data & aset dunia
 function initCore(){checkDaily();Object.keys(ICON.el).forEach(k=>{const im=new Image();im.src=ICON.el[k];elImg[k]=im});BG.town=makeBG('town',160,120)}
 // dipanggil setelah login: tampilkan game
-function initUI(){render();welcome();requestAnimationFrame(loop);
+let uiInit=false;
+function initUI(){render();welcome();if(uiInit)return;uiInit=true;requestAnimationFrame(loop);
  setInterval(()=>{if(!$('#modal').classList.contains('on')||true)updateTop()},1000);
  document.addEventListener('visibilitychange',()=>{if(document.hidden)save()})}
 bootStart();

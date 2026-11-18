@@ -25,7 +25,7 @@ function featOfAct(a,arg){if(a==='go')return arg==='summon'?'summon':arg==='miss
  return{goEvent:'event',shop:'shop',chat:'chat',goDg:'dungeon',advDg:'dungeon',arena:'arena',rank:'rank',smelt:'smelt',goSummon:'summon',goWpnBanner:'summon'}[a]||(a==='advMode'&&arg==='dg'?'dungeon':null)}
 function featDeny(k){if(typeof sfx==='function')sfx('deny');toast(`${ic('lock',14)} ${featName(k)}: ${featReq(k)}`,1)}
 // popup fitur baru (antre bila sedang bertarung / cerita / modal terbuka)
-function featCheck(){if(!S||!Array.isArray(S.unl))return;if(B||(typeof SP!=='undefined'&&SP)||$('#modal').classList.contains('on')||(typeof TUT_BUSY==='function'&&TUT_BUSY()))return;
+function featCheck(){if(!S||!Array.isArray(S.unl))return;if(B||(typeof SP!=='undefined'&&SP)||document.getElementById('login').classList.contains('on')||$('#modal').classList.contains('on')||(typeof TUT_BUSY==='function'&&TUT_BUSY()))return;
  const n=featNew();if(!n.length)return;const k=n[0];S.unl.push(k);save();const f=FEAT[k];if(typeof sfx==='function')sfx('rare');
  const go={summon:'go:summon',mission:'go:mission',event:'goEvent:',shop:'shop:',chat:'chat:',dungeon:'goDg:',rank:'rank:',smelt:'smelt:',arena:'arena:'}[k].split(':');
  modal(`<div class="funl"><div class="funr"></div><small>${T('FITUR BARU TERBUKA!')}</small><span class="funi"><img class="ix" src="${ICON[f.icon]||ICON.lock}" alt=""></span><b>${featName(k)}</b><p>${f.d[typeof SL==='function'?SL():0]}</p></div>

@@ -12,7 +12,12 @@
 #story .schs{position:absolute;inset:0;pointer-events:none}
 #story .sch{position:absolute;inset:0;transition:filter .3s,opacity .28s,transform .35s}
 #story .sch .schi{position:absolute;left:0;top:0;width:var(--w);height:var(--h);transform-origin:0 0;
- transform:translate(calc(var(--X) - var(--fx) * var(--k)),calc(var(--Y) - var(--fy) * var(--k))) scale(var(--k));animation:stbr 4.2s ease-in-out infinite}
+ transform:translate(calc(var(--X) - var(--fx) * var(--k) * var(--s,1)),calc(var(--Y) - var(--fy) * var(--k) * var(--s,1))) scale(calc(var(--k) * var(--s,1)));animation:stbr 4.2s ease-in-out infinite}
+/* tachie berdiri: diletakkan dari ujung kepala (--T), wajah di tengah layar; live2d (canvas) menggantikan gambar diam */
+#story .sch.tc:not(.np) .schi{transform:translate(calc(var(--X) - var(--fx) * var(--k) * var(--s,1)),var(--T)) scale(calc(var(--k) * var(--s,1)))}
+#story .sch.live .schi{animation:none}
+#story .sch.live img.sbase,#story .sch.live .sex{visibility:hidden}
+#story .sch canvas.sbase{position:absolute;left:0;top:0;width:100%;height:100%;display:block;filter:drop-shadow(0 0 1px rgba(0,0,0,.4))}
 #story .sch img{position:absolute;display:block}
 #story .sch .sbase{left:0;top:0;width:100%;height:100%;filter:drop-shadow(0 0 1px rgba(0,0,0,.4))}
 @keyframes stbr{0%,100%{margin-top:0}50%{margin-top:-3px}}

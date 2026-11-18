@@ -44,7 +44,7 @@ function tutAct(a,arg){if(!tutOn())return;const st=TUT[S.tut];if(!st||!st.on)ret
 let TUTEL=null;
 function tutSync(){if(!tutOn()){if(TUTEL){TUTEL.remove();TUTEL=null}return}
  let st=TUT[S.tut];
- if(typeof SP!=='undefined'&&SP){if(TUTEL)TUTEL.style.display='none';return}
+ if((typeof SP!=='undefined'&&SP)||document.getElementById('login').classList.contains('on')){if(TUTEL)TUTEL.style.display='none';return}
  // lewati langkah yang sudah tidak relevan
  for(let g=0;g<6&&st&&st.skip&&st.skip();g++){S.tut++;save();st=TUT[S.tut];if(!st){S.tut='done';save();return tutSync()}}
  if(st.in==='battle'&&(!B||$('#bOver').classList.contains('on'))){S.tut=2;save();st=TUT[2]}

@@ -12,7 +12,9 @@ function defState(){
 function load(){
  try{const d=JSON.parse(localStorage.getItem(SAVE_KEY));
   if(d&&d.heroes){S=Object.assign(defState(),d);if(S.weapons&&S.weapons.aurora){delete S.weapons.aurora;S.auroraRefund=1}if(d.named===undefined)S.named=!!d.welcomed;migrate();return}}catch(e){}  // named: pemain lama tidak perlu membuat nama lagi
- S=defState();S.unl=[];S.tut=0;S.story={seen:{},pend:null}}   // pemain baru: fitur terkunci, tutorial & prolog
+ newGame()}
+// pemain baru: fitur terkunci, tutorial & prolog
+function newGame(){S=defState();S.unl=[];S.tut=0;S.story={seen:{},pend:null}}
 // bersihkan data yang tidak valid (hero/senjata dihapus dari data, kelas tidak cocok, dll)
 // hero yang dihapus -> penggantinya (Seraphine diganti Celestine, 18 Nov 2026). Level, LB, ascend & gear ikut pindah.
 const HERO_REPLACED={seraphine:'celestine'};

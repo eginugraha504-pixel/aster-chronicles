@@ -22,15 +22,24 @@ function storyFlush(go){const st=storyState(),id=st.pend;if(!id||!STD[id]||story
 function stName(sp){if(HD[sp])return HD[sp].name;const n=STORY_NPC[sp];return n?n.n[SL()]:''}
 // gambar tokoh: hero = splash (SPLASH_SRC) + patch ekspresi; NPC = story/npc/<id>.webp
 function stCharHTML(sp,e){
+ // tachie berdiri live2d (hero) / NPC ber-rig: lihat l2dStory di art/live2d.js; <img> = cadangan tanpa WebGL
+ const R=STORY_ASSET.tc&&STORY_ASSET.tc[sp];
+ if(R&&(R.npc?stHas('npc/'+sp):stHas('tc/'+sp))){const ks=(1100/R.h)*(R.npc?1:.92);
+  return`<div class="sch tc${R.npc?' np':''}" data-sp="${sp}" data-l2d="${sp}" style="--w:${R.w}px;--h:${R.h}px;--fx:${R.head[0]}px;--fy:${R.npc?R.head[1]:0}px;--s:${ks.toFixed(4)}"><div class="schi"><img class="sbase" src="${stUrl((R.npc?'npc/':'tc/')+sp)}" alt="">${stExImg(sp,e)}</div></div>`}
  let src,w,h,f,ex='';
  if(HD[sp]){src=splash(sp);if(!src)return'';const im=SPLASH_DIM[sp];w=im?im[0]:800;h=1100;f=splashFocus(sp);
   const k=sp+'_'+e,g=STORY_ASSET.ex[k];if(g&&e!=='n')ex=`<img class="sex" src="${stUrl('ex/'+k)}" style="left:${g[0]}px;top:${g[1]}px;width:${g[2]}px;height:${g[3]}px" alt="">`}
  else{const g=STORY_ASSET.npc[sp];if(!g||!stHas('npc/'+sp))return'';src=stUrl('npc/'+sp);w=g[0];h=g[1];f=[g[2],g[3]]}
  return`<div class="sch" data-sp="${sp}" style="--w:${w}px;--h:${h}px;--fx:${f[0]/100*w}px;--fy:${f[1]/100*h}px"><div class="schi"><img class="sbase" src="${src}" alt="">${ex}</div></div>`}
+function stExImg(sp,e){const R=STORY_ASSET.tc[sp],g=R&&R.ex&&R.ex[e];if(!g||!stHas('tc/'+sp+'_'+e))return'';
+ return`<img class="sex" src="${stUrl('tc/'+sp+'_'+e)}" style="left:${g[0]}px;top:${g[1]}px;width:${g[2]}px;height:${g[3]}px" alt="">`}
 // ukuran asli splash (dibaca sekali dari gambar)
 const SPLASH_DIM={};function splashDims(){for(const id in HD){const s=splash(id);if(!s||SPLASH_DIM[id])continue;const im=new Image();im.onload=()=>SPLASH_DIM[id]=[im.naturalWidth,im.naturalHeight];im.src=s}}
 function storyPreload(s){const P=[];const add=p=>{if(stHas(p)){const im=new Image();im.src=stUrl(p);P.push(im)}};add('bg/'+s.bg);
- for(const l of s.L){if(l.bg)add('bg/'+l.bg);if(l.cg)add('cg/'+l.cg);if(Array.isArray(l)&&l[0]!=='n'){if(!HD[l[0]])add('npc/'+l[0]);else if(l[1]&&l[1]!=='n'&&l[1]!=='-')add('ex/'+l[0]+'_'+l[1])}}return P}
+ const gl=typeof l2dInit==='function'&&l2dInit();
+ for(const l of s.L){if(l.bg)add('bg/'+l.bg);if(l.cg)add('cg/'+l.cg);if(Array.isArray(l)&&l[0]!=='n'){const id=l[0],R=STORY_ASSET.tc&&STORY_ASSET.tc[id],e=l[1];
+  if(R){if(gl){l2dTC(id);if(e&&R.ex&&R.ex[e])l2dTCEx(id,e)}else{add((R.npc?'npc/':'tc/')+id);if(e&&R.ex&&R.ex[e])add('tc/'+id+'_'+e)}}
+  else if(!HD[id])add('npc/'+id);else if(e&&e!=='n'&&e!=='-')add('ex/'+id+'_'+e)}}return P}
 const SVOX=new Audio();SVOX.preload='auto';
 function stVoice(k){try{SVOX.pause()}catch(e){}if(typeof voxStop==='function')voxStop();if(!k||!voxOn()||!stHas('v/'+k))return false;SVOX.muted=false;SVOX.src=stUrl('v/'+k);SVOX.volume=Math.min(1,voxVol()*1.15);const p=SVOX.play();if(p&&p.catch)p.catch(()=>{});return true}
 function storyPlay(id,done){const s=STD[id];if(!s){done&&done();return}
@@ -40,7 +49,7 @@ function storyPlay(id,done){const s=STD[id];if(!s){done&&done();return}
   <div class="sbox pre"><div class="snm"></div><div class="stx"></div><i class="snx"></i></div><div class="sch2"></div>
   <div class="stitle"><small>${STORY_CH[s.ch||0].n[SL()]} · ${STORY_CH[s.ch||0].t[SL()]}</small><b>${s.t[SL()]}</b></div>`;
  document.getElementById('app').appendChild(el);
- const lay=()=>{const r=el.getBoundingClientRect();el.style.setProperty('--k',(r.height*1.32/1100).toFixed(4));el.style.setProperty('--X',Math.round(r.width/2)+'px');el.style.setProperty('--Y',Math.round(r.height*.25)+'px')};lay();window.addEventListener('resize',lay);
+ const lay=()=>{const r=el.getBoundingClientRect();el.style.setProperty('--k',(r.height*1.32/1100).toFixed(4));el.style.setProperty('--X',Math.round(r.width/2)+'px');el.style.setProperty('--Y',Math.round(r.height*.25)+'px');el.style.setProperty('--T',Math.round(r.height*.035)+'px')};lay();window.addEventListener('resize',lay);
  SP={lay,s,i:-1,el,done,auto:!!S.storyAuto,typing:0,full:'',log:[],cg:null,bg:null,sp:null,t:0,pre:storyPreload(s),wait:0};
  stBg(s.bg,true);el.querySelector('[data-sb=auto]').classList.toggle('on',SP.auto);
  el.addEventListener('click',stTap);requestAnimationFrame(()=>el.classList.add('on'));
@@ -56,7 +65,9 @@ function stFx(k){const e=SP.el;if(k==='flash'||k==='star'){const f=e.querySelect
 function stShow(sp,e){const box=SP.el.querySelector('.schs');
  if(sp==='n'||e==='-'||!sp){[...box.children].forEach(c=>c.classList.add('dim'));return}
  let c=box.querySelector(`.sch[data-sp="${sp}"]`);
- if(c&&c.dataset.e===e){[...box.children].forEach(x=>x.classList.toggle('dim',x!==c));return}
+ if(c&&c.dataset.e===e){[...box.children].forEach(x=>x.classList.toggle('dim',x!==c));SP.sp=sp;return}
+ if(c&&c.dataset.l2d){const o=c.querySelector('.sex');o&&o.remove();c.querySelector('.schi').insertAdjacentHTML('beforeend',stExImg(sp,e));c.dataset.e=e;
+  c.classList.remove('swap');void c.offsetWidth;c.classList.add('swap');[...box.children].forEach(x=>x.classList.toggle('dim',x!==c));SP.sp=sp;return}
  const html=stCharHTML(sp,e);if(!html){[...box.children].forEach(c=>c.classList.add('dim'));return}
  const t=document.createElement('div');t.innerHTML=html;const n=t.firstElementChild;n.dataset.e=e;
  if(c){c.replaceWith(n);n.classList.add('swap')}else{[...box.children].forEach(x=>{x.classList.add('out');setTimeout(()=>x.remove(),280)});n.classList.add('in');box.appendChild(n)}
