@@ -187,3 +187,8 @@ Dipilih sendiri (Egi: "kamu directornya") untuk melengkapi 6 hero ★3 standar d
 - Varian: `hit_crit` (krit), `skill_<api|air|tanah|cahaya|gelap|netral>`, `boom`/`boom_r2`/`boom_r3`, `meteor_r3`, `card_r3` (lapisan card + sparkle). `star` dimainkan dengan nada naik per bintang.
 - Volume per sampel ada di `SFX_VOL` (js/systems/sound.js). Sintesis lama (`SFX_LIB`) tetap jadi cadangan bila sampel belum ter-decode.
 - Ganti satu efek: taruh mp3 mentah di folder sumber, jalankan `python3 art_src/sfx_proc.py <folder_mentah> src/sfx`, sesuaikan `SFX_VOL`, build.
+
+## Logo & layar loading/judul (rombak 18 Nov 2026)
+- `src/img/ui/logo.webp` — logo "ASTER CHRONICLES" dari Higgsfield nano_banana_pro, latar putih di-key manual (alpha dari jarak ke putih, cahaya bintang biru tetap). Dipakai lewat `var(--ui-logo)` di kelas `.alogo` (+ kilau `::after` bertopeng logo). Subjudul lokal `.asub`.
+- Loading (#boot) & transisi (`transEl`): key art buram + ilustrasi tachie hero acak (`pickArtHero`, dari `story/tc/`) + elemen/gelar/lore + kotak TIPS + bar progres tipis berkilau.
+- Layar judul: key art Ken Burns + sinar berputar + logo + tombol samping (Pengumuman/Bahasa/Akun) + sapaan "Lv · nama" untuk pemain lama + versi/UID & © HUN2 STUDIO. Kartu nama memakai skin UI game (ui2.css).
