@@ -41,7 +41,7 @@ async function dmThreads(){const o=await api('/api/dm/threads',{tok:netTok()}),b
 function dmPeer(uid){const all=NET.friends.friends.concat(NET.friends.inc,NET.friends.out);return all.find(p=>p.uid===uid)||{uid,u:'?',bot:null}}
 function dmRowsHTML(){if(!dmList.length)return`<p class="sub frempty">${T('Mulai percakapan!')}</p>`;let out='',day='';
  for(const m of dmList){const d=new Date(m.ts+BOT_CFG.TZ*36e5).toISOString().slice(0,10);if(d!==day){day=d;out+=`<div class="dmday">${d===new Date(Date.now()+BOT_CFG.TZ*36e5).toISOString().slice(0,10)?T('Hari ini'):d.split('-').reverse().join('/')}</div>`}
-  out+=`<div class="dmm${m.me?' me':''}"><p>${esc(m.txt)}</p><small>${chTime(m.ts)}${m.me?(m.id<=dmSeen?' ✓✓':' ✓'):''}</small></div>`}return out}
+  out+=`<div class="dmm${m.me?' mine':''}"><p>${esc(m.txt)}</p><small>${chTime(m.ts)}${m.me?(m.id<=dmSeen?' ✓✓':' ✓'):''}</small></div>`}return out}
 async function dmPoll(force){if(!dmOpenWith)return;const o=await api('/api/dm/get',{tok:netTok(),uid:dmOpenWith,after:force?0:dmLast});if(!o.ok||!dmOpenWith)return;
  const box=$('#dmList');if(!box){dmClose();return}const near=box.scrollHeight-box.scrollTop-box.clientHeight<80;let ch=o.seen!==dmSeen;dmSeen=o.seen;
  if(force)dmList=[];if(o.list.length){dmList=dmList.concat(o.list.filter(m=>!dmList.some(x=>x.id===m.id)));dmLast=dmList[dmList.length-1].id;ch=true}
