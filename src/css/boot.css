@@ -69,7 +69,7 @@
 #lgbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
 #lgbg.kart{object-position:50% 38%;transform-origin:50% 30%;animation:kburns 24s ease-in-out infinite alternate,lgbgin 1.4s ease-out both}
 @keyframes kburns{from{transform:scale(1.03)}to{transform:scale(1.11) translateY(1.5%)}}
-@keyframes lgbgin{from{filter:brightness(.2) saturate(.6)}}
+@keyframes lgbgin{from{opacity:0}}  /* JANGAN animasikan filter pada gambar besar: membuat Safari iOS crash ("A problem repeatedly occurred") */
 .lgtint{position:absolute;inset:0;pointer-events:none;background:
  linear-gradient(180deg,rgba(12,8,40,.72) 0%,rgba(30,18,70,.25) 26%,transparent 42%,transparent 56%,rgba(14,8,30,.55) 74%,rgba(10,6,24,.94) 100%)}
 .lgrays{position:absolute;left:50%;top:-30%;width:180%;aspect-ratio:1;margin-left:-90%;pointer-events:none;opacity:.22;mix-blend-mode:screen;
@@ -81,7 +81,7 @@
 .lgtop{position:absolute;left:0;right:0;top:calc(4% + env(safe-area-inset-top));z-index:3;display:flex;flex-direction:column;align-items:center;pointer-events:none}
 .lgtop .alogo{width:86%;animation:lgdrop .9s cubic-bezier(.2,1.3,.35,1) .15s both}
 .lgtop .asub{animation:lgfade .7s .7s both}
-@keyframes lgdrop{from{transform:translateY(-30px) scale(.82);opacity:0;filter:brightness(2.2) blur(4px)}}
+@keyframes lgdrop{from{transform:translateY(-30px) scale(.82);opacity:0}}
 @keyframes lgfade{from{opacity:0}}
 /* tombol bulat kanan atas */
 .lgside{position:absolute;right:10px;top:calc(34% + env(safe-area-inset-top));z-index:5;display:flex;flex-direction:column;gap:12px;animation:lgfade .6s .9s both}
@@ -120,7 +120,7 @@
 .lgx{position:absolute;top:10px;right:10px;width:28px;height:28px;padding:0;border-radius:50%;border:2px solid #0e1430;background:#e8483b;color:#fff;font-weight:900;line-height:1;cursor:pointer}
 /* keluar dari layar judul */
 #login.enter .lgtop,#login.enter #lgPanel,#login.enter .lgside,#login.enter .lgver{transition:opacity .45s,transform .45s;opacity:0;transform:translateY(-10px)}
-#login.enter #lgbg{transition:transform 1s ease-in,filter 1s;transform:scale(1.25);filter:brightness(1.8) blur(2px)}
+#login.enter #lgbg{transition:transform 1s ease-in,opacity 1s;transform:scale(1.25);opacity:.5}
 #login.again .lgtop .alogo,#login.again .lgtop .asub,#login.again .lgside,#login.again .lgwel,#login.again .lgcta,#login.again .lgver,#login.again #lgbg{animation-delay:0s!important}
 #login.again #lgbg.kart{animation:kburns 24s ease-in-out infinite alternate}
 .news{display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow-y:auto}
