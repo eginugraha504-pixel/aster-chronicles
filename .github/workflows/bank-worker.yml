@@ -53,7 +53,11 @@ jobs:
           URL="https://aster-bank.$SUB.workers.dev"
           K=$(printf '%s' "$BOT_TOKEN" | sha256sum | cut -c1-32)
           sleep 5
-          curl -s "$URL/setup?k=$K"; echo
+          for i in 1 2 3 4 5 6; do
+            R=$(curl -s "$URL/setup?k=$K"); echo "$R"
+            echo "$R" | grep -q '"webhook":{"ok":true' && break
+            echo "Webhook belum terpasang, coba lagi ($i)..."; sleep 15
+          done
           echo "### ✅ Bank aktif di $URL" >> $GITHUB_STEP_SUMMARY
           echo "Isi alamat ini di game: \`TOPUP_CFG.api = '$URL'\`" >> $GITHUB_STEP_SUMMARY
           echo "### Mode AI" >> $GITHUB_STEP_SUMMARY
