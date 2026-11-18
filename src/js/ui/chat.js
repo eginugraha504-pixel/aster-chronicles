@@ -20,7 +20,7 @@ function wcVip(m){const i=wcBot(m);return i>=0?botState(i).stats.vip:m.vip}
 function wcTop(m){const i=wcBot(m);if(i>=0){const s=botState(i);return s.fav||s.team[0]}return m.top}
 /* ---- Mode AI: minta server menulis adegan obrolan / balasan dari bot yang sedang online ---- */
 function wcAiBody(kind){const now=Date.now(),d=new Date(now+BOT_CFG.TZ*36e5),HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
- const on=chOnline(now).filter(i=>!botHidden(i)&&botUid(i)),talk=on.filter(i=>chPersona(i).chat>0);
+ const on=wcBotsOn().filter(i=>botUid(i)),t0=on.filter(i=>chPersona(i).chat>0),talk=t0.length>=3?t0:on;
  const recent=[...new Set(WC.list.filter(m=>now-m.ts<15*6e4).map(wcBot).filter(i=>i>=0&&on.includes(i)))].slice(-3);
  const r=bRng(now>>>0),pool=talk.map(i=>[i,(chPersona(i).chat+.2)*r()]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
  const cands=chCandsDesc([...new Set([...recent,...pool])].slice(0,7),now).map((c,k,arr)=>c);const idx=[...new Set([...recent,...pool])].slice(0,7);cands.forEach((c,k)=>c.uid=botUid(idx[k]));
@@ -39,8 +39,9 @@ function chRow(m,prev){const me=wcMine(m),same=prev&&prev.uid===m.uid&&m.ts-prev
   <div class="chb">${same?'':`<div class="chn"><button data-act="profView" data-arg="${m.uid}">${vip}<b>${nm}</b></button><small>${chTime(m.ts)}</small></div>`}<p>${esc(m.txt)}</p></div></div>`}
 function chListHTML(L){if(!L.length)return`<p class="sub chempty">${WC.at?T('Belum ada obrolan. Sapa yang lain!'):T('Memuat obrolan...')}</p>`;return L.map((m,k)=>chRow(m,L[k-1])).join('')}
 // jumlah online = bot yang sedang bermain (jadwal sesi bot, sama untuk semua pemain) + pemain asli online (+ kamu)
-function wcOnline(){let n=0;try{if(BOTS.ready&&botsVisible())n=chOnline(Date.now()).filter(i=>!botHidden(i)).length}catch(e){}
- return n+NET.players.filter(p=>p.on&&!(NET.acct&&p.uid===NET.acct.uid)).length+1}
+// daftar bot online memakai botPresence (sama dengan Peringkat & profil; bot yang baru bergabung juga online), disimpan 10 dtk
+function wcBotsOn(){const now=Date.now();if(WC.onAt&&now-WC.onAt<1e4)return WC.on;const L=[];try{const n=botsVisible(now);for(let i=0;i<n;i++)if(!botHidden(i)&&botPresence(i,now).online)L.push(i)}catch(e){}WC.onAt=now;return WC.on=L}
+function wcOnline(){return wcBotsOn().length+NET.players.filter(p=>p.on&&!(NET.acct&&p.uid===NET.acct.uid)).length+1}
 function openChat(){chatOpen=true;wcFetch().then(()=>chatRefresh(true));netPlayers();
  modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3><img class="ix" src="${ICON.wchat||ICON.chat}" style="width:24px;height:24px"> ${T('Obrolan Dunia')}</h3><div class="chhd"><small><i class="on"></i><b id="chOn">${wcOnline()}</b> ${T('pemain online')}</small></div>
  <div class="chlist" id="chList"></div>

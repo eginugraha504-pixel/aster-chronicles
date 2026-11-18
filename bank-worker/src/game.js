@@ -94,6 +94,12 @@ async function aiChat(env, b, u) {
   if (!(await aiOnline(env))) return { ok: false, e: 'off' };
   if (!env.ANTHROPIC_API_KEY) return { ok: false, e: 'nokey' };
   const kind = b.kind === 'reply' ? 'reply' : 'scene', t = now();
+  // hanya bot sungguhan (akun di server) yang boleh bicara; nama dari server
+  const C = (Array.isArray(b.cands) ? b.cands : []).slice(0, 10).filter(c => /^\d{8}$/.test(c.uid));
+  if (C.length < 2) return { ok: false, e: 'cands' };
+  const rows = (await env.DB.prepare(`SELECT uid,uname FROM players WHERE bot IS NOT NULL AND ban=0 AND uid IN (${C.map(() => '?').join(',')})`).bind(...C.map(c => c.uid)).all()).results;
+  const byUid = new Map(rows.map(r => [r.uid, r.uname])), cands = C.filter(c => byUid.has(c.uid)).map(c => ({ ...c, name: byUid.get(c.uid) }));
+  if (cands.length < 2) return { ok: false, e: 'cands' };
   if (kind === 'reply') {
     if (!u) return { ok: false, e: 'auth' };
     const last = await env.DB.prepare('SELECT txt,ts FROM wchat WHERE uid=? ORDER BY id DESC LIMIT 1').bind(u.uid).first();
@@ -107,12 +113,6 @@ async function aiChat(env, b, u) {
     await kvSet(env, 'ai_scene_at', t);
   }
   if (await bump(env, dayKey()) > +(env.AI_DAILY || 2000)) return { ok: false, e: 'quota' };
-  // hanya bot sungguhan (akun di server) yang boleh bicara; nama dari server
-  const C = (Array.isArray(b.cands) ? b.cands : []).slice(0, 10).filter(c => /^\d{8}$/.test(c.uid));
-  if (C.length < 2) return { ok: false, e: 'cands' };
-  const rows = (await env.DB.prepare(`SELECT uid,uname FROM players WHERE bot IS NOT NULL AND ban=0 AND uid IN (${C.map(() => '?').join(',')})`).bind(...C.map(c => c.uid)).all()).results;
-  const byUid = new Map(rows.map(r => [r.uid, r.uname])), cands = C.filter(c => byUid.has(c.uid)).map(c => ({ ...c, name: byUid.get(c.uid) }));
-  if (cands.length < 2) return { ok: false, e: 'cands' };
   const hist = (await env.DB.prepare('SELECT * FROM (SELECT name,txt,ts,uid FROM wchat WHERE ts<=? ORDER BY ts DESC LIMIT 24) ORDER BY ts').bind(t).all()).results;
   const hhmm = ms => new Date(ms + 7 * 36e5).toISOString().slice(11, 16);
   b.hist = hist.map(h => `${hhmm(h.ts)} ${h.name}${u && h.uid === u.uid ? ' (PEMAIN)' : ''}: ${h.txt}`);
