@@ -15,8 +15,8 @@ Aturan umum:
 | Ikon | `img/icons/<kunci>.webp` | `ICONIMG_SRC` | `icon_sheets/*.png`, `iconify.py` | `art/iconart.js` |
 | Skin UI | `img/ui/*.webp` | variabel CSS `--ui-*` | `ui_kit/*.png`, `uikit.py`, `seg.py` | `css/skin.css` |
 | Logo studio | `img/studio/logo.webp` | `__STUDIO_LOGO__` di HTML | — | `ui/boot.js`, `css/studio.css` |
-| Musik | `audio/login.mp3`, `audio/game.mp3` (96 kbps) | `MUSIC_SRC` | — | `systems/music.js` |
-| Suara | `voice/<kunci>.mp3` (82 klip) | `VOICE_SRC` | `voice/voices.json` + `tools/voice.py` | `systems/voice.js` |
+| Musik | `audio/login.mp3`, `audio/game.mp3` (96 kbps) — **file terpisah** `dist/audio/` | `MUSIC_SRC` (path relatif) | — | `systems/music.js` |
+| Suara | `voice/<kunci>.mp3` (103 klip) | `VOICE_SRC` | `voice/voices.json` + `tools/voice.py` | `systems/voice.js` |
 | Font | `fonts/*.woff2` | data URI di CSS | — (`tools/subset_ja.py`) | `css/fonts.css` |
 
 ## Splash Art (ilustrasi anime)
@@ -30,7 +30,7 @@ Aturan umum:
 - Dipakai di: detail hero (panggung + tombol "Lihat art" layar penuh, `js/ui/splash.js`), reveal ★3 saat summon, banner pick-up, dan cut-in skill di battle. Animasinya napas + goyang halus (CSS), mati otomatis bila perangkat meminta reduced motion.
 
 ## Splash hidup ala Live2D (hero ★3)
-- Seraphine, Sakuya, Raika, dan Marisa punya splash hidup: napas (dada + badan atas), rambut dan kain bergelombang (ujung bergerak paling jauh), kedip 3 tahap dengan jeda acak, partikel cahaya halus, plus efek khas: kilau menyapu pedang Seraphine, tebasan dan api rubah Sakuya berdenyut, petir busur Raika berkedip, kilau menyapu tongkat naga Marisa dan bola air/gelembungnya berdenyut (rambut + naga air ikut bergelombang).
+- Semua hero ★3 (Sakuya, Raika, Marisa, Hilde, Celestine, Aurelia, Lilith, Coppelia) punya splash hidup: napas (dada + badan atas), rambut dan kain bergelombang (ujung bergerak paling jauh), kedip 3 tahap dengan jeda acak, partikel cahaya halus, plus efek khas: kilau menyapu pedang Seraphine, tebasan dan api rubah Sakuya berdenyut, petir busur Raika berkedip, kilau menyapu tongkat naga Marisa dan bola air/gelembungnya berdenyut (rambut + naga air ikut bergelombang).
 - Mesin: `js/art/live2d.js`. `splashHTML()` memberi `data-live` pada `.spw` hero yang punya rig, lalu loop 30 fps membuat `<canvas class="spl live">` pengganti `<img>`. Canvas memakai CSS yang sama, termasuk `object-fit`, jadi otomatis pas di beranda, detail hero, Lihat Art, banner, dan reveal summon. Semua instance digambar lewat **satu** konteks WebGL bersama, dan hanya yang terlihat di layar.
 - Aset: `src/img/rig/<hero>_mask.png` (R rambut, G kain, B efek cahaya; ½ resolusi) dan `<hero>_eyes.png` (atlas setengah | tertutup). Konfigurasi koordinat (kotak mata, kepala, dada, pinggang, garis pedang) ada di `RIG` dalam `live2d.js`. Pembuat mask: `art_src/rig/masks.py` (zona poligon per hero + pengecualian senjata/armor).
 - Kedip: gambar mata tertutup dibuat dengan Higgsfield nano_banana_pro (edit dari splash asli), diselaraskan otomatis, lalu area mata dideteksi dari selisih gambar. Tahap "setengah" Sakuya/Raika = campuran 55% (hasil edit setengahnya jadi wink).
@@ -81,7 +81,7 @@ Aturan umum:
 ## Musik latar
 - **Layar login** (setelah splash studio): "Eternal Sky", `src/audio/login.mp3`, volume .55.
 - **Di dalam game** (setelah login): "Starbound Prologue", `src/audio/game.mp3`, volume .4 supaya efek suara dan suara karakter tetap jelas.
-- Keduanya dikompres ke 96 kbps stereo. `tools/build.py` menanamnya sebagai `MUSIC_SRC`, dan `js/systems/music.js` memutarnya: `bgmPlay('login')` di `openLogin`; di `enterGame` musik login memudar (`bgmStop`), lalu `bgmPlay('game')` masuk sekitar 1,5 detik kemudian. Volume per lagu ada di `BGM_VOL`.
+- Keduanya dikompres ke 96 kbps stereo. Sejak 18 Nov 2026 musik **tidak lagi ditanam** di index.html (supaya index.html < 16 MB, batas artifact): `tools/build.py` menyalin `src/audio/*.mp3` ke `dist/audio/` dan `MUSIC_SRC` berisi path relatif `audio/login.mp3` dll. Repo GitHub & artifact harus ikut membawa folder `audio/`. `MUSIC_SRC` dan `js/systems/music.js` memutarnya: `bgmPlay('login')` di `openLogin`; di `enterGame` musik login memudar (`bgmStop`), lalu `bgmPlay('game')` masuk sekitar 1,5 detik kemudian. Volume per lagu ada di `BGM_VOL`.
 - Diputar lewat **satu** elemen `<audio>` bersama + Web Audio gain (fade/volume berfungsi di iOS). iOS hanya mengizinkan `<audio>` diputar lewat kode kalau elemen itu sudah pernah diputar di dalam sentuhan, jadi `bgmPrime()` memancingnya secara sinkron di `audUnlock()` pada sentuhan pertama mana pun (termasuk saat splash). Kalau splash tidak disentuh, splash menunggu dengan tulisan "Ketuk untuk melanjutkan" supaya musik login langsung terdengar. Musik berhenti saat aplikasi di latar belakang dan lanjut saat kembali.
 - Pengaturan: Musik ON/OFF (`S.music`), berlaku untuk layar mana pun yang sedang tampil.
 
@@ -99,7 +99,6 @@ Aturan umum:
 
 | Hero | Aktor | voice_id |
 |---|---|---|
-| Seraphine | Luna | `375a3398-e3b4-4f91-845d-42181e352899` |
 | Sakuya | Maya | `b0f766b7-8703-4bd1-b973-f857c36837b6` |
 | Raika | Helena | `3c2b83c0-2e0a-5ae8-998a-a5fe71b7eccd` |
 | Mira | Zoe | `d0374db1-44b9-4f05-939e-0a9ae9dbbe6a` |
@@ -112,6 +111,11 @@ Aturan umum:
 | Kuro | Una | `e91c5696-3d9f-5ae6-9c68-8389d2d0d294` |
 | Lumi | Annie | `f2801b0f-e345-598e-86f5-8364d886d96b` |
 | Marisa | Roxie | `f6448975-768e-4327-b932-1b7c973d58e9` |
+| Hilde | Kaia | `bb9db352-f345-59f3-90b3-fa9432bcff91` |
+| Celestine | Imogen | `3811e986-0891-47cf-a1f5-78a1d62a547a` |
+| Aurelia | Hana | `c25f78a0-714e-42af-8da3-a399cef94968` |
+| Lilith | Tallulah | `f32c8f51-449e-4ddf-bdf7-1527e11df917` |
+| Coppelia | Elodie | `8b95a259-62fd-545d-b0f0-7b521a972b6b` |
 
 ### Menambah / mengubah dialog
 1. Tulis teks Indonesia di `data/heroes.js` (`lines` / `poke` / `sk`). Tambah di **akhir** array supaya indeks klip lama tidak bergeser.
@@ -152,3 +156,19 @@ Aturan umum:
 - Ikon senjata khas **Kapak Rune Gunung** (`gunung`): gpt_image_2_6 latar hijau → `W_gunung.png` → `src/img/icons/w_gunung.webp` (glow kuning dibuang, garis tepi gelap).
 - Suara: aktor **Kaia** (audisi Raina/Tamsin/Kaia/Juno di `voices.json`), 7 klip lewat `tools/voice.py`.
 - Live2D: mata tertutup = edit nano_banana_pro (job `ae3aecc5…`), diselaraskan ORB+RANSAC, area mata = selisih dalam 2 elips (`art_src/rig/eyes_hilde.py`). Mask `masks.py hilde`: rambut + ekor serigala (R), jubah & rok bulu (G), rune & energi kuning (B, jenis `amber`). `RIG.hilde`: kilau menyapu gagang kapak, glow berdenyut, partikel amber.
+
+## Celestine, Aurelia, Lilith (hero ke-15..17, 18 Nov 2026)
+Dipilih sendiri (Egi: "kamu directornya") untuk melengkapi 6 hero ★3 standar dengan elemen/peran yang belum ada di ★3: Cahaya-tank, Api-pemanah, Gelap-pendukung.
+- Splash: `gpt_image_2_6_flare` 2k transparan (ref. splash Seraphine & Marisa) → `art_src/splash/<id>.png` → potong bbox alfa +8, tinggi 1100, webp → `src/img/splash/<id>.webp`. Fokus: celestine [55,14], aurelia [52,16], lilith [55,13].
+- Sprite: nano_banana_pro 16:9 2k, 2 varian per hero (ref. lembar gaya `e76edb88…`) → `art_src/sprites/<id>_sheet.png`, `spritify.build(target_h=70)`. Aurelia: tanda X merah di sheet dihapus; Lilith: frame napas = frame idle badan atas turun 1px. ID job di `art_src/sprites/batch_hero15_17.json`.
+- Ikon senjata (gpt_image_2_6 latar hijau → `/home/claude/gen/h3/icon.py`): `w_sayapsuci` (Perisai Sayap Mentari), `w_phoenix` (Busur Bulu Phoenix), `w_gerhana` (Tongkat Mikrofon Gerhana). Sumber `art_src/icon_sheets/W_Cel|W_Aur|W_Lil.png`.
+- Suara Jepang (elevenlabs_v4): Celestine = Imogen (lembut), Aurelia = Hana (tegas-percaya diri), Lilith = Tallulah (genit). 7 klip per hero.
+- Live2D: mata tertutup = edit nano_banana_pro → `art_src/rig/eyes.py <hero> <edit> x1,y1 x2,y2 rx,ry` (skrip generik baru). Mask `masks.py celestine aurelia lilith`; jenis glow baru `gold` (halo & perisai Celestine) dan `violet` (gerhana Lilith); Aurelia `amber` dibatasi ke zona panah/api pinggir supaya tidak berkedip di wajah. RIG di `js/art/live2d.js`.
+
+## Seraphine dihapus → Coppelia (hero ke-18, 18 Nov 2026)
+- Seraphine dibuang dari data, i18n, Live2D, splash, rig, suara (7 klip) dan `art/heroes/seraphine.js` karena terlalu mirip Celestine. File sumber lama tetap di `art_src/` sebagai arsip. Save lama dimigrasi ke Celestine (`HERO_REPLACED`).
+- Coppelia: splash flare 2k (job `55447ac6…`, dipakai langsung), `src/img/splash/coppelia.webp` 820×1100, fokus [51,21].
+- Sprite nano_banana_pro varian A; pedang dari frame idle ditempel ke frame jalan 3–4 (aslinya tanpa pedang) dengan poligon pedang; frame 2 = frame 1 napas. `h_coppelia.webp` target_h 70.
+- Ikon `w_rodagigi` (Pedang Roda Gigi): kunci latar hijau yang lebih ketat (`/home/claude/gen/h4/icon2.py`) supaya inti teal pedang tidak ikut terhapus.
+- Suara: Elodie (audisi vs Nora/Vera/Opal; dipilih karena intonasi paling datar = boneka). 7 klip.
+- Live2D: `eyes.py coppelia … 403,228 447,205 17,13`, mask `masks.py coppelia` (glow `cyan` untuk pusaran & inti teal, rambut bob pendek bobot kecil), kilau menyapu bilah pedang.

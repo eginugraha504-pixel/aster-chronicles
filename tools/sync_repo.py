@@ -22,6 +22,8 @@ def copytree(a,b,filt=None):
             s=os.path.join(d,f);t=os.path.join(b,os.path.relpath(s,a));os.makedirs(os.path.dirname(t),exist_ok=True);shutil.copy2(s,t)
 assert os.path.isdir(os.path.join(REPO,'.git')),'bukan repo git: '+REPO
 shutil.copy2(os.path.join(ROOT,'dist','index.html'),os.path.join(REPO,'index.html'))
+if os.path.isdir(os.path.join(ROOT,'dist','audio')):
+    shutil.copytree(os.path.join(ROOT,'dist','audio'),os.path.join(REPO,'audio'),dirs_exist_ok=True)   # musik (tidak ditanam di index.html)
 for d in ['src','tools','docs','bank-worker','.github']:copytree(os.path.join(ROOT,d),os.path.join(REPO,d),lambda f:not f.endswith('.pyc'))
 copytree(os.path.join(ROOT,'art_src'),os.path.join(REPO,'art_src'),lambda f:f.endswith(TEXT))
 old=open(os.path.join(REPO,'README.md'),encoding='utf-8').read() if os.path.exists(os.path.join(REPO,'README.md')) else ''

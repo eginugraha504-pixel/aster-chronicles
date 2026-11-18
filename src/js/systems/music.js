@@ -1,7 +1,7 @@
 /* =====================================================================
    MUSIC — musik latar (BGM)
    ---------------------------------------------------------------------
-   Lagu ditanam oleh tools/build.py dari src/audio/<kunci>.mp3 -> MUSIC_SRC.
+   Lagu: src/audio/<kunci>.mp3 -> disalin build.py ke dist/audio/ (MUSIC_SRC berisi path relatif, bukan data URI).
      login : "Eternal Sky" — layar judul/login setelah splash studio (loop), memudar saat masuk game.
      game  : "Starbound Prologue" — di dalam game setelah login (loop), sedikit lebih pelan.
    iOS hanya mengizinkan <audio> diputar lewat kode kalau elemen itu SUDAH pernah
@@ -17,6 +17,7 @@ const bgmOn=()=>typeof S==='undefined'||!S||S.music!==false;
 const BGM_VOL={login:.55,game:.4};  // volume per lagu
 const bgmV=k=>BGM_VOL[k]??.5;
 function bgmUrl(k){if(BGM.url[k])return BGM.url[k];
+ if(!MUSIC_SRC[k].startsWith('data:'))return BGM.url[k]=MUSIC_SRC[k];   // file terpisah (audio/<kunci>.mp3)
  const bin=atob(MUSIC_SRC[k].split(',')[1]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
  return BGM.url[k]=URL.createObjectURL(new Blob([u],{type:'audio/mpeg'}))}
 function bgmElem(){if(BGM.el)return BGM.el;const el=new Audio();el.loop=true;el.preload='auto';el.setAttribute('playsinline','');BGM.el=el;

@@ -39,13 +39,13 @@ const BOT_CFG={
  // ---- linimasa banner (untuk riwayat gacha bot). TAMBAHKAN ERA BARU setiap merilis banner terbatas ----
  // hero: rate-up yang dikejar; limited: hero terbatas pada era itu; wpn: rate-up banner senjata (null = standar)
  ERAS:[
-  {at:Date.UTC(2026,10,13,17,0),hero:['seraphine'],limited:[],wpn:[null]},          // rilis: Panggilan Fajar
+  {at:Date.UTC(2026,10,13,17,0),hero:['celestine'],limited:[],wpn:[null]},          // rilis: Panggilan Fajar
   {at:Date.UTC(2026,10,15,4,32),hero:['raika'],limited:['raika'],wpn:['raijin']},   // Raika rilis
   {at:Date.UTC(2026,10,15,4,47),hero:['raika','sakuya'],limited:['raika','sakuya'],wpn:['raijin']},  // Sakuya jadi terbatas
   {at:Date.UTC(2026,10,15,4,57),hero:['raika','sakuya'],limited:['raika','sakuya'],wpn:['raijin','hanafubuki']},  // banner senjata terbatas
  ],
  // kapan hero masuk ke game (default: sejak rilis). Senjata signature ikut pemiliknya.
- HERO_SINCE:{vela:Date.UTC(2026,10,15,1,1),bruna:Date.UTC(2026,10,15,1,1),nami:Date.UTC(2026,10,15,1,1),kuro:Date.UTC(2026,10,15,1,1),lumi:Date.UTC(2026,10,15,1,1),raika:Date.UTC(2026,10,15,4,32),marisa:Date.UTC(2026,10,17,5,45),hilde:Date.UTC(2026,10,18,2,0)},
+ HERO_SINCE:{vela:Date.UTC(2026,10,15,1,1),bruna:Date.UTC(2026,10,15,1,1),nami:Date.UTC(2026,10,15,1,1),kuro:Date.UTC(2026,10,15,1,1),lumi:Date.UTC(2026,10,15,1,1),raika:Date.UTC(2026,10,15,4,32),marisa:Date.UTC(2026,10,17,5,45),hilde:Date.UTC(2026,10,18,2,0),aurelia:Date.UTC(2026,10,18,3,30),coppelia:Date.UTC(2026,10,18,3,31),lilith:Date.UTC(2026,10,18,3,30)},
  CHASER:.6,                      // porsi pemain yang mengejar banner rate-up (sisanya banner standar)
  // ---- TOP UP bot (paket & harga = TOPUP_CFG, sama seperti pemain) ----
  // w = bobot %; card = peluang beli Kartu Bulanan; renew = peluang perpanjang; rate = peluang beli paket per hari main;
@@ -83,7 +83,7 @@ const BOT_CFG={
  BIO_TAGS:['umum','santai','kompetitif','pemula','sial','hoki','raika','sakuya','farming'],
  BIO_MAX:240,BIO_BATCH:60,BIO_SHARE:.7,
  BIO_PROMPT:n=>`Buat ${n} status/bio profil pendek seperti yang ditulis pemain sungguhan di game mobile gacha fantasi pixel "Aster Chronicles". `+
-  `Konteks game: hero terbatas Raika (pemanah petir bercaping) dan Sakuya (miko rubah api), hero standar Seraphine, gacha dengan pity, dungeon untuk farming, stamina, peringkat CP. `+
+  `Konteks game: hero terbatas Raika (pemanah petir bercaping) dan Sakuya (miko rubah api), hero standar Celestine, Marisa, Hilde, Aurelia, Lilith, gacha dengan pity, dungeon untuk farming, stamina, peringkat CP. `+
   `Gaya: mayoritas bahasa Indonesia santai/gaul, sebagian Inggris, sedikit romaji Jepang; boleh lucu, curhat gacha, ajakan santai, target pribadi. `+
   `ATURAN: maksimal 40 karakter, tanpa emoji, tanpa tautan, tanpa @, tanpa info pribadi, sopan dan ramah keluarga, jangan sebut orang nyata atau merek. `+
   `Beri tiap status satu tag dari: umum, santai, kompetitif, pemula, sial, hoki, raika, sakuya, farming (raika/sakuya = sudah punya hero itu; sial = gacha apes; hoki = gacha beruntung). `+

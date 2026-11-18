@@ -22,7 +22,7 @@ const CHAT_BRAIN={
    rep:['sabar {me}','sama {sad}','next pasti dapet','peluk {me}','gacha emang jahat','rate off itu biasa, next guaranteed','gw juga {sad}','semangat {me}','istirahat dulu']},
   {id:'pity',re:/pity/,n:[1,2],p:.9,rep:['hard pity {pitymax}, soft mulai {soft}','{pitymax} pasti bintang 3','pity kebawa kok','pity gw {pity} {laugh}','soft pity {soft} {call}']},
   {id:'heroTerbaik',re:/(siapa|hero|best|meta|bagus|kuat|terbaik).*(hero|bagus|kuat|terbaik|meta|tarik)/,n:[1,3],p:.8,
-   rep:['{hero} sih menurut gw','{lim} kuat','tergantung tim {me}','{newh} enak buat heal','semua bagus kalau dinaikin','Seraphine aman buat semua','waifu over meta {laugh}']},
+   rep:['{hero} sih menurut gw','{lim} kuat','tergantung tim {me}','{newh} enak buat heal','semua bagus kalau dinaikin','Celestine aman buat semua','waifu over meta {laugh}']},
   {id:'tarik',re:/(tarik|narik|pull|gacha|summon).*(ga|gak|nggak|tidak|\?|atau)|worth/,n:[1,3],p:.85,
    rep:['tarik aja {me}','nabung dulu','kalau suka tarik','{lim} worth','jangan maksa {me}','gas!','tergantung permata kamu']},
   {id:'elemen',re:/(elemen|api|air|tanah|cahaya|gelap).*(kuat|lemah|kalah|menang|lawan)/,n:[1,2],p:.85,rep:['api > tanah > air > api','cahaya sama gelap saling kuat','unggul elemen damage +30%']},

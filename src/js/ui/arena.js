@@ -89,7 +89,7 @@ function arDmgHTML(b){const col=side=>{const us=b.units.filter(u=>u.side===side)
 function arResHTML(res,b,quick){const A=S.arena,m=res.meta,Lb=ARENA_CFG.leagues[res.lgB],La=ARENA_CFG.leagues[res.lgA];
  const mvp=b.units.filter(u=>u.side==='hero').sort((x,y)=>(y.dmg||0)+(y.healed||0)-(x.dmg||0)-(x.healed||0))[0];
  return`${quick?`<h3 class="${res.win?'':'lose'}">${res.win?T('MENANG!'):T('KALAH...')}</h3>`:`<div class="rrib"><h3>${res.win?T('MENANG!'):T('KALAH...')}</h3></div>`}
- <div class="arvs"><span><img class="px" src="${portrait(S.team.find(Boolean))}"><b>${esc(S.name)}</b></span><i class="ot">VS</i><span><img class="px" src="${portrait(m.team[0]||'seraphine')}"><b>${esc(m.name)}</b></span></div>
+ <div class="arvs"><span><img class="px" src="${portrait(S.team.find(Boolean))}"><b>${esc(S.name)}</b></span><i class="ot">VS</i><span><img class="px" src="${portrait(m.team[0]||'celestine')}"><b>${esc(m.name)}</b></span></div>
  <div class="arpd"><img class="px" src="${ICON['lg_'+La.id]}"><span><b>${fmt(res.before)} → ${fmt(res.after)}</b><small>${T('Liga {l}',{l:T(La.n)})}</small></span><em class="${res.d>=0?'aup':'adn'}">${res.d>=0?'+':''}${res.d}</em></div>
  ${res.lgA>res.lgB?`<div class="arpromo up">⬆ ${T('Naik ke Liga {l}!',{l:T(La.n)})}</div>`:res.lgA<res.lgB?`<div class="arpromo dn">⬇ ${T('Turun ke Liga {l}',{l:T(La.n)})}</div>`:''}
  ${rewardHTML(res.rw)}${res.ups?`<div style="font-size:14px;color:#d2780a">⬆ ${T('Level Akun naik ke {lv}! Stamina +{s}',{lv:S.lv,s:res.ups*20})}</div>`:''}

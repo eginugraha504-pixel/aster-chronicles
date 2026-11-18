@@ -1,5 +1,5 @@
 /* =====================================================================
-   LIVE2D-STYLE — splash hidup untuk hero ★3 (Seraphine, Sakuya, Raika, Marisa, Hilde)
+   LIVE2D-STYLE — splash hidup untuk hero ★3 (Sakuya, Raika, Marisa, Hilde, Celestine, Aurelia, Lilith, Coppelia)
    ---------------------------------------------------------------------
    Satu gambar splash HD dilenturkan per piksel oleh shader WebGL:
      napas (dada + badan atas), rambut & kain bergelombang, kedip 3 tahap,
@@ -14,8 +14,6 @@
    Koordinat di RIG = piksel gambar splash (tinggi 1100).
    ===================================================================== */
 const RIG={
- seraphine:{eye:[374,81,105,73],head:[420,95],chest:[420,262],waist:480,breast:250,
-  sheen:[[240,312],[45,25],17,6],glow:0,mote:'255,232,160'},
  sakuya:{eye:[404,146,116,60],head:[465,140],chest:[450,300],waist:520,breast:280,
   sheen:null,glow:1,mote:'255,170,205'},
  raika:{eye:[360,133,102,61],head:[415,150],chest:[420,300],waist:470,breast:260,
@@ -24,6 +22,13 @@ const RIG={
   sheen:[[548,430],[652,165],10,7],glow:1,mote:'170,240,255'},
  hilde:{eye:[417,200,132,63],head:[483,232],chest:[515,385],waist:520,breast:360,
   sheen:[[785,228],[300,82],12,15],glow:1,mote:'255,200,110'},
+ celestine:{eye:[403,109,116,81],head:[460,150],chest:[465,285],waist:430,breast:270,
+  sheen:[[575,250],[790,600],34,34],glow:1,mote:'255,240,190'},
+ aurelia:{eye:[388,146,108,74],head:[430,175],chest:[425,300],waist:420,breast:285,
+  sheen:[[300,212],[830,206],5,7],glow:1,mote:'255,170,90'},
+ lilith:{eye:[406,97,122,75],head:[460,140],chest:[460,265],waist:400,breast:255,
+  sheen:[[548,150],[700,620],7,7],glow:1,mote:'215,150,255'},
+ coppelia:{eye:[373,179,104,74],head:[420,225],chest:[465,340],waist:440,breast:320,sheen:[[320,15],[690,175],30,28],glow:1,mote:'130,240,225'},
 };
 const L2D={gl:null,cv:null,prog:null,U:{},tex:{},ok:null,last:0,inst:new WeakMap(),q:1,avg:0,n:0};  // q: skala resolusi adaptif (turun bila perangkat lambat)
 const hasRig=id=>!!(RIG[id]&&typeof RIG_SRC!=='undefined'&&RIG_SRC[id+'_mask']&&RIG_SRC[id+'_eyes']);

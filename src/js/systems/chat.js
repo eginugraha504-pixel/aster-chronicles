@@ -47,7 +47,7 @@ function chWorld(now=Date.now()){if(CHAT.w&&now-CHAT.wAt<3e4)return CHAT.w;const
  let newId=null,newAt=0;for(const[id,t]of Object.entries(BOT_CFG.HERO_SINCE))if(t<=now&&t>newAt&&HD[id]){newAt=t;newId=id}
  let top=null,tcp=0;for(const k in BOTS.cache){const c=BOTS.cache[k];if(c&&c.cp>tcp&&+k<botsVisible(now)){tcp=c.cp;top=+k}}
  const lims=(E.limited.length?E.limited:E.hero).filter(id=>HD[id]),wp=(E.wpn||[]).find(Boolean);
- CHAT.wAt=now;return CHAT.w={lims:lims.length?lims:['seraphine'],limId:lims[0]||'seraphine',limw:wp&&WD[wp]?WD[wp].name:'senjata terbatas',newId:newId||'seraphine',newRecent:newId&&now-newAt<5*BDAY,
+ CHAT.wAt=now;return CHAT.w={lims:lims.length?lims:['celestine'],limId:lims[0]||'celestine',limw:wp&&WD[wp]?WD[wp].name:'senjata terbatas',newId:newId||'celestine',newRecent:newId&&now-newAt<5*BDAY,
   newHeal:newId&&HD[newId].skill==='heal',heals:HEROES.filter(h=>h.skill==='heal'&&h.r>=2).map(h=>h.name),events:(typeof EVENTS!=='undefined'?EVENTS.filter(evActive).map(e=>e.n):[]),
   top:top!=null?botName(top,now):'',topCP:tcp,meTop:typeof teamPow==='function'&&teamPow()>tcp,online:chOnline(now).length}}
 
@@ -64,7 +64,7 @@ function chOnline(t){const d=wibDay(t),out=[],seen=new Set(),n=botsVisible(t);
 /* ---------- konteks bot (keadaan ASLI) ---------- */
 function chCtx(i,t){const s=botState(i),b=botBase(i),st=s.stats,p=chPersona(i),fav=s.fav||s.team[0]||Object.keys(s.heroes)[0];
  const si=SLIST.findIndex(x=>x.key===s.stage);
- return{i,t,name:botName(i,t),heroId:fav,hero:HD[fav]?HD[fav].name:'Seraphine',ids:Object.keys(s.heroes),has:id=>!!s.heroes[id],cp:s.cp,lv:s.lv,stage:s.stage,stageN:si,
+ return{i,t,name:botName(i,t),heroId:fav,hero:HD[fav]?HD[fav].name:'Celestine',ids:Object.keys(s.heroes),has:id=>!!s.heroes[id],cp:s.cp,lv:s.lv,stage:s.stage,stageN:si,
   pity:st.pity||0,held:st.held||0,paid:st.spent>0,card:!!st.card,vip:st.vip||0,luck:st.luck,mood:b.mood,pf:b.pf,days:st.days,
   fading:b.quit<Infinity&&t>=b.segs[1][0]&&t<b.endT,night:wibHour(t)>=23||wibHour(t)<4,newRecent:chWorld().newRecent,newId:chWorld().newId,top:chWorld().top,
   get league(){if(typeof arBotPtsNow!=='function')return'';const v=arBotPtsNow(i);return v==null?'':T(arLg(v).n)},p}}
@@ -74,7 +74,7 @@ function chLaugh(p,r){let l=chPick(r,p.laugh);if(/^wk/i.test(l)){const up=l===l.
 function chFill(tpl,c,r,ex={}){const W=chWorld();if(typeof tpl==='function')tpl=tpl(c,W,CHAT.mem);if(!tpl)return null;if(typeof tpl==='object')tpl=tpl.t;
  let s=String(tpl).replace(/\[([^\[\]]*)\]/g,(m,a)=>chPick(r,a.split('|')));
  const limId=ex.limId||chPick(r,W.lims),els=Object.keys(EL_ADV),el=ex.el||chPick(r,els),P=CHAT.mem,p=c.p||{},h=wibHour(c.t||Date.now());
- const V={hero:c.hero,rh:()=>HD[chPick(r,c.ids&&c.ids.length?c.ids:['seraphine'])].name,got:ex.got,lim:HD[limId].name,limw:W.limw,newh:HD[W.newId].name,pity:c.pity,stage:c.stage,
+ const V={hero:c.hero,rh:()=>HD[chPick(r,c.ids&&c.ids.length?c.ids:['celestine'])].name,got:ex.got,lim:HD[limId].name,limw:W.limw,newh:HD[W.newId].name,pity:c.pity,stage:c.stage,
   cp:()=>p.cpK&&c.cp>=1000?(c.cp/1000).toFixed(c.cp>=1e4?0:1).replace('.',',')+'k':String(c.cp),lv:c.lv,league:()=>c.league||T('Perunggu'),held:c.held,days:c.days,vip:c.vip,
   n:ex.n!=null?ex.n:20+Math.floor(r()*130),to:ex.to||'',me:(typeof S!=='undefined'&&S.name)||'kamu',top:W.top||'yang top 1',call:p.call||'kak',laugh:()=>chLaugh(p,r),emo:()=>chPick(r,p.emo||CHAT_STYLE.emos),
   sad:()=>chPick(r,CHAT_STYLE.emoSad),happy:()=>chPick(r,CHAT_STYLE.emoHappy),city:()=>chPick(r,CHAT_LINES.city),food:()=>chPick(r,CHAT_LINES.food),

@@ -43,7 +43,7 @@ async function bootStart(){await sprReady();if(location.hash==='#skipboot'){awai
  bootAnim();const t0=performance.now();let tipT=0;
  await bootStep(()=>{bootSet(6,'Membaca catatan petualangan...');load();setLang(S.lang||'id');document.querySelectorAll('#boot .lgs').forEach(e=>e.textContent=T('Ksatria Piksel'));bootTipI=Math.floor(Math.random()*BOOT_TIPS.length);bootTip();tipT=setInterval(bootTip,3200);
   const r=document.getElementById('bootRun');if(r)r.src=sprite(HD[STARTERS()[Math.floor(Math.random()*STARTERS().length)]].spr).url;
-  const bp=document.getElementById('bootParty');if(bp)bp.innerHTML=['sakuya','nami','seraphine','vela','kuro'].filter(id=>HD[id]).map((id,i)=>`<img class="px" style="animation-delay:${-i*.3}s" src="${sprite(HD[id].spr).url}">`).join('')+'<div class="bglow"></div>'});
+  const bp=document.getElementById('bootParty');if(bp)bp.innerHTML=['sakuya','nami','celestine','vela','kuro'].filter(id=>HD[id]).map((id,i)=>`<img class="px" style="animation-delay:${-i*.3}s" src="${sprite(HD[id].spr).url}">`).join('')+'<div class="bglow"></div>'});
  if(!S)S=defState();
  await nextFrame();bootSet(18,'Menyiapkan huruf...');await bootStep(()=>Promise.race([document.fonts.ready,sleep(1500)]));
  bootSet(30,'Melukis para hero...');await bootStep(sprReady);for(const h of HEROES){await bootStep(()=>{portrait(h.id);sprite(h.spr)});bootSet(30+Math.round(30*(HEROES.indexOf(h)+1)/HEROES.length));await nextFrame()}
@@ -60,7 +60,7 @@ let loginRAF=0,lgMode='tap',entering=false;
 function logoHTML(){return`<div class="logo"><div class="lgstar"></div><div class="lgt"><span>ASTER</span></div><div class="lgr"><span>CHRONICLES</span></div><div class="lgs">${T('Ksatria Piksel')}</div></div>`}
 let lgOpened=false;
 function openLogin(){cancelAnimationFrame(loginRAF);if(typeof bgmPlay==='function')bgmPlay('login');if(!S.uid){S.uid=String(10000000+Math.floor(Math.random()*89999999));save()}
- const L=document.getElementById('login');const hs=['sakuya','seraphine','vela'].filter(id=>HD[id]);
+ const L=document.getElementById('login');const hs=['sakuya','celestine','vela'].filter(id=>HD[id]);
  const KA=hasBgArt('key');L.innerHTML=`${KA?`<img id="lgbg" class="kart" src="${BGIMG_SRC.key}" alt="">`:`<canvas id="lgbg" width="${HOME_W}" height="${HOME_H}"></canvas>`}<div class="lgtint"></div><div class="lgfx">${Array.from({length:18},(_,i)=>`<i style="left:${(i*53)%100}%;animation-delay:${(i*.37)%5}s;animation-duration:${5+(i%4)}s"></i>`).join('')}</div>
  ${logoHTML()}<div class="lgheroes">${hs.map((id,i)=>`<img class="px h${i}" src="${sprite(HD[id].spr).url}">`).join('')}</div>
  <div id="lgPanel" class="${lgMode==='name'?'card':''}">${lgMode==='name'?loginNameHTML():loginTapHTML()}</div>

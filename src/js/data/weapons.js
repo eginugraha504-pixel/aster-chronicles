@@ -7,7 +7,7 @@
    sig   : bonus skill pasif signature (0.3 = +30%)   sigTxt: deskripsi pasif
    pal   : warna -> m: logam/badan [gelap..terang] x4, t: trim/gagang x3, g: permata x3
            (ikon & sprite di tangan hero dibuat otomatis dari bentuk kelas + palet + bintang)
-   art   : (opsional) pakai ikon & lukisan senjata dari modul hero khusus (mis. 'seraphine')
+   art   : (opsional) pakai ikon & lukisan senjata dari modul hero khusus (mis. 'raika')
    ===================================================================== */
 const WEAPONS=[
  {id:'raijin',name:'Busur Guntur Raijin',r:3,cls:'bow',owner:'raika',atk:125,sub:['crit',12],sig:.3,sigTxt:'Skill +30% damage. Hujan panah memanggil sambaran petir yang lebih besar.',art:'raika',pal:{m:['#13131c','#24242f','#4a4a5e','#8ae4ff'],t:['#1a5aa0','#3aa8f0','#d6ecff'],g:['#1a5aa0','#3aa8f0','#f0fcff']}},
@@ -23,6 +23,10 @@ const WEAPONS=[
  {id:'bayang',name:'Pedang Bayang Malam',r:3,cls:'sword',owner:'kuro',atk:118,sub:['crit',12],sig:.35,sigTxt:'Skill +35% damage. Tebasan meninggalkan jejak bayangan.',pal:{m:['#1a1626','#3a3452','#6a6290','#b4aee0'],t:['#56101e','#a01e30','#ff6a7a'],g:['#5a1a8a','#a060f0','#f0d8ff']}},
  {id:'lentera',name:'Tongkat Lentera Suci',r:3,cls:'staff',owner:'lumi',atk:90,sub:['hp',15],sig:.35,sigTxt:'Penyembuhan skill +35%. Lentera bersinar lebih terang.',pal:{m:['#8a6a2a','#c8a050','#f0d090','#fff6d8'],t:['#ffffff','#fff6c0','#fffbe8'],g:['#c98a1a','#ffd23f','#fffbd0']}},
  {id:'gunung',name:'Kapak Rune Gunung',r:3,cls:'axe',owner:'hilde',atk:132,sub:['crit',10],sig:.35,sigTxt:'Skill +35% damage. Hantaman kapak meretakkan tanah dan melempar bongkahan batu rune.',pal:{m:['#5a4a3a','#8a7458','#c8a87a','#ffe0a0'],t:['#3a2418','#6a3e26','#a86a3c'],g:['#c87a1a','#ffb02e','#fff0b0']}},
+ {id:'sayapsuci',name:'Perisai Sayap Mentari',r:3,cls:'shield',owner:'celestine',atk:76,sub:['def',28],sig:.33,sigTxt:'Perisai skill bertahan 2 detik lebih lama dan bulu cahaya memulihkan sedikit HP tim.',pal:{m:['#9aa6be','#d8e0ee','#ffffff','#fff6b0'],t:['#a8701a','#e0b45a','#fff0b0'],g:['#c98a1a','#ffc83d','#fff6b0']}},
+ {id:'phoenix',name:'Busur Bulu Phoenix',r:3,cls:'bow',owner:'aurelia',atk:128,sub:['crit',12],sig:.3,sigTxt:'Skill +30% damage. Anak panah berubah jadi phoenix yang menyambar sasaran.',pal:{m:['#a8701a','#e0b45a','#ffd27a','#fff6b0'],t:['#600a10','#a01a1a','#d8302a'],g:['#d8302a','#ff8a3a','#fff0a0']}},
+ {id:'gerhana',name:'Tongkat Mikrofon Gerhana',r:3,cls:'staff',owner:'lilith',atk:96,sub:['hp',14],sig:.3,sigTxt:'Penguat skill bertahan 3 detik lebih lama dan ATK tim naik lebih tinggi.',pal:{m:['#120a20','#2a1a3a','#4a3a5a','#8a7aa8'],t:['#22104a','#3a1a6a','#5a3a8a'],g:['#6a1aa8','#a04ae0','#e0b0ff']}},
+ {id:'rodagigi',name:'Pedang Roda Gigi',r:3,cls:'sword',owner:'coppelia',atk:132,sub:['crit',10],sig:.3,sigTxt:'Skill +30% damage. Gerigi pedang berputar penuh dan menebas dua kali.',pal:{m:['#5a3010','#9a5a24','#d8904a','#ffd8a0'],t:['#14060a','#2a0a14','#4a1424'],g:['#0a6a64','#2ac8b8','#c0fff4']}},
  {id:'perak',name:'Pedang Perak',r:2,cls:'sword',atk:60,sub:['crit',5],pal:{m:['#6a7894','#b4c2dc','#e8f0fc','#ffffff'],t:['#2a3a7a','#4a6ad0','#9cc4ff'],g:['#2a5ad0','#6aa8ff','#e0f0ff']}},
  {id:'elang',name:'Busur Elang',r:2,cls:'bow',atk:58,sub:['crit',6],pal:{m:['#4a3a6a','#7a6aa8','#b4a8e0','#e8e0ff'],t:['#2a3a7a','#4a6ad0','#9cc4ff'],g:['#2a5ad0','#6aa8ff','#e0f0ff']}},
  {id:'kristal',name:'Tongkat Kristal',r:2,cls:'staff',atk:48,sub:['hp',8],pal:{m:['#5a3a2a','#8a5a3a','#c08a58','#e8c098'],t:['#2a3a7a','#4a6ad0','#9cc4ff'],g:['#2a8ab8','#7fe3ff','#e0fbff']}},

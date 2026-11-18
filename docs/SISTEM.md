@@ -47,12 +47,11 @@ Catatan teknis per sistem (angka balance, keputusan desain, perilaku khusus). Ri
 - Semua hero bisa memakai semua item. Data tersimpan di `S.gear[id]={lv,ref}`, dan item yang dipakai ada di `S.heroes[h].ar` / `.ac`.
 - Dampak CP: set ★3 +15 kira-kira +20–25% CP per hero di level 50. Item ini bersifat jangka panjang, jadi kalibrasi `DIFF` tidak diubah.
 
-## Roster (13 hero)
+## Roster (17 hero)
 | Hero | ★ | Elemen | Role | Skill | Senjata signature ★3 |
 |---|---|---|---|---|---|
 | Raika (terbatas) | 3 | Gelap | Ranger | AoE | Busur Guntur Raijin (terbatas) |
 | Sakuya (terbatas) | 3 | Api | Warrior | Single | Katana Hanafubuki (terbatas) |
-| Seraphine | 3 | Cahaya | Warrior | AoE | — (memakai pedang ★3 standar) |
 | Mira | 2 | Tanah | Ranger | Single | Busur Zamrud Rimba |
 | Noa | 2 | Air | Support | Heal | Tongkat Embun Bintang |
 | Vela | 2 | Gelap | Support | Buff | Tongkat Bulan Sabit |
@@ -63,6 +62,13 @@ Catatan teknis per sistem (angka balance, keputusan desain, perilaku khusus). Ri
 | Kuro | 1 | Gelap | Warrior | Single | Pedang Bayang Malam |
 | Lumi | 1 | Cahaya | Support | Heal | Tongkat Lentera Suci |
 | Marisa | 3 | Air | Support | Heal | Tongkat Naga Samudra |
+| Hilde | 3 | Tanah | Warrior | AoE | Kapak Rune Gunung |
+| Celestine | 3 | Cahaya | Tanker | Shield | Perisai Sayap Mentari |
+| Aurelia | 3 | Api | Ranger | Single | Busur Bulu Phoenix |
+| Lilith | 3 | Gelap | Support | Buff | Tongkat Mikrofon Gerhana |
+| Coppelia | 3 | Netral | Warrior | Single | Pedang Roda Gigi |
+
+Seraphine dihapus 18 Nov 2026 (diganti Celestine; migrasi save di `HERO_REPLACED`, `systems/state.js`).
 
 Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanpa file art terpisah).
 
@@ -236,3 +242,8 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - `ui/adventure.js`: tiga mode di atas (`advTab`): **Cerita** (`world`), **Dungeon** (`dg`), **Event** (`ev`, terkunci — battle event musiman belum ada; layar "Segera Hadir" `advEventHTML`). Aksi `advMode`.
 - Cerita: pemilih bab (`ADV_CH`: BAB I Dunia 1–5 "Fajar Aster", BAB II Dunia 6–8 "Kebangkitan"), kartu dunia (latar `w_<art>`, bintang x/15, gembok), peta ilustrasi baru `img/bg/mp_<art>.webp` (Higgsfield, fallback `m_<art>`), jalur emas untuk tahap yang sudah dilalui, node medali (`n_node`, `n_nodeok`, `n_nodeboss`), penanda tahap sekarang, bilah "Tahap berikutnya" (CP tim vs disarankan + tombol MAJU). Posisi node `NODEPOS`.
 - Dungeon: kartu pilih berilustrasi (`--dga` = latar dunia dungeon).
+
+## Distribusi file (sejak 18 Nov 2026)
+- `dist/index.html` (±13,4 MB) + `dist/audio/login.mp3` + `dist/audio/game.mp3`. Musik dipisah karena batas 16 MB per file artifact.
+- `tools/sync_repo.py` ikut menyalin `dist/audio` → `audio/` di repo. Publish artifact pakai `publish_files` (mode patch) dengan tiga file: `index.html`, `audio/login.mp3`, `audio/game.mp3`.
+- `music.js` `bgmUrl`: kalau `MUSIC_SRC[k]` bukan data URI, dipakai langsung sebagai URL relatif.

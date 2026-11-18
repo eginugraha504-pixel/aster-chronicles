@@ -2,7 +2,7 @@
    REGISTRI SPRITE HERO — dibangun otomatis dari data/heroes.js
    Modul sprite khusus: tambahkan di ART_MODULES (harus punya draw, anims, icon, paintW, strike)
    ===================================================================== */
-const ART_MODULES={seraphine:ART_SERA,sakuya:ART_SAKU,raika:ART_RAIKA};
+const ART_MODULES={sakuya:ART_SAKU,raika:ART_RAIKA};
 const HERO_ART={};
 for(const h of HEROES){if(h.art&&ART_MODULES[h.art])HERO_ART[h.id]=ART_MODULES[h.art];else HERO_ART[h.id]={draw:GEN.build(h.gen||{hair:'bob',weapon:h.wcls,pal:{}}),anims:GEN_ANIMS,strike:.3}}
 // sprite hero di frame f, memegang senjata wid (default: senjata terpasang; '__def' = tampilan asli)

@@ -14,7 +14,13 @@ function load(){
   if(d&&d.heroes){S=Object.assign(defState(),d);if(S.weapons&&S.weapons.aurora){delete S.weapons.aurora;S.auroraRefund=1}if(d.named===undefined)S.named=!!d.welcomed;migrate();return}}catch(e){}  // named: pemain lama tidak perlu membuat nama lagi
  S=defState()}
 // bersihkan data yang tidak valid (hero/senjata dihapus dari data, kelas tidak cocok, dll)
+// hero yang dihapus -> penggantinya (Seraphine diganti Celestine, 18 Nov 2026). Level, LB, ascend & gear ikut pindah.
+const HERO_REPLACED={seraphine:'celestine'};
+function migrateReplaced(){for(const[o,n]of Object.entries(HERO_REPLACED)){const h=S.heroes[o];if(!h)continue;const c=S.heroes[n];
+  if(!c)S.heroes[n]=Object.assign({},h,{wpn:null});else{for(const k of Object.keys(h))if(typeof h[k]==='number'&&k!=='lb'&&(c[k]==null||h[k]>c[k]))c[k]=h[k];c.lb=(c.lb||0)+(h.lb||0)+1;for(const k of Object.keys(h))if(c[k]==null&&h[k]!=null&&k!=='wpn')c[k]=h[k]}
+  delete S.heroes[o];S.team=(S.team||[]).map(x=>x===o?n:x);if(S.arena&&S.arena.def)S.arena.def=S.arena.def.map(x=>x===o?n:x);if(S.homeHero===o)S.homeHero=n;S.replacedMsg=S.replacedMsg||{};S.replacedMsg[o]=1}}
 function migrate(){
+ migrateReplaced();
  for(const k in S.heroes)if(!HD[k])delete S.heroes[k];
  if(!S.weapons||typeof S.weapons!=='object')S.weapons={};
  for(const k in S.weapons){if(!WD[baseId(k)]){delete S.weapons[k];continue}invAlias(WD,k);S.weapons[k]=Object.assign(newWpn(),S.weapons[k])}

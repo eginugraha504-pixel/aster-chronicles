@@ -1,0 +1,44 @@
+{
+ "celestine": {
+  "splash_concept": "8b2437f5-ab6a-45f0-a037-724c35f137a7",
+  "splash": "71089742-2a73-4b0a-899d-5c00647a57ca",
+  "sprite": "330f98c6-a69e-4958-909a-9d82e2f4d40b",
+  "sprite_alt": "ff03b7f8-f81d-46e3-a94d-29b18d9f9a5b",
+  "eyes_closed": "1d0b488d-00ef-42fb-a6e4-7506a5a5348f",
+  "icon": "2e08bbbe-627a-44c6-acd1-5e09c1e752b3"
+ },
+ "aurelia": {
+  "splash_concept": "923eae69-86a2-4dde-87cc-76ed9b2a0f8f",
+  "concept_alt": "a63ec8af-583f-4507-aac6-4eec8ba941b1",
+  "splash": "71c67aea-6339-4564-aaa2-6643430c8028",
+  "sprite": "4c3f9229-3218-445c-bfd7-869d6469adaa (tanda X merah frame 7 dihapus)",
+  "sprite_alt": "59a4254e-30cc-4fca-bc9b-835f6b670ecf",
+  "eyes_closed": "dcb5ebff-0488-4073-a7f9-97b4a767499e",
+  "icon": "fa6b7aeb-433b-47c8-8b67-f3ed38a6e7fe"
+ },
+ "lilith": {
+  "splash_concept": "772f1b23-054a-4d15-83a5-b1bb4278ca62",
+  "concept_alt": "720c427a-ba7c-4927-bbfe-b658469d76ce",
+  "splash": "5e7525f6-70de-4e9f-a82d-2765ba5e949b",
+  "sprite": "da11335d-c7af-4111-92b2-9c997609708d (frame 2 = frame 1 napas)",
+  "sprite_alt": "907f77fc-98c1-452b-bd74-f63afee8ba0a",
+  "eyes_closed": "6a3bba2c-e522-478f-a3d9-3b9cec42ca1b",
+  "icon": "2cb86c57-2305-43b7-a178-8aa8b66bee58"
+ },
+ "style_ref": "e76edb88-0a55-4e18-bdf6-41f5a1136fc6",
+ "model": {
+  "splash": "gpt_image_2_6_flare 2k transparan",
+  "sprite": "nano_banana_pro 16:9 2k",
+  "eyes": "nano_banana_pro edit",
+  "icon": "gpt_image_2_6 latar hijau"
+ },
+ "coppelia": {
+  "splash_concept": "55447ac6-8481-447f-bc76-65da06e8f70a (dipakai langsung sebagai splash final)",
+  "concept_alt": "4a6b049a-f39d-4c71-ba0a-7d50b10f3ef3",
+  "sprite": "aabd92a6-8edc-44e9-9a71-93cfb1e2fdda (pedang dari frame 1 ditempel ke frame jalan 3-4, frame 2 = frame 1 napas)",
+  "sprite_alt": "4e2c5180-4eae-42e4-979b-b653b56ce835",
+  "eyes_closed": "9ad10357-2dbe-4422-9ab2-9419da442292",
+  "icon": "bfb92d7a-a1fc-40c8-9e09-80476a0f83df (kunci latar hijau ketat supaya inti teal tidak hilang)"
+ },
+ "catatan": "Seraphine dihapus 18 Nov 2026 (mirip Celestine) -> pemilik lama otomatis mendapat Celestine (state.js HERO_REPLACED). Coppelia = hero ke-18 pengganti slot."
+}

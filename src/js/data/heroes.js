@@ -17,11 +17,6 @@
    Senjata signature ★3 hero dibuat di data/weapons.js dengan owner:'<id hero>'.
    ===================================================================== */
 const HEROES=[
- {id:'seraphine',name:'Seraphine',title:'Putri Fajar',r:3,el:'cahaya',role:'warrior',skill:'aoe',mult:2.8,sk:'Fajar Menyingsing',lore:'Pewaris takhta Aster. Saat ia berdoa, matahari terbit di belakangnya.',
-  lines:['Fajar akan selalu terbit, Kapten!', 'Mahkota ini berat... tapi aku tak akan menyerah.', 'Pedang Aurora paling terang saat kau di dekatku.'],
-  poke:['Ah—! Kapten, sopanlah sedikit pada seorang putri.', 'Hihi, mau berdansa? Nanti saja setelah pertempuran.', 'Hei, mahkotaku hampir jatuh!'],
-  wcls:'sword',
-  art:'seraphine'},
  {id:'sakuya',name:'Sakuya',title:'Miko Rubah Sakura',r:3,el:'api',role:'warrior',skill:'single',mult:4.8,sk:'Iai: Hanafubuki Kitsunebi',limited:true,lore:'Miko kuil rubah putih. Tebasannya lebih cepat dari kelopak yang jatuh.',
   lines:['Kitsunebi-ku menari untukmu~', 'Hmm? Kau memperhatikan ekorku?', 'Satu tebasan, seribu kelopak.'],
   poke:['Kyaa! Jangan tarik ekorku!', 'Fufu~ penasaran dengan telinga rubahku?', 'Sentuh sekali lagi, kubakar dengan kitsunebi~'],
@@ -119,7 +114,39 @@ const HEROES=[
   gen:{hair:'long',weapon:'axe',collar:'c2',belt:'#5a3a22',cuff:'#b8862e',
   pal:{h1:'#ffffff',h2:'#e4e6f0',h3:'#b4b8cc',h4:'#7a7e96',e1:'#5a3008',e2:'#e09a1c',e3:'#ffd27a',
    m1:'#fff3e2',m2:'#f4dcc0',m3:'#d0a882',m4:'#8a6448',k1:'#7a4a2a',k2:'#5a321c',k3:'#3e2214',k4:'#24140c',a1:'#ffd0a0',a2:'#c0302a',a3:'#7a1a18',
-   c1:'#ffffff',c2:'#e4e6f0',c3:'#b4b8cc',l1:'#8a6448',l2:'#5a3a22',l3:'#3a2414',f1:'#b8862e',f2:'#7a5418',f3:'#4a3010',fx:'#ffc84a'}}}
+   c1:'#ffffff',c2:'#e4e6f0',c3:'#b4b8cc',l1:'#8a6448',l2:'#5a3a22',l3:'#3a2414',f1:'#b8862e',f2:'#7a5418',f3:'#4a3010',fx:'#ffc84a'}}},
+ {id:'celestine',name:'Celestine',title:'Biarawati Perisai Suci',r:3,el:'cahaya',role:'tanker',skill:'shield',mult:0,sk:'Aegis Fajar Suci',lore:'Biarawati ksatria dari Biara Fajar. Ia percaya perisai bukan untuk menang, tapi supaya semua orang bisa pulang.',
+  lines:['Tenang saja. Selama aku berdiri, kalian aman.', 'Semoga cahaya fajar menuntun langkah kita, Kapten.', 'Lukamu? Nanti kubalut setelah pertempuran, ya.'],
+  poke:['A-ah! Kapten, lingkaran cahayaku bukan mainan!', 'Fufu, apa kamu sedang mencari perlindungan?', 'Jangan iseng begitu... aku bisa mendoakanmu, lho.'],
+  wcls:'shield',
+  gen:{hair:'long',weapon:'shield',armor:true,collar:'W',belt:'#c8a040',cuff:'#e8eef8',
+  pal:{h1:'#fffbe8',h2:'#fff0b0',h3:'#e8c870',h4:'#b08a3a',e1:'#1a3a6a',e2:'#4a8ae0',e3:'#bfe0ff',
+   m1:'#ffffff',m2:'#f4eedc',m3:'#d4c8a4',m4:'#9a8c66',k1:'#5a7ad8',k2:'#2a4aa8',k3:'#1a2e78',k4:'#101c4a',a1:'#ffffff',a2:'#d8e0ee',a3:'#9aa6be',
+   c1:'#fff6b0',c2:'#ffc83d',c3:'#c98a1a',l1:'#ffffff',l2:'#d8e0ee',l3:'#9aa6be',f1:'#e8eef8',f2:'#a8b4c8',f3:'#5a667e',fx:'#fff6b0'}}},
+ {id:'aurelia',name:'Aurelia',title:'Pemanah Phoenix',r:3,el:'api',role:'ranger',skill:'single',mult:4.6,sk:'Panah Kelahiran Phoenix',lore:'Pewaris klan pemanah yang dibakar habis lalu bangkit lagi. Setiap anak panahnya membawa sehelai bulu phoenix.',
+  lines:['Satu anak panah, satu sasaran. Itu sudah cukup.', 'Api phoenix tidak pernah padam, Kapten. Begitu juga aku.', 'Tunjukkan musuh terkuat. Biar kubakar habis!'],
+  poke:['Hei! Hampir saja panahku lepas!', 'Bulu di rambutku bukan untuk dicabut, tahu!', 'Hmph, mau kuajari memanah? Bayarannya mahal.'],
+  wcls:'bow',
+  gen:{hair:'pony',weapon:'bow',collar:'c2',belt:'#a8701a',cuff:'#ffc83d',
+  pal:{h1:'#ffe0b0',h2:'#ff8a3a',h3:'#e0402a',h4:'#a01a1a',e1:'#5a3008',e2:'#e0a020',e3:'#fff0a0',
+   m1:'#fff3e2',m2:'#f4dcc0',m3:'#d0a882',m4:'#8a6448',k1:'#ff6a4a',k2:'#d8302a',k3:'#a01a1a',k4:'#600a10',a1:'#fff0b0',a2:'#ffc83d',a3:'#c98a1a',
+   c1:'#ffffff',c2:'#f4eedc',c3:'#d4c8a4',l1:'#ffd27a',l2:'#c98a1a',l3:'#7a4a10',f1:'#d8302a',f2:'#a01a1a',f3:'#600a10',fx:'#ffb02e'}}},
+ {id:'lilith',name:'Lilith',title:'Biduan Gerhana',r:3,el:'gelap',role:'support',skill:'buff',mult:0,sk:'Serenade Gerhana',lore:'Idola panggung bawah tanah yang suaranya konon bisa membangunkan bulan yang tertidur. Bertanduk kecil, dan ia sangat bangga dengannya.',
+  lines:['Fufu~ Dengarkan laguku, dan seranglah sekuat tenaga!', 'Panggung malam ini... medan perang, ya? Seru juga.', 'Kapten, nanti jadi penonton nomor satuku, ya?'],
+  poke:['Kyaa! Tandukku jangan dipegang sembarangan!', 'Mau minta tanda tangan? Antre dulu dong~', 'Ssst, aku sedang pemanasan suara!'],
+  wcls:'staff',
+  gen:{hair:'twin',weapon:'staff',collar:'W',gem:true,hem:true,
+  pal:{h1:'#6a5a8a',h2:'#3a2a5a',h3:'#22163a',h4:'#120a20',e1:'#3a0a5a',e2:'#a04ae0',e3:'#e0b0ff',
+   m1:'#fff0f6',m2:'#f4d8e6',m3:'#c8a0b8',m4:'#7a5a6a',k1:'#5a3a8a',k2:'#3a1a6a',k3:'#22104a',k4:'#120828',a1:'#e0b0ff',a2:'#a04ae0',a3:'#6a1aa8',
+   l1:'#4a3a5a',l2:'#2a1a3a',l3:'#140a1e',f1:'#a04ae0',f2:'#6a1aa8',f3:'#3a0a5a',fx:'#e0b0ff'}}},
+ {id:'coppelia',name:'Coppelia',title:'Boneka Jam Ksatria',r:3,el:'netral',role:'warrior',skill:'single',mult:4.7,sk:'Waltz Roda Gigi Terakhir',lore:'Boneka mekanik buatan pembuat jam istana yang menghilang. Ia terus berdansa dan bertarung, menunggu seseorang memutar kuncinya lagi.',
+  lines:['Kunci sudah diputar. Coppelia siap bertarung, Kapten.', 'Tik, tok. Musuh di depan... dihitung mundur.', 'Aku tidak punya jantung. Tapi gerigiku berputar lebih cepat di dekatmu.'],
+  poke:['Ah... jangan putar kuncinya terlalu kencang, Kapten.', 'Sendi bonekaku bukan untuk dimainkan, lho.', 'Error... eh, bukan. Aku cuma kaget.'],
+  wcls:'sword',
+  gen:{hair:'bob',weapon:'sword',collar:'W',belt:'#b06a2a',cuff:'#f4eedc',
+  pal:{h1:'#ffffff',h2:'#e4e8ee',h3:'#b4bccb',h4:'#6e7688',e1:'#0a3a3a',e2:'#2ac8b8',e3:'#c0fff4',
+   m1:'#fff6f0',m2:'#f4e6dc',m3:'#d4bca8',m4:'#8a6e5a',k1:'#7a2a3a',k2:'#4a1424',k3:'#2a0a14',k4:'#14060a',a1:'#ffd8a0',a2:'#d8904a',a3:'#9a5a24',
+   c1:'#ffffff',c2:'#f4eedc',c3:'#d4c8a4',l1:'#3a3038',l2:'#221a22',l3:'#120c12',f1:'#d8904a',f2:'#9a5a24',f3:'#5a3010',fx:'#2ac8b8'}}}
 ];
 const HD={};HEROES.forEach(h=>{h.spr={hero:h.id};HD[h.id]=h});
 const HERO_WCLASS={};HEROES.forEach(h=>HERO_WCLASS[h.id]=h.wcls);

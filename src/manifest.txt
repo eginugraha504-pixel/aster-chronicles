@@ -55,7 +55,6 @@ js/lang/ja.js
 js/art/icons.js
 js/art/weapon-skin.js
 js/art/sprite.js
-js/art/heroes/seraphine.js
 js/art/heroes/sakuya.js
 js/art/heroes/raika.js
 js/art/heroes/generic.js

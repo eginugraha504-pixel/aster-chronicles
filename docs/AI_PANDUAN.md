@@ -30,7 +30,7 @@ Ubah/tambah teks di sini bila ada fitur baru yang perlu dijelaskan dengan kata-k
 - Peluang: ★3 3%, ★2 19%, ★1 78%. Soft pity mulai tarikan ke-66 (+6% tiap tarikan), hard pity 80 = ★3 pasti. Pity terbawa antar banner.
 - Rate On/Off: di banner rate-up, ★3 punya peluang 50% (senjata 75%) jadi item rate-up. Kalau kalah (rate off), ★3 berikutnya DIJAMIN rate-up.
 - Pity ≥66 artinya SUDAH masuk soft pity (peluang ★3 naik tiap tarikan); 80 = pasti ★3.
-- Hero ★3 standar (Seraphine, Marisa) TIDAK punya banner sendiri: mereka muncul sebagai ★3 biasa (bukan rate-up) di banner hero mana pun, dan bisa dipilih lewat hadiah "Pilih 1 Hero ★3" atau Toko Lencana.
+- Hero ★3 standar (Marisa, Hilde, Celestine, Aurelia, Lilith, Coppelia) TIDAK punya banner sendiri: mereka muncul sebagai ★3 biasa (bukan rate-up) di banner hero mana pun, dan bisa dipilih lewat hadiah "Pilih 1 Hero ★3" atau Toko Lencana.
 - Banner terbatas: hero terbatas (Raika, Sakuya) hanya ada di banner-nya; senjata signature mereka ikut terbatas. 10× menjamin minimal satu ★2.
 - Duplikat hero = Limit Break (+1, maks +5): stat naik 10% dan batas level +2. Duplikat setelah +5 jadi Lencana Ksatria (★1: 1, ★2: 5, ★3: 25) untuk Toko Lencana.
 
@@ -77,3 +77,10 @@ Ubah/tambah teks di sini bila ada fitur baru yang perlu dijelaskan dengan kata-k
 - ★6 itu sangat langka dan butuh berbulan-bulan; jangan bilang ada yang bisa membelinya. Penghambat utamanya Air Mata Dewi.
 - Bingkai ★4 ungu ametis, ★5 merah rubi bersayap, ★6 pelangi bersayap berkilau — pemain suka pamer bingkai ★6.
 - Hero ke-14 **Hilde** (18 Nov 2026): ★3 standar, Tanah, Petarung, kapak. Putri suku serigala dari pegunungan utara, ceria & liar, telinga & ekor serigala, kapak batu berukir rune. Skill AoE "Amukan Rune Gunung". Senjata khas Kapak Rune Gunung (★3). Ada di semua banner (bukan limited). Splash Live2D, suara Jepang.
+- Hero ke-15..17 (18 Nov 2026), semuanya ★3 standar (ada di semua banner, bukan limited), splash Live2D + suara Jepang:
+  **Celestine** (Biarawati Perisai Suci, Cahaya, Penjaga/tank, skill perisai "Aegis Fajar Suci", senjata Perisai Sayap Mentari) — lembut, keibuan.
+  **Aurelia** (Pemanah Phoenix, Api, Pemanah, skill tembakan tunggal besar "Panah Kelahiran Phoenix", senjata Busur Bulu Phoenix) — percaya diri, sedikit tsundere.
+  **Lilith** (Biduan Gerhana, Gelap, Pendukung/penguat ATK tim, skill "Serenade Gerhana", senjata Tongkat Mikrofon Gerhana) — idola gothic bertanduk kecil, genit-jahil.
+  **Seraphine DIHAPUS** (18 Nov 2026, permintaan Egi: terlalu mirip Celestine). Pemilik Seraphine otomatis mendapat Celestine (level/LB/ascend/gear pindah; kalau sudah punya Celestine → LB +1+LB Seraphine) lewat `HERO_REPLACED` di `systems/state.js`, plus surat `sera_swap` (5 Tiket Hero). Modul seni `art/heroes/seraphine.js` dibuang.
+- Hero ke-18 **Coppelia** (Boneka Jam Ksatria, Netral, Petarung, skill tunggal "Waltz Roda Gigi Terakhir", senjata Pedang Roda Gigi) — boneka mekanik steampunk berambut bob perak, kunci putar di punggung, tenang & datar. Dibuat supaya TIDAK mirip hero lain (satu-satunya bertema mesin; palet tembaga/hitam/merah marun + aksen teal).
+  Sekarang 6 hero ★3 standar mencakup ke-6 elemen: Marisa (Air), Hilde (Tanah), Celestine (Cahaya), Aurelia (Api), Lilith (Gelap), Coppelia (Netral) (+ Sakuya & Raika limited). Total 17 hero.

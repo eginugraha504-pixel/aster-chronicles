@@ -16,13 +16,6 @@
   "trim_db": -45
  },
  "cast": {
-  "seraphine": {
-   "hero": "Seraphine",
-   "peran": "Putri Fajar",
-   "aktor": "Luna",
-   "voice_id": "375a3398-e3b4-4f91-845d-42181e352899",
-   "audition_job": "ad89dc1a-434d-400f-afeb-2eff3fd78363"
-  },
   "sakuya": {
    "hero": "Sakuya",
    "peran": "Miko Rubah Sakura",
@@ -118,37 +111,54 @@
     "Tamsin": "5283b2e7-eb0f-4ea0-a042-9a31a15b97aa",
     "Juno": "3e0f7e09-a469-456d-a385-166ff6f7b1d1"
    }
+  },
+  "celestine": {
+   "hero": "Celestine",
+   "peran": "Biarawati Perisai Suci",
+   "aktor": "Imogen",
+   "voice_id": "3811e986-0891-47cf-a1f5-78a1d62a547a",
+   "audition_job": "1d5d28ff-d616-4f79-8c8f-93345aafbb52",
+   "audisi_lain": {
+    "Elodie": "2d5230df-51ed-47d1-bf94-d723b9ae4aa2",
+    "Nora": "4f7795f8-771d-438d-97f9-2432cf855e3e"
+   }
+  },
+  "aurelia": {
+   "hero": "Aurelia",
+   "peran": "Pemanah Phoenix",
+   "aktor": "Hana",
+   "voice_id": "c25f78a0-714e-42af-8da3-a399cef94968",
+   "audition_job": "5485849f-7036-4c2b-abef-c817b7ad02ba",
+   "audisi_lain": {
+    "Juno": "bae289c5-53ef-46b7-995f-fd29935e27b6",
+    "Raina": "9200a8f7-236c-4776-b70c-1c4a98095d18"
+   }
+  },
+  "lilith": {
+   "hero": "Lilith",
+   "peran": "Biduan Gerhana",
+   "aktor": "Tallulah",
+   "voice_id": "f32c8f51-449e-4ddf-bdf7-1527e11df917",
+   "audition_job": "cc9e7d97-185b-4012-b4d8-6165cff6bf2a",
+   "audisi_lain": {
+    "Vesper": "4a09c53a-afa2-4e2e-9043-c6a3819a0a16"
+   }
+  },
+  "coppelia": {
+   "hero": "Coppelia",
+   "peran": "Boneka Jam Ksatria",
+   "aktor": "Elodie",
+   "voice_id": "8b95a259-62fd-545d-b0f0-7b521a972b6b",
+   "audition_job": "7f0b739b-34c3-49a5-b404-a89d801798d3",
+   "audisi_lain": {
+    "Nora": "94028640-54fb-4e77-bba1-04b964d6ab0e",
+    "Vera": "b0195b2a-39b3-489c-9d50-7633d2c74315",
+    "Opal": "e13e4e59-71d3-4289-810e-b5d953e89b71"
+   },
+   "catatan": "dipilih karena intonasi paling datar (sd f0 terendah) = cocok boneka mekanik"
   }
  },
  "clips": {
-  "seraphine_l0": {
-   "ja": "夜明けは必ず来るわ、キャプテン！",
-   "id": "Fajar akan selalu terbit, Kapten!"
-  },
-  "seraphine_l1": {
-   "ja": "この王冠は重いけど…絶対にあきらめない。",
-   "id": "Mahkota ini berat... tapi aku tak akan menyerah."
-  },
-  "seraphine_l2": {
-   "ja": "オーロラソードはあなたのそばで一番輝くの。",
-   "id": "Pedang Aurora paling terang saat kau di dekatku."
-  },
-  "seraphine_p0": {
-   "ja": "あっ…！キャプテン、王女にはもう少し礼儀を。",
-   "id": "Ah—! Kapten, sopanlah sedikit pada seorang putri."
-  },
-  "seraphine_p1": {
-   "ja": "ふふ、踊りたいの？戦いが終わってからね。",
-   "id": "Hihi, mau berdansa? Nanti saja setelah pertempuran."
-  },
-  "seraphine_p2": {
-   "ja": "ちょっと、王冠が落ちそうよ！",
-   "id": "Hei, mahkotaku hampir jatuh!"
-  },
-  "seraphine_sk": {
-   "ja": "夜明けの光翼！",
-   "id": "Fajar Menyingsing"
-  },
   "sakuya_l0": {
    "ja": "わたしの狐火、あなたのために舞うよ～",
    "id": "Kitsunebi-ku menari untukmu~"
@@ -476,6 +486,118 @@
   "hilde_sk": {
    "ja": "山岳ルーンの猛撃！",
    "id": "Amukan Rune Gunung"
+  },
+  "celestine_l0": {
+   "ja": "ご安心を。私が立っている限り、皆さんは安全です。",
+   "id": "Tenang saja. Selama aku berdiri, kalian aman."
+  },
+  "celestine_l1": {
+   "ja": "暁の光が私たちの道を照らしますように、キャプテン。",
+   "id": "Semoga cahaya fajar menuntun langkah kita, Kapten."
+  },
+  "celestine_l2": {
+   "ja": "ケガですか？戦いが終わったら手当てしますね。",
+   "id": "Lukamu? Nanti kubalut setelah pertempuran, ya."
+  },
+  "celestine_p0": {
+   "ja": "あっ…！キャプテン、光輪はおもちゃじゃありません！",
+   "id": "A-ah! Kapten, lingkaran cahayaku bukan mainan!"
+  },
+  "celestine_p1": {
+   "ja": "ふふ、守ってほしいのですか？",
+   "id": "Fufu, apa kamu sedang mencari perlindungan?"
+  },
+  "celestine_p2": {
+   "ja": "そんないたずらをすると…お祈りしてしまいますよ？",
+   "id": "Jangan iseng begitu... aku bisa mendoakanmu, lho."
+  },
+  "celestine_sk": {
+   "ja": "暁の聖なる盾よ！",
+   "id": "Aegis Fajar Suci"
+  },
+  "aurelia_l0": {
+   "ja": "一本の矢に、一つの標的。それで十分よ。",
+   "id": "Satu anak panah, satu sasaran. Itu sudah cukup."
+  },
+  "aurelia_l1": {
+   "ja": "不死鳥の炎は消えないわ、キャプテン。私もね。",
+   "id": "Api phoenix tidak pernah padam, Kapten. Begitu juga aku."
+  },
+  "aurelia_l2": {
+   "ja": "一番強い敵を見せて。灰にしてあげる！",
+   "id": "Tunjukkan musuh terkuat. Biar kubakar habis!"
+  },
+  "aurelia_p0": {
+   "ja": "ちょっと！矢が外れるところだったじゃない！",
+   "id": "Hei! Hampir saja panahku lepas!"
+  },
+  "aurelia_p1": {
+   "ja": "髪の羽は抜くものじゃないわよ！",
+   "id": "Bulu di rambutku bukan untuk dicabut, tahu!"
+  },
+  "aurelia_p2": {
+   "ja": "ふん、弓を教えてほしい？授業料は高いわよ。",
+   "id": "Hmph, mau kuajari memanah? Bayarannya mahal."
+  },
+  "aurelia_sk": {
+   "ja": "不死鳥再誕の矢！",
+   "id": "Panah Kelahiran Phoenix"
+  },
+  "lilith_l0": {
+   "ja": "ふふっ、私の歌を聴いて、全力でいきなさい♪",
+   "id": "Fufu~ Dengarkan laguku, dan seranglah sekuat tenaga!"
+  },
+  "lilith_l1": {
+   "ja": "今夜のステージは…戦場？面白いじゃない。",
+   "id": "Panggung malam ini... medan perang, ya? Seru juga."
+  },
+  "lilith_l2": {
+   "ja": "キャプテン、私のファン一号になってくれるよね？",
+   "id": "Kapten, nanti jadi penonton nomor satuku, ya?"
+  },
+  "lilith_p0": {
+   "ja": "きゃっ！角を勝手に触らないで！",
+   "id": "Kyaa! Tandukku jangan dipegang sembarangan!"
+  },
+  "lilith_p1": {
+   "ja": "サインがほしいの？並んでね～",
+   "id": "Mau minta tanda tangan? Antre dulu dong~"
+  },
+  "lilith_p2": {
+   "ja": "しーっ、今は発声練習中なの！",
+   "id": "Ssst, aku sedang pemanasan suara!"
+  },
+  "lilith_sk": {
+   "ja": "蝕のセレナーデ！",
+   "id": "Serenade Gerhana"
+  },
+  "coppelia_l0": {
+   "ja": "ねじは巻かれました。コッペリア、出撃準備完了です、キャプテン。",
+   "id": "Kunci sudah diputar. Coppelia siap bertarung, Kapten."
+  },
+  "coppelia_l1": {
+   "ja": "チク、タク。前方の敵…カウントダウン開始。",
+   "id": "Tik, tok. Musuh di depan... dihitung mundur."
+  },
+  "coppelia_l2": {
+   "ja": "私に心臓はありません。でも、あなたのそばだと歯車が速く回るんです。",
+   "id": "Aku tidak punya jantung. Tapi gerigiku berputar lebih cepat di dekatmu."
+  },
+  "coppelia_p0": {
+   "ja": "あっ…ねじをそんなに強く巻かないでください、キャプテン。",
+   "id": "Ah... jangan putar kuncinya terlalu kencang, Kapten."
+  },
+  "coppelia_p1": {
+   "ja": "人形の関節は、おもちゃじゃありませんよ。",
+   "id": "Sendi bonekaku bukan untuk dimainkan, lho."
+  },
+  "coppelia_p2": {
+   "ja": "エラー…いえ、ちょっと驚いただけです。",
+   "id": "Error... eh, bukan. Aku cuma kaget."
+  },
+  "coppelia_sk": {
+   "ja": "終幕の歯車ワルツ！",
+   "id": "Waltz Roda Gigi Terakhir"
   }
  }
 }

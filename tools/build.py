@@ -28,7 +28,14 @@ RGD=os.path.join(SRC,'img','rig')
 rig={f[:-4]:'data:image/png;base64,'+base64.b64encode(open(os.path.join(RGD,f),'rb').read()).decode() for f in sorted(os.listdir(RGD)) if f.endswith('.png')} if os.path.isdir(RGD) else {}
 # musik latar (src/audio/<kunci>.mp3) -> MUSIC_SRC, diputar oleh js/systems/music.js
 AUDD=os.path.join(SRC,'audio')
-mus={f[:-4]:'data:audio/mpeg;base64,'+base64.b64encode(open(os.path.join(AUDD,f),'rb').read()).decode() for f in sorted(os.listdir(AUDD)) if f.endswith('.mp3')} if os.path.isdir(AUDD) else {}
+# Sejak 18 Nov 2026 musik TIDAK ditanam (4 MB → batas 16 MB artifact): disalin ke dist/audio/ dan dirujuk relatif.
+# GitHub Pages: repo/audio/*.mp3 (sync_repo.py) · artifact: diunggah sebagai file kedua (publish_files).
+import shutil as _sh
+mus={}
+if os.path.isdir(AUDD):
+    os.makedirs(os.path.join(ROOT,'dist','audio'),exist_ok=True)
+    for f in sorted(os.listdir(AUDD)):
+        if f.endswith('.mp3'):_sh.copy2(os.path.join(AUDD,f),os.path.join(ROOT,'dist','audio',f));mus[f[:-4]]='audio/'+f
 # suara karakter (src/voice/<hero>_<l|p><i>.mp3, <hero>_sk.mp3) -> VOICE_SRC, diputar oleh js/systems/voice.js
 VOD=os.path.join(SRC,'voice')
 vox={f[:-4]:'data:audio/mpeg;base64,'+base64.b64encode(open(os.path.join(VOD,f),'rb').read()).decode() for f in sorted(os.listdir(VOD)) if f.endswith('.mp3')} if os.path.isdir(VOD) else {}

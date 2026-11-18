@@ -9,7 +9,7 @@
    rw   : gems, gold, stam, exp, tixH, tixW, hero, weapon, pickHero
    ===================================================================== */
 const EVENTS=[
- {id:'login7',type:'login',n:'Login Pemula 7 Hari',tag:'PEMULA',art:{hero:'seraphine'},
+ {id:'login7',type:'login',n:'Login Pemula 7 Hari',tag:'PEMULA',art:{hero:'celestine'},
   desc:'Masuk setiap hari selama 7 hari dan kumpulkan hadiahnya. Hari ke-7: pilih 1 hero ★3!',
   days:[{rw:{gems:500,tixH:2}},{rw:{gems:1500,gold:30000}},{rw:{tixH:10}},{rw:{gems:1500,stam:120}},
         {rw:{tixW:10}},{rw:{gold:100000,gems:2000}},{rw:{pickHero:3,gems:3000},big:true}]},
