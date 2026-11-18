@@ -2,7 +2,10 @@
    DUNGEON — farming material senjata (Petualangan > tab Dungeon)
    levels[i]: req (tahap cerita yang harus selesai), n (tingkat kesulitan musuh),
               catatan: tingkat tinggi tetap menjatuhkan material dasar supaya Limit Break awal tidak macet,
-              drop: {material:[min,maks]} (min boleh 0 = peluang), cost: stamina
+              drop: {material:[min,maks]} (min boleh 0 = peluang)
+   TIKET: tiap jenis dungeon punya DG_TIX tiket per hari (tidak memakai stamina). Tiket terpakai saat MENANG / sapu
+          (kalah tidak mengurangi tiket). Tiket habis -> bisa direset (isi penuh lagi) maks reset.length kali per hari,
+          harga permata naik tiap reset: reset:[harga reset ke-1, ke-2, ...] (bawaan DG_RESET).
    ===================================================================== */
 const DUNGEONS=[
  {id:'mine',n:'Tambang Bijih',art:'cave',icon:'pick',bg:'cave',mobs:['skeleton','slime','knight'],els:['tanah','gelap','air'],boss:'bSlime',bossEl:'tanah',
@@ -23,10 +26,11 @@ const DUNGEONS=[
    {req:'6-2',n:26,cost:14,drop:{},gold:[110000,135000]},{req:'7-2',n:31,cost:14,drop:{},gold:[190000,230000]},{req:'8-2',n:36,cost:16,drop:{},gold:[320000,380000]}]},
  // MENARA KEBANGKITAN: material ★4–★6. daily = batas menang+sapu per hari (semua tingkat digabung).
  // drop [min,maks,peluang]: peluang (0..1) bila ada angka ketiga. 'badge' = Lencana Ksatria (S.badge).
- {id:'tower',n:'Menara Kebangkitan',art:'tower',icon:'tower',bg:'castle',mobs:['mKnight','vMage','archer','knight'],els:['cahaya','gelap','api','air','tanah'],boss:'bTower',bossEl:'cahaya',daily:5,
-  desc:'Menara di atas awan tempat para ksatria membangkitkan kekuatan sejati. Bahan Kebangkitan ★4–★6. Hanya 5 kali per hari.',
+ {id:'tower',n:'Menara Kebangkitan',art:'tower',icon:'tower',bg:'castle',mobs:['mKnight','vMage','archer','knight'],els:['cahaya','gelap','api','air','tanah'],boss:'bTower',bossEl:'cahaya',reset:[100,150,200,300,400],
+  desc:'Menara di atas awan tempat para ksatria membangkitkan kekuatan sejati. Bahan Kebangkitan ★4–★6.',
   levels:[{req:'5-5',n:24,cost:15,drop:{asc1:[3,4]}},{req:'6-3',n:27,cost:15,drop:{asc1:[4,6],asc2:[0,1]}},{req:'6-5',n:30,cost:15,drop:{asc1:[5,7],asc2:[1,2],badge:[2,3]}},
    {req:'7-5',n:34,cost:15,drop:{asc1:[6,8],asc2:[2,3],asc3:[1,1,.1],badge:[3,4]}},{req:'8-3',n:37,cost:15,drop:{asc1:[8,10],asc2:[3,4],asc3:[1,1,.25],badge:[4,6]}}]}
 ];
+const DG_TIX=5,DG_RESET=[50,100,150,200,250];   // tiket per jenis dungeon per hari · harga reset bawaan
 const GOLD_DG_3STAR=.25;   // bonus emas dungeon emas bila menang 3 bintang
 const DGD={};DUNGEONS.forEach(d=>DGD[d.id]=d);

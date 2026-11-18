@@ -1,0 +1,288 @@
+/* =====================================================================
+   CERITA UTAMA — BAB I "Fajar Aster" (Dunia 1–5) & BAB II "Kebangkitan" (Dunia 6–8)
+   Tokoh: hanya hero STANDAR ★1–★3 (+ NPC). Hero terbatas tidak muncul.
+   ---------------------------------------------------------------------
+   adegan : {id, at:'<tahap>'|'start', when:'pre'|'post', bg, t:[id,en,ja] (judul), L:[baris...]}
+            pre  = diputar sebelum pertempuran tahap itu (pertama kali)
+            post = diputar setelah menang pertama kali (saat layar hasil ditutup)
+   baris  : [pembicara, ekspresi, teks_id, teks_en, teks_ja]
+            pembicara 'n' = narasi (tanpa suara), id hero, atau id NPC (STORY_NPC)
+            ekspresi: n biasa · a serius/marah · k kaget · d sedih/cemas · '-' hanya suara (tanpa gambar)
+            {bg:'kunci'} ganti latar · {cg:'kunci'|null} ilustrasi penuh · {fx:'flash'|'shake'|'star'}
+            {ch:[[id,en,ja],[id,en,ja]]} pilihan jawaban Kapten (kosmetik)
+   suara  : tiap baris ber-pembicara (bukan 'n') punya klip st_<adegan>_<nomor baris> (Jepang)
+   aset   : latar story/bg/<kunci>.webp, CG story/cg/<kunci>.webp, ekspresi story/ex/<hero>_<e>.webp,
+            NPC story/npc/<id>.webp, suara story/v/<kunci>.mp3  (file terpisah, dimuat saat dibutuhkan)
+   ===================================================================== */
+const STORY_NPC={
+ ratu:{n:['Ratu Aster','Queen Aster','アスター女王']},
+ herald:{n:['Sosok Berkerudung','Hooded Figure','フードの人影']},
+ rajagob:{n:['Raja Goblin','Goblin King','ゴブリンキング']},
+ dknight:{n:['Ksatria Kegelapan','Knight of Darkness','闇の騎士']},
+ voidking:{n:['Raja Kehampaan','King of the Void','虚無の王']},
+ orloj:{n:['Maestro Orloj','Maestro Orloj','オルロイ師']},
+ eye:{n:['???','???','？？？']}
+};
+const STORY_CH=[{n:['BAB I','CHAPTER I','第一章'],t:['Fajar Aster','Dawn of Aster','アスターの夜明け']},{n:['BAB II','CHAPTER II','第二章'],t:['Kebangkitan','Awakening','覚醒']}];
+const STORY=[
+// ================= PROLOG =================
+{id:'p0',ch:0,at:'start',bg:'night',t:["Prolog: Bintang yang Jatuh","Prologue: The Fallen Star","プロローグ：落ちてきた星"],L:[
+ {fx:'star'},
+ ['n','',"Malam itu, sebuah bintang jatuh di Padang Hijau.","That night, a star fell upon the Green Plains.","その夜、緑の平原に一つの星が落ちた。"],
+ {cg:'star'},
+ ['noa','-',"M-Mira! Ada orang di dalam kawah bintang itu!","M-Mira! There's someone inside that star crater!","ミ、ミラ！星のクレーターの中に誰かいます！"],
+ ['mira','-',"Masih bernapas. Dan lihat benda di tangannya... bersinar.","Still breathing. And look at what's in their hand... it's glowing.","まだ息がある。それに、手の中のもの…光ってる。"],
+ ['n','',"Kau membuka mata. Kepalamu kosong — tak ada nama, tak ada masa lalu. Hanya sebuah kompas yang berdenyut hangat di genggamanmu.","You open your eyes. Your mind is empty — no name, no past. Only a compass, pulsing warmly in your grip.","目を開けると、頭の中は空っぽだった。名前も、過去もない。ただ、手の中でコンパスが温かく脈打っている。"],
+ {cg:null},
+ ['noa','n',"Di jas ini ada lencana bertuliskan... “Kapten”? Apa itu namamu?","There's a badge on this coat that says... “Captain”? Is that your name?","このコートのバッジに…「キャプテン」って書いてあります。それがあなたの名前ですか？"],
+ {ch:[["...Sepertinya begitu.","...I suppose it is.","…たぶん、そうだ。"],["Aku tidak ingat apa-apa.","I don't remember anything.","何も思い出せない。"]]},
+ ['mira','n',"Kalau begitu, untuk sementara kami panggil kau Kapten.","Then for now, we'll call you Captain.","じゃあ、しばらくはキャプテンって呼ぶよ。"],
+ {bg:'gate'},{fx:'shake'},
+ ['n','',"Tiba-tiba, lonceng desa berdentang keras.","Suddenly, the village bell rings out.","突然、村の鐘がけたたましく鳴り響いた。"],
+ ['rin','a',"Mira! Noa! Goblin menyerbu gerbang desa! Banyak sekali!","Mira! Noa! Goblins are storming the village gate! Tons of them!","ミラ！ノア！ゴブリンが村の門に攻めてきた！すっごい数だよ！"],
+ ['pia','a',"Pia sudah di gerbang! Pia tidak akan mundur selangkah pun!","Pia is already at the gate! Pia will not retreat a single step!","ピアはもう門にいます！ピアは一歩も退きません！"],
+ ['n','',"Kompas di tanganmu berputar liar, lalu jarumnya menunjuk lurus ke arah gerbang.","The compass spins wildly in your hand, then its needle points straight at the gate.","手の中のコンパスが激しく回り、針がまっすぐ門を指した。"],
+ ['noa','k',"Kompasnya... memanggil kita? Kapten, sepertinya benda itu ingin kau memimpin!","The compass is... calling us? Captain, I think it wants you to lead!","コンパスが…呼んでる？キャプテン、それ、あなたに指揮してほしいみたいです！"],
+ ['mira','a',"Tak ada waktu bertanya. Kapten, beri aba-aba. Kami ikut!","No time for questions. Captain, give the order. We're with you!","考えてる暇はない。キャプテン、号令を。私たちが続く！"]]},
+// ================= BAB I · DUNIA 1 =================
+{id:'c1a',ch:0,at:'1-1',when:'post',bg:'camp',t:["Kompas yang Memanggil","The Calling Compass","呼び声のコンパス"],L:[
+ ['n','',"Goblin terakhir lari terbirit-birit. Fajar menyingsing di atas desa.","The last goblin flees in a panic. Dawn breaks over the village.","最後のゴブリンが慌てて逃げていく。村の上に朝日が昇った。"],
+ ['rin','n',"Hahaha! Lihat mereka kabur! Kapakku jadi ringan sekali tadi!","Hahaha! Look at them run! My axe felt so light back there!","あはは！見てよ、逃げてく！さっき斧がすっごく軽かった！"],
+ ['pia','n',"Perisai Pia juga! Setiap Kapten memberi aba-aba, rasanya Pia jadi lebih kuat!","Pia's shield too! Every time the Captain gave an order, Pia felt stronger!","ピアの盾もです！キャプテンが号令をかけるたび、ピアは強くなった気がしました！"],
+ ['noa','n',"I-itu pasti kekuatan kompas itu. Di buku kuno guruku ada gambar yang mirip... “Kompas Aster”.","Th-that must be the compass's power. My teacher's old book had a picture just like it... the “Aster Compass”.","そ、それはきっとコンパスの力です。先生の古い本に似た絵が…「アスターのコンパス」。"],
+ ['noa','n',"Konon, cahayanya bisa memanggil para pahlawan dari seluruh negeri — lewat Menara Panggilan di alun-alun.","They say its light can summon heroes from all over the land — through the Summoning Tower in the square.","その光は国中から英雄を呼べるそうです。広場の召喚の塔を通して。"],
+ ['mira','n',"Menara tua itu? Sudah seratus tahun tidak menyala.","That old tower? It hasn't lit up in a hundred years.","あの古い塔？もう百年も光ってないよ。"],
+ ['n','',"Kompas berdenyut sekali. Di kejauhan, puncak menara tua itu berkelip — untuk pertama kalinya dalam seratus tahun.","The compass pulses once. In the distance, the old tower's spire flickers — for the first time in a hundred years.","コンパスが一度脈打つ。遠くで古い塔の先端が瞬いた。百年ぶりに。"],
+ ['noa','k',"M-menyala! Kapten, ayo coba memanggil pahlawan!","I-it lit up! Captain, let's try summoning heroes!","ひ、光った！キャプテン、英雄を呼んでみましょう！"]]},
+{id:'c1b',ch:0,at:'1-3',when:'pre',bg:'meadow',t:["Serpihan Hitam","Black Shards","黒い欠片"],L:[
+ ['mira','n',"Jejak goblin. Mereka menyeret sesuatu yang berat... dan bercahaya.","Goblin tracks. They were dragging something heavy... and glowing.","ゴブリンの足跡だ。何か重くて…光るものを引きずってる。"],
+ ['n','',"Di tanah tergeletak serpihan kristal hitam sebesar kuku. Kompas mendesis saat didekatkan.","A black crystal shard the size of a fingernail lies on the ground. The compass hisses as you bring it close.","地面に爪ほどの黒い水晶の欠片が落ちていた。近づけるとコンパスがジジッと鳴る。"],
+ ['noa','d',"Ini... serpihan bintang. Tapi kenapa hitam? Rasanya dingin sekali.","This is... a star shard. But why is it black? It feels so cold.","これ…星の欠片です。でも、どうして黒いの？すごく冷たい…。"],
+ ['rin','k',"Jangan-jangan bintang yang jatuh bersama Kapten itu pecah, terus goblin memungutinya?","Don't tell me the star that fell with the Captain broke, and the goblins are picking up the pieces?","まさか、キャプテンと一緒に落ちてきた星が割れて、ゴブリンが拾い集めてるとか？"],
+ ['mira','a',"Apa pun itu, jejaknya menuju Hutan Embun — sarang Raja Goblin.","Whatever it is, the tracks lead to the Dewy Woods — the Goblin King's lair.","何にせよ、足跡は朝露の森に続いてる。ゴブリンキングの巣だ。"],
+ ['pia','a',"Kalau begitu Pia jalan paling depan! Serahkan pada Pia!","Then Pia will lead the way! Leave it to Pia!","ならピアが先頭を歩きます！ピアにお任せを！"],
+ ['rin','a',"Hei, yang di depan itu aku! Kapakku lebih panjang!","Hey, I'm the one up front! My axe is longer!","ちょっと、先頭はあたしだよ！斧の方が長いもん！"],
+ ['mira','n',"...Kalian berdua di depan. Kapten di tengah. Noa, jangan sampai topimu jatuh lagi.","...You two take the front. Captain in the middle. Noa, don't drop your hat again.","…二人とも前。キャプテンは真ん中。ノア、また帽子を落とさないでね。"],
+ ['noa','k',"I-itu cuma sekali!","Th-that was only once!","い、一回だけです！"]]},
+{id:'c1c',ch:0,at:'1-5',when:'pre',bg:'forest',t:["Raja di Hutan Embun","King of the Dewy Woods","朝露の森の王"],L:[
+ ['n','',"Di jantung Hutan Embun, seekor goblin raksasa duduk di singgasana tulang. Di mahkotanya tertanam pecahan bintang hitam.","In the heart of the Dewy Woods, a giant goblin sits on a throne of bones. A black star shard is set into his crown.","朝露の森の奥、骨の玉座に巨大なゴブリンが座っていた。その王冠には黒い星の欠片がはめ込まれている。"],
+ ['rajagob','n',"Gyahaha! Manusia kecil! Bintang ini membuatku jadi raja sungguhan!","Gyahaha! Little humans! This star made me a real king!","ギャハハ！ちっぽけな人間ども！この星のおかげで、俺様は本物の王になったのだ！"],
+ ['rajagob','n',"Sosok berkerudung itu bilang: bawakan bintang yang lain padanya... Bintang yang ada di tanganmu!","The hooded one told me: bring him the other star... the one in YOUR hand!","フードの奴が言ったぞ。もう一つの星を持ってこいとな…お前の手の中の星をだ！"],
+ ['noa','k',"Dia mengincar kompas Kapten!","He's after the Captain's compass!","キャプテンのコンパスを狙ってます！"],
+ ['rin','a',"Enak saja! Langkahi dulu kapakku!","Not a chance! You'll have to get past my axe first!","させるもんか！あたしの斧を越えてからにしな！"],
+ ['mira','a',"Kapten, dia milikmu. Kami jaga punggungmu.","Captain, he's yours. We've got your back.","キャプテン、あいつは任せた。背中は私たちが守る。"]]},
+{id:'c1d',ch:0,at:'1-5',when:'post',bg:'forest',t:["Ninja yang Tersangkut","The Stuck Ninja","引っかかった忍者"],L:[
+ ['n','',"Mahkota Raja Goblin pecah. Pecahan hitam itu melayang ke arah kompas... dan berubah putih bersih.","The Goblin King's crown shatters. The black shard floats toward the compass... and turns pure white.","ゴブリンキングの王冠が砕けた。黒い欠片はコンパスへと漂い…真っ白に変わった。"],
+ {fx:'flash'},
+ ['noa','k',"Kompasnya menyucikan pecahan itu!","The compass purified the shard!","コンパスが欠片を浄化しました！"],
+ ['n','',"Sekejap, sebuah ingatan menyambar: langit yang terbakar, dan suara seseorang. “Kapten... kau harus pulang.”","For an instant, a memory strikes: a burning sky, and someone's voice. “Captain... you must go home.”","一瞬、記憶がよぎる。燃える空と、誰かの声。「キャプテン…帰らなければならない」"],
+ {ch:[["Pulang... ke mana?","Home... where?","帰る…どこへ？"],["(Diam saja.)","(Say nothing.)","（黙っている）"]]},
+ ['kuro','n',"Pertanyaan bagus.","Good question.","いい質問だ。"],
+ ['rin','k',"UWAAH?! Sejak kapan kau di belakang kami?!","WHOA?! Since when were you behind us?!","うわあっ！？いつからそこにいたの！？"],
+ ['kuro','n',"Sejak tadi. Kuro, ninja istana. Ratu Aster memanggil pemegang Kompas Aster ke ibu kota.","A while now. Kuro, ninja of the royal court. Queen Aster summons the bearer of the Aster Compass to the capital.","さっきから。王宮の忍者、クロだ。アスター女王が、コンパスの持ち主を王都に呼んでいる。"],
+ ['kuro','d',"...Dan, maaf. Tadi aku mau membantu, tapi aku tersangkut di semak.","...And, sorry. I meant to help, but I got stuck in a bush.","…それと、すまない。加勢するつもりだったが、茂みに引っかかった。"],
+ ['mira','n',"Ninja macam apa yang tersangkut di semak.","What kind of ninja gets stuck in a bush.","茂みに引っかかる忍者って何。"],
+ ['kuro','d',"Ninja magang.","An apprentice one.","見習いの忍者だ。"]]},
+// ================= BAB I · DUNIA 2 =================
+{id:'c2a',ch:0,at:'2-1',when:'pre',bg:'throne',t:["Ratu dan Bintang yang Retak","The Queen and the Cracked Star","女王とひび割れた星"],L:[
+ ['n','',"Ibu kota Aster. Di ruang takhta, sang Ratu menanti di bawah jendela kaca bintang yang retak.","The capital of Aster. In the throne room, the Queen waits beneath a cracked star-glass window.","アスターの王都。玉座の間で、女王はひび割れた星のステンドグラスの下に佇んでいた。"],
+ ['ratu','n',"Selamat datang, Kapten. Kompas itu memilihmu — maka Aster pun memercayaimu.","Welcome, Captain. The compass chose you — and so Aster places its trust in you.","ようこそ、キャプテン。コンパスがあなたを選んだのなら、アスターもあなたを信じましょう。"],
+ ['ratu','n',"Sebulan lalu, Bintang Aster — kristal yang menjaga fajar kerajaan ini — retak, dan pecahannya tersebar ke seluruh negeri.","A month ago, the Aster Star — the crystal that guards this kingdom's dawn — cracked, and its shards scattered across the land.","ひと月前、この国の夜明けを守る水晶「アスターの星」がひび割れ、その欠片が国中に散らばりました。"],
+ ['ratu','d',"Siapa pun yang memegang pecahan hitam akan dikuasai kegelapan. Dan setiap hari, fajar terbit sedikit lebih lambat.","Whoever holds a black shard is consumed by darkness. And each day, the dawn comes a little later.","黒い欠片を手にした者は闇に呑まれます。そして日ごとに、夜明けは少しずつ遅くなっているのです。"],
+ ['lumi','n',"Yang Mulia, izinkan saya ikut. Lentera kuil saya bisa menuntun jalan di tempat paling gelap.","Your Majesty, please let me go with them. My temple lantern can light the way through the darkest places.","陛下、私もお供させてください。神殿のランタンなら、どんな暗闇でも道を照らせます。"],
+ ['ratu','n',"Lumi, akolit kuil. Baiklah. Kapten, pecahan berikutnya ada di Gua Kristal. Para penambang di sana menghilang.","Lumi, acolyte of the temple. Very well. Captain, the next shard lies in the Crystal Cave. The miners there have vanished.","神殿の侍祭、ルミですね。よろしい。キャプテン、次の欠片は水晶洞窟にあります。そこの鉱夫たちが消えたのです。"],
+ ['n','',"Saat Lumi melangkah mendekat, nyala lenteranya tiba-tiba membesar dan condong ke arahmu — seperti bunga yang menghadap matahari.","As Lumi steps closer, her lantern's flame suddenly swells and leans toward you — like a flower turning to the sun.","ルミが近づくと、ランタンの炎が急に大きくなり、あなたの方へ傾いた。まるで太陽を向く花のように。"],
+ ['lumi','k',"Eh? Lenteraku... tidak pernah begini sebelumnya.","Eh? My lantern... has never done this before.","え？私のランタン…こんなこと、今まで一度も…。"],
+ ['pia','n',"Mungkin lenteranya suka Kapten! Pia juga suka Kapten!","Maybe the lantern likes the Captain! Pia likes the Captain too!","ランタンもキャプテンが好きなのかも！ピアもキャプテンが好きです！"]]},
+{id:'c2b',ch:0,at:'2-3',when:'post',bg:'cave',t:["Perisai di Bawah Longsoran","A Shield Under the Landslide","崩落を支える盾"],L:[
+ {fx:'shake'},
+ ['n','',"Di Danau Bawah Tanah, langit-langit gua runtuh — dan seorang gadis berzirah menahan longsoran dengan perisainya.","At the Underground Lake, the cave ceiling collapses — and an armored girl holds back the landslide with her shield.","地底湖で洞窟の天井が崩れ落ちた。鎧の少女が、その崩落を盾一枚で支えている。"],
+ ['bruna','a',"...Jangan berdiri di situ. Lewat. Cepat.","...Don't just stand there. Go through. Now.","…突っ立ってないで。通れ。早く。"],
+ ['rin','k',"Dia menahan batu sebesar rumah sendirian?!","She's holding up a rock the size of a house by herself?!","家みたいな岩を一人で支えてる！？"],
+ ['n','',"Begitu semua lewat, gadis itu melepas perisainya. Batu-batu berdebum di belakang mereka.","Once everyone is through, the girl lets go. Boulders crash down behind them.","全員が通り抜けると、少女は盾を下ろした。背後で岩が轟音を立てて落ちる。"],
+ ['bruna','n',"Bruna. Anak penambang. Ayahku terjebak di dasar gua bersama yang lain.","Bruna. Miner's daughter. My father's trapped at the bottom of the cave with the others.","ブルーナ。鉱夫の娘。父さんが、みんなと一緒に洞窟の底に閉じ込められてる。"],
+ ['bruna','d',"Ada slime kristal raksasa di sana. Ia menelan sesuatu yang bersinar hitam... dan sejak itu tak ada yang kembali.","There's a giant crystal slime down there. It swallowed something that glowed black... and no one has come back since.","下に巨大なクリスタルスライムがいる。黒く光る何かを飲み込んで…それから誰も戻ってこない。"],
+ ['lumi','n',"Kami akan menolong mereka. Lenteraku akan menunjukkan jalan.","We'll save them. My lantern will show us the way.","私たちが助けます。ランタンが道を示してくれます。"],
+ ['bruna','n',"...Kalau begitu, aku di depan. Perisaiku lebih tebal dari punya siapa pun di sini.","...Then I take the front. My shield's thicker than anyone's here.","…なら、あたしが前。ここにいる誰の盾より、あたしのが分厚い。"],
+ ['pia','k',"Perisai Pia juga tebal! ...Sedikit.","Pia's shield is thick too! ...A little.","ピアの盾だって分厚いです！…ちょっとだけ。"]]},
+{id:'c2c',ch:0,at:'2-5',when:'post',bg:'cave',t:["Mata di Balik Kristal","Eyes Behind the Crystal","水晶の向こうの瞳"],L:[
+ ['n','',"Slime raksasa pecah menjadi ribuan tetes kristal. Dari tengahnya, para penambang terbebas — pucat, tapi selamat.","The giant slime bursts into a thousand crystal drops. From within, the miners tumble free — pale, but alive.","巨大スライムが無数の水晶の雫となって弾けた。その中から鉱夫たちが解き放たれる。青ざめているが、無事だ。"],
+ ['bruna','d',"Ayah...!","Dad...!","父さん…！"],
+ ['bruna','n',"...Terima kasih, Kapten. Mulai sekarang, perisai ini milikmu.","...Thank you, Captain. From now on, this shield is yours.","…ありがとう、キャプテン。この盾は、今日からあんたのものだ。"],
+ ['n','',"Pecahan bintang kedua masuk ke kompas. Kali ini ingatan yang datang lebih jelas: tangan tua yang memutar sebuah kunci kecil.","The second star shard enters the compass. This time the memory is clearer: an old hand turning a small key.","二つ目の星の欠片がコンパスに吸い込まれる。今度の記憶はもっと鮮明だった。小さな鍵を回す、年老いた手。"],
+ ['lumi','k',"Kapten? Wajahmu pucat...","Captain? You've gone pale...","キャプテン？顔が真っ青です…。"],
+ ['n','',"Di balik kilau kristal, sesosok berkerudung memperhatikan dari kejauhan.","Beyond the glittering crystals, a hooded figure watches from afar.","水晶のきらめきの向こうで、フードの人影が遠くから見つめていた。"],
+ ['herald','n',"Dua pecahan. Kau bangun lebih cepat dari dugaanku.","Two shards. You're waking faster than I expected.","二つ目か。思ったより目覚めが早いな。"],
+ ['mira','a',"Siapa di sana?!","Who's there?!","誰だ！？"],
+ ['n','',"Tapi saat Mira membidik, sosok itu sudah lenyap — hanya menyisakan bau besi dan debu bintang.","But by the time Mira takes aim, the figure is gone — leaving only the smell of iron and stardust.","ミラが狙いを定めた時には、人影は消えていた。鉄と星屑の匂いだけを残して。"]]},
+// ================= BAB I · DUNIA 3 =================
+{id:'c3a',ch:0,at:'3-1',when:'pre',bg:'dusk',t:["Bayangan yang Berbeda","A Different Shadow","違う影"],L:[
+ ['n','',"Benteng Senja berdiri di ujung dunia yang selalu sore. Dari sanalah kegelapan merembes ke seluruh Aster.","The Twilight Fortress stands at the edge of a world where it is always evening. From there, darkness seeps across Aster.","黄昏の砦は、いつまでも夕暮れが続く世界の果てに建っている。闇はそこからアスター中へ染み出していた。"],
+ ['vela','n',"Kalian datang. Bayangan bulan sudah memberitahuku.","You've come. The moon's shadow told me you would.","来たのね。月の影が教えてくれたわ。"],
+ ['noa','k',"V-Vela?! Penyihir bulan yang tak pernah keluar dari menaranya?!","V-Vela?! The moon witch who never leaves her tower?!","ヴェ、ヴェラさん！？塔から一歩も出ないっていう月の魔女の！？"],
+ ['vela','n',"Aku keluar kalau perlu. Benteng ini dijaga Ksatria Kegelapan. Kalian butuh seseorang yang bisa membaca langkahnya.","I leave when I must. This fortress is guarded by the Knight of Darkness. You'll need someone who can read his moves.","必要なら出るわ。この砦は闇の騎士が守っている。彼の動きを読める者が必要でしょう。"],
+ ['vela','n',"...Dan aku ingin melihat sendiri pemegang kompas itu.","...And I wanted to see the compass bearer for myself.","…それに、コンパスの持ち主をこの目で見たかったの。"],
+ ['n','',"Vela menatapmu lama. Lalu menatap tanah di bawah kakimu.","Vela studies you for a long moment. Then she looks at the ground beneath your feet.","ヴェラはあなたを長いこと見つめ、それから足元の地面に目を落とした。"],
+ ['vela','k',"Bayanganmu... tidak jatuh seperti bayangan orang lain, Kapten.","Your shadow... doesn't fall like other people's, Captain.","あなたの影…他の人と同じ落ち方をしていないわ、キャプテン。"],
+ ['vela','n',"Lupakan. Kadang bulan suka bercanda.","Forget it. Sometimes the moon likes to joke.","忘れて。月はときどき冗談を言うの。"],
+ ['kuro','n',"Aku akan menyusup duluan. Kali ini aku tidak akan tersangkut.","I'll infiltrate first. This time I won't get stuck.","先に潜入する。今度は引っかからない。"]]},
+{id:'c3b',ch:0,at:'3-4',when:'post',bg:'dusk',t:["Bintang Kecil","Little Star","小さな星"],L:[
+ ['kuro','d',"...Aku tersangkut.","...I got stuck.","…引っかかった。"],
+ ['rin','k',"Di mana?!","Where?!","どこに！？"],
+ ['kuro','n',"Di jendela. Tapi aku sempat melihat aula. Ksatria Kegelapan duduk di takhta — dan seseorang berkerudung berbicara padanya.","In a window. But I got a look at the hall. The Knight of Darkness sits on the throne — and a hooded figure was talking to him.","窓にだ。だが広間は見えた。闇の騎士が玉座に座り、フードの人物が話しかけていた。"],
+ ['kuro','n',"Ia bilang: “Jaga pecahan ini sampai bintang kecil itu datang sendiri.”","It said: “Guard this shard until the little star comes on its own.”","そいつはこう言った。「小さな星が自ら来るまで、この欠片を守れ」と。"],
+ ['mira','a',"Bintang kecil. Itu lagi.","Little star. That again.","小さな星。またそれか。"],
+ ['vela','d',"Bulan tidak bercanda kali ini, Kapten. Semua jalan menuju dirimu.","The moon isn't joking this time, Captain. Every road leads to you.","今度は月も冗談じゃないわ、キャプテン。すべての道があなたに続いている。"],
+ ['pia','a',"Kalau begitu Pia akan berdiri di depan Kapten! Siapa pun yang mau lewat harus melewati Pia dulu!","Then Pia will stand in front of the Captain! Anyone who wants through has to get past Pia first!","ならピアがキャプテンの前に立ちます！通りたい人は、まずピアを越えてからです！"],
+ ['bruna','n',"...Dan aku di sebelah Pia.","...And I'll be next to Pia.","…あたしはピアの隣だ。"]]},
+{id:'c3c',ch:0,at:'3-5',when:'post',bg:'dusk',t:["Zirah yang Melarikan Diri","The Fleeing Armor","逃げ去る鎧"],L:[
+ ['n','',"Pedang Ksatria Kegelapan patah. Ia jatuh berlutut — tanpa darah, tanpa suara. Hanya asap hitam yang mengepul dari celah zirahnya.","The Knight of Darkness's sword snaps. He falls to one knee — no blood, no sound. Only black smoke seeping from the gaps in his armor.","闇の騎士の剣が折れた。膝をつくが、血も声もない。鎧の隙間から黒い煙が立ちのぼるだけだ。"],
+ ['herald','-',"Cukup. Dia masih kubutuhkan.","Enough. I still need him.","そこまでだ。そいつにはまだ用がある。"],
+ {fx:'flash'},
+ ['n','',"Kabut hitam menggulung zirah itu, lalu lenyap ke arah utara — ke puncak tertinggi Aster.","Black mist engulfs the armor, then vanishes north — toward Aster's highest peak.","黒い霧が鎧を包み込み、北へと消えた。アスターで最も高い頂へ。"],
+ ['herald','-',"Sampai jumpa di Puncak, Kapten. Bawa sisa cahayamu.","Until we meet at the Summit, Captain. Bring the rest of your light.","頂で会おう、キャプテン。残りの光を持ってこい。"],
+ ['noa','d',"Dia membawa pecahan bintangnya juga... kita gagal?","He took the star shard too... did we fail?","星の欠片まで持っていかれた…私たち、失敗したんですか？"],
+ ['mira','n',"Tidak. Kita tahu ke mana ia pergi. Itu bukan kegagalan.","No. We know where he went. That's not failure.","いいや。行き先は分かってる。失敗じゃない。"],
+ ['rin','a',"Betul! Kita kejar sampai ke ujung dunia!","Right! We'll chase him to the ends of the earth!","そうだよ！世界の果てまで追いかけてやる！"],
+ ['vela','n',"Ke utara... melewati Lembah Badai. Bersiaplah untuk basah.","North... through Storm Valley. Prepare to get wet.","北へ…嵐の谷を越えて。濡れる覚悟をしておいて。"]]},
+// ================= BAB I · DUNIA 4 =================
+{id:'c4a',ch:0,at:'4-1',when:'pre',bg:'storm',t:["Serigala dan Phoenix","Wolf and Phoenix","狼と不死鳥"],L:[
+ ['n','',"Lembah Badai. Hujan turun miring, petir menyambar tebing — dan di tengahnya, dua orang sedang bertengkar.","Storm Valley. Rain falls sideways, lightning strikes the cliffs — and in the middle of it all, two people are arguing.","嵐の谷。雨は横殴りに降り、雷が崖を打つ。その真ん中で、二人が言い争っていた。"],
+ ['aurelia','a',"Minggir, serigala! Slime itu menelan Inti Api Phoenix milik klanku. Aku yang akan memanahnya!","Out of my way, wolf! That slime swallowed my clan's Phoenix Fire Core. I'm the one who'll shoot it down!","どきなさい、狼！あのスライムは私の一族の不死鳥の炎核を飲み込んだのよ。射抜くのは私！"],
+ ['hilde','n',"Hahaha! Slime-nya besar, panahmu kecil! Biar kapakku yang membelahnya!","Hahaha! The slime is big, your arrows are small! Let my axe split it in two!","ハハハ！スライムはでかい、お前の矢は小さい！あたしの斧で真っ二つにしてやる！"],
+ ['rin','k',"K-kapak sebesar itu...! Keren sekali!!","A-an axe that big...! That's so cool!!","あ、あんなでっかい斧…！かっこいい！！"],
+ ['hilde','n',"Hoo? Kau juga pemakai kapak, bocah? Bagus! Aku Hilde, dari suku serigala utara. Kapakmu boleh juga!","Ooh? You swing an axe too, kid? Good! I'm Hilde, of the northern wolf tribe. Not a bad axe you've got!","ほう？お前も斧使いか、ちびっこ？いいぞ！あたしはヒルデ、北の狼の一族だ。いい斧じゃないか！"],
+ ['aurelia','a',"Jangan mengobrol! ...Dan kalian siapa? Kenapa membawa rombongan sebanyak ini ke tempatku?","Stop chatting! ...And who are you? Why bring such a crowd to my hunting ground?","おしゃべりしないで！…それで、あなたたちは誰？どうしてこんな大人数で私の狩り場に来たの？"],
+ ['mira','n',"Kami mengejar pecahan bintang. Sepertinya tujuan kita sama.","We're chasing a star shard. Looks like we want the same thing.","星の欠片を追ってる。目的は同じみたいだね。"],
+ ['aurelia','n',"Hmph. Baiklah. Tapi tembakan terakhir milikku.","Hmph. Fine. But the final shot is mine.","ふん。いいわ。でも、とどめは私のものよ。"],
+ ['hilde','n',"Hahaha! Yang memukul terakhir dapat daging paling besar!","Hahaha! Whoever lands the last hit gets the biggest piece of meat!","ハハハ！最後に殴った奴が一番でかい肉をもらえるんだ！"]]},
+{id:'c4b',ch:0,at:'4-5',when:'post',bg:'storm',t:["Api yang Tak Padam","The Undying Flame","消えない炎"],L:[
+ ['n','',"Slime badai meledak. Dari perutnya, sebutir inti api melayang — dan menyala seperti matahari kecil.","The storm slime bursts. From its belly, a fire core floats up — blazing like a tiny sun.","嵐のスライムが弾け飛んだ。その腹から炎の核が浮かび上がり、小さな太陽のように燃え上がる。"],
+ ['aurelia','k',"Inti Api Phoenix... kembali...","The Phoenix Fire Core... it's back...","不死鳥の炎核…戻ってきた…。"],
+ ['aurelia','n',"Klanku pernah habis terbakar dan bangkit lagi dari abu. Selama api ini menyala, kami tidak akan padam.","My clan once burned to ashes and rose again. As long as this flame burns, we will never go out.","私の一族は一度灰になって、そこから蘇ったの。この炎が燃える限り、私たちは消えない。"],
+ ['aurelia','n',"...Terima kasih, Kapten. Ka-karena kau membantu, aku akan ikut sebentar. Hanya sebentar!","...Thank you, Captain. S-since you helped, I'll tag along for a while. Just a while!","…ありがとう、キャプテン。て、手伝ってくれたから、少しだけついていってあげる。少しだけよ！"],
+ ['hilde','n',"Hahaha! Dia malu! Aku juga ikut! Perjalanan kalian bau petualangan besar!","Hahaha! She's embarrassed! I'm coming too! Your journey smells like a big adventure!","ハハハ！照れてやがる！あたしも行くぞ！お前たちの旅は大冒険の匂いがする！"],
+ ['n','',"Badai mereda. Di utara, Puncak Aster tampak menembus awan — dan di puncaknya, cahaya fajar berkedip lemah, seperti lilin yang hampir padam.","The storm fades. To the north, Aster Summit pierces the clouds — and at its peak, the light of dawn flickers weakly, like a candle about to go out.","嵐が収まる。北にはアスターの頂が雲を突き抜け、その頂上では夜明けの光が消えかけた蝋燭のように弱々しく瞬いていた。"]]},
+// ================= BAB I · DUNIA 5 =================
+{id:'c5a',ch:0,at:'5-1',when:'pre',bg:'abbey',t:["Biara yang Hangus","The Burned Abbey","焼け落ちた修道院"],L:[
+ ['n','',"Di Gerbang Langit berdiri Biara Fajar — kini hangus dan sunyi. Di antara reruntuhan, seorang biarawati berdoa sendirian.","At the Sky Gate stands the Abbey of Dawn — now burned and silent. Among the ruins, a nun prays alone.","天空の門に建つ暁の修道院は、今は焼け落ちて静まり返っていた。瓦礫の中で、一人の修道女が祈っている。"],
+ ['celestine','d',"Mereka datang di malam hari. Ksatria tanpa wajah... dan merampas Mahkota Fajar dari altar kami.","They came in the night. A faceless knight... and took the Crown of Dawn from our altar.","夜に彼らは来ました。顔のない騎士が…祭壇から暁の冠を奪っていったのです。"],
+ ['celestine','n',"Mahkota itu menyimpan cahaya fajar pertama Aster. Kalau ia memakainya di puncak, fajar akan jadi miliknya.","That crown holds the first light of Aster's dawn. If he wears it at the summit, the dawn will be his.","あの冠にはアスター最初の夜明けの光が宿っています。頂でそれを戴けば、夜明けは彼のものになってしまう。"],
+ ['lumi','d',"Itu sebabnya matahari terbit makin lambat...","That's why the sun rises later and later...","だから、日が昇るのがどんどん遅くなって…。"],
+ ['celestine','n',"Namaku Celestine. Aku tidak pandai menyerang. Tapi perisaiku bisa memastikan semua orang pulang dengan selamat.","My name is Celestine. I'm no good at attacking. But my shield can make sure everyone comes home safe.","私はセレスティン。攻めるのは得意ではありません。でもこの盾で、皆さんを無事に帰すことはできます。"],
+ ['celestine','n',"Izinkan aku ikut, Kapten.","Please, let me come with you, Captain.","どうか同行させてください、キャプテン。"],
+ ['aurelia','n',"Hmph. Biarawati di garis depan? ...Asal jangan menangis nanti.","Hmph. A nun on the front line? ...Just don't cry later.","ふん。修道女が最前線？…あとで泣かないでよね。"],
+ ['celestine','n',"Fufu. Kalau aku menangis, itu karena kalian terluka. Jadi jangan terluka, ya.","Fufu. If I cry, it'll be because you got hurt. So don't get hurt, all right?","ふふ。私が泣くとしたら、皆さんが怪我をした時です。だから、怪我をしないでくださいね。"]]},
+{id:'c5b',ch:0,at:'5-5',when:'pre',bg:'summit',t:["Takhta di Atas Awan","Throne Above the Clouds","雲上の玉座"],L:[
+ ['n','',"Takhta Puncak. Ksatria Kegelapan berdiri di depan altar, Mahkota Fajar menyala di tangannya. Langit di atas mereka menghitam.","The Summit Throne. The Knight of Darkness stands before the altar, the Crown of Dawn blazing in his hand. The sky above turns black.","頂の玉座。闇の騎士が祭壇の前に立ち、その手で暁の冠が燃えている。頭上の空が黒く染まっていく。"],
+ ['dknight','n',"...Bintang... kecil... serahkan... cahayamu...","...Little... star... surrender... your light...","…小さな…星よ…その光を…渡せ…。"],
+ ['celestine','a',"Cahaya itu bukan milikmu. Kembalikan!","That light isn't yours. Give it back!","その光はあなたのものではありません。返しなさい！"],
+ ['hilde','n',"Hahaha! Akhirnya musuh yang besar! Ayo, Kapten!","Hahaha! A big enemy at last! Let's go, Captain!","ハハハ！ようやくでかい敵だ！行くぞ、キャプテン！"],
+ ['mira','a',"Semua, ikuti aba-aba Kapten. Ini pertarungan terakhir untuk fajar!","Everyone, follow the Captain's orders. This is the final battle for the dawn!","みんな、キャプテンの号令に続け。夜明けを懸けた最後の戦いだ！"]]},
+{id:'c5c',ch:0,at:'5-5',when:'post',bg:'summit',t:["Fajar yang Dipinjam","Borrowed Dawn","借り物の夜明け"],L:[
+ ['n','',"Zirah Ksatria Kegelapan pecah berkeping-keping. Di dalamnya... kosong. Tak pernah ada siapa pun di sana.","The Knight of Darkness's armor shatters to pieces. Inside... it's empty. There was never anyone there at all.","闇の騎士の鎧が粉々に砕け散った。その中は…空っぽだった。最初から誰もいなかったのだ。"],
+ ['kuro','k',"Kosong...?! Selama ini kita melawan zirah kosong?","Empty...?! We've been fighting an empty suit of armor this whole time?","空…！？俺たちはずっと、空の鎧と戦ってたのか？"],
+ ['n','',"Mahkota Fajar jatuh ke tangan Celestine. Ia mengangkatnya tinggi-tinggi — dan cahaya pertama menyembur dari puncak.","The Crown of Dawn falls into Celestine's hands. She raises it high — and the first light bursts from the summit.","暁の冠がセレスティンの手に落ちる。彼女がそれを高く掲げると、頂から最初の光があふれ出した。"],
+ {cg:'dawn'},{fx:'flash'},
+ ['celestine','-',"Lihat... fajar.","Look... the dawn.","見て…夜明けです。"],
+ ['lumi','-',"Hangat sekali...","It's so warm...","あったかい…。"],
+ ['rin','-',"Kita berhasil! Kapten, kita berhasil!!","We did it! Captain, we did it!!","やった！キャプテン、やったよ！！"],
+ {cg:null},
+ ['herald','-',"Selamat, Kapten. Kau sudah mengumpulkan cukup cahaya.","Congratulations, Captain. You've gathered enough light.","おめでとう、キャプテン。光は十分に集まった。"],
+ ['herald','-',"Fajar ini hanya pinjaman. Saat bulan berganti warna... kau akan mengerti siapa dirimu.","This dawn is only borrowed. When the moon changes color... you'll understand what you are.","この夜明けは借り物にすぎない。月の色が変わる時…お前は自分が何者か知るだろう。"],
+ ['vela','k',"Bulan...","The moon...","月…。"],
+ ['n','',"Malam itu seluruh Aster berpesta menyambut fajar yang kembali. Tapi tak ada yang memperhatikan bulan di atas Hutan Rembulan — yang perlahan berubah menjadi perak.","That night, all of Aster celebrated the returning dawn. But no one noticed the moon above the Moonlit Forest — slowly turning to silver.","その夜、アスター中が戻ってきた夜明けを祝った。だが、月光の森の上の月がゆっくりと銀色に変わっていくことに、誰も気づかなかった。"],
+ {fx:'end'},
+  ['n','',"BAB I: Fajar Aster\n— Selesai —","Chapter I: Dawn of Aster\n— The End —","第一章「アスターの夜明け」\n― 完 ―"]]},
+// ================= BAB II · DUNIA 6 =================
+{id:'c6a',ch:1,at:'6-1',when:'pre',bg:'moon',t:["Bulan yang Tertidur","The Sleeping Moon","眠る月"],L:[
+ ['n','',"BAB II — Kebangkitan.","CHAPTER II — Awakening.","第二章　覚醒"],
+ ['n','',"Sejak bulan berubah perak, Hutan Rembulan tak pernah lagi mengenal siang. Orang-orang yang masuk tertidur — dan tidak bangun lagi.","Since the moon turned silver, the Moonlit Forest has never seen daylight. Those who enter fall asleep — and never wake.","月が銀色に変わってから、月光の森には一度も昼が来ない。森に入った者は眠りに落ち、二度と目覚めなかった。"],
+ ['vela','d',"Bulan sedang tertidur. Mimpi buruknya menetes ke hutan ini.","The moon is asleep. Its nightmares are dripping into this forest.","月が眠っているの。その悪夢が、この森に滴り落ちている。"],
+ ['lilith','n',"Fufu~ Kalau begitu, ia butuh lagu pembangun yang paling merdu, bukan?","Fufu~ Then what it needs is the sweetest wake-up song, right?","ふふっ♪ だったら、とびきり素敵な目覚めの歌が必要よね？"],
+ ['noa','k',"S-siapa?! Muncul dari atas pohon?!","Wh-who's that?! From up in the tree?!","だ、誰！？木の上から！？"],
+ ['lilith','n',"Lilith, idola panggung bawah tanah. Konon suaraku bisa membangunkan bulan. Malam ini, aku mau membuktikannya!","Lilith, idol of the underground stage. They say my voice can wake the moon. Tonight, I'm going to prove it!","地下ステージのアイドル、リリスよ。私の声は月を起こせるって噂なの。今夜、それを証明してあげる！"],
+ ['vela','k',"L-Lilith... yang asli...","L-Lilith... the real one...","リ、リリス…本物…。"],
+ ['mira','n',"Vela? Wajahmu merah.","Vela? Your face is red.","ヴェラ？顔が赤いよ。"],
+ ['vela','k',"Bulan. Itu pantulan bulan.","The moon. It's the moonlight.","月よ。月明かりのせい。"],
+ ['lilith','n',"Kapten, kawal aku sampai ke Takhta Rembulan, ya? Kursi barisan terdepan untukmu~","Captain, escort me to the Moon Throne, okay? Front-row seat's yours~","キャプテン、月の玉座まで連れてってくれる？最前列の席はあなたのものよ～"]]},
+{id:'c6b',ch:1,at:'6-5',when:'post',bg:'moon',t:["Lagu untuk Bulan","A Song for the Moon","月への歌"],L:[
+ ['n','',"Ksatria Rembulan tumbang. Lilith naik ke altar, menarik napas — dan bernyanyi.","The Moon Knight falls. Lilith steps onto the altar, takes a breath — and sings.","月の騎士が倒れた。リリスは祭壇に上がり、息を吸い込み、そして歌った。"],
+ {cg:'moon'},
+ ['n','',"Suaranya naik ke langit. Bulan perak bergetar... lalu perlahan kembali ke warna emas yang hangat.","Her voice rises to the sky. The silver moon trembles... then slowly returns to a warm gold.","歌声が空へと昇っていく。銀の月が震え…ゆっくりと温かな金色に戻っていった。"],
+ ['vela','-',"...Indah sekali.","...It's beautiful.","…きれい。"],
+ {cg:null},
+ ['lilith','n',"Fufu~ Ternyata penonton nomor satuku malam ini kamu, Vela.","Fufu~ So my number one fan tonight was you, Vela.","ふふっ♪ 今夜の一番のファンは、あなただったのね、ヴェラ。"],
+ ['vela','k',"A-aku cuma kebetulan berdiri paling depan!","I-I just happened to be standing in front!","わ、私はたまたま一番前に立っていただけ！"],
+ ['n','',"Di dalam kompas, pecahan keenam berdenyut. Lalu terdengar dentang lonceng — jauh, sangat jauh, dari arah laut.","Inside the compass, the sixth shard pulses. Then comes the toll of a bell — far, far away, from the direction of the sea.","コンパスの中で六つ目の欠片が脈打つ。すると鐘の音が聞こえた。遠く、ずっと遠く、海の方から。"],
+ ['lumi','k',"Lonceng...? Tengah malam begini?","A bell...? At this hour?","鐘…？こんな真夜中に？"],
+ ['vela','d',"Bulan sudah bangun. Tapi sesuatu yang lain... ikut terbangun.","The moon has woken. But something else... has woken with it.","月は目覚めた。でも、何か別のものも…一緒に目覚めたわ。"]]},
+// ================= BAB II · DUNIA 7 =================
+{id:'c7a',ch:1,at:'7-1',when:'pre',bg:'harbor',t:["Lonceng dari Dasar Laut","Bells from the Deep","海底の鐘"],L:[
+ ['n','',"Pelabuhan Karang. Lonceng dari dasar laut berdentang setiap malam — dan setiap kali berdentang, satu kapal menghilang.","Coral Harbor. Bells toll from the bottom of the sea every night — and each time they ring, a ship disappears.","珊瑚の港。毎晩、海の底から鐘が鳴り響く。そして鳴るたびに、船が一隻消えていく。"],
+ ['nami','a',"Kota kuno itu naik dari laut seminggu lalu. Teman-teman pelautku semua ditarik ke sana!","That ancient city rose from the sea a week ago. All my sailor friends got pulled down into it!","あの古代都市が一週間前に海から浮かび上がったの。船乗りの仲間がみんな引きずり込まれちゃった！"],
+ ['nami','n',"Aku Nami, pemanah Pelabuhan Karang! Kapten, pinjam kekuatanmu, ya!","I'm Nami, archer of Coral Harbor! Captain, lend me your strength!","あたしはナミ、珊瑚の港の弓使い！キャプテン、力を貸してっ！"],
+ ['marisa','d',"Lonceng-lonceng itu... memanggil darahku. Setiap dentangnya terasa seperti seseorang memanggil namaku.","Those bells... are calling to my blood. Every toll feels like someone calling my name.","あの鐘…私の血を呼んでいるの。鳴るたびに、誰かに名前を呼ばれているみたい。"],
+ ['celestine','n',"Marisa, kau berdarah naga laut, bukan? Mungkin kota itu mengenalmu.","Marisa, you carry sea dragon blood, don't you? Perhaps that city knows you.","マリサさん、あなたには海竜の血が流れているのでしたね。あの都市はあなたを知っているのかもしれません。"],
+ ['marisa','n',"Kalau begitu aku harus pergi. Aku belajar menyembuhkan supaya tak ada lagi yang menangis. Termasuk para pelaut itu.","Then I have to go. I learned to heal so no one would have to cry anymore. That includes those sailors.","なら、行かなくちゃ。もう誰も泣かなくていいように、私は癒しを学んだの。あの船乗りさんたちも、ね。"],
+ ['hilde','n',"Hahaha! Kota di bawah laut! Ada ikan raksasa yang bisa dipanggang di sana?","Hahaha! A city under the sea! Any giant fish down there I can roast?","ハハハ！海の底の都市か！焼いて食えるでかい魚はいるのか？"],
+ ['aurelia','a',"Bisakah kau memikirkan hal selain makanan sekali saja?!","Can you think about anything besides food, just once?!","一度くらい食べ物以外のことを考えられないの！？"]]},
+{id:'c7b',ch:1,at:'7-3',when:'post',bg:'bell',t:["Gadis yang Menunggu Kunci","The Girl Who Waited for a Key","ねじを待つ少女"],L:[
+ ['n','',"Di puncak Menara Lonceng Laut, di antara roda gigi berkarat, duduk seorang gadis boneka. Diam, seolah sedang menunggu.","At the top of the Sea Bell Tower, among rusted gears, sits a doll girl. Motionless, as if waiting.","海鐘の塔の頂上、錆びた歯車の間に、人形の少女が座っていた。じっと、何かを待つように。"],
+ ['noa','k',"Boneka mekanik...? Ada kunci besar di punggungnya!","A clockwork doll...? There's a big key on her back!","機械人形…？背中に大きなねじが付いてます！"],
+ ['n','',"Kompas berdenyut. Tanpa sadar, tanganmu meraih kunci itu dan memutarnya.","The compass pulses. Without thinking, your hand reaches for the key and turns it.","コンパスが脈打つ。気づけばあなたの手はねじに伸び、それを巻いていた。"],
+ {cg:'wind'},
+ ['coppelia','-',"...Kunci telah diputar. Sistem aktif.","...Key wound. Systems active.","…ねじの巻き上げを確認。システム起動。"],
+ {cg:null},
+ ['coppelia','k',"Kompas itu. Itu buatan Tuanku — Maestro Orloj, Pembuat Jam Istana.","That compass. It was made by my master — Maestro Orloj, the Royal Clockmaker.","そのコンパス。私の主、宮廷時計師オルロイ師が作ったものです。"],
+ ['coppelia','n',"Tuanku membangun menara ini untuk menyegel sesuatu di palung. Lalu beliau pergi ke langit untuk “memperbaiki waktu”. Beliau tidak pernah kembali.","My master built this tower to seal something in the trench. Then he went up into the sky to “repair time.” He never returned.","主はこの塔を建て、海溝の何かを封じました。そして「時を直す」と言って空へ向かい、二度と戻りませんでした。"],
+ ['coppelia','n',"Saya Coppelia. Perintah terakhir Tuanku: “Tunggu sampai kompas itu kembali, lalu ikuti pemegangnya.”","I am Coppelia. My master's final order: “Wait until the compass returns, then follow its bearer.”","私はコッペリア。主の最後の命令は「コンパスが戻るまで待ち、その持ち主に従え」。"],
+ ['coppelia','n',"Mohon bimbingannya, Kapten.","I look forward to serving you, Captain.","よろしくお願いいたします、キャプテン。"],
+ ['lilith','n',"Fufu~ Boneka yang sopan. Aku suka kostummu!","Fufu~ What a polite doll. I love your outfit!","ふふっ♪ 礼儀正しいお人形さん。その衣装、好きよ！"]]},
+{id:'c7c',ch:1,at:'7-5',when:'post',bg:'deep',t:["Retakan di Langit","A Crack in the Sky","空の裂け目"],L:[
+ ['n','',"Slime Samudra Purba tenggelam kembali ke palung. Lonceng-lonceng berhenti — dan satu per satu, kapal-kapal yang hilang muncul ke permukaan.","The Primordial Sea Slime sinks back into the trench. The bells fall silent — and one by one, the lost ships rise to the surface.","太古の海スライムは海溝へと沈んでいった。鐘が鳴り止み、消えた船が一隻、また一隻と浮かび上がってくる。"],
+ ['nami','n',"Mereka kembali! Semuanya kembali! Kapten, kau yang terbaik!!","They're back! They're all back! Captain, you're the best!!","戻ってきた！みんな戻ってきたよ！キャプテン、最高っ！！"],
+ ['marisa','n',"Loncengnya sudah diam... Aku tak mendengar panggilan itu lagi. Terima kasih, Kapten.","The bells are quiet now... I can't hear that call anymore. Thank you, Captain.","鐘が止んだ…もうあの呼び声は聞こえない。ありがとう、キャプテン。"],
+ ['coppelia','n',"Laporan: segel palung pulih seratus persen. Namun data menunjukkan Tuanku menyalurkan energi menara ini... ke langit.","Report: the trench seal is fully restored. However, data shows my master was channeling this tower's energy... into the sky.","報告。海溝の封印、百パーセント回復。ですが、主はこの塔のエネルギーを…空へ送っていた記録があります。"],
+ ['n','',"Coppelia menunjuk ke atas. Di langit malam ada retakan — tipis, panjang, seperti kaca yang dipukul dari sisi lain.","Coppelia points upward. There's a crack in the night sky — thin and long, like glass struck from the other side.","コッペリアが上を指さす。夜空に裂け目があった。細く長い、向こう側から叩かれたガラスのようなひび。"],
+ ['vela','d',"Retakan Langit. Di baliknya... bintang-bintang menghilang satu per satu.","The Sky Rift. Beyond it... the stars are vanishing one by one.","空の裂け目。その向こうで…星が一つずつ消えている。"],
+ ['coppelia','d',"Tuanku ada di sana. Saya bisa merasakannya.","My master is there. I can feel it.","主はあそこにいます。感じるのです。"],
+ ['mira','a',"Kalau begitu, ke sanalah kita pergi.","Then that's where we're going.","なら、行き先は決まりだね。"]]},
+// ================= BAB II · DUNIA 8 =================
+{id:'c8a',ch:1,at:'8-1',when:'pre',bg:'void',t:["Rumah Kehampaan","Home of the Void","虚無の家"],L:[
+ ['n','',"Retakan Langit. Di baliknya terbentang Kehampaan — jembatan bintang mati melayang di atas kegelapan tanpa dasar.","The Sky Rift. Beyond it stretches the Void — bridges of dead stars floating over a bottomless dark.","空の裂け目。その向こうには虚無が広がっていた。死んだ星の橋が、底なしの闇の上に浮かんでいる。"],
+ ['noa','d',"T-tidak ada atas, tidak ada bawah... aku pusing.","Th-there's no up, no down... I'm dizzy.","う、上も下もない…目が回ります…。"],
+ ['lumi','n',"Pegang tanganku, Noa. Lenteraku masih menyala.","Hold my hand, Noa. My lantern is still burning.","ノアちゃん、私の手を握って。ランタンはまだ灯っています。"],
+ ['n','',"Lentera Lumi menyala lebih terang dari sebelumnya — dan kompas di tanganmu berdenyut seirama dengannya.","Lumi's lantern burns brighter than ever — and the compass in your hand pulses in time with it.","ルミのランタンがこれまでになく明るく燃え、あなたの手の中のコンパスがそれに合わせて脈打った。"],
+ ['herald','-',"Selamat datang di rumahku, Kapten. Akhirnya kau datang sendiri.","Welcome to my home, Captain. You've finally come on your own.","我が家へようこそ、キャプテン。ついに自ら来たな。"],
+ ['pia','a',"Kapten tidak datang sendiri! Ada Pia! Ada semua orang!","The Captain didn't come alone! Pia is here! Everyone is here!","キャプテンは一人じゃありません！ピアがいます！みんながいます！"],
+ ['hilde','n',"Hahaha! Si kecil ini benar! Ayo maju!","Hahaha! The little one's right! Forward!","ハハハ！ちびの言う通りだ！進め！"]]},
+{id:'c8b',ch:1,at:'8-5',when:'pre',bg:'void',t:["Raja Kehampaan","King of the Void","虚無の王"],L:[
+ ['n','',"Di singgasana yang melayang di tengah kehampaan duduk sosok bermahkota, berjubah sehitam langit tanpa bintang.","Upon a throne floating in the void sits a crowned figure, robed as black as a starless sky.","虚無に浮かぶ玉座に、星のない空のように黒い衣をまとった王冠の人物が座していた。"],
+ ['voidking','n',"Delapan pecahan. Kau mengumpulkan semuanya untukku, Kapten. Terima kasih.","Eight shards. You gathered every one of them for me, Captain. Thank you.","八つの欠片。すべて私のために集めてくれたな、キャプテン。礼を言おう。"],
+ ['voidking','n',"Kehampaan ini lapar. Ia sudah menelan seribu bintang — dan tinggal satu yang tersisa.","This Void hungers. It has devoured a thousand stars — and only one remains.","この虚無は飢えている。千の星を喰らい、残るはただ一つ。"],
+ ['coppelia','k',"Suara itu... tidak mungkin...","That voice... it can't be...","その声…まさか…。"],
+ ['voidking','n',"Serahkan dirimu, bintang kecil. Maka dunia kalian boleh tetap memiliki fajar.","Surrender yourself, little star. Then your world may keep its dawn.","身を差し出せ、小さな星よ。そうすれば、お前たちの世界に夜明けを残してやろう。"],
+ ['celestine','a',"Kami tidak menukar teman dengan fajar.","We do not trade a friend for the dawn.","私たちは、仲間と夜明けを引き換えにはしません。"],
+ ['mira','a',"Kapten. Beri aba-aba.","Captain. Give the order.","キャプテン。号令を。"]]},
+{id:'c8c',ch:1,at:'8-5',when:'post',bg:'void',t:["Jantung Bintang","Heart of the Star","星の心臓"],L:[
+ ['n','',"Mahkota Raja Kehampaan pecah. Kabut hitam terlepas dari tubuhnya — dan yang tersisa hanyalah seorang lelaki tua berjubah pembuat jam.","The King of the Void's crown shatters. Black mist peels away from him — and all that remains is an old man in a clockmaker's robe.","虚無の王の王冠が砕けた。黒い霧が剥がれ落ち、残ったのは時計師の衣をまとった一人の老人だった。"],
+ ['coppelia','k',"Tuan...! Maestro Orloj!","Master...! Maestro Orloj!","主…！オルロイ師！"],
+ ['orloj','n',"Coppelia... kau masih menunggu, ya. Maafkan aku... aku terlalu lama tersesat.","Coppelia... you were still waiting, weren't you. Forgive me... I was lost for far too long.","コッペリア…まだ待っておったのか。すまん…わしは長く迷いすぎた。"],
+ ['orloj','n',"Kapten. Dengarkan baik-baik. Kau tidak kehilangan ingatan... karena kau memang tak pernah punya masa lalu.","Captain. Listen carefully. You didn't lose your memories... because you never had a past to begin with.","キャプテン、よく聞くのじゃ。お前は記憶を失ったのではない…最初から過去など持っておらんのじゃ。"],
+ ['orloj','n',"Tiga tahun lalu, Kehampaan datang untuk menelan Bintang Aster. Aku memecahnya... dan menyembunyikan jantungnya dalam wujud manusia.","Three years ago, the Void came to devour the Aster Star. I shattered it... and hid its heart within a human form.","三年前、虚無がアスターの星を喰らいに来た。わしは星を砕き…その心臓を人の姿に隠したのじゃ。"],
+ ['orloj','n',"Kau, Kapten... adalah jantung Bintang Aster.","You, Captain... are the heart of the Aster Star.","キャプテン、お前こそが…アスターの星の心臓なのじゃ。"],
+ {fx:'flash'},
+ ['noa','k',"Kapten... adalah bintangnya?!","The Captain... IS the star?!","キャプテンが…星そのもの！？"],
+ ['vela','k',"Itu sebabnya bayanganmu... berbeda.","That's why your shadow... was different.","だから、あなたの影は…違っていたのね。"],
+ {fx:'shake'},
+ ['n','',"Sebelum ada yang sempat bicara, kehampaan di belakang singgasana terbelah — dan sebuah mata raksasa terbuka di kegelapan.","Before anyone can speak, the void behind the throne splits open — and a colossal eye opens in the darkness.","誰かが口を開くより早く、玉座の背後の虚無が裂けた。暗闇の中で、巨大な瞳が開く。"],
+ {cg:'eye'},
+ ['eye','-',"Akhirnya... bintang terakhir.","At last... the final star.","ついに…最後の星を。"],
+ ['orloj','-',"Lari, Kapten! Itulah dia — penguasa Kehampaan yang sebenarnya—!","Run, Captain! That's it — the true ruler of the Void—!","逃げるのじゃ、キャプテン！あれこそ虚無の真の支配者――！"],
+ ['n','',"Kegelapan menyambar Maestro Orloj dan menariknya ke dalam mata itu.","The darkness seizes Maestro Orloj and drags him into the eye.","闇がオルロイ師を捕らえ、瞳の中へと引きずり込んだ。"],
+ ['coppelia','-',"TUAN!!","MASTER!!","主ーーっ！！"],
+ {fx:'end'},
+ ['n','',"BAB II: Kebangkitan\n— Bersambung —","Chapter II: Awakening\n— To Be Continued —","第二章「覚醒」\n― つづく ―"]]}
+];
+const STD={};STORY.forEach(s=>STD[s.id]=s);

@@ -49,6 +49,8 @@ const HERO_LV_BY_ACC=lv=>lv*2+10;
 
 // Stamina
 const STAM_MAX=60,STAM_MS=120000;          // +1 stamina tiap 2 menit
+// Isi ulang stamina dengan permata: maks STAM_REFILL.max kali per hari, harga naik tiap kali (reset tengah malam)
+const STAM_REFILL={give:60,max:5,cost:[100,150,200,300,400]};
 
 // Stat hero
 const RAR=[0,1,1.35,1.75];                 // pengali stat per bintang

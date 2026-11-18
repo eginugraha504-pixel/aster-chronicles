@@ -48,7 +48,21 @@ ici={f[:-5]:'data:image/webp;base64,'+base64.b64encode(open(os.path.join(ICD,f),
 # latar ilustrasi (src/img/bg/*.webp: w_<art> battle, m_<art> peta, key = key art judul) -> BGIMG_SRC
 BGD=os.path.join(SRC,'img','bg')
 bgi={f[:-5]:'data:image/webp;base64,'+base64.b64encode(open(os.path.join(BGD,f),'rb').read()).decode() for f in sorted(os.listdir(BGD)) if f.endswith('.webp')} if os.path.isdir(BGD) else {}
-jsb="<script>\n'use strict';\nconst SPLASH_SRC="+json.dumps(spl)+";\nconst BGIMG_SRC="+json.dumps(bgi)+";\nconst ICONIMG_SRC="+json.dumps(ici)+";\nconst SPRITE_SRC="+json.dumps(sps)+";\nconst VOICE_SRC="+json.dumps(vox)+";\nconst RIG_SRC="+json.dumps(rig)+";\nconst MUSIC_SRC="+json.dumps(mus)+";\n"+'\n'.join(f'/* ==== {p} ==== */\n'+read(p) for p in js)+'</script>'
+# aset CERITA (src/story/{bg,cg,ex,npc,v}/*) TIDAK ditanam: disalin ke dist/story/ dan dimuat saat dibutuhkan (lihat js/ui/story.js).
+# STORY_ASSET = daftar file yang ada + geometri patch ekspresi (art_src/story/ex_geo.json) + ukuran gambar NPC.
+STD_=os.path.join(SRC,'story');sta={'f':[],'ex':{},'npc':{}}
+if os.path.isdir(STD_):
+    dst=os.path.join(ROOT,'dist','story')
+    if os.path.isdir(dst):_sh.rmtree(dst)
+    _sh.copytree(STD_,dst)
+    for dp,dn,fn in os.walk(STD_):
+        for f in fn:sta['f'].append(os.path.relpath(os.path.join(dp,f),STD_).replace(os.sep,'/').rsplit('.',1)[0])
+    sta['f'].sort()
+    gp=os.path.join(ROOT,'art_src','story','ex_geo.json')
+    if os.path.exists(gp):sta['ex']={k:v for k,v in json.load(open(gp)).items() if 'ex/'+k in sta['f']}
+    npp=os.path.join(ROOT,'art_src','story','npc_geo.json')
+    if os.path.exists(npp):sta['npc']=json.load(open(npp))
+jsb="<script>\n'use strict';\nconst SPLASH_SRC="+json.dumps(spl)+";\nconst BGIMG_SRC="+json.dumps(bgi)+";\nconst ICONIMG_SRC="+json.dumps(ici)+";\nconst SPRITE_SRC="+json.dumps(sps)+";\nconst VOICE_SRC="+json.dumps(vox)+";\nconst RIG_SRC="+json.dumps(rig)+";\nconst MUSIC_SRC="+json.dumps(mus)+";\nconst STORY_ASSET="+json.dumps(sta,separators=(',',':'))+";\n"+'\n'.join(f'/* ==== {p} ==== */\n'+read(p) for p in js)+'</script>'
 # logo studio (src/img/studio/logo.webp) ditanam langsung di HTML agar splash studio tampil sebelum script besar selesai dimuat
 STL=os.path.join(SRC,'img','studio','logo.webp')
 stlogo='data:image/webp;base64,'+base64.b64encode(open(STL,'rb').read()).decode() if os.path.exists(STL) else ''

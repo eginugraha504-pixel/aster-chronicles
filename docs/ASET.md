@@ -172,3 +172,11 @@ Dipilih sendiri (Egi: "kamu directornya") untuk melengkapi 6 hero ★3 standar d
 - Ikon `w_rodagigi` (Pedang Roda Gigi): kunci latar hijau yang lebih ketat (`/home/claude/gen/h4/icon2.py`) supaya inti teal pedang tidak ikut terhapus.
 - Suara: Elodie (audisi vs Nora/Vera/Opal; dipilih karena intonasi paling datar = boneka). 7 klip.
 - Live2D: `eyes.py coppelia … 403,228 447,205 17,13`, mask `masks.py coppelia` (glow `cyan` untuk pusaran & inti teal, rambut bob pendek bobot kecil), kilau menyapu bilah pedang.
+
+## Cerita Utama (18 Nov 2026) — aset di `src/story/` (disalin ke `dist/story/`, tidak ditanam)
+- **Latar** `story/bg/<kunci>.webp` (720 px lebar, piksel-art seragam dengan latar dunia): `night gate forest throne abbey harbor bell` baru (gpt_image_2_6 high, ref. `tall_grass`/`tall_summit`; night/gate/harbor bagian bawah digelapkan agar malam) + pakai ulang `camp meadow cave dusk storm summit moon deep void` dari `art_src/full_home_camp.png` & `tall_*.png`.
+- **CG** `story/cg/{star,dawn,moon,wind,eye}.webp` (gpt_image_2_6 high 9:16, ref. splash hero terkait).
+- **NPC** `story/npc/{ratu,herald,rajagob,dknight,voidking,orloj}.webp` (flare 2k transparan, tinggi 1100). Titik wajah & ukuran di `art_src/story/npc_geo.json`.
+- **Ekspresi** `story/ex/<hero>_<a|k|d>.webp`: hanya area wajah. Cara buat: `art_src/story/` → potong kepala dari `art_src/splash/<hero>.png` (`/home/claude/gen/story/crops`), edit nano_banana_pro 1k ("ubah HANYA ekspresi"), lalu `python3 art_src/story/expr.py <hero_e>` (ORB menyelaraskan, selisih → masker berbulu, simpan + `ex_geo.json`). 23 ekspresi untuk 13 hero (Hilde & Lilith cukup ekspresi bawaan).
+- **Suara** `story/v/st_<adegan>_<baris>.mp3` (elevenlabs_v4, 48 kbps mono): 158 klip. Aktor sama dengan suara hero; NPC: Ratu = Celine, Sosok Berkerudung & Raja Kehampaan = Desmond, Orloj = Arthur, Raja Goblin = Barrett, Ksatria Kegelapan = Onyx, Mata = Vlad. Daftar & job: `/home/claude/gen/story/vjobs.json`, `vdone.txt`.
+- Ikon tiket dungeon `img/icons/dgtix.webp` (gpt_image_2_6 medium, ref. `tixW`, latar magenta dikunci).
