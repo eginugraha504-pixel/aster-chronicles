@@ -48,14 +48,14 @@ Tulis KELANJUTAN obrolan dunia: ${b.n || '4-8'} pesan dari 2-5 penulis di daftar
 JSON: {"out":[{"who":"nama","text":"...","delay":8}]}`;
 }
 
-export async function callClaude(env, user, maxTok) {
+export async function callClaude(env, user, maxTok, role) {
   if (env.AI_FAKE) {   // uji lokal tanpa token: balasan tiruan dari daftar penulis
-    const names = [...user.matchAll(/^- ([A-Za-z0-9]+):/gm)].map(m => m[1]);
-    return { text: JSON.stringify({ out: names.slice(0, 4).map((n, k) => ({ who: n, text: ['ada yang udah pull banner baru?', 'aku masih nabung pity wkwk', 'barusan clear 2-3, bosnya lumayan', 'gg semua, lanjut farming dulu'][k], delay: 2 })) }), usage: {}, model: 'fake' };
+    const names = [...user.matchAll(/^- ([A-Za-z0-9]+):/gm)].map(m => m[1]), last = [...user.matchAll(/^#(\d+) /gm)].map(m => +m[1]).pop() || null;
+    return { text: JSON.stringify({ out: names.slice(0, 4).map((n, k) => ({ who: n, text: k === 3 ? '' : ['ada yg udh pull banner baru?', 'masih nabung wkwk', 'barusan clear 2-3'][k], stk: k === 3 ? 'sakuya_wkwk' : '', re: k === 1 ? last : null, delay: 2 })) }), usage: {}, model: 'fake' };
   }
   const key = env.ANTHROPIC_API_KEY, model = env.AI_MODEL || 'claude-haiku-5-5';
   const body = JSON.stringify({ model, max_tokens: maxTok, temperature: 1, thinking: { type: 'disabled' },
-    system: [{ type: 'text', text: ROLE_TXT }, { type: 'text', text: GAME_KNOWLEDGE, cache_control: { type: 'ephemeral' } }],
+    system: [{ type: 'text', text: role || ROLE_TXT }, { type: 'text', text: GAME_KNOWLEDGE, cache_control: { type: 'ephemeral' } }],
     messages: [{ role: 'user', content: user }] });
   const go = h => fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'content-type': 'application/json', 'anthropic-version': '2023-06-01', ...h }, body });
   // kunci API biasa memakai x-api-key; jenis token lain dicoba lewat Authorization Bearer

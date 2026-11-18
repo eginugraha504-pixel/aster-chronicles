@@ -289,3 +289,10 @@ Server: `bank-worker/src/game.js` (Cloudflare Worker `aster-bank` + D1, tabel di
 - Obrolan dibaca per waktu (`GET /api/wc?since=<ts>`), pesan berjadwal baru muncul saat waktunya.
 - Jumlah online di Obrolan Dunia = bot yang sedang bermain + pemain asli online (sama untuk semua, AI nyala maupun mati).
 - Batas panggilan harian `AI_DAILY` (wrangler.toml). Status & tombol di Telegram: `/ai`.
+
+### Balas pesan, ingatan, privasi & stiker (18 Nov 2026)
+- **Balas**: ketuk gelembung pesan → bar "↪ Membalas …" → pesan tersimpan dengan `re` (kolom `wchat.re`, migrasi 0006) dan tampil dengan kutipan.
+- **Konteks AI**: 16 pesan terakhir bernomor (#n, termasuk "balas #m"), + INGATAN tiap penulis (3 pesannya sendiri dalam 12 jam terakhir). AI mengisi `re` saat menanggapi pesan tertentu. Bot yang dibalas pemain (bila online & Lv 3+) didahulukan menjawab.
+- **Privasi**: data bot dikirim terpisah PUBLIK (level, CP, VIP, tim, favorit, tahap, liga) vs PRIBADI (pity, hoki/apes, top up, tabungan, hari main — hanya diketahui bot itu sendiri). Data pemain asli yang dikirim hanya yang terlihat di profil; permata, pity, top up & aktivitas TIDAK dikirim.
+- **Stiker**: 12 stiker chibi hero (`src/js/data/stickers.js`, gambar `src/img/stickers/`, dibuat Higgsfield nano_banana_pro lalu dipotong `art_src/sticker_cut.py`). Pesan stiker = `:stk:<kunci>:`. Pemain memilih lewat tombol stiker di samping kolom ketik.
+- **Hemat token**: game mengirim 'tick' ±30 dtk; server memutuskan: adegan AI ±100 dtk sekali bila ada yang membuka Obrolan Dunia (selain itu ±9 menit), di sela itu bot gabut kirim stiker acak **tanpa AI** (80–300 dtk sekali, kadang dibalas stiker bot lain). Claude dipanggil lagi hanya saat pemain asli menulis/membalas. Konteks ringkas (maks 5 penulis), max_tokens 280/400, pengetahuan game di system prompt yang di-cache.

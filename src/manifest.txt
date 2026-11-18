@@ -41,6 +41,7 @@ js/data/chat/style.js
 js/data/chat/lines.js
 js/data/chat/threads.js
 js/data/chat/brain.js
+js/data/stickers.js
 js/data/enemies.js
 js/data/worlds.js
 js/data/banners.js
