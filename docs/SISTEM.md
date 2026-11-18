@@ -248,6 +248,11 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - `tools/sync_repo.py` ikut menyalin `dist/audio` → `audio/` di repo. Publish artifact pakai `publish_files` (mode patch) dengan tiga file: `index.html`, `audio/login.mp3`, `audio/game.mp3`.
 - `music.js` `bgmUrl`: kalau `MUSIC_SRC[k]` bukan data URI, dipakai langsung sebagai URL relatif.
 
+## OST (18 Nov 2026)
+- 22 lagu Suno dari Egi di `src/audio/` (112 kbps, hening awal/akhir dipotong): `login`, `game`, `bt_w1..8` (battle per dunia), `bt_boss` (x-5), `bt_final` (8-5), `bt_dungeon`, `bt_arena`, `win` (jingle menang, tidak diulang), `st_prolog/hangat/tegang/sedih/misteri/harapan/kehampaan`.
+- `bgmBattle(st)` dipanggil di `startBattle`; `win` di layar menang (juga Arena); `exitBattle` → `game`. Cerita: `STORY_BGM` per adegan (story.js), direktif `{bgm:'st_...'}` untuk ganti di tengah adegan (c8c → kehampaan saat Mata muncul); selesai cerita → `game`/`login`.
+- `bgmPlay` memudar keluar 0,45 dtk lalu memudar masuk; kunci yang belum ada → `game`.
+
 ## Cerita Utama, Tutorial & Syarat Fitur (18 Nov 2026)
 - **Cerita** (`js/data/story.js`, pemutar `js/ui/story.js`, gaya `css/story.css`): 24 adegan, BAB I (Dunia 1–5) & BAB II (Dunia 6–8), berakhir "Bersambung". Tiap adegan terikat tahap (`at`) sebagai `pre` (diputar sebelum pertarungan pertama tahap itu, sebelum stamina dipotong) atau `post` (ditandai `S.story.pend` saat menang pertama, diputar saat layar hasil ditutup lewat `exitBattle`/`bnext`). Prolog `at:'start'` diputar untuk pemain baru.
   - Teks 3 bahasa ada di baris yang sama (`[pembicara, ekspresi, id, en, ja]`), nama NPC di `STORY_NPC`. Pilihan Kapten `{ch:[...]}` kosmetik. Direktif lain: `{bg:k}`, `{cg:k|null}`, `{fx:'flash'|'shake'|'star'|'end'}` (`end` = kartu penutup bab: tokoh memudar, latar meredup). Suara berhenti saat baris berikutnya dimulai.

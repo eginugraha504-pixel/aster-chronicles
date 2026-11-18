@@ -19,6 +19,10 @@ let SP=null;   // adegan yang sedang diputar
 function storyPre(key,go){const s=scenesAt(key,'pre').find(x=>!storySeen(x.id));if(!s||S.stages[key])return false;storyPlay(s.id,go);return true}
 function storyPostFor(key){const s=scenesAt(key,'post').find(x=>!storySeen(x.id));if(s){storyState().pend=s.id;save()}}
 function storyFlush(go){const st=storyState(),id=st.pend;if(!id||!STD[id]||storySeen(id)){st.pend=null;go&&go();return false}storyPlay(id,go);return true}
+// musik per adegan (src/audio/st_*.mp3); ganti di tengah adegan dengan direktif {bgm:'st_...'}
+const STORY_BGM={p0:'st_prolog',c1a:'st_hangat',c1b:'st_tegang',c1c:'st_tegang',c1d:'st_hangat',c2a:'st_misteri',c2b:'st_hangat',c2c:'st_sedih',
+ c3a:'st_misteri',c3b:'st_hangat',c3c:'st_tegang',c4a:'st_tegang',c4b:'st_harapan',c5a:'st_sedih',c5b:'st_kehampaan',c5c:'st_harapan',
+ c6a:'st_misteri',c6b:'st_harapan',c7a:'st_tegang',c7b:'st_misteri',c7c:'st_harapan',c8a:'st_kehampaan',c8b:'st_kehampaan',c8c:'st_misteri'};
 function stName(sp){if(HD[sp])return HD[sp].name;const n=STORY_NPC[sp];return n?n.n[SL()]:''}
 // gambar tokoh: hero = splash (SPLASH_SRC) + patch ekspresi; NPC = story/npc/<id>.webp
 function stCharHTML(sp,e){
@@ -55,7 +59,7 @@ function storyPlay(id,done){const s=STD[id];if(!s){done&&done();return}
  el.addEventListener('click',stTap);requestAnimationFrame(()=>el.classList.add('on'));
  // iOS: pancing elemen suara di dalam sentuhan yang membuka cerita supaya klip berikutnya boleh diputar oleh timer
  try{const fi=s.L.findIndex(l=>Array.isArray(l)&&l[0]!=='n'&&stHas('v/st_'+s.id+'_'+s.L.indexOf(l)));if(fi>=0&&voxOn()){SVOX.muted=true;SVOX.src=stUrl('v/st_'+s.id+'_'+fi);const p=SVOX.play();if(p&&p.then)p.then(()=>{if(SVOX.muted){SVOX.pause();SVOX.muted=false}}).catch(()=>{SVOX.muted=false});else SVOX.muted=false}}catch(e){SVOX.muted=false}
- try{if(typeof BGM!=='undefined'&&BGM.el&&!BGM.el.paused&&BGM.key)bgmFade(bgmV(BGM.key)*.45,.6)}catch(e){}
+ if(typeof bgmPlay==='function')bgmPlay(STORY_BGM[id]||'st_hangat');
  if(typeof sfx==='function')sfx('open');
  setTimeout(()=>{if(!SP||SP.el!==el)return;el.querySelector('.stitle').classList.add('out');stNext()},1700)}
 function stBg(k,first){const im=SP.el.querySelector('.sbg img');if(!k||!stHas('bg/'+k)){im.removeAttribute('src');return}if(SP.bg===k)return;SP.bg=k;
@@ -75,7 +79,7 @@ function stShow(sp,e){const box=SP.el.querySelector('.schs');
 function stNext(){if(!SP)return;const s=SP.s;
  for(;;){SP.i++;const l=s.L[SP.i];if(!l)return storyEnd(false);
   if(Array.isArray(l))return stLine(l);
-  if(l.bg)stBg(l.bg);if('cg' in l)stCg(l.cg);if(l.fx)stFx(l.fx);if(l.ch)return stChoice(l.ch)}}
+  if(l.bgm&&typeof bgmPlay==='function')bgmPlay(l.bgm);if(l.bg)stBg(l.bg);if('cg' in l)stCg(l.cg);if(l.fx)stFx(l.fx);if(l.ch)return stChoice(l.ch)}}
 function stLine(l){const[sp,e]=l,tx=stTx(l),el=SP.el,nm=el.querySelector('.snm'),box=el.querySelector('.sbox');box.classList.remove('pre');
  stShow(sp,e||'n');box.classList.toggle('nar',sp==='n');nm.textContent=sp==='n'?'':stName(sp);nm.style.display=sp==='n'?'none':'';
  SP.full=tx;SP.log.push([sp==='n'?'':stName(sp),tx]);
@@ -107,7 +111,7 @@ function stTap(ev){if(!SP)return;const b=ev.target.closest('[data-sb],[data-sc]'
  stNext()}
 function stLog(){const d=document.createElement('div');d.className='slog';d.innerHTML=`<div class="slh"><b>LOG</b><button class="sbt" data-sb="logx">✕</button></div><div class="sll">${SP.log.map(([n,t])=>`<p>${n?`<b>${esc(n)}</b>`:''}${esc(t)}</p>`).join('')}</div>`;SP.el.appendChild(d);const L=d.querySelector('.sll');L.scrollTop=L.scrollHeight}
 function stSkipAsk(){const d=document.createElement('div');d.className='sask';d.innerHTML=`<div class="sakb"><p>${T('Lewati cerita ini? Kamu bisa menontonnya lagi kapan saja dari Arsip Cerita.')}</p><div class="mrow"><button class="btn gray" data-sb="skipno">${T('Batal')}</button><button class="btn" data-sb="skipyes">${T('Lewati')}</button></div></div>`;SP.el.appendChild(d)}
-function storyEnd(silent){if(!SP)return;const sp=SP;SP=null;window.removeEventListener('resize',sp.lay);try{if(typeof BGM!=='undefined'&&BGM.el&&!BGM.el.paused&&BGM.key)bgmFade(bgmV(BGM.key),.8)}catch(e){}clearInterval(sp.tm);clearTimeout(sp.at);try{SVOX.pause()}catch(e){}
+function storyEnd(silent){if(!SP)return;const sp=SP;SP=null;window.removeEventListener('resize',sp.lay);if(typeof bgmPlay==='function'&&!silent)bgmPlay(document.getElementById('login').classList.contains('on')?'login':'game');clearInterval(sp.tm);clearTimeout(sp.at);try{SVOX.pause()}catch(e){}
  const st=storyState();st.seen[sp.s.id]=1;if(st.pend===sp.s.id)st.pend=null;save();
  sp.el.classList.remove('on');setTimeout(()=>sp.el.remove(),350);if(!silent&&sp.done)setTimeout(sp.done,silent?0:200)}
 /* ---------- arsip cerita ---------- */

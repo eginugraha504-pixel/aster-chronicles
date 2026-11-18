@@ -96,7 +96,7 @@ function arResHTML(res,b,quick){const A=S.arena,m=res.meta,Lb=ARENA_CFG.leagues[
  ${mvpHTML(mvp)}
  ${quick?arDmgHTML(b):''}
  <small class="artl">${T('Tiket tersisa {n}/{m}',{n:A.tix,m:ARENA_CFG.tix})} · ${Math.floor(b.time)}${T('d')}</small>`}
-function arenaEnd(win){if(!B)return;const res=arApply(win,B.ar);sfx(win?'win':'lose');
+function arenaEnd(win){if(!B)return;const res=arApply(win,B.ar);sfx(win?'win':'lose');if(win&&typeof bgmPlay==='function')bgmPlay('win');
  const o=$('#bOver');o.innerHTML=`<div class="panel res arres ${res.win?'win':'lose'}">${arResHTML(res,B,false)}<div class="mrow"><button class="btn blue" data-act="bexit">${T('Kembali ke Arena')}</button></div></div>`;o.classList.add('on')}
 function arShowQuick(res,b){sfx(res.win?'win':'lose');
  modal(`<div class="arres quick">${arResHTML(res,b,true)}<div class="mrow"><button class="btn blue" data-act="arClose">${T('Kembali ke Arena')}</button></div></div>`);$('#modal .mbox').classList.add('arresbox')}

@@ -2,8 +2,8 @@
    MUSIC — musik latar (BGM)
    ---------------------------------------------------------------------
    Lagu: src/audio/<kunci>.mp3 -> disalin build.py ke dist/audio/ (MUSIC_SRC berisi path relatif, bukan data URI).
-     login : "Eternal Sky" — layar judul/login setelah splash studio (loop), memudar saat masuk game.
-     game  : "Starbound Prologue" — di dalam game setelah login (loop), sedikit lebih pelan.
+     login : layar judul/login setelah splash studio (loop), memudar saat masuk game.
+     game  : menu/beranda di dalam game (loop), sedikit lebih pelan. Lagu baru 18 Nov 2026 (Suno, dari Egi).
    iOS hanya mengizinkan <audio> diputar lewat kode kalau elemen itu SUDAH pernah
    diputar di dalam sebuah sentuhan. Karena itu dipakai SATU elemen <audio> bersama
    untuk semua lagu, dan bgmPrime() "memancingnya" (putar tanpa suara lalu jeda) pada
@@ -12,10 +12,14 @@
    tidak bisa diubah di iOS. Permintaan sebelum sentuhan pertama disimpan di BGM.want.
    Pengaturan: S.music (true/false, bawaan hidup).
    ===================================================================== */
-const BGM={el:null,key:null,gain:null,want:null,tm:0,primed:false,url:{}};
+const BGM={el:null,key:null,gain:null,want:null,tm:0,primed:false,url:{},tok:0};
 const bgmOn=()=>typeof S==='undefined'||!S||S.music!==false;
-const BGM_VOL={login:.55,game:.4};  // volume per lagu
-const bgmV=k=>BGM_VOL[k]??.5;
+const BGM_VOL={login:.55,game:.4,win:.6};  // volume per lagu (bt_* / st_* lihat bgmV)
+/* OST tambahan (18 Nov 2026): bt_w1..bt_w8 (battle per dunia), bt_boss (tahap x-5), bt_final (8-5), bt_dungeon, bt_arena,
+   win (jingle menang, tidak diulang), st_prolog/hangat/tegang/sedih/misteri/harapan/kehampaan (cerita, lihat STORY_BGM).
+   Lagu yang belum ada otomatis diganti 'game'. Pergantian lagu: pudar keluar 0,45 dtk lalu lagu baru pudar masuk. */
+const bgmV=k=>BGM_VOL[k]??(k.startsWith('bt_')?.45:k.startsWith('st_')?.42:.5);
+const bgmBattle=st=>st.arena?'bt_arena':st.dg?'bt_dungeon':st.key==='8-5'?'bt_final':st.boss?'bt_boss':'bt_w'+((st.wi||0)+1);
 function bgmUrl(k){if(BGM.url[k])return BGM.url[k];
  if(!MUSIC_SRC[k].startsWith('data:'))return BGM.url[k]=MUSIC_SRC[k];   // file terpisah (audio/<kunci>.mp3)
  const bin=atob(MUSIC_SRC[k].split(',')[1]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
@@ -31,12 +35,16 @@ function bgmPrime(){if(BGM.primed||typeof MUSIC_SRC==='undefined')return;const k
  if(p&&p.then)p.then(()=>{if(!BGM.want||!bgmOn())el.pause();else bgmPlay(BGM.want)}).catch(()=>{BGM.primed=false})}
 function bgmFade(to,sec){clearTimeout(BGM.tm);if(BGM.gain&&AUD.ctx){const A=AUD.ctx,g=BGM.gain.gain;g.cancelScheduledValues(A.currentTime);g.setValueAtTime(g.value,A.currentTime);g.linearRampToValueAtTime(to,A.currentTime+sec)}
  else if(BGM.el){try{BGM.el.volume=to}catch(e){}}}
-function bgmPlay(k){BGM.want=k;if(!bgmOn()||typeof MUSIC_SRC==='undefined'||!MUSIC_SRC[k]||!BGM.primed)return;  // belum ada sentuhan: tunggu bgmPrime
+function bgmPlay(k){if(typeof MUSIC_SRC!=='undefined'&&!MUSIC_SRC[k]&&k!=='login')k='game';
+ BGM.want=k;if(!bgmOn()||typeof MUSIC_SRC==='undefined'||!MUSIC_SRC[k]||!BGM.primed)return;  // belum ada sentuhan: tunggu bgmPrime
  try{const A=audInit();if(A.state!=='running')A.resume().catch(()=>{});
-  const el=bgmElem();
-  if(BGM.key!==k){if(BGM.gain)BGM.gain.gain.value=0;el.src=bgmUrl(k);BGM.key=k}
-  else if(!el.paused){bgmFade(bgmV(k),.8);return}
-  el.play().then(()=>bgmFade(bgmV(k),1.6)).catch(()=>{})}catch(e){}}
+  const el=bgmElem(),tok=++BGM.tok;
+  const go=()=>{if(tok!==BGM.tok)return;if(BGM.gain)BGM.gain.gain.value=0;el.src=bgmUrl(k);BGM.key=k;el.loop=k!=='win';
+   el.onended=()=>{if(BGM.key==='win'&&BGM.want==='win')BGM.want=null};
+   el.play().then(()=>{if(tok===BGM.tok)bgmFade(bgmV(k),k==='win'?.1:1.4)}).catch(()=>{})};
+  if(BGM.key!==k){if(!el.paused&&BGM.key){bgmFade(0,.45);setTimeout(go,480)}else go()}
+  else if(!el.paused)bgmFade(bgmV(k),.8);
+  else el.play().then(()=>{if(tok===BGM.tok)bgmFade(bgmV(k),1.6)}).catch(()=>{})}catch(e){}}
 function bgmStop(sec=1.2){BGM.want=null;if(!BGM.el||BGM.el.paused)return;bgmFade(0,sec);const el=BGM.el;BGM.tm=setTimeout(()=>{if(!BGM.want)try{el.pause()}catch(e){}},sec*1000+80)}
 // dipanggil audUnlock setelah sentuhan: pancing elemen lalu lanjutkan musik yang tertunda
 function bgmResume(){if(!BGM.primed){bgmPrime();return}if(BGM.want&&(!BGM.el||BGM.el.paused))bgmPlay(BGM.want)}

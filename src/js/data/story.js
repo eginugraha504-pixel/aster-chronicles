@@ -277,7 +277,7 @@ const STORY=[
  ['vela','k',"Itu sebabnya bayanganmu... berbeda.","That's why your shadow... was different.","だから、あなたの影は…違っていたのね。"],
  {fx:'shake'},
  ['n','',"Sebelum ada yang sempat bicara, kehampaan di belakang singgasana terbelah — dan sebuah mata raksasa terbuka di kegelapan.","Before anyone can speak, the void behind the throne splits open — and a colossal eye opens in the darkness.","誰かが口を開くより早く、玉座の背後の虚無が裂けた。暗闇の中で、巨大な瞳が開く。"],
- {cg:'eye'},
+ {cg:'eye',bgm:'st_kehampaan'},
  ['eye','-',"Akhirnya... bintang terakhir.","At last... the final star.","ついに…最後の星を。"],
  ['orloj','-',"Lari, Kapten! Itulah dia — penguasa Kehampaan yang sebenarnya—!","Run, Captain! That's it — the true ruler of the Void—!","逃げるのじゃ、キャプテン！あれこそ虚無の真の支配者――！"],
  ['n','',"Kegelapan menyambar Maestro Orloj dan menariknya ke dalam mata itu.","The darkness seizes Maestro Orloj and drags him into the eye.","闇がオルロイ師を捕らえ、瞳の中へと引きずり込んだ。"],
