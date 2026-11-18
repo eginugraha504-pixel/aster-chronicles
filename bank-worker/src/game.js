@@ -95,7 +95,7 @@ async function aiChat(env, b, u) {
   if (!env.ANTHROPIC_API_KEY) return { ok: false, e: 'nokey' };
   const kind = b.kind === 'reply' ? 'reply' : 'scene', t = now();
   // hanya bot sungguhan (akun di server) yang boleh bicara; nama dari server
-  const C = (Array.isArray(b.cands) ? b.cands : []).slice(0, 10).filter(c => /^\d{8}$/.test(c.uid));
+  const C = (Array.isArray(b.cands) ? b.cands : []).slice(0, 10).filter(c => /^\d{8}$/.test(c.uid)).map(c => ({ uid: c.uid, desc: String(c.desc || '').slice(0, 420), style: String(c.style || '').slice(0, 200), lower: !!c.lower }));
   if (C.length < 2) return { ok: false, e: 'cands' };
   const rows = (await env.DB.prepare(`SELECT uid,uname FROM players WHERE bot IS NOT NULL AND ban=0 AND uid IN (${C.map(() => '?').join(',')})`).bind(...C.map(c => c.uid)).all()).results;
   const byUid = new Map(rows.map(r => [r.uid, r.uname])), cands = C.filter(c => byUid.has(c.uid)).map(c => ({ ...c, name: byUid.get(c.uid) }));
@@ -125,7 +125,8 @@ async function aiChat(env, b, u) {
   let tt = t + (kind === 'reply' ? 1500 : 2500); const st = [];
   for (const x of L) {
     const c = byName.get(String(x.who).toLowerCase()); if (!c) continue;
-    chunks(x.text).forEach((part, k) => { tt += (k ? 1800 : x.delay * 1000) + part.length * 85; st.push(env.DB.prepare('INSERT INTO wchat (uid,name,txt,ts) VALUES (?,?,?,?)').bind(c.uid, c.name, part.slice(0, 140), Math.round(tt))) });
+    const txt = c.lower ? x.text.toLowerCase() : x.text;
+    chunks(txt).forEach((part, k) => { tt += (k ? 1800 : x.delay * 1000) + part.length * 85; st.push(env.DB.prepare('INSERT INTO wchat (uid,name,txt,ts) VALUES (?,?,?,?)').bind(c.uid, c.name, part.slice(0, 140), Math.round(tt))) });
   }
   if (st.length) await env.DB.batch(st.slice(0, 20));
   if (kind === 'scene') await kvSet(env, 'ai_until', Math.round(tt));

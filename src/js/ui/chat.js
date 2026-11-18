@@ -18,12 +18,16 @@ async function wcFetch(){if(WC.busy)return;WC.busy=true;WC.at=Date.now();
 function wcBot(m){const i=typeof botIdxOf==='function'?botIdxOf(m.uid):-1;return i>=0&&i<botsVisible()?i:-1}
 function wcVip(m){const i=wcBot(m);return i>=0?botState(i).stats.vip:m.vip}
 function wcTop(m){const i=wcBot(m);if(i>=0){const s=botState(i);return s.fav||s.team[0]}return m.top}
+// gaya mengetik tiap bot (dari persona chat) -> dikirim ke AI supaya tiap orang terasa beda
+function wcStyle(P){const R={gaul:'anak gaul: huruf kecil, banyak singkatan (yg, gk, bgt, udh, klo, lg, aj, sm), kadang salah ketik',santai:'santai, singkatan secukupnya, tanda baca jarang',
+  sopan:'agak sopan & rapi, tanda baca normal, kadang panggil "kak"',inggris:'sering campur bahasa Inggris (lol, bruh, ngl, gg, tbh)',wibu:'wibu: selipkan kata Jepang (yabai, sugoi, ne, yosh) & emotikon',singkat:'super singkat 1-4 kata, tanpa tanda baca'};
+ return`${R[P.reg]||R.santai}; ketawa "${P.laugh[0]}"; panggil orang "${P.call}"; emotikon favorit ${P.emo[0]}`}
 /* ---- Mode AI: minta server menulis adegan obrolan / balasan dari bot yang sedang online ---- */
 function wcAiBody(kind){const now=Date.now(),d=new Date(now+BOT_CFG.TZ*36e5),HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
  const on=wcBotsOn().filter(i=>botUid(i)),t0=on.filter(i=>chPersona(i).chat>0),talk=t0.length>=3?t0:on;
  const recent=[...new Set(WC.list.filter(m=>now-m.ts<15*6e4).map(wcBot).filter(i=>i>=0&&on.includes(i)))].slice(-3);
  const r=bRng(now>>>0),pool=talk.map(i=>[i,(chPersona(i).chat+.2)*r()]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
- const cands=chCandsDesc([...new Set([...recent,...pool])].slice(0,7),now).map((c,k,arr)=>c);const idx=[...new Set([...recent,...pool])].slice(0,7);cands.forEach((c,k)=>c.uid=botUid(idx[k]));
+ const idx=[...new Set([...recent,...pool])].slice(0,7),cands=chCandsDesc(idx,now);cands.forEach((c,k)=>{const i=idx[k],P=chPersona(i);c.uid=botUid(i);c.lower=!!P.lower;c.style=wcStyle(P)});
  const humans=NET.players.filter(p=>p.on&&!(NET.acct&&p.uid===NET.acct.uid)).map(p=>`${p.u} (Lv ${p.lv})`).join(', ');
  return{tok:netTok(),kind,when:`${HARI[d.getUTCDay()]} ${d.getUTCDate()}/${d.getUTCMonth()+1} ${chTime(now)}`,online:wcOnline(),world:chWorldTxt(now),humans,cands,
   player:loggedIn()?{name:NET.acct.u,info:chPlayerInfo(),acts:(CHAT.mem.acts||[]).filter(a=>now-a.t<6*36e5).map(a=>`${chTime(a.t)} ${a.s}`),screen:chatOpen?'Obrolan Dunia (membaca chat)':SCR_N[typeof tab!=='undefined'?tab:'home']||''}:null,n:chatOpen?'4-8':'3-6'}}

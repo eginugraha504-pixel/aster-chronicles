@@ -75,7 +75,7 @@ function netApplyWorld(d,full){if(!d||!d.ok)return;const L=d.bots||[];
  BOTS.onChange&&BOTS.onChange()}
 function netWorldCache(){try{const c=JSON.parse(localStorage.getItem(WORLD_KEY)||'null');if(c&&c.bots)netApplyWorld({ok:true,from:0,...c},true)}catch(e){}}
 async function netWorld(full){NET.worldAt=Date.now();const from=full||!BOTS.uids?0:BOTS.uids.length;const d=await api('/api/world?from='+from);
- if(d.ok){if(BOTS.uids&&d.gen!==NET.gen)return netWorld(true);netApplyWorld(d,from===0)}return d.ok}
+ if(d.ok){if(!full&&from>0&&d.gen!==NET.gen)return netWorld(true);netApplyWorld(d,from===0)}return d.ok}  // dunia di-reset: muat ulang penuh SEKALI (dulu bisa berulang tanpa henti)
 const botUid=i=>BOTS.uids&&BOTS.uids[i];
 function botIdxOf(uid){if(!BOTS.uids)return-1;if(!BOTS.uidIdx){BOTS.uidIdx=new Map();BOTS.uids.forEach((u,k)=>BOTS.uidIdx.set(u,k))}const k=BOTS.uidIdx.get(uid);return k==null?-1:k}
 const botOv=i=>BOTS.ov&&BOTS.ov[i]||null;

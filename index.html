@@ -7152,7 +7152,7 @@ function netApplyWorld(d,full){if(!d||!d.ok)return;const L=d.bots||[];
  BOTS.onChange&&BOTS.onChange()}
 function netWorldCache(){try{const c=JSON.parse(localStorage.getItem(WORLD_KEY)||'null');if(c&&c.bots)netApplyWorld({ok:true,from:0,...c},true)}catch(e){}}
 async function netWorld(full){NET.worldAt=Date.now();const from=full||!BOTS.uids?0:BOTS.uids.length;const d=await api('/api/world?from='+from);
- if(d.ok){if(BOTS.uids&&d.gen!==NET.gen)return netWorld(true);netApplyWorld(d,from===0)}return d.ok}
+ if(d.ok){if(!full&&from>0&&d.gen!==NET.gen)return netWorld(true);netApplyWorld(d,from===0)}return d.ok}  // dunia di-reset: muat ulang penuh SEKALI (dulu bisa berulang tanpa henti)
 const botUid=i=>BOTS.uids&&BOTS.uids[i];
 function botIdxOf(uid){if(!BOTS.uids)return-1;if(!BOTS.uidIdx){BOTS.uidIdx=new Map();BOTS.uids.forEach((u,k)=>BOTS.uidIdx.set(u,k))}const k=BOTS.uidIdx.get(uid);return k==null?-1:k}
 const botOv=i=>BOTS.ov&&BOTS.ov[i]||null;
@@ -8289,12 +8289,16 @@ async function wcFetch(){if(WC.busy)return;WC.busy=true;WC.at=Date.now();
 function wcBot(m){const i=typeof botIdxOf==='function'?botIdxOf(m.uid):-1;return i>=0&&i<botsVisible()?i:-1}
 function wcVip(m){const i=wcBot(m);return i>=0?botState(i).stats.vip:m.vip}
 function wcTop(m){const i=wcBot(m);if(i>=0){const s=botState(i);return s.fav||s.team[0]}return m.top}
+// gaya mengetik tiap bot (dari persona chat) -> dikirim ke AI supaya tiap orang terasa beda
+function wcStyle(P){const R={gaul:'anak gaul: huruf kecil, banyak singkatan (yg, gk, bgt, udh, klo, lg, aj, sm), kadang salah ketik',santai:'santai, singkatan secukupnya, tanda baca jarang',
+  sopan:'agak sopan & rapi, tanda baca normal, kadang panggil "kak"',inggris:'sering campur bahasa Inggris (lol, bruh, ngl, gg, tbh)',wibu:'wibu: selipkan kata Jepang (yabai, sugoi, ne, yosh) & emotikon',singkat:'super singkat 1-4 kata, tanpa tanda baca'};
+ return`${R[P.reg]||R.santai}; ketawa "${P.laugh[0]}"; panggil orang "${P.call}"; emotikon favorit ${P.emo[0]}`}
 /* ---- Mode AI: minta server menulis adegan obrolan / balasan dari bot yang sedang online ---- */
 function wcAiBody(kind){const now=Date.now(),d=new Date(now+BOT_CFG.TZ*36e5),HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
  const on=wcBotsOn().filter(i=>botUid(i)),t0=on.filter(i=>chPersona(i).chat>0),talk=t0.length>=3?t0:on;
  const recent=[...new Set(WC.list.filter(m=>now-m.ts<15*6e4).map(wcBot).filter(i=>i>=0&&on.includes(i)))].slice(-3);
  const r=bRng(now>>>0),pool=talk.map(i=>[i,(chPersona(i).chat+.2)*r()]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
- const cands=chCandsDesc([...new Set([...recent,...pool])].slice(0,7),now).map((c,k,arr)=>c);const idx=[...new Set([...recent,...pool])].slice(0,7);cands.forEach((c,k)=>c.uid=botUid(idx[k]));
+ const idx=[...new Set([...recent,...pool])].slice(0,7),cands=chCandsDesc(idx,now);cands.forEach((c,k)=>{const i=idx[k],P=chPersona(i);c.uid=botUid(i);c.lower=!!P.lower;c.style=wcStyle(P)});
  const humans=NET.players.filter(p=>p.on&&!(NET.acct&&p.uid===NET.acct.uid)).map(p=>`${p.u} (Lv ${p.lv})`).join(', ');
  return{tok:netTok(),kind,when:`${HARI[d.getUTCDay()]} ${d.getUTCDate()}/${d.getUTCMonth()+1} ${chTime(now)}`,online:wcOnline(),world:chWorldTxt(now),humans,cands,
   player:loggedIn()?{name:NET.acct.u,info:chPlayerInfo(),acts:(CHAT.mem.acts||[]).filter(a=>now-a.t<6*36e5).map(a=>`${chTime(a.t)} ${a.s}`),screen:chatOpen?'Obrolan Dunia (membaca chat)':SCR_N[typeof tab!=='undefined'?tab:'home']||''}:null,n:chatOpen?'4-8':'3-6'}}
