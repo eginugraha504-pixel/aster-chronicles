@@ -118,7 +118,7 @@ async function netPing(){if(!loggedIn())return;NET.pingAt=Date.now();const o=awa
  if(o.sv!==NET.acct.sv&&!NET.pushing)await netPull();
  if(NET.gen!=null&&o.gen!==NET.gen)netWorld(true);
  const frUp=o.fr>NET.fr,dmUp=o.dm>NET.dm;if(frUp){toast(T('Ada permintaan pertemanan baru'));netFriends()}if(dmUp&&!(typeof dmOpenWith!=='undefined'&&dmOpenWith))toast(T('Pesan baru masuk'));
- NET.fr=o.fr;NET.dm=o.dm;NET.wc=o.wc;refreshBadges()}
+ NET.fr=o.fr;NET.dm=o.dm;NET.wc=o.wc;NET.ai=!!o.ai;refreshBadges()}
 function refreshBadges(){try{const b=document.getElementById('frBadge');if(b){const n=NET.fr+NET.dm;b.textContent=n>99?'99+':n;b.style.display=n?'':'none'}}catch(e){}}
 let netLoopOn=false;
 function netStart(){if(netLoopOn)return;netLoopOn=true;netWorldCache();netWorld();

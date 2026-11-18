@@ -282,3 +282,10 @@ Server: `bank-worker/src/game.js` (Cloudflare Worker `aster-bank` + D1, tabel di
 - **Obrolan Dunia**: hanya pemain asli (obrolan bot & Mode AI dimatikan). Tamu bisa membaca, menulis butuh akun.
 - **Peringkat**: bot + pemain asli (aktif 45 hari terakhir) + kamu. Ketuk nama → profil (Tambah Teman / Kirim Pesan).
 - **Admin Telegram** (pemilik bot Bank Central Universe): `/akun <UID|username>` (kartu + tombol ubah Permata/Emas/Level/Stamina/Tiket/Username/Password, blokir, data JSON, daftar teman), ketik UID/username langsung, `/cari`, `/pemain`, `/set <UID|username> <kolom> <nilai>` (kolom apa saja di data simpanan, mis. `heroes.nami.lv`; nilai `hapus` = hapus kolom), `/data`, `/resetbot`, tombol 🎮 Akun Game.
+
+### Mode AI Obrolan Dunia (Claude Haiku 5.5) — nyala/mati lewat Telegram `/ai on|off`
+- Bawaan NYALA. Game yang sedang dibuka (tamu juga) mengirim konteks ke `POST /api/wc/ai`: bot yang sedang online (jadwal sesi bot) + data aslinya, info pemain, waktu WIB. Server memegang kunci global (±1 adegan per 75 dtk, tunggu adegan sebelumnya selesai), memanggil Claude, lalu menyimpan pesan bot ke `wchat` dengan jeda mengetik (ts di masa depan) → semua pemain melihat obrolan yang sama.
+- Pemain asli mengirim pesan → game memanggil `kind:'reply'` → 0–3 bot online membalas (maks 1 per 12 dtk per pemain).
+- Obrolan dibaca per waktu (`GET /api/wc?since=<ts>`), pesan berjadwal baru muncul saat waktunya.
+- Jumlah online di Obrolan Dunia = bot yang sedang bermain + pemain asli online (sama untuk semua, AI nyala maupun mati).
+- Batas panggilan harian `AI_DAILY` (wrangler.toml). Status & tombol di Telegram: `/ai`.

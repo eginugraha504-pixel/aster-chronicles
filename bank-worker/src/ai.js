@@ -19,16 +19,17 @@ Soal pemain manusia yang sedang membaca (disebut PEMAIN): kamu tahu keadaan akun
 ATURAN KERAS: fakta game harus benar sesuai pengetahuan di bawah; jangan mengarang fitur yang tidak ada; tanpa emoji (emotikon teks seperti :v xD T_T boleh); tanpa tautan; ramah keluarga; tidak menyebut orang nyata, merek, atau politik; tidak pernah mengaku AI/bot/asisten atau menyebut "sutradara"; tiap pesan sebaiknya pendek (maks ±90 karakter) — kalau perlu bicara lebih panjang, pecah jadi beberapa pesan beruntun dari penulis yang sama, seperti orang mengetik sungguhan; hanya penulis dari daftar yang boleh bicara. Balas HANYA JSON yang diminta.`;
 
 const clip = (s, n) => String(s ?? '').replace(/[\u0000-\u001f]/g, ' ').slice(0, n);
-const dayKey = () => 'ai:' + new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 10);
+export const dayKey = () => 'ai:' + new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 10);
 
-function buildUser(b) {
+export function buildUser(b) {
   const P = b.player || {}, cands = (Array.isArray(b.cands) ? b.cands : []).slice(0, 10), hist = (Array.isArray(b.hist) ? b.hist : []).slice(-24);
   const acts = (Array.isArray(P.acts) ? P.acts : []).slice(-12);
   const ctx = `WAKTU: ${clip(b.when, 60)} WIB · ${clip(b.online, 8)} pemain online · server: ${clip(b.world, 600)}
 PEMAIN (manusia yang membaca chat): ${clip(P.name, 16)} — ${clip(P.info, 900)}
 Aktivitas terbaru PEMAIN: ${acts.length ? acts.map(a => clip(a, 140)).join(' | ') : '-'}
 Sedang membuka layar: ${clip(P.screen, 40) || '-'}
-PENULIS YANG SEDANG ONLINE (data asli mereka):
+${b.humans ? `PEMAIN ASLI LAIN yang online (manusia sungguhan, boleh disapa/ditanggapi bila mereka bicara): ${clip(b.humans, 300)}
+` : ''}PENULIS YANG SEDANG ONLINE (data asli mereka):
 ${cands.map(c => `- ${clip(c.name, 16)}: ${clip(c.desc, 420)}`).join('\n')}
 OBROLAN TERAKHIR (lama -> baru):
 ${hist.map(h => clip(h, 180)).join('\n') || '(sepi)'}`;
@@ -43,7 +44,11 @@ Tulis KELANJUTAN obrolan dunia: ${b.n || '4-8'} pesan dari 2-5 penulis di daftar
 JSON: {"out":[{"who":"nama","text":"...","delay":8}]}`;
 }
 
-async function callClaude(env, user, maxTok) {
+export async function callClaude(env, user, maxTok) {
+  if (env.AI_FAKE) {   // uji lokal tanpa token: balasan tiruan dari daftar penulis
+    const names = [...user.matchAll(/^- ([A-Za-z0-9]+):/gm)].map(m => m[1]);
+    return { text: JSON.stringify({ out: names.slice(0, 4).map((n, k) => ({ who: n, text: ['ada yang udah pull banner baru?', 'aku masih nabung pity wkwk', 'barusan clear 2-3, bosnya lumayan', 'gg semua, lanjut farming dulu'][k], delay: 2 })) }), usage: {}, model: 'fake' };
+  }
   const key = env.ANTHROPIC_API_KEY, model = env.AI_MODEL || 'claude-haiku-5-5';
   const body = JSON.stringify({ model, max_tokens: maxTok, temperature: 1, thinking: { type: 'disabled' },
     system: [{ type: 'text', text: ROLE_TXT }, { type: 'text', text: GAME_KNOWLEDGE, cache_control: { type: 'ephemeral' } }],
@@ -57,14 +62,14 @@ async function callClaude(env, user, maxTok) {
   const text = (j.content || []).filter(c => c.type === 'text').map(c => c.text).join('');
   return { text, usage: j.usage, model: j.model };
 }
-function parseOut(text) {
+export function parseOut(text) {
   const m = String(text).match(/\{[\s\S]*\}/);
   let o = null; try { o = m ? JSON.parse(m[0]) : null } catch (e) { }
   const L = o && (o.out || o.replies || o.msgs) || [];
   return L.map(x => ({ who: clip(x.who, 20), text: clip(x.text, 260).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/https?\S+/g, '').trim(), delay: Math.max(1, Math.min(60, +x.delay || 5)) }))
     .filter(x => x.who && x.text).slice(0, 12);
 }
-async function bump(env, k, by = 1) {
+export async function bump(env, k, by = 1) {
   const r = await env.DB.prepare("INSERT INTO kv (k,v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = CAST(v AS INTEGER) + ? RETURNING v").bind(k, String(by), by).first();
   return +(r?.v || by);
 }

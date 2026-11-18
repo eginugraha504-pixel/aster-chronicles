@@ -11,6 +11,7 @@
    identitas bot (UID, username, password), dunia bot {epoch, gen}, potret terakhir dari game, dan ubahan admin (ov).
    ===================================================================== */
 import { BOTCFG } from './botcfg.js';
+import { buildUser, callClaude, parseOut, bump, dayKey } from './ai.js';
 const enc = new TextEncoder();
 const DAY = 864e5;
 const NAME_RE = /^[A-Za-z0-9]{3,12}$/;          // username pemain (sama dengan aturan nama di game)
@@ -80,6 +81,55 @@ export async function resetBots(env) {
     env.DB.prepare("INSERT INTO kv (k,v) VALUES ('world',?) ON CONFLICT(k) DO UPDATE SET v=excluded.v").bind(JSON.stringify(nw)),
   ]);
   return nw;
+}
+
+/* ---------------- Mode AI Obrolan Dunia (Claude Haiku 5.5) — nyala/mati lewat Telegram (/ai on|off) ----------------
+   Game mana pun yang sedang dibuka mengirim konteks (bot yang sedang online + data aslinya, obrolan terakhir);
+   server memegang kunci global supaya hanya satu adegan per ±75 dtk, lalu menyimpan pesan bot ke wchat
+   dengan jeda mengetik (ts di masa depan) -> semua pemain melihat obrolan yang sama. */
+export const aiOnline = async env => (await kvGet(env, 'ai_on')) !== 'off';   // bawaan: nyala
+const SCENE_GAP = 75e3;
+function chunks(s, max = 95) { const out = []; s = s.trim(); while (s.length > max) { let k = -1; for (const re of [/[.!?]\s/g, /[,;]\s/g, /\s/g]) { let m; re.lastIndex = 0; while ((m = re.exec(s)) && m.index < max) k = m.index + 1; if (k > 20) break } if (k <= 0) k = max; out.push(s.slice(0, k).trim()); s = s.slice(k).trim() } if (s) out.push(s); return out }
+async function aiChat(env, b, u) {
+  if (!(await aiOnline(env))) return { ok: false, e: 'off' };
+  if (!env.ANTHROPIC_API_KEY) return { ok: false, e: 'nokey' };
+  const kind = b.kind === 'reply' ? 'reply' : 'scene', t = now();
+  if (kind === 'reply') {
+    if (!u) return { ok: false, e: 'auth' };
+    const last = await env.DB.prepare('SELECT txt,ts FROM wchat WHERE uid=? ORDER BY id DESC LIMIT 1').bind(u.uid).first();
+    if (!last || t - last.ts > 3e4) return { ok: false, e: 'nomsg' };
+    if (+(await kvGet(env, 'air:' + u.uid) || 0) > t - 12e3) return { ok: false, e: 'fast' };
+    await kvSet(env, 'air:' + u.uid, t); b.msg = last.txt;
+  } else {
+    const at = +(await kvGet(env, 'ai_scene_at') || 0), until = +(await kvGet(env, 'ai_until') || 0);
+    const wait = Math.max(SCENE_GAP - (t - at), until - 8e3 - t);   // adegan sebelumnya belum selesai "diketik"
+    if (wait > 0) return { ok: false, skip: 1, next: wait };
+    await kvSet(env, 'ai_scene_at', t);
+  }
+  if (await bump(env, dayKey()) > +(env.AI_DAILY || 2000)) return { ok: false, e: 'quota' };
+  // hanya bot sungguhan (akun di server) yang boleh bicara; nama dari server
+  const C = (Array.isArray(b.cands) ? b.cands : []).slice(0, 10).filter(c => /^\d{8}$/.test(c.uid));
+  if (C.length < 2) return { ok: false, e: 'cands' };
+  const rows = (await env.DB.prepare(`SELECT uid,uname FROM players WHERE bot IS NOT NULL AND ban=0 AND uid IN (${C.map(() => '?').join(',')})`).bind(...C.map(c => c.uid)).all()).results;
+  const byUid = new Map(rows.map(r => [r.uid, r.uname])), cands = C.filter(c => byUid.has(c.uid)).map(c => ({ ...c, name: byUid.get(c.uid) }));
+  if (cands.length < 2) return { ok: false, e: 'cands' };
+  const hist = (await env.DB.prepare('SELECT * FROM (SELECT name,txt,ts,uid FROM wchat WHERE ts<=? ORDER BY ts DESC LIMIT 24) ORDER BY ts').bind(t).all()).results;
+  const hhmm = ms => new Date(ms + 7 * 36e5).toISOString().slice(11, 16);
+  b.hist = hist.map(h => `${hhmm(h.ts)} ${h.name}${u && h.uid === u.uid ? ' (PEMAIN)' : ''}: ${h.txt}`);
+  b.cands = cands; b.kind = kind; if (!u) b.player = { name: '-', info: 'tidak ada pemain khusus; tulis obrolan umum antar pemain' };
+  let L;
+  try { const r = await callClaude(env, buildUser(b), kind === 'reply' ? 420 : 760); L = parseOut(r.text) }
+  catch (e) { if (kind === 'scene') await kvSet(env, 'ai_scene_at', t - SCENE_GAP + 3e4); return { ok: false, e: 'ai', m: String(e.message).slice(0, 120) } }
+  const byName = new Map(cands.map(c => [c.name.toLowerCase(), c]));
+  // tulis dengan jeda mengetik: pesan muncul satu per satu (ts di masa depan)
+  let tt = t + (kind === 'reply' ? 1500 : 2500); const st = [];
+  for (const x of L) {
+    const c = byName.get(String(x.who).toLowerCase()); if (!c) continue;
+    chunks(x.text).forEach((part, k) => { tt += (k ? 1800 : x.delay * 1000) + part.length * 85; st.push(env.DB.prepare('INSERT INTO wchat (uid,name,txt,ts) VALUES (?,?,?,?)').bind(c.uid, c.name, part.slice(0, 140), Math.round(tt))) });
+  }
+  if (st.length) await env.DB.batch(st.slice(0, 20));
+  if (kind === 'scene') await kvSet(env, 'ai_until', Math.round(tt));
+  return { ok: true, n: st.length, until: Math.round(tt) };
 }
 
 /* ---------------- sesi ---------------- */
@@ -174,8 +224,8 @@ export async function gameRoute(req, env, url, json) {
   if (p === '/api/load') { const [u, f] = await me(); if (f) return f; return json({ ok: true, sv: u.sv, save: pj(u.save), u: u.uname }) }
   if (p === '/api/ping') {
     const [u, f] = await me(); if (f) return f;
-    const [c, w, wc] = await Promise.all([counts(env, u.uid), getWorld(env), env.DB.prepare('SELECT COALESCE(MAX(id),0) m FROM wchat').first(), env.DB.prepare('UPDATE players SET last=? WHERE uid=?').bind(now(), u.uid).run()]);
-    return json({ ok: true, sv: u.sv, u: u.uname, ...c, wc: wc.m, gen: w.gen, epoch: w.epoch, t: now() });
+    const [c, w, wc, ai] = await Promise.all([counts(env, u.uid), getWorld(env), env.DB.prepare('SELECT COALESCE(MAX(ts),0) m FROM wchat WHERE ts<=?').bind(now()).first(), aiOnline(env), env.DB.prepare('UPDATE players SET last=? WHERE uid=?').bind(now(), u.uid).run()]);
+    return json({ ok: true, sv: u.sv, u: u.uname, ...c, wc: wc.m, ai, gen: w.gen, epoch: w.epoch, t: now() });
   }
 
   // ---- dunia & pemain ----
@@ -277,20 +327,23 @@ export async function gameRoute(req, env, url, json) {
     return fail('act', 404);
   }
 
-  // ---- obrolan dunia ----
+  // ---- obrolan dunia ---- (dibaca per waktu: ?since=<ts>; pesan berjadwal baru muncul saat waktunya tiba)
+  if (p === '/api/wc/ai') { let u = null; if (b.tok) { u = await auth(env, b); if (u?.ban) u = null } return json(await aiChat(env, b, u)) }
   if (p === '/api/wc') {
     if (req.method === 'GET') {
-      const after = Math.max(0, +url.searchParams.get('after') || 0);
-      const { results } = await env.DB.prepare('SELECT w.*, p.lv, p.prof, p.ov, p.cp, p.bot, p.last, p.uname cur FROM (SELECT * FROM wchat WHERE id>? ORDER BY id DESC LIMIT 60) w LEFT JOIN players p ON p.uid=w.uid ORDER BY w.id').bind(after).all();
-      return json({ ok: true, list: results.map(r => ({ id: r.id, uid: r.uid, u: r.cur || r.name, txt: r.txt, ts: r.ts, vip: pj(r.prof, {}).vip || 0, top: pj(r.prof, {}).top || null })) });
+      const since = Math.max(0, +url.searchParams.get('since') || 0), t = now();
+      const q = since ? env.DB.prepare('SELECT w.*, p.prof, p.uname cur FROM wchat w LEFT JOIN players p ON p.uid=w.uid WHERE w.ts>=? AND w.ts<=? ORDER BY w.ts, w.id LIMIT 80').bind(since, t)
+        : env.DB.prepare('SELECT * FROM (SELECT w.*, p.prof, p.uname cur FROM wchat w LEFT JOIN players p ON p.uid=w.uid WHERE w.ts<=? ORDER BY w.ts DESC LIMIT 60) ORDER BY ts, id').bind(t);
+      const { results } = await q.all();
+      return json({ ok: true, t, ai: await aiOnline(env), list: results.map(r => ({ id: r.id, uid: r.uid, u: r.cur || r.name, txt: r.txt, ts: r.ts, vip: pj(r.prof, {}).vip || 0, top: pj(r.prof, {}).top || null })) });
     }
     const [u, f] = await me(); if (f) return f;
     const txt = clean(b.txt, 120); if (!txt) return fail('empty');
     const last = await env.DB.prepare('SELECT ts FROM wchat WHERE uid=? ORDER BY id DESC LIMIT 1').bind(u.uid).first();
     if (last && now() - last.ts < 1500) return fail('fast', 429);
     const r = await env.DB.prepare('INSERT INTO wchat (uid,name,txt,ts) VALUES (?,?,?,?)').bind(u.uid, u.uname, txt, now()).run();
-    if (r.meta.last_row_id % 50 === 0) await env.DB.prepare('DELETE FROM wchat WHERE id < ?').bind(r.meta.last_row_id - 1000).run();
-    return json({ ok: true, id: r.meta.last_row_id });
+    if (r.meta.last_row_id % 50 === 0) await env.DB.prepare('DELETE FROM wchat WHERE id < ?').bind(r.meta.last_row_id - 1500).run();
+    return json({ ok: true, id: r.meta.last_row_id, ts: now() });
   }
   return null;
 }
@@ -305,7 +358,7 @@ const ago = ms => { if (!ms) return 'belum pernah'; const m = Math.floor((now() 
 // kolom yang bisa diubah lewat tombol
 const H_FIELDS = { gems: 'Permata', gold: 'Emas', lv: 'Level', stam: 'Stamina', tixH: 'Tiket Hero', tixW: 'Tiket Senjata', uname: 'Username', pw: 'Password' };
 const B_FIELDS = { uname: 'Username', lv: 'Level', cp: 'CP', vip: 'VIP' };
-const ADMIN_HELP = `🛠 <b>Admin Aster Chronicles</b>\n\n• /akun &lt;UID|username&gt; — lihat & ubah akun (pemain atau bot)\n• /cari &lt;teks&gt; — cari username\n• /pemain — daftar pemain asli\n• /set &lt;UID|username&gt; &lt;kolom&gt; &lt;nilai&gt; — ubah apa saja\n   pemain: kolom di data simpanan, mis. <code>gems</code>, <code>heroes.nami.lv</code>, <code>mats.crys</code>\n   bot: <code>lv</code>, <code>cp</code>, <code>vip</code>, <code>uname</code>\n   nilai <code>hapus</code> = menghapus kolom\n• /data &lt;UID|username&gt; — file JSON data simpanan\n• /resetbot — reset semua bot ke hari 1\n\nKetik UID (8 angka) atau username saja juga bisa.`;
+const ADMIN_HELP = `🛠 <b>Admin Aster Chronicles</b>\n\n• /akun &lt;UID|username&gt; — lihat & ubah akun (pemain atau bot)\n• /cari &lt;teks&gt; — cari username\n• /pemain — daftar pemain asli\n• /set &lt;UID|username&gt; &lt;kolom&gt; &lt;nilai&gt; — ubah apa saja\n   pemain: kolom di data simpanan, mis. <code>gems</code>, <code>heroes.nami.lv</code>, <code>mats.crys</code>\n   bot: <code>lv</code>, <code>cp</code>, <code>vip</code>, <code>uname</code>\n   nilai <code>hapus</code> = menghapus kolom\n• /data &lt;UID|username&gt; — file JSON data simpanan\n• /resetbot — reset semua bot ke hari 1\n• /ai on|off — Mode AI Obrolan Dunia (Claude Haiku 5.5)\n\nKetik UID (8 angka) atau username saja juga bisa.`;
 
 function setPath(o, path, v) {
   const ks = path.split('.').filter(Boolean); if (!ks.length) return false;
@@ -418,6 +471,14 @@ export async function adminMessage(env, chat, t, low, send) {
     await sendDoc(env, chat, `${r.uname}_${r.uid}.json`, JSON.stringify(pj(r.save, {}), null, 1), `Data simpanan ${r.uname} (versi ${r.sv}). Ubah dengan /set ${r.uid} <kolom> <nilai>`);
     return true;
   }
+  if ((m = t.match(/^\/ai(?:@\w+)?\s*(on|off)?$/i))) {
+    if (m[1]) await kvSet(env, 'ai_on', m[1].toLowerCase());
+    const on = await aiOnline(env), today = +(await kvGet(env, dayKey()) || 0);
+    const n = await env.DB.prepare("SELECT COUNT(*) n FROM wchat w JOIN players p ON p.uid=w.uid WHERE p.bot IS NOT NULL AND w.ts>?").bind(now() - DAY).first();
+    await send(env, chat, `🤖 <b>Mode AI Obrolan Dunia</b>: ${on ? '🟢 NYALA' : '⚪ MATI'}\nModel: ${esc(env.AI_MODEL || 'claude-haiku-5-5')}${env.ANTHROPIC_API_KEY ? '' : '\n⚠️ Token ANTHROPIC_API_KEY belum dipasang'}\nPanggilan hari ini: ${today}/${env.AI_DAILY || 2000}\nPesan bot 24 jam: ${n.n}\n\n${on ? 'Para bot yang sedang online mengobrol sendiri dan membalas pemain asli di Obrolan Dunia.' : 'Obrolan Dunia hanya berisi pesan pemain asli.'}`,
+      { inline_keyboard: [[{ text: on ? '⚪ Matikan' : '🟢 Nyalakan', callback_data: on ? 'ai:off' : 'ai:on' }]] });
+    return true;
+  }
   if (/^\/resetbot(?:@\w+)?$/i.test(t)) {
     const n = await env.DB.prepare('SELECT COUNT(*) n FROM players WHERE bot IS NOT NULL').first(), w = await getWorld(env);
     await send(env, chat, `⚠️ <b>Reset semua bot?</b>\n\nSemua ${fmt(n.n)} akun bot (generasi ${w.gen}) beserta pertemanan & pesan dengan bot akan DIHAPUS. Dunia bot mulai lagi dari hari 1 dengan 0 pemain bot, lalu bertambah perlahan sampai ${fmt(BOTCFG.max)}.\n\nAkun pemain asli tidak berubah.`, { inline_keyboard: [[{ text: '♻️ Ya, reset bot', callback_data: 'rbot:yes' }, { text: 'Batal', callback_data: 'cancel' }]] });
@@ -451,6 +512,7 @@ export async function adminCallback(env, chat, d, send) {
     await send(env, chat, results.length ? `👥 <b>Teman & permintaan</b>\n\n` + results.map(r => `${r.bot == null ? '👤' : '🤖'} <code>${r.uid}</code> ${esc(r.uname)}${r.st === 'req' ? (r.frm === m[1] ? ' · ⏳ diminta' : ' · 📩 meminta') : ''}`).join('\n') : 'Belum punya teman.');
     return true;
   }
+  if ((m = d.match(/^ai:(on|off)$/))) { await adminMessage(env, chat, '/ai ' + m[1], '/ai ' + m[1], send); return true }
   if (d === 'rbot:yes') { const w = await resetBots(env); await send(env, chat, `♻️ <b>Dunia bot di-reset</b> (generasi ${w.gen}).\nSemua game akan memuat dunia baru dalam ±20 detik; bot mulai bergabung lagi dari 0.`); return true }
   return false;
 }
