@@ -8757,10 +8757,11 @@ function transEl(msg,flash){const tr=document.createElement('div');tr.className=
  <div class="bbot"><div class="btip"><em>TIPS</em><p class="in">${tipTxt(Math.floor(Math.random()*BOOT_TIPS.length))}</p></div>
  <div class="bline"><span>${T(msg)}</span><b></b></div><div class="bfr"><div class="bfill"></div><i class="bglint"></i></div></div>${flash?'<div class="trflash"></div>':''}`;
  document.body.appendChild(tr);if(id)artHeroInto(tr.querySelector('.bhero'),tr.querySelector('.binfo'),id);return tr}
-async function enterGame(){if(entering)return;entering=true;sfx('start');if(typeof bgmStop==='function'){bgmStop(1.2);setTimeout(()=>{if(!document.getElementById('login').classList.contains('on')&&!BGM.want)bgmPlay('game')},1500)}const L=document.getElementById('login');L.classList.add('enter');
+async function enterGame(){if(entering)return;entering=true;sfx('start');if(typeof bgmStop==='function')bgmStop(1.2);const L=document.getElementById('login');L.classList.add('enter');
  await sleep(420);const tr=transEl('Memasuki Kerajaan Aster...',1);
  await sleep(40);tr.classList.add('on');await sleep(1250);cancelAnimationFrame(loginRAF);L.classList.remove('on','enter','again');L.innerHTML='';lgMode='tap';lgOpened=false;
- initUI();await sleep(250);tr.classList.remove('on');setTimeout(()=>tr.remove(),500)}
+ initUI();if(typeof bgmPlay==='function'&&!BGM.want)bgmPlay('game');  // musik menu (cerita/battle yang langsung mulai sudah memasang lagunya sendiri)
+ await sleep(250);tr.classList.remove('on');setTimeout(()=>tr.remove(),500)}
 // kembali ke layar judul (dari Pengaturan atau setelah Hapus Progres): hentikan battle/cerita/suara, simpan, lalu buka login lagi
 async function backToLogin(){if(document.getElementById('login').classList.contains('on'))return;entering=false;
  try{$('#modal').classList.contains('on')&&closeModal()}catch(e){}
