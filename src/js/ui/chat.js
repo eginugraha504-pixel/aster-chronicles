@@ -22,15 +22,31 @@ function wcBot(m){const i=typeof botIdxOf==='function'?botIdxOf(m.uid):-1;return
 function wcVip(m){const i=wcBot(m);return i>=0?botState(i).stats.vip:m.vip}
 function wcTop(m){const i=wcBot(m);if(i>=0){const s=botState(i);return s.fav||s.team[0]}return m.top}
 // gaya mengetik tiap bot (dari persona chat) -> dikirim ke AI supaya tiap orang terasa beda
-function wcStyle(P){const R={gaul:'anak gaul: huruf kecil, banyak singkatan (yg, gk, bgt, udh, klo, lg, aj, sm), kadang salah ketik',santai:'santai, singkatan secukupnya, tanda baca jarang',
-  sopan:'agak sopan & rapi, tanda baca normal, kadang panggil "kak"',inggris:'sering campur bahasa Inggris (lol, bruh, ngl, gg, tbh)',wibu:'wibu: selipkan kata Jepang (yabai, sugoi, ne, yosh) & emotikon',singkat:'super singkat 1-4 kata, tanpa tanda baca'};
- return`${R[P.reg]||R.santai}; ketawa "${P.laugh[0]}"; panggil orang "${P.call}"; emotikon favorit ${P.emo[0]}`}
+/* Persona Mode AI (dibuat deterministik per bot, aliran acak sendiri): orang Indonesia biasa yang main game ini.
+   Tanpa gaya wibu / emotikon imut berlebihan; ciri khas dipakai SESEKALI, bukan di tiap pesan. */
+const WCP={
+ ketik:[[24,'huruf kecil, singkatan wajar (yg, gk, bgt, udh, klo), hampir tanpa tanda baca',1],[22,'huruf kecil tapi kata lengkap, kadang pakai titik atau koma',1],
+  [14,'rapi: huruf besar di awal kalimat, tanda baca normal, kalimat utuh',0],[14,'super singkat, sering cuma 1-3 kata',1],[12,'santai campur istilah game Inggris (gg, op, meta, nerf, carry, rng), tetap bahasa Indonesia',1],
+  [8,'agak panjang kalau ngomong, suka jelasin, huruf kecil',1],[6,'logat Jawa tipis sesekali (wes, ae, rek, cok jangan), huruf kecil',1]],
+ tawa:[[30,'wkwk / wkwkwk'],[14,'awokawok'],[14,'haha'],[10,'wkwk tapi jarang'],[12,'jarang ketawa'],[8,'ngakak / anjir ngakak'],[6,'xixixi'],[6,'"lmao"']],
+ emo:[[64,'tidak pakai emotikon'],[10,'sesekali :v'],[8,'sesekali xD'],[8,'sesekali T_T kalau sedih'],[6,'sesekali :)'],[4,'sesekali ._.']],
+ sifat:[[14,'cuek, jawab seperlunya, sering cuma nyimak'],[12,'suka bantu jawab pertanyaan orang baru, sabar'],[11,'kompetitif, suka bahas CP, arena & peringkat'],[11,'kocak, suka ngeledek teman, receh'],
+  [10,'sering ngeluh apes gacha tapi tetap narik'],[10,'analitis, suka bahas tim, elemen & build'],[9,'pemain baru, banyak nanya, kadang salah paham'],[8,'sering cerita hal di luar game (kerja, kuliah, makan, macet)'],
+  [8,'santai, main buat iseng, gak terlalu peduli meta'],[7,'agak sombong kalau hoki, suka pamer']],
+ hidup:['karyawan kantoran','mahasiswa','kerja shift','freelancer','jaga toko','ojol','guru les','baru lulus nyari kerja','admin online shop','kerja di bengkel','mahasiswa tingkat akhir','ibu rumah tangga'],
+ tic:['kadang pakai "anjir"','kadang pakai "btw"','kadang akhiri dengan "sih"','kadang pakai "jir"','kadang pakai "bjir"','kadang pakai "asli"','kadang pakai "njir"','kadang pakai "cuy"','kadang pakai "mantap"','kadang pakai "waduh"','kadang huruf dobel (bangettt)','sering typo kecil','kadang pakai "gas"','kadang pakai "aman"','kadang pakai "parah"','tidak ada kebiasaan khusus','tidak ada kebiasaan khusus','tidak ada kebiasaan khusus'],
+ call:[[46,'jarang memanggil, langsung jawab'],[16,'kadang "bang"'],[12,'kadang "bro"'],[8,'kadang "kak"'],[6,'kadang "cuy"'],[6,'kadang "bre"'],[6,'kadang "ngab"']]};
+function wcPick(r,L){if(typeof L[0]==='string')return L[Math.floor(r()*L.length)];let x=r()*L.reduce((a,v)=>a+v[0],0);for(const v of L){if(x<v[0])return v;x-=v[0]}return L[0]}
+const WCPC={};
+function wcPersona(i){if(WCPC[i])return WCPC[i];const r=bRng(bHash(i,777)),k=wcPick(r,WCP.ketik);
+ return WCPC[i]={ketik:k[1],lower:!!k[2],tawa:wcPick(r,WCP.tawa)[1],emo:wcPick(r,WCP.emo)[1],sifat:wcPick(r,WCP.sifat)[1],hidup:wcPick(r,WCP.hidup),tic:wcPick(r,WCP.tic),call:wcPick(r,WCP.call)[1]}}
+function wcStyle(i){const P=wcPersona(i);return`${P.ketik}; ketawa: ${P.tawa}; ${P.emo}; panggilan: ${P.call}; ${P.tic}; sifat: ${P.sifat}; sehari-hari ${P.hidup}`}
 /* ---- Mode AI ---- */
 const wcLv3=(i,now)=>botState(i,now).lv>=(FEAT.chat.lv||3);   // aturan sama dengan pemain: menulis setelah Lv 3
 // data bot: PUBLIK (bisa dilihat semua: profil/peringkat) vs PRIBADI (hanya dia yang tahu)
-function wcDesc(i,now){const c=chCtx(i,now),s=botState(i,now);
- return{pub:`Lv ${s.lv}, CP ${fmt(s.cp)}${s.stats.vip?', lencana VIP '+s.stats.vip:''}, tim ${s.team.map(id=>HD[id].name).join('/')}, hero favorit ${c.hero}, tahap ${c.stage}${c.league?', liga Arena '+c.league:''}`,
-  priv:`gacha lagi ${c.luck==='sial'?'apes':c.luck==='hoki'?'hoki':'biasa'}, pity ${c.pity}, ${c.vip>=4?'sultan':c.paid?'kadang top up'+(c.card?' (kartu bulanan)':''):'f2p'}${c.held?', nabung '+c.held+' tarikan':''}, main ${c.days} hari${c.fading?', mulai bosan':''}`}}
+function wcDesc(i,now){const c=chCtx(i,now),s=botState(i,now),a=botActivity(i,now),g=s.ev.filter(e=>!e.w&&now-e.t<3*36e5&&e.t<=now).pop();
+ return{pub:`Lv ${s.lv}, CP ${fmt(s.cp)}${s.stats.vip?', lencana VIP '+s.stats.vip:''}, tim ${s.team.map(id=>HD[id].name).join('/')}, hero favorit ${c.hero}, tahap terjauh ${c.stage}${c.league?', liga Arena '+c.league:''}${g?`, ${Math.round((now-g.t)/6e4)} menit lalu dapat ★3 ${HD[g.id].name} (muncul di pengumuman)`:''}`,
+  priv:`${a?'SEDANG: '+a.t+'; ':''}gacha lagi ${c.luck==='sial'?'apes':c.luck==='hoki'?'hoki':'biasa'}, pity ${c.pity}, ${c.vip>=4?'sultan':c.paid?'kadang top up'+(c.card?' (kartu bulanan)':''):'f2p'}${c.held?', nabung '+c.held+' tarikan':''}, main ${c.days} hari${c.fading?', mulai bosan':''}`}}
 // data PUBLIK pemain (yang bisa dilihat orang lain di profil) — tidak ada permata, pity, top up, atau aktivitas
 function wcMePub(){const own=Object.keys(S.heroes),s3=own.filter(id=>(S.heroes[id].asc||HD[id].r)>=3).map(id=>HD[id].name),cl=SLIST.filter(x=>S.stages[x.key]).pop(),v=vipOf(S.iap&&S.iap.spent||0);
  return`Lv ${S.lv}, CP ${fmt(teamPow())}, peringkat CP #${chMyRank()}${v?', lencana VIP '+v:''}, tim ${S.team.filter(Boolean).map(id=>HD[id].name).join('/')}, hero ★3: ${s3.join(', ')||'-'}, tahap terjauh ${cl?cl.key:'-'}`}
@@ -41,9 +57,9 @@ function wcAiBody(kind,reTo){const now=Date.now();
  const recent=[...new Set(WC.list.filter(m=>now-m.ts<15*6e4).map(wcBot).filter(i=>i>=0&&on.includes(i)))].slice(-2);
  const r=bRng(now>>>0),pool=talk.map(i=>[i,(chPersona(i).chat+.2)*r()]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
  const idx=[...new Set([...tgt,...ment,...recent,...pool])].slice(0,5);
- const cands=idx.map(i=>{const P=chPersona(i),D=wcDesc(i,now),s=botState(i,now);return{uid:botUid(i),pub:D.pub,priv:D.priv,style:wcStyle(P),lower:!!P.lower,fav:s.fav||''}});
+ const cands=idx.map(i=>{const D=wcDesc(i,now),s=botState(i,now);return{uid:botUid(i),pub:D.pub,priv:D.priv,style:wcStyle(i),lower:wcPersona(i).lower,fav:s.fav||''}});
  const humans=NET.players.filter(p=>p.on&&!(NET.acct&&p.uid===NET.acct.uid)).map(p=>`${p.u} (Lv ${p.lv})`).join(', ');
- return{tok:netTok(),kind,watch:chatOpen&&!!$('#chList'),online:wcOnline(),world:chWorldTxt(now),humans,cands,player:loggedIn()?{name:NET.acct.u,pub:wcMePub()}:null,n:chatOpen?'3-6':'3-5'}}
+ return{tok:netTok(),kind,watch:chatOpen&&!!$('#chList'),online:wcOnline(),world:chWorldTxt(now),humans,cands,player:loggedIn()?{name:NET.acct.u,pub:wcMePub()}:null,n:chatOpen?'2-5':'2-4'}}
 async function wcAi(kind,reTo){if(!NET.ai||WC.aiBusy||!botsWarmOk()||document.hidden)return;WC.aiBusy=true;
  try{chatInit();const b=wcAiBody(kind,reTo);if(!b.cands.length){WC.aiNext=Date.now()+6e4;return}const o=await api('/api/wc/ai',b);
   if(kind==='tick')WC.aiNext=Date.now()+Math.min(9e4,Math.max(3e4,o.next||0))+Math.random()*1e4;if(o.ok)setTimeout(wcFetch,2500)}catch(e){WC.aiNext=Date.now()+6e4}finally{WC.aiBusy=false}}

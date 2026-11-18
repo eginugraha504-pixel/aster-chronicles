@@ -43,7 +43,7 @@ function botBodyHTML(i){const s=botState(i),p=botPresence(i),b=botBase(i),now=Da
  const ids=Object.keys(s.heroes).sort((x,y)=>(y===s.fav)-(x===s.fav)||HD[y].r-HD[x].r||s.heroes[y].lv-s.heroes[x].lv);const L=rankSorted(),rk=L.findIndex(e=>e.i===i)+1;
  const bio=botBio(i,s,rk,now),st=s.stats,LUCK={hoki:T('Hoki'),normal:T('Normal'),sial:T('Apes')},old=botOldName(i,now);
  return`<div class="bprof"><div class="bpav">${s.fav?`<img class="px" src="${portrait(s.fav)}">`:''}${p.online?'<i class="on"></i>':''}</div>
-  <div class="bpinf"><b>${st.vip?`<i class="vip v${Math.min(7,st.vip)}">VIP${st.vip}</i>`:''}${esc(botName(i,now))}</b>${botUid(i)?`<small class="bold">UID ${botUid(i)}</small>`:''}${old?`<small class="bold">${T('Sebelumnya: {n}',{n:esc(old)})}</small>`:''}<span>${p.online?`<em class="ok">${T('Online')}</em>`:T('Aktif {t}',{t:agoMs(now-p.last)})}${b.back&&now>=b.segs[2][0]?` · <em class="ok">${T('Kembali bermain!')}</em>`:''}</span><span>${T('Bergabung {t}',{t:agoMs(now-b.join)})}</span></div></div>
+  <div class="bpinf"><b>${st.vip?`<i class="vip v${Math.min(7,st.vip)}">VIP${st.vip}</i>`:''}${esc(botName(i,now))}</b>${botUid(i)?`<small class="bold">UID ${botUid(i)}</small>`:''}${old?`<small class="bold">${T('Sebelumnya: {n}',{n:esc(old)})}</small>`:''}<span>${p.online?`<em class="ok">${T('Online')}</em>${botWhere(i,now)}`:T('Aktif {t}',{t:agoMs(now-p.last)})}${b.back&&now>=b.segs[2][0]?` · <em class="ok">${T('Kembali bermain!')}</em>`:''}</span><span>${T('Bergabung {t}',{t:agoMs(now-b.join)})}</span></div></div>
  ${st.card||st.held>=10?`<div class="bbadges">${st.card?`<span class="bb card">${T('Kartu Bulanan')}</span>`:''}${st.held>=10?`<span class="bb save">${T('Menabung {n} tarikan',{n:st.held})}</span>`:''}</div>`:''}
  ${bio?`<div class="bbio">“${esc(bio)}”</div>`:''}
  <div class="stats"><div><span>${T('Level')}</span><b>${s.lv}</b></div><div><span>CP</span><b>${fmt(s.cp)}</b></div><div><span>${T('Peringkat')}</span><b>#${rk}</b></div><div><span>${T('Tahap')}</span><b>${s.stage}</b></div></div>
@@ -61,3 +61,6 @@ setTimeout(()=>{botsInit();botsWarm();setInterval(()=>{botsEnsure();botsEnsureRe
 
 // awal ulang dunia bot: potret peringkat lama tidak berlaku lagi
 function rankReset(){RANK_PREV=null}
+
+// status kasar bot yang sedang online (seperti status di game asli): Petualangan / Dungeon / Arena / Summon
+function botWhere(i,now){try{const a=typeof botActivity==='function'&&botActivity(i,now);const w=a&&{push:'Petualangan',stuck:'Petualangan',dg:'Dungeon',arena:'Arena',gacha:'Summon'}[a.k];return w?' · '+T('di {w}',{w:T(w)}):''}catch(e){return''}}

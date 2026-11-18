@@ -2731,11 +2731,11 @@ const CHAT_STYLE={
  // register bahasa. w = bobot. lower = peluang semua huruf kecil. abbr = peluang tiap kata disingkat.
  // en = peluang memakai kalimat Inggris bila tersedia. jp = peluang menyelipkan kata Jepang.
  regs:{
-  gaul:  {w:42,lower:.92,abbr:.75,en:.04,jp:.03,laugh:1,  emo:.25,punct:.15,typo:[.01,.045],split:.35,elong:.25},
-  santai:{w:24,lower:.6, abbr:.4, en:.06,jp:.03,laugh:.8, emo:.3, punct:.4, typo:[.005,.025],split:.2, elong:.12},
+  gaul:  {w:42,lower:.92,abbr:.75,en:.04,jp:0,laugh:1,  emo:.25,punct:.15,typo:[.01,.045],split:.35,elong:.25},
+  santai:{w:24,lower:.6, abbr:.4, en:.06,jp:0,laugh:.8, emo:.3, punct:.4, typo:[.005,.025],split:.2, elong:.12},
   sopan: {w:10,lower:.15,abbr:.08,en:.02,jp:0,  laugh:.35,emo:.35,punct:.85,typo:[0,.01],   split:.08,elong:.03},
   inggris:{w:8,lower:.7, abbr:.3, en:.85,jp:.02,laugh:.8, emo:.3, punct:.2, typo:[.005,.03],split:.2, elong:.1},
-  wibu:  {w:8, lower:.75,abbr:.55,en:.1, jp:.45,laugh:.9, emo:.6, punct:.25,typo:[.005,.03],split:.3, elong:.3},
+  wibu:  {w:0, lower:.75,abbr:.55,en:.1, jp:0,laugh:.9, emo:.2, punct:.25,typo:[.005,.03],split:.3, elong:.3},   // dimatikan (18 Nov 2026): terlalu cringe
   singkat:{w:8,lower:.97,abbr:.95,en:.03,jp:0,  laugh:.9, emo:.05,punct:0,  typo:[.01,.05],split:.05,elong:.05},
  },
  // seberapa sering bicara di chat dunia (dibanding rata-rata). Sebagian besar pemain hanya membaca.
@@ -2743,9 +2743,9 @@ const CHAT_STYLE={
  // gaya tertawa: {n} = diulang acak
  laughs:['wkwk','wkwkwk','wkwkwkwk','wkwkwkwkwk','awokawok','awokawokawok','haha','hahaha','wkakaka','xixixi','hehe','kwkwkw','lol','lmao','ahahah','WKWKWK','anjay wkwk'],
  laughEn:['lol','lmao','haha','hahaha','xD','lmaoo'],
- emos:[':v','xD','XD',':D','^^','^_^','T_T','TwT',':(',':)','-_-','>_<','QwQ','(｡•́︿•̀｡)','owo','uwu',':3','=))','wkwk :v'],
- emoSad:['T_T','TwT',':(','QwQ','huhu','hiks',':\'(','(╥_╥)'],
- emoHappy:[':D','^^','xD','yeay','hehe',':3','owo','\\(^o^)/'],
+ emos:[':v','xD',':D','T_T',':(',':)','-_-','._.','wkwk :v'],
+ emoSad:['T_T',':(','huhu','hiks','._.'],
+ emoHappy:[':D','xD','yeay','hehe','mantap'],
  // kata Jepang yang suka diselipkan bot wibu
  jp:{pre:['etto','ano','mou','yosh','sugoi','yabai','sasuga','ara ara'],post:['desu','ne','yo','kawaii','yatta','sugoi','nee']},
  // panggilan akrab
@@ -5785,6 +5785,8 @@ const BXP={};
 function botLv(pf,P){const T=BOT_CFG.CURVES[pf],L=T[T.length-1];if(P<=L[0])return Math.max(1,Math.floor(bInterp(bCol(pf,1),P)));
  if(BXP[pf]==null){const a=T[T.length-1-BOT_CFG.XP_TAIL_DAYS];let xp=0;for(let l=a[1];l<L[1];l++)xp+=expNeed(l);BXP[pf]=xp/(L[0]-a[0])}
  let lv=L[1],xp=(P-L[0])*BXP[pf];while(lv<999&&xp>=expNeed(lv)){xp-=expNeed(lv);lv++}return lv}
+// waktu bot mencapai level akun L (dari kurva level gaya mainnya)
+function botLvTime(b,L){const T=BOT_CFG.CURVES[b.pf];for(let k=1;k<T.length;k++)if(T[k][1]>=L){const a=T[k-1],c=T[k];return botProgInv(b,a[0]+(c[0]-a[0])*(L-a[1])/Math.max(1e-9,c[1]-a[1]))}return botProgInv(b,T[T.length-1][0])}
 // progres saat total summon mencapai n
 function botSumInv(pf,n){const T=BOT_CFG.CURVES[pf];if(n<=T[0][2])return 0;for(let k=1;k<T.length;k++)if(T[k][2]>=n){const a=T[k-1],b=T[k];return a[0]+(b[0]-a[0])*(n-a[2])/Math.max(1e-9,b[2]-a[2])}
  const L=T[T.length-1];return L[0]+(n-L[2])/Math.max(1e-9,bTail(pf,2))}
@@ -5843,7 +5845,7 @@ function botState(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now
   const firstH=G.ev.find(e=>!e.w),lastLim=G.ev.filter(e=>!e.w&&e.lim).pop(),own=Object.keys(heroes);
   const fav=!b.loyal&&lastLim?lastLim.id:firstH?firstH.id:own[bHash(i,9)%own.length];
   const ids=own.sort((x,y)=>maxLvRaw(y)-maxLvRaw(x)||HD[y].r-HD[x].r||heroes[y].lb-heroes[x].lb||(x<y?-1:1));const core=ids.slice(0,4);if(!core.includes(fav))core.push(fav);
-  const lvF={};ids.forEach(id=>{const f=core.includes(id)?opt+r()*(1-opt):C.BENCH_LV[0]+r()*(C.BENCH_LV[1]-C.BENCH_LV[0])*(.6+.4*opt);lvF[id]=f;heroes[id].lv=Math.max(1,Math.round(maxLv(id)*f))});
+  const lvF={};ids.forEach(id=>{const f=core.includes(id)?opt+r()*(1-opt):C.BENCH_LV[0]+r()*(C.BENCH_LV[1]-C.BENCH_LV[0])*(.6+.4*opt);lvF[id]=f;heroes[id].lv=Math.max(1,Math.min(Math.round(maxLv(id)*f),2+3*lv))});   // awal main: level hero dibatasi emas (Lv1 ±5, Lv3 ±11, Lv8 menyusul batas akun)
   const wl=Math.round(botCurve(b.pf,3,P)*(.8+.2*opt)),wlb=Math.floor(botCurve(b.pf,4,P)*(opt>.8?1:.75)+.001),used=new Set();
   for(const id of ids){const cls=HD[id].wcls;const cand=Object.keys(weapons).filter(w=>WD[w].cls===cls&&!used.has(w)).sort((x,y)=>(WD[y].owner===id)-(WD[x].owner===id)||WD[y].r-WD[x].r||weapons[y].ref-weapons[x].ref);
    // pemain kurang optimal kadang lupa memasang senjata terbaik
@@ -6604,15 +6606,16 @@ const AR={board:null,at:0};
 // saat terakhir bot aktif (<= now); -1 bila belum pernah
 function arBotLast(b,now){let t=-1;for(const[s0,s1]of b.segs){if(now<s0)break;t=Math.min(now,s1)}return t}
 function arBotPts(i,pct,now){const b=botBase(i),C=ARENA_CFG,wk=arWeek(now),ws=arWeekStart(wk),t=arBotLast(b,now);if(t<ws)return null;  // belum aktif di musim ini
+ const t10=botLvTime(b,FEAT.arena.lv||10);if(t<t10)return null;   // Arena baru terbuka di Lv 10
  const tgt=w=>{const r=bRng(bHash(i,5000+w));return Math.max(900,C.start+C.bot.span*Math.pow(pct,C.bot.curve)+(r()-.5)*C.bot.jitter)};
  const s0=b.join<ws?C.start+Math.max(0,tgt(wk-1)-C.start)*C.soft:C.start;
- const days=(t-Math.max(ws,b.join))/BDAY,f=1-Math.exp(-Math.max(0,days)*(C.bot.speed[b.pf]||.5)*.9);
+ const days=(t-Math.max(ws,b.join,t10))/BDAY,f=1-Math.exp(-Math.max(0,days)*(C.bot.speed[b.pf]||.5)*.9);
  const h=Math.floor(t/36e5),wig=Math.round(Math.sin(h*1.7+i*.37)*10*f);
  return Math.max(0,Math.round(s0+(tgt(wk)-s0)*f+wig))}
 function arBoard(now=Date.now()){if(AR.board&&now-AR.at<15e3)return AR.board;
  const L=botsList(now).filter(e=>!e.me),cps=L.map(e=>e.cp).sort((a,b)=>a-b),n=cps.length;
  const lb=v=>{let lo=0,hi=n;while(lo<hi){const m=(lo+hi)>>1;if(cps[m]<v)lo=m+1;else hi=m}return lo};
- const out=[];for(const e of L){const p=arBotPts(e.i,n>1?lb(e.cp)/(n-1):.5,now);if(p!=null)out.push(Object.assign(e,{pts:p}))}
+ const out=[];for(const e of L){if(e.lv<(FEAT.arena.lv||10))continue;const p=arBotPts(e.i,n>1?lb(e.cp)/(n-1):.5,now);if(p!=null)out.push(Object.assign(e,{pts:p}))}
  AR.board=out;AR.at=now;return out}
 const arMe=()=>({me:true,name:S.name,lv:S.lv,cp:teamPow(),top:S.team.find(Boolean),online:true,last:Date.now(),pts:arState().pts});
 function arRank(){const p=arState().pts;return arBoard().filter(e=>e.pts>p).length+1}
@@ -6849,6 +6852,25 @@ function chCtx(i,t){const s=botState(i),b=botBase(i),st=s.stats,p=chPersona(i),f
   fading:b.quit<Infinity&&t>=b.segs[1][0]&&t<b.endT,night:wibHour(t)>=23||wibHour(t)<4,newRecent:chWorld().newRecent,newId:chWorld().newId,top:chWorld().top,
   get league(){if(typeof arBotPtsNow!=='function')return'';const v=arBotPtsNow(i);return v==null?'':T(arLg(v).n)},p}}
 
+
+/* ---------- aktivitas bot saat ini (bot benar-benar "memainkan" fitur yang sudah terbuka untuknya) ----------
+   Deterministik per sesi & per slot 6 menit: awal sesi ambil hadiah/misi, lalu push tahap (macet bila CP < rekomendasi),
+   Dungeon (setelah 1-5), Arena (Lv 10+), naik level, gacha, auto. Dipakai Mode AI (konteks obrolan) & profil bot. */
+function botSessionAt(i,now=Date.now()){const b=botBase(i);for(const d of[wibDay(now),wibDay(now)-1])for(const[s0,s1]of botSessions(b,d))if(s0<=now&&now<s1)return[s0,s1];return null}
+function botActivity(i,now=Date.now()){const p=botPresence(i,now);if(!p.online)return null;const s=botState(i,now),ss=botSessionAt(i,now)||[now-5*6e4,now+6e5],m=(now-ss[0])/6e4;
+ const si=SLIST.findIndex(x=>x.key===s.stage),nx=SLIST[si+1],r=bRng(bHash(i,Math.floor(ss[0]/6e4)+Math.floor(m/6)*7919));
+ const got=s.ev.filter(e=>!e.w&&e.t>=ss[0]&&e.t<=now).pop();
+ if(m<3)return{k:'login',t:'baru login, ngambil hadiah login & misi harian'};
+ if(got&&now-got.t<12*6e4)return{k:'gacha',t:`barusan gacha, dapat ★3 ${HD[got.id].name}`};
+ const dgOk=si>=SLIST.findIndex(x=>x.key==='1-5'),L=[];
+ if(nx)L.push([3,()=>(nx.boss?s.cp<nx.rec*.95:s.cp<nx.rec*.78)?{k:'stuck',t:`nyoba tahap ${nx.key}${nx.boss?' (bos)':''} tapi kalah terus, CP kurang (rekomendasi ${fmt(nx.rec)})`}:{k:'push',t:`lagi push tahap ${nx.key}`}]);
+ if(dgOk)L.push([2.5,()=>{const d=s.cp>=27000&&r()<.3?'Menara Kebangkitan':chPick(r,['Tambang Bijih','Kuil Bintang','Brankas Naga Emas']);return{k:'dg',t:`farming Dungeon ${d}, tiket sisa ${1+Math.floor(r()*4)}`}}]);
+ if(s.lv>=(FEAT.arena.lv||10))L.push([2,()=>({k:'arena',t:`main Arena${r()<.5?', barusan menang':', barusan kalah'}`})]);
+ L.push([1.6,()=>({k:'up',t:chPick(r,['naikin level hero','naikin level senjata','ganti formasi tim'].concat(Object.keys(s.gear||{}).length?['pasang perlengkapan dari dungeon']:[]))})]);
+ L.push([1.2,()=>({k:'afk',t:chPick(r,['auto battle sambil nonton','auto sambil kerja','cuma buka buat ngumpulin stamina','nunggu stamina penuh'])})]);
+ if(s.stats.held>0)L.push([.8,()=>({k:'save',t:'nabung permata buat banner berikutnya, nahan diri gak narik'})]);
+ L.push([.5,()=>({k:'ev',t:'ngecek event & misi'})]);
+ let x=r()*L.reduce((a,v)=>a+v[0],0);for(const[w,f]of L){if(x<w)return f();x-=w}return L[0][1]()}
 /* ---------- isi slot & variasi ---------- */
 function chLaugh(p,r){let l=chPick(r,p.laugh);if(/^wk/i.test(l)){const up=l===l.toUpperCase();l=(up?'WK':'wk').repeat(1+Math.floor(r()*4))+(r()<.3?(up?'W':'w'):'')}return l}
 function chFill(tpl,c,r,ex={}){const W=chWorld();if(typeof tpl==='function')tpl=tpl(c,W,CHAT.mem);if(!tpl)return null;if(typeof tpl==='object')tpl=tpl.t;
@@ -8154,7 +8176,7 @@ function botBodyHTML(i){const s=botState(i),p=botPresence(i),b=botBase(i),now=Da
  const ids=Object.keys(s.heroes).sort((x,y)=>(y===s.fav)-(x===s.fav)||HD[y].r-HD[x].r||s.heroes[y].lv-s.heroes[x].lv);const L=rankSorted(),rk=L.findIndex(e=>e.i===i)+1;
  const bio=botBio(i,s,rk,now),st=s.stats,LUCK={hoki:T('Hoki'),normal:T('Normal'),sial:T('Apes')},old=botOldName(i,now);
  return`<div class="bprof"><div class="bpav">${s.fav?`<img class="px" src="${portrait(s.fav)}">`:''}${p.online?'<i class="on"></i>':''}</div>
-  <div class="bpinf"><b>${st.vip?`<i class="vip v${Math.min(7,st.vip)}">VIP${st.vip}</i>`:''}${esc(botName(i,now))}</b>${botUid(i)?`<small class="bold">UID ${botUid(i)}</small>`:''}${old?`<small class="bold">${T('Sebelumnya: {n}',{n:esc(old)})}</small>`:''}<span>${p.online?`<em class="ok">${T('Online')}</em>`:T('Aktif {t}',{t:agoMs(now-p.last)})}${b.back&&now>=b.segs[2][0]?` · <em class="ok">${T('Kembali bermain!')}</em>`:''}</span><span>${T('Bergabung {t}',{t:agoMs(now-b.join)})}</span></div></div>
+  <div class="bpinf"><b>${st.vip?`<i class="vip v${Math.min(7,st.vip)}">VIP${st.vip}</i>`:''}${esc(botName(i,now))}</b>${botUid(i)?`<small class="bold">UID ${botUid(i)}</small>`:''}${old?`<small class="bold">${T('Sebelumnya: {n}',{n:esc(old)})}</small>`:''}<span>${p.online?`<em class="ok">${T('Online')}</em>${botWhere(i,now)}`:T('Aktif {t}',{t:agoMs(now-p.last)})}${b.back&&now>=b.segs[2][0]?` · <em class="ok">${T('Kembali bermain!')}</em>`:''}</span><span>${T('Bergabung {t}',{t:agoMs(now-b.join)})}</span></div></div>
  ${st.card||st.held>=10?`<div class="bbadges">${st.card?`<span class="bb card">${T('Kartu Bulanan')}</span>`:''}${st.held>=10?`<span class="bb save">${T('Menabung {n} tarikan',{n:st.held})}</span>`:''}</div>`:''}
  ${bio?`<div class="bbio">“${esc(bio)}”</div>`:''}
  <div class="stats"><div><span>${T('Level')}</span><b>${s.lv}</b></div><div><span>CP</span><b>${fmt(s.cp)}</b></div><div><span>${T('Peringkat')}</span><b>#${rk}</b></div><div><span>${T('Tahap')}</span><b>${s.stage}</b></div></div>
@@ -8172,6 +8194,9 @@ setTimeout(()=>{botsInit();botsWarm();setInterval(()=>{botsEnsure();botsEnsureRe
 
 // awal ulang dunia bot: potret peringkat lama tidak berlaku lagi
 function rankReset(){RANK_PREV=null}
+
+// status kasar bot yang sedang online (seperti status di game asli): Petualangan / Dungeon / Arena / Summon
+function botWhere(i,now){try{const a=typeof botActivity==='function'&&botActivity(i,now);const w=a&&{push:'Petualangan',stuck:'Petualangan',dg:'Dungeon',arena:'Arena',gacha:'Summon'}[a.k];return w?' · '+T('di {w}',{w:T(w)}):''}catch(e){return''}}
 
 /* ==== js/ui/arena.js ==== */
 /* =====================================================================
@@ -8389,15 +8414,31 @@ function wcBot(m){const i=typeof botIdxOf==='function'?botIdxOf(m.uid):-1;return
 function wcVip(m){const i=wcBot(m);return i>=0?botState(i).stats.vip:m.vip}
 function wcTop(m){const i=wcBot(m);if(i>=0){const s=botState(i);return s.fav||s.team[0]}return m.top}
 // gaya mengetik tiap bot (dari persona chat) -> dikirim ke AI supaya tiap orang terasa beda
-function wcStyle(P){const R={gaul:'anak gaul: huruf kecil, banyak singkatan (yg, gk, bgt, udh, klo, lg, aj, sm), kadang salah ketik',santai:'santai, singkatan secukupnya, tanda baca jarang',
-  sopan:'agak sopan & rapi, tanda baca normal, kadang panggil "kak"',inggris:'sering campur bahasa Inggris (lol, bruh, ngl, gg, tbh)',wibu:'wibu: selipkan kata Jepang (yabai, sugoi, ne, yosh) & emotikon',singkat:'super singkat 1-4 kata, tanpa tanda baca'};
- return`${R[P.reg]||R.santai}; ketawa "${P.laugh[0]}"; panggil orang "${P.call}"; emotikon favorit ${P.emo[0]}`}
+/* Persona Mode AI (dibuat deterministik per bot, aliran acak sendiri): orang Indonesia biasa yang main game ini.
+   Tanpa gaya wibu / emotikon imut berlebihan; ciri khas dipakai SESEKALI, bukan di tiap pesan. */
+const WCP={
+ ketik:[[24,'huruf kecil, singkatan wajar (yg, gk, bgt, udh, klo), hampir tanpa tanda baca',1],[22,'huruf kecil tapi kata lengkap, kadang pakai titik atau koma',1],
+  [14,'rapi: huruf besar di awal kalimat, tanda baca normal, kalimat utuh',0],[14,'super singkat, sering cuma 1-3 kata',1],[12,'santai campur istilah game Inggris (gg, op, meta, nerf, carry, rng), tetap bahasa Indonesia',1],
+  [8,'agak panjang kalau ngomong, suka jelasin, huruf kecil',1],[6,'logat Jawa tipis sesekali (wes, ae, rek, cok jangan), huruf kecil',1]],
+ tawa:[[30,'wkwk / wkwkwk'],[14,'awokawok'],[14,'haha'],[10,'wkwk tapi jarang'],[12,'jarang ketawa'],[8,'ngakak / anjir ngakak'],[6,'xixixi'],[6,'"lmao"']],
+ emo:[[64,'tidak pakai emotikon'],[10,'sesekali :v'],[8,'sesekali xD'],[8,'sesekali T_T kalau sedih'],[6,'sesekali :)'],[4,'sesekali ._.']],
+ sifat:[[14,'cuek, jawab seperlunya, sering cuma nyimak'],[12,'suka bantu jawab pertanyaan orang baru, sabar'],[11,'kompetitif, suka bahas CP, arena & peringkat'],[11,'kocak, suka ngeledek teman, receh'],
+  [10,'sering ngeluh apes gacha tapi tetap narik'],[10,'analitis, suka bahas tim, elemen & build'],[9,'pemain baru, banyak nanya, kadang salah paham'],[8,'sering cerita hal di luar game (kerja, kuliah, makan, macet)'],
+  [8,'santai, main buat iseng, gak terlalu peduli meta'],[7,'agak sombong kalau hoki, suka pamer']],
+ hidup:['karyawan kantoran','mahasiswa','kerja shift','freelancer','jaga toko','ojol','guru les','baru lulus nyari kerja','admin online shop','kerja di bengkel','mahasiswa tingkat akhir','ibu rumah tangga'],
+ tic:['kadang pakai "anjir"','kadang pakai "btw"','kadang akhiri dengan "sih"','kadang pakai "jir"','kadang pakai "bjir"','kadang pakai "asli"','kadang pakai "njir"','kadang pakai "cuy"','kadang pakai "mantap"','kadang pakai "waduh"','kadang huruf dobel (bangettt)','sering typo kecil','kadang pakai "gas"','kadang pakai "aman"','kadang pakai "parah"','tidak ada kebiasaan khusus','tidak ada kebiasaan khusus','tidak ada kebiasaan khusus'],
+ call:[[46,'jarang memanggil, langsung jawab'],[16,'kadang "bang"'],[12,'kadang "bro"'],[8,'kadang "kak"'],[6,'kadang "cuy"'],[6,'kadang "bre"'],[6,'kadang "ngab"']]};
+function wcPick(r,L){if(typeof L[0]==='string')return L[Math.floor(r()*L.length)];let x=r()*L.reduce((a,v)=>a+v[0],0);for(const v of L){if(x<v[0])return v;x-=v[0]}return L[0]}
+const WCPC={};
+function wcPersona(i){if(WCPC[i])return WCPC[i];const r=bRng(bHash(i,777)),k=wcPick(r,WCP.ketik);
+ return WCPC[i]={ketik:k[1],lower:!!k[2],tawa:wcPick(r,WCP.tawa)[1],emo:wcPick(r,WCP.emo)[1],sifat:wcPick(r,WCP.sifat)[1],hidup:wcPick(r,WCP.hidup),tic:wcPick(r,WCP.tic),call:wcPick(r,WCP.call)[1]}}
+function wcStyle(i){const P=wcPersona(i);return`${P.ketik}; ketawa: ${P.tawa}; ${P.emo}; panggilan: ${P.call}; ${P.tic}; sifat: ${P.sifat}; sehari-hari ${P.hidup}`}
 /* ---- Mode AI ---- */
 const wcLv3=(i,now)=>botState(i,now).lv>=(FEAT.chat.lv||3);   // aturan sama dengan pemain: menulis setelah Lv 3
 // data bot: PUBLIK (bisa dilihat semua: profil/peringkat) vs PRIBADI (hanya dia yang tahu)
-function wcDesc(i,now){const c=chCtx(i,now),s=botState(i,now);
- return{pub:`Lv ${s.lv}, CP ${fmt(s.cp)}${s.stats.vip?', lencana VIP '+s.stats.vip:''}, tim ${s.team.map(id=>HD[id].name).join('/')}, hero favorit ${c.hero}, tahap ${c.stage}${c.league?', liga Arena '+c.league:''}`,
-  priv:`gacha lagi ${c.luck==='sial'?'apes':c.luck==='hoki'?'hoki':'biasa'}, pity ${c.pity}, ${c.vip>=4?'sultan':c.paid?'kadang top up'+(c.card?' (kartu bulanan)':''):'f2p'}${c.held?', nabung '+c.held+' tarikan':''}, main ${c.days} hari${c.fading?', mulai bosan':''}`}}
+function wcDesc(i,now){const c=chCtx(i,now),s=botState(i,now),a=botActivity(i,now),g=s.ev.filter(e=>!e.w&&now-e.t<3*36e5&&e.t<=now).pop();
+ return{pub:`Lv ${s.lv}, CP ${fmt(s.cp)}${s.stats.vip?', lencana VIP '+s.stats.vip:''}, tim ${s.team.map(id=>HD[id].name).join('/')}, hero favorit ${c.hero}, tahap terjauh ${c.stage}${c.league?', liga Arena '+c.league:''}${g?`, ${Math.round((now-g.t)/6e4)} menit lalu dapat ★3 ${HD[g.id].name} (muncul di pengumuman)`:''}`,
+  priv:`${a?'SEDANG: '+a.t+'; ':''}gacha lagi ${c.luck==='sial'?'apes':c.luck==='hoki'?'hoki':'biasa'}, pity ${c.pity}, ${c.vip>=4?'sultan':c.paid?'kadang top up'+(c.card?' (kartu bulanan)':''):'f2p'}${c.held?', nabung '+c.held+' tarikan':''}, main ${c.days} hari${c.fading?', mulai bosan':''}`}}
 // data PUBLIK pemain (yang bisa dilihat orang lain di profil) — tidak ada permata, pity, top up, atau aktivitas
 function wcMePub(){const own=Object.keys(S.heroes),s3=own.filter(id=>(S.heroes[id].asc||HD[id].r)>=3).map(id=>HD[id].name),cl=SLIST.filter(x=>S.stages[x.key]).pop(),v=vipOf(S.iap&&S.iap.spent||0);
  return`Lv ${S.lv}, CP ${fmt(teamPow())}, peringkat CP #${chMyRank()}${v?', lencana VIP '+v:''}, tim ${S.team.filter(Boolean).map(id=>HD[id].name).join('/')}, hero ★3: ${s3.join(', ')||'-'}, tahap terjauh ${cl?cl.key:'-'}`}
@@ -8408,9 +8449,9 @@ function wcAiBody(kind,reTo){const now=Date.now();
  const recent=[...new Set(WC.list.filter(m=>now-m.ts<15*6e4).map(wcBot).filter(i=>i>=0&&on.includes(i)))].slice(-2);
  const r=bRng(now>>>0),pool=talk.map(i=>[i,(chPersona(i).chat+.2)*r()]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
  const idx=[...new Set([...tgt,...ment,...recent,...pool])].slice(0,5);
- const cands=idx.map(i=>{const P=chPersona(i),D=wcDesc(i,now),s=botState(i,now);return{uid:botUid(i),pub:D.pub,priv:D.priv,style:wcStyle(P),lower:!!P.lower,fav:s.fav||''}});
+ const cands=idx.map(i=>{const D=wcDesc(i,now),s=botState(i,now);return{uid:botUid(i),pub:D.pub,priv:D.priv,style:wcStyle(i),lower:wcPersona(i).lower,fav:s.fav||''}});
  const humans=NET.players.filter(p=>p.on&&!(NET.acct&&p.uid===NET.acct.uid)).map(p=>`${p.u} (Lv ${p.lv})`).join(', ');
- return{tok:netTok(),kind,watch:chatOpen&&!!$('#chList'),online:wcOnline(),world:chWorldTxt(now),humans,cands,player:loggedIn()?{name:NET.acct.u,pub:wcMePub()}:null,n:chatOpen?'3-6':'3-5'}}
+ return{tok:netTok(),kind,watch:chatOpen&&!!$('#chList'),online:wcOnline(),world:chWorldTxt(now),humans,cands,player:loggedIn()?{name:NET.acct.u,pub:wcMePub()}:null,n:chatOpen?'2-5':'2-4'}}
 async function wcAi(kind,reTo){if(!NET.ai||WC.aiBusy||!botsWarmOk()||document.hidden)return;WC.aiBusy=true;
  try{chatInit();const b=wcAiBody(kind,reTo);if(!b.cands.length){WC.aiNext=Date.now()+6e4;return}const o=await api('/api/wc/ai',b);
   if(kind==='tick')WC.aiNext=Date.now()+Math.min(9e4,Math.max(3e4,o.next||0))+Math.random()*1e4;if(o.ok)setTimeout(wcFetch,2500)}catch(e){WC.aiNext=Date.now()+6e4}finally{WC.aiBusy=false}}

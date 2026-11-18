@@ -69,6 +69,25 @@ function chCtx(i,t){const s=botState(i),b=botBase(i),st=s.stats,p=chPersona(i),f
   fading:b.quit<Infinity&&t>=b.segs[1][0]&&t<b.endT,night:wibHour(t)>=23||wibHour(t)<4,newRecent:chWorld().newRecent,newId:chWorld().newId,top:chWorld().top,
   get league(){if(typeof arBotPtsNow!=='function')return'';const v=arBotPtsNow(i);return v==null?'':T(arLg(v).n)},p}}
 
+
+/* ---------- aktivitas bot saat ini (bot benar-benar "memainkan" fitur yang sudah terbuka untuknya) ----------
+   Deterministik per sesi & per slot 6 menit: awal sesi ambil hadiah/misi, lalu push tahap (macet bila CP < rekomendasi),
+   Dungeon (setelah 1-5), Arena (Lv 10+), naik level, gacha, auto. Dipakai Mode AI (konteks obrolan) & profil bot. */
+function botSessionAt(i,now=Date.now()){const b=botBase(i);for(const d of[wibDay(now),wibDay(now)-1])for(const[s0,s1]of botSessions(b,d))if(s0<=now&&now<s1)return[s0,s1];return null}
+function botActivity(i,now=Date.now()){const p=botPresence(i,now);if(!p.online)return null;const s=botState(i,now),ss=botSessionAt(i,now)||[now-5*6e4,now+6e5],m=(now-ss[0])/6e4;
+ const si=SLIST.findIndex(x=>x.key===s.stage),nx=SLIST[si+1],r=bRng(bHash(i,Math.floor(ss[0]/6e4)+Math.floor(m/6)*7919));
+ const got=s.ev.filter(e=>!e.w&&e.t>=ss[0]&&e.t<=now).pop();
+ if(m<3)return{k:'login',t:'baru login, ngambil hadiah login & misi harian'};
+ if(got&&now-got.t<12*6e4)return{k:'gacha',t:`barusan gacha, dapat ★3 ${HD[got.id].name}`};
+ const dgOk=si>=SLIST.findIndex(x=>x.key==='1-5'),L=[];
+ if(nx)L.push([3,()=>(nx.boss?s.cp<nx.rec*.95:s.cp<nx.rec*.78)?{k:'stuck',t:`nyoba tahap ${nx.key}${nx.boss?' (bos)':''} tapi kalah terus, CP kurang (rekomendasi ${fmt(nx.rec)})`}:{k:'push',t:`lagi push tahap ${nx.key}`}]);
+ if(dgOk)L.push([2.5,()=>{const d=s.cp>=27000&&r()<.3?'Menara Kebangkitan':chPick(r,['Tambang Bijih','Kuil Bintang','Brankas Naga Emas']);return{k:'dg',t:`farming Dungeon ${d}, tiket sisa ${1+Math.floor(r()*4)}`}}]);
+ if(s.lv>=(FEAT.arena.lv||10))L.push([2,()=>({k:'arena',t:`main Arena${r()<.5?', barusan menang':', barusan kalah'}`})]);
+ L.push([1.6,()=>({k:'up',t:chPick(r,['naikin level hero','naikin level senjata','ganti formasi tim'].concat(Object.keys(s.gear||{}).length?['pasang perlengkapan dari dungeon']:[]))})]);
+ L.push([1.2,()=>({k:'afk',t:chPick(r,['auto battle sambil nonton','auto sambil kerja','cuma buka buat ngumpulin stamina','nunggu stamina penuh'])})]);
+ if(s.stats.held>0)L.push([.8,()=>({k:'save',t:'nabung permata buat banner berikutnya, nahan diri gak narik'})]);
+ L.push([.5,()=>({k:'ev',t:'ngecek event & misi'})]);
+ let x=r()*L.reduce((a,v)=>a+v[0],0);for(const[w,f]of L){if(x<w)return f();x-=w}return L[0][1]()}
 /* ---------- isi slot & variasi ---------- */
 function chLaugh(p,r){let l=chPick(r,p.laugh);if(/^wk/i.test(l)){const up=l===l.toUpperCase();l=(up?'WK':'wk').repeat(1+Math.floor(r()*4))+(r()<.3?(up?'W':'w'):'')}return l}
 function chFill(tpl,c,r,ex={}){const W=chWorld();if(typeof tpl==='function')tpl=tpl(c,W,CHAT.mem);if(!tpl)return null;if(typeof tpl==='object')tpl=tpl.t;

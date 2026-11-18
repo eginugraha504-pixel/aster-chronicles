@@ -108,6 +108,8 @@ const BXP={};
 function botLv(pf,P){const T=BOT_CFG.CURVES[pf],L=T[T.length-1];if(P<=L[0])return Math.max(1,Math.floor(bInterp(bCol(pf,1),P)));
  if(BXP[pf]==null){const a=T[T.length-1-BOT_CFG.XP_TAIL_DAYS];let xp=0;for(let l=a[1];l<L[1];l++)xp+=expNeed(l);BXP[pf]=xp/(L[0]-a[0])}
  let lv=L[1],xp=(P-L[0])*BXP[pf];while(lv<999&&xp>=expNeed(lv)){xp-=expNeed(lv);lv++}return lv}
+// waktu bot mencapai level akun L (dari kurva level gaya mainnya)
+function botLvTime(b,L){const T=BOT_CFG.CURVES[b.pf];for(let k=1;k<T.length;k++)if(T[k][1]>=L){const a=T[k-1],c=T[k];return botProgInv(b,a[0]+(c[0]-a[0])*(L-a[1])/Math.max(1e-9,c[1]-a[1]))}return botProgInv(b,T[T.length-1][0])}
 // progres saat total summon mencapai n
 function botSumInv(pf,n){const T=BOT_CFG.CURVES[pf];if(n<=T[0][2])return 0;for(let k=1;k<T.length;k++)if(T[k][2]>=n){const a=T[k-1],b=T[k];return a[0]+(b[0]-a[0])*(n-a[2])/Math.max(1e-9,b[2]-a[2])}
  const L=T[T.length-1];return L[0]+(n-L[2])/Math.max(1e-9,bTail(pf,2))}
@@ -166,7 +168,7 @@ function botState(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now
   const firstH=G.ev.find(e=>!e.w),lastLim=G.ev.filter(e=>!e.w&&e.lim).pop(),own=Object.keys(heroes);
   const fav=!b.loyal&&lastLim?lastLim.id:firstH?firstH.id:own[bHash(i,9)%own.length];
   const ids=own.sort((x,y)=>maxLvRaw(y)-maxLvRaw(x)||HD[y].r-HD[x].r||heroes[y].lb-heroes[x].lb||(x<y?-1:1));const core=ids.slice(0,4);if(!core.includes(fav))core.push(fav);
-  const lvF={};ids.forEach(id=>{const f=core.includes(id)?opt+r()*(1-opt):C.BENCH_LV[0]+r()*(C.BENCH_LV[1]-C.BENCH_LV[0])*(.6+.4*opt);lvF[id]=f;heroes[id].lv=Math.max(1,Math.round(maxLv(id)*f))});
+  const lvF={};ids.forEach(id=>{const f=core.includes(id)?opt+r()*(1-opt):C.BENCH_LV[0]+r()*(C.BENCH_LV[1]-C.BENCH_LV[0])*(.6+.4*opt);lvF[id]=f;heroes[id].lv=Math.max(1,Math.min(Math.round(maxLv(id)*f),2+3*lv))});   // awal main: level hero dibatasi emas (Lv1 ±5, Lv3 ±11, Lv8 menyusul batas akun)
   const wl=Math.round(botCurve(b.pf,3,P)*(.8+.2*opt)),wlb=Math.floor(botCurve(b.pf,4,P)*(opt>.8?1:.75)+.001),used=new Set();
   for(const id of ids){const cls=HD[id].wcls;const cand=Object.keys(weapons).filter(w=>WD[w].cls===cls&&!used.has(w)).sort((x,y)=>(WD[y].owner===id)-(WD[x].owner===id)||WD[y].r-WD[x].r||weapons[y].ref-weapons[x].ref);
    // pemain kurang optimal kadang lupa memasang senjata terbaik

@@ -11,11 +11,11 @@ const CHAT_STYLE={
  // register bahasa. w = bobot. lower = peluang semua huruf kecil. abbr = peluang tiap kata disingkat.
  // en = peluang memakai kalimat Inggris bila tersedia. jp = peluang menyelipkan kata Jepang.
  regs:{
-  gaul:  {w:42,lower:.92,abbr:.75,en:.04,jp:.03,laugh:1,  emo:.25,punct:.15,typo:[.01,.045],split:.35,elong:.25},
-  santai:{w:24,lower:.6, abbr:.4, en:.06,jp:.03,laugh:.8, emo:.3, punct:.4, typo:[.005,.025],split:.2, elong:.12},
+  gaul:  {w:42,lower:.92,abbr:.75,en:.04,jp:0,laugh:1,  emo:.25,punct:.15,typo:[.01,.045],split:.35,elong:.25},
+  santai:{w:24,lower:.6, abbr:.4, en:.06,jp:0,laugh:.8, emo:.3, punct:.4, typo:[.005,.025],split:.2, elong:.12},
   sopan: {w:10,lower:.15,abbr:.08,en:.02,jp:0,  laugh:.35,emo:.35,punct:.85,typo:[0,.01],   split:.08,elong:.03},
   inggris:{w:8,lower:.7, abbr:.3, en:.85,jp:.02,laugh:.8, emo:.3, punct:.2, typo:[.005,.03],split:.2, elong:.1},
-  wibu:  {w:8, lower:.75,abbr:.55,en:.1, jp:.45,laugh:.9, emo:.6, punct:.25,typo:[.005,.03],split:.3, elong:.3},
+  wibu:  {w:0, lower:.75,abbr:.55,en:.1, jp:0,laugh:.9, emo:.2, punct:.25,typo:[.005,.03],split:.3, elong:.3},   // dimatikan (18 Nov 2026): terlalu cringe
   singkat:{w:8,lower:.97,abbr:.95,en:.03,jp:0,  laugh:.9, emo:.05,punct:0,  typo:[.01,.05],split:.05,elong:.05},
  },
  // seberapa sering bicara di chat dunia (dibanding rata-rata). Sebagian besar pemain hanya membaca.
@@ -23,9 +23,9 @@ const CHAT_STYLE={
  // gaya tertawa: {n} = diulang acak
  laughs:['wkwk','wkwkwk','wkwkwkwk','wkwkwkwkwk','awokawok','awokawokawok','haha','hahaha','wkakaka','xixixi','hehe','kwkwkw','lol','lmao','ahahah','WKWKWK','anjay wkwk'],
  laughEn:['lol','lmao','haha','hahaha','xD','lmaoo'],
- emos:[':v','xD','XD',':D','^^','^_^','T_T','TwT',':(',':)','-_-','>_<','QwQ','(｡•́︿•̀｡)','owo','uwu',':3','=))','wkwk :v'],
- emoSad:['T_T','TwT',':(','QwQ','huhu','hiks',':\'(','(╥_╥)'],
- emoHappy:[':D','^^','xD','yeay','hehe',':3','owo','\\(^o^)/'],
+ emos:[':v','xD',':D','T_T',':(',':)','-_-','._.','wkwk :v'],
+ emoSad:['T_T',':(','huhu','hiks','._.'],
+ emoHappy:[':D','xD','yeay','hehe','mantap'],
  // kata Jepang yang suka diselipkan bot wibu
  jp:{pre:['etto','ano','mou','yosh','sugoi','yabai','sasuga','ara ara'],post:['desu','ne','yo','kawaii','yatta','sugoi','nee']},
  // panggilan akrab

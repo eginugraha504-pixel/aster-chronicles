@@ -45,15 +45,16 @@ const AR={board:null,at:0};
 // saat terakhir bot aktif (<= now); -1 bila belum pernah
 function arBotLast(b,now){let t=-1;for(const[s0,s1]of b.segs){if(now<s0)break;t=Math.min(now,s1)}return t}
 function arBotPts(i,pct,now){const b=botBase(i),C=ARENA_CFG,wk=arWeek(now),ws=arWeekStart(wk),t=arBotLast(b,now);if(t<ws)return null;  // belum aktif di musim ini
+ const t10=botLvTime(b,FEAT.arena.lv||10);if(t<t10)return null;   // Arena baru terbuka di Lv 10
  const tgt=w=>{const r=bRng(bHash(i,5000+w));return Math.max(900,C.start+C.bot.span*Math.pow(pct,C.bot.curve)+(r()-.5)*C.bot.jitter)};
  const s0=b.join<ws?C.start+Math.max(0,tgt(wk-1)-C.start)*C.soft:C.start;
- const days=(t-Math.max(ws,b.join))/BDAY,f=1-Math.exp(-Math.max(0,days)*(C.bot.speed[b.pf]||.5)*.9);
+ const days=(t-Math.max(ws,b.join,t10))/BDAY,f=1-Math.exp(-Math.max(0,days)*(C.bot.speed[b.pf]||.5)*.9);
  const h=Math.floor(t/36e5),wig=Math.round(Math.sin(h*1.7+i*.37)*10*f);
  return Math.max(0,Math.round(s0+(tgt(wk)-s0)*f+wig))}
 function arBoard(now=Date.now()){if(AR.board&&now-AR.at<15e3)return AR.board;
  const L=botsList(now).filter(e=>!e.me),cps=L.map(e=>e.cp).sort((a,b)=>a-b),n=cps.length;
  const lb=v=>{let lo=0,hi=n;while(lo<hi){const m=(lo+hi)>>1;if(cps[m]<v)lo=m+1;else hi=m}return lo};
- const out=[];for(const e of L){const p=arBotPts(e.i,n>1?lb(e.cp)/(n-1):.5,now);if(p!=null)out.push(Object.assign(e,{pts:p}))}
+ const out=[];for(const e of L){if(e.lv<(FEAT.arena.lv||10))continue;const p=arBotPts(e.i,n>1?lb(e.cp)/(n-1):.5,now);if(p!=null)out.push(Object.assign(e,{pts:p}))}
  AR.board=out;AR.at=now;return out}
 const arMe=()=>({me:true,name:S.name,lv:S.lv,cp:teamPow(),top:S.team.find(Boolean),online:true,last:Date.now(),pts:arState().pts});
 function arRank(){const p=arState().pts;return arBoard().filter(e=>e.pts>p).length+1}

@@ -102,15 +102,33 @@ const rnd01 = () => crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296;
 function chunks(s, max = 95) { const out = []; s = s.trim(); while (s.length > max) { let k = -1; for (const re of [/[.!?]\s/g, /[,;]\s/g, /\s/g]) { let m; re.lastIndex = 0; while ((m = re.exec(s)) && m.index < max) k = m.index + 1; if (k > 20) break } if (k <= 0) k = max; out.push(s.slice(0, k).trim()); s = s.slice(k).trim() } if (s) out.push(s); return out }
 const clip = (s, n) => String(s ?? '').replace(/[\u0000-\u001f]/g, ' ').slice(0, n);
 const hhmm = ms => new Date(ms + 7 * 36e5).toISOString().slice(11, 16);
-const ROLE = `Kamu menulis isi Obrolan Dunia (world chat) game mobile gacha Aster Chronicles atas nama PEMAIN LAIN di server: manusia Indonesia biasa yang lagi main sambil rebahan/kerja/kuliah. Mereka bukan asisten, bukan NPC, bukan AI.
-GAYA CHAT GAME ASLI (paling penting):
-- Kebanyakan pesan SANGAT pendek 1-6 kata ("gacor bgt", "pity gw 70 anjir", "wkwkwk", "ada yg punya hilde?", "gg", "bentar makan dulu", "hoki amat lu"). Huruf kecil, singkatan (yg, gk, bgt, udh, klo, lg, aj), typo wajar, tanda baca jarang. Patuhi GAYA KETIK tiap penulis.
-- Lebih panjang (1-2 kalimat santai) HANYA saat menjawab pertanyaan / curhat.
-- Saling sambar, ngeledek, nanya balik, pamer, ngeluh gacha, nyuekin, ngomong hal di luar game. Jangan formal ("Benar, ...", "Semoga ...", "Tentu ..."), jangan merangkum, jangan saling memuji sopan.
-- NYAMBUNG: baca obrolan (nomor #). Kalau menanggapi pesan tertentu isi "re" dengan nomornya. Ingat apa yang tadi kamu sendiri bilang (INGATAN) dan jangan bertentangan.
-- Stiker: sesekali (tidak sering) boleh balas pakai stiker saja: isi "stk" dengan kunci stiker, "text" kosong.
-PRIVASI (wajib): tiap penulis hanya tahu data PRIBADI dirinya sendiri (pity, permata, top up, tabungan, hoki/apes, berapa hari main). Data pribadi orang lain (termasuk pemain asli) TIDAK diketahui kecuali orang itu sendiri sudah menyebutnya di obrolan. Yang bisa dilihat semua orang hanya: nama, level, CP, peringkat, lencana VIP, tim & hero di profil, tahap. Jangan pernah menyebut pity/top up/permata/aktivitas orang lain.
-ATURAN KERAS: fakta game harus benar sesuai pengetahuan di bawah; jangan mengarang fitur; tanpa emoji (emotikon teks :v xD T_T boleh); tanpa tautan; ramah keluarga; tidak menyebut orang nyata, merek, atau politik; tidak pernah mengaku AI/bot; hanya penulis dari daftar yang boleh bicara. Balas HANYA JSON.`;
+const ROLE = `Kamu menulis isi Obrolan Dunia (world chat) game mobile gacha Aster Chronicles atas nama PEMAIN LAIN di server: orang Indonesia biasa (karyawan, mahasiswa, ojol, dll) yang main sambil rebahan, kerja, atau nunggu sesuatu. Tujuan: siapa pun yang membaca harus yakin ini obrolan manusia sungguhan. Mereka bukan asisten, bukan NPC, bukan AI.
+
+SEPERTI APA CHAT GAME ASLI
+- Mayoritas pesan pendek dan datar: "4-5 susah amat", "ada yg punya raika?", "gw stuck di 3-5", "tiket dungeon abis", "bentar makan", "gg", "wkwk". Sesekali satu kalimat utuh saat menjelaskan/curhat.
+- Orang ngomongin yang sedang mereka KERJAKAN di game (lihat SEDANG di data pribadi): push tahap, kalah di bos, farming dungeon, arena, naikin level, nunggu stamina, gacha. Juga hal sehari-hari: macet, hujan, ngantuk, kerjaan, makan.
+- Tidak semua pesan dijawab. Pertanyaan bisa dicuekin, topik pindah tiba-tiba, dua obrolan bisa jalan bersamaan. Orang kadang salah paham atau nanya ulang.
+- Tiap orang konsisten dengan GAYA-nya sendiri. Kebiasaan/ciri khas dipakai SESEKALI saja, bukan di tiap pesan. Gaya rapi ya tulis rapi; gaya singkat ya singkat.
+- Nada biasa saja: tidak heboh, tidak manis berlebihan, tidak saling memuji, tidak formal, tidak menasihati panjang.
+
+HINDARI (bikin kelihatan palsu/cringe)
+- Kata/emotikon wibu & imut: ne, desu, yosh, sugoi, yabai, kawaii, nya, uwu, owo, :3, QwQ, ^^, >_<, ~ di akhir kata.
+- Menyebut nama orang di hampir tiap pesan, memanggil "kak/gan/suhu" terus-terusan, mengulang kata/frasa yang sama dengan pesan sebelumnya.
+- Semua orang menanggapi satu pesan yang sama; ramai-ramai menyambut pemain; menjilat / mengikuti apa pun kata pemain.
+- Menjelaskan isi stiker dengan kata ("hilde pamer otot", "nami_love") atau membahas stiker panjang. Stiker ditanggapi seperlunya (wkwk / stiker lagi / dicuekin).
+- Minta maaf, meluruskan diri sendiri, membahas obrolan itu sendiri ("tadi aku bilang..."), kalimat penutup manis, pertanyaan basa-basi beruntun.
+- Tanda seru berlebihan, emoji, huruf kapital teriak, nasihat yang sama diulang ("pake tiket dulu aja").
+
+PRIVASI (wajib): tiap penulis hanya tahu data PRIBADI dirinya sendiri (SEDANG, pity, permata, top up, tabungan, hoki/apes, berapa hari main). Data pribadi orang lain (termasuk pemain asli) TIDAK diketahui kecuali orang itu sendiri sudah menyebutnya di obrolan. Yang bisa dilihat semua orang hanya: nama, level, CP, peringkat, lencana VIP, tim & hero di profil, tahap terjauh, liga Arena, dan pengumuman ★3.
+FAKTA: semua fakta game harus benar sesuai pengetahuan di bawah; jangan mengarang fitur (guild & guild war BELUM ada). Tanpa emoji, tanpa tautan, ramah keluarga, tidak menyebut orang nyata/merek/politik, tidak pernah mengaku AI/bot. Hanya penulis dari daftar yang boleh bicara. Balas HANYA JSON.`;
+const TOPIK = ['kalah di bos tahap', 'tiket dungeon habis', 'drop perlengkapan dari dungeon', 'arena: kalah sama tim yang lebih kuat / naik liga', 'stamina habis', 'banner sekarang worth atau skip', 'hero mana yang bagus buat tahap sekarang', 'elemen lawan di tahap tertentu', 'naikin senjata pakai bijih', 'misi harian', 'event login', 'ngantuk / baru bangun', 'baru pulang kerja / kuliah', 'hujan / macet', 'lagi makan', 'nanya tim orang', 'pamer CP / dapat ★3', 'kebangkitan ★4 mahal bahannya', 'sinyal jelek / lag', 'sepi amat chat', 'auto battle sambil ngerjain hal lain', 'nanya level berapa', 'bingung pilih hero buat dinaikin'];
+// kata/frasa yang sudah terlalu sering muncul (biar tidak mengulang)
+const STOPW = new Set('yg gk ga gak aja aj aku gw gue lu lo kamu dia itu ini di ke dan atau yang ya iya udh udah sudah juga jg lagi lg buat bisa ada tapi tp klo kalo kalau sama sm mau nih tuh sih dong deh kok jadi jd biar baru masih belum blm dulu dl bgt banget'.split(' '));
+function overused(rows, n = 6) {
+  const cnt = new Map();
+  for (const r of rows) { if (/^:stk:/.test(r.txt)) continue; const seen = new Set(); for (const w of String(r.txt).toLowerCase().match(/[a-z0-9:_^>~<]+/g) || []) { if (w.length < 2 || STOPW.has(w) || seen.has(w)) continue; seen.add(w); cnt.set(w, (cnt.get(w) || 0) + 1) } }
+  return [...cnt].filter(([, c]) => c >= 3).sort((a, b) => b[1] - a[1]).slice(0, n).map(([w]) => w);
+}
 async function aiChat(env, b, u) {
   if (!(await aiOnline(env))) return { ok: false, e: 'off' };
   const kind = b.kind === 'reply' ? 'reply' : 'tick', t = now();
@@ -128,19 +146,24 @@ async function aiChat(env, b, u) {
     if (!humanMsg || t - humanMsg.ts > 3e4) return { ok: false, e: 'nomsg' };
     if (+(await kvGet(env, 'air:' + u.uid) || 0) > t - 12e3) return { ok: false, e: 'fast' };
     await kvSet(env, 'air:' + u.uid, t);
+    if (stkKey(humanMsg.txt) && !humanMsg.re && rnd01() < .55) return { ok: true, n: 0, skip: 'stk' };   // stiker pemain sering dicuekin, seperti chat asli
+    // obrolan bot yang masih terjadwal di masa depan dibatalkan: orang-orang bereaksi ke pesan pemain dulu
+    await env.DB.prepare(`DELETE FROM wchat WHERE ts>? AND uid IN (SELECT uid FROM players WHERE bot IS NOT NULL)`).bind(t + 6000).run();
+    await kvSet(env, 'ai_until', t);
   } else {
     const [at, until, wat, stkAt, stkGap] = await Promise.all(['ai_scene_at', 'ai_until', 'watch_at', 'stk_at', 'stk_gap'].map(async k => +(await kvGet(env, k) || 0)));
-    const gap = t - wat < 6e4 ? 100e3 : 9 * 6e4;
+    const hr = new Date(t + 7 * 36e5).getUTCHours(), night = hr < 6 ? 1.9 : hr < 8 || hr >= 23 ? 1.35 : 1;
+    const gap = (t - wat < 6e4 ? 95e3 + (at % 50) * 1e3 : 9 * 6e4) * night;
     if (!(cands.length >= 2 && t - at >= gap && t > until - 8e3)) {
       // bot gabut kirim stiker (tanpa AI)
       if (t - stkAt < (stkGap || 12e4) || t < until) return { ok: false, skip: 1, next: Math.max(2e4, (stkGap || 12e4) - (t - stkAt)) };
-      await kvSet(env, 'stk_at', t); await kvSet(env, 'stk_gap', Math.round((80 + rnd01() * 220) * 1000));
+      await kvSet(env, 'stk_at', t); await kvSet(env, 'stk_gap', Math.round((240 + rnd01() * 480) * 1000 * night));
       const keys = [...STK.keys()], c = cands[Math.floor(rnd01() * cands.length)];
       const own = keys.filter(k => c.fav && k.startsWith(c.fav.toLowerCase() + '_')), pool = own.length && rnd01() < .4 ? own : keys, k1 = pool[Math.floor(rnd01() * pool.length)];
       const t1 = t + Math.round(1500 + rnd01() * 5000);
       const r1 = await env.DB.prepare('INSERT INTO wchat (uid,name,txt,ts) VALUES (?,?,?,?)').bind(c.uid, c.name, `:stk:${k1}:`, t1).run();
       let n = 1;
-      if (cands.length > 1 && rnd01() < .3) {   // kadang bot lain ikut nimbrung stiker
+      if (cands.length > 1 && rnd01() < .15) {   // kadang bot lain ikut nimbrung stiker
         const d = cands.filter(x => x.uid !== c.uid)[Math.floor(rnd01() * (cands.length - 1))], k2 = keys[Math.floor(rnd01() * keys.length)];
         await env.DB.prepare('INSERT INTO wchat (uid,name,txt,ts,re) VALUES (?,?,?,?,?)').bind(d.uid, d.name, `:stk:${k2}:`, t1 + Math.round(3000 + rnd01() * 8000), r1.meta.last_row_id).run(); n++;
       }
@@ -159,21 +182,28 @@ async function aiChat(env, b, u) {
   const memQ = (await env.DB.prepare(`SELECT id,uid,txt,ts FROM wchat WHERE uid IN (${cands.map(() => '?').join(',')}) AND ts>? AND ts<=? ORDER BY ts DESC LIMIT 40`).bind(...cands.map(c => c.uid), t - 12 * 36e5, t).all()).results;
   const inHist = new Set(hist.map(h => h.id + ''));
   const mem = uid => memQ.filter(m => m.uid === uid && !inHist.has(String(m.id))).slice(0, 3).map(m => `"${clip(showTxt(m.txt), 70)}"`).join(', ');
+  const ovAll = overused(hist), ovOf = uid => overused(memQ.filter(m => m.uid === uid).slice(0, 12), 4);
   const P = b.player || null, d = new Date(t + 7 * 36e5), HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
   let user = `WAKTU: ${HARI[d.getUTCDay()]} ${hhmm(t)} WIB · ${clip(b.online, 6)} pemain online · server: ${clip(b.world, 300)}
-${P ? `PEMAIN (manusia, data PUBLIK saja): ${clip(P.name, 16)} — ${clip(P.pub, 300)}\n` : ''}${b.humans ? `Pemain asli lain online: ${clip(b.humans, 200)}\n` : ''}PENULIS (bot yang sedang online):
-${cands.map(c => { const m = mem(c.uid); return `- ${c.name}: PUBLIK[${c.pub}] PRIBADI-hanya-dia[${c.priv}] GAYA[${c.style}]${m ? ` INGATAN[pernah bilang: ${m}]` : ''}` }).join('\n')}
+${P ? `PEMAIN (manusia, data PUBLIK saja): ${clip(P.name, 16)} — ${clip(P.pub, 300)}\n` : ''}${b.humans ? `Pemain asli lain online: ${clip(b.humans, 200)}\n` : ''}PENULIS (pemain lain yang sedang online):
+${cands.map(c => { const m = mem(c.uid), o = ovOf(c.uid); return `- ${c.name}: PUBLIK[${c.pub}] PRIBADI-hanya-dia[${c.priv}] GAYA[${c.style}]${m ? ` INGATAN[pernah bilang: ${m}]` : ''}${o.length ? ` JANGAN-ULANG[${o.join(', ')}]` : ''}` }).join('\n')}
+${ovAll.length ? `Kata yang sudah terlalu sering muncul di obrolan (hindari): ${ovAll.join(', ')}\n` : ''}
 STIKER: ${[...STK].map(([k, n]) => `${k}=${n}`).join('; ')}
 OBROLAN (lama -> baru):
 ${lines.join('\n') || '(sepi)'}
 `;
   if (kind === 'reply') {
+    const q = /\?|gimana|bagaimana|kenapa|apa|siapa|berapa|mana|kapan|bisa gak|ada yg|ada yang/i.test(humanMsg.txt), x = rnd01();
+    const nWho = q ? (x < .55 ? 1 : x < .9 ? 2 : 3) : (x < .75 ? 1 : 2), nRep = nWho === 1 ? '1-2' : nWho === 2 ? '2-3' : '2-4';
     const target = humanMsg.re && hist.find(h => h.id === humanMsg.re), tName = target ? target.name : quoted ? quoted.name : null;
     user += `\nPESAN BARU #${num.get(humanMsg.id) || '?'} dari PEMAIN ${clip(P?.name || u.uname, 16)}: "${clip(showTxt(humanMsg.txt), 120)}"${humanMsg.re ? ` — membalas ${target ? '#' + num.get(target.id) : `pesan lama ${quoted ? quoted.name + ': "' + clip(showTxt(quoted.txt), 80) + '"' : ''}`}` : ''}
-Tulis 1-4 pesan balasan dari 1-3 penulis yang paling wajar${tName ? ` (${tName} yang dibalas sebaiknya menjawab bila ada di daftar)` : ''}. Pertanyaan dijawab benar tapi tetap gaya chat; sapaan/candaan/stiker dibalas super singkat atau stiker. Isi "re" dengan nomor pesan yang ditanggapi. delay = detik mengetik 2-12.
-JSON: {"out":[{"who":"nama","text":"...","re":${num.get(humanMsg.id) || 'null'},"stk":"","delay":4}]}`;
-  } else user += `\nTulis KELANJUTAN obrolan: ${clip(b.n, 4) || '3-6'} pesan dari 2-4 penulis, kebanyakan super pendek, saling sambar & nyambung dengan obrolan di atas (pakai "re" saat menanggapi pesan tertentu), atau mulai topik receh baru. Jangan semua menjawab hal yang sama. delay = detik sejak pesan sebelumnya 3-30.
+Tulis ${nRep} pesan balasan dari paling banyak ${nWho} penulis yang paling wajar menanggapi${tName ? ` (${tName} yang dibalas sebaiknya menjawab bila ada di daftar)` : ''}. Pertanyaan dijawab benar & singkat dengan gaya masing-masing; sapaan cukup dibalas pendek ("halo", "yo", "malam") oleh satu orang; candaan/stiker cukup "wkwk" atau stiker, atau tidak usah. Boleh tanpa menyebut nama pemain. Yang lain boleh tetap lanjut obrolannya sendiri. Isi "re" hanya bila menanggapi pesan yang bukan pesan terakhir. delay = detik mengetik 3-15.
+JSON: {"out":[{"who":"nama","text":"...","re":null,"stk":"","delay":5}]}`;
+  } else { const tp = [TOPIK[Math.floor(rnd01() * TOPIK.length)], TOPIK[Math.floor(rnd01() * TOPIK.length)]];
+    user += `\nTulis KELANJUTAN obrolan: ${clip(b.n, 4) || '2-5'} pesan dari 2-3 penulis. Kalau obrolan terakhir masih hangat (kurang dari 10 menit), lanjutkan secara wajar; kalau sudah basi atau sepi, mulai hal baru dari SEDANG seseorang atau ide ini: ${tp.join(' / ')}. Pesan pendek, tidak semua orang menjawab hal yang sama, tidak saling menyebut nama. Isi "re" hanya bila menanggapi pesan yang bukan pesan terakhir. delay = detik sejak pesan sebelumnya 5-40.`;
+    user += `
 JSON: {"out":[{"who":"nama","text":"...","re":null,"stk":"","delay":6}]}`;
+  }
   let out;
   try {
     const r = await callClaude(env, user, kind === 'reply' ? 280 : 400, ROLE);
@@ -187,6 +217,7 @@ JSON: {"out":[{"who":"nama","text":"...","re":null,"stk":"","delay":6}]}`;
     const re = idOf.get(+x.re) || null, delay = Math.max(1, Math.min(40, +x.delay || 4)) * 1000;
     if (x.stk && STK.has(String(x.stk))) { tt += delay; st.push(env.DB.prepare('INSERT INTO wchat (uid,name,txt,ts,re) VALUES (?,?,?,?,?)').bind(c.uid, c.name, `:stk:${x.stk}:`, Math.round(tt), re)); continue }
     let txt = clip(x.text, 260).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/https?\S+/g, '').trim(); if (!txt) continue;
+    txt = txt.replace(/(^|\s)(:3|qwq|uwu|owo|>_<|\^\^|\^_\^|desu|nya|sugoi|yabai|yosh|kawaii)(?=\s|$|[.,!?])/gi, ' ').replace(/\s+(ne|nee)\s*([.!?]*)$/i, '$2').replace(/~+/g, '').replace(/\s{2,}/g, ' ').trim(); if (!txt) continue;   // buang sisa gaya wibu
     if (c.lower) txt = txt.toLowerCase();
     chunks(txt).forEach((part, k) => { tt += (k ? 1800 : delay) + part.length * 85; st.push(env.DB.prepare('INSERT INTO wchat (uid,name,txt,ts,re) VALUES (?,?,?,?,?)').bind(c.uid, c.name, part.slice(0, 140), Math.round(tt), k ? null : re)) });
   }
