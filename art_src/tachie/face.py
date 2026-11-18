@@ -25,9 +25,10 @@ for key in sys.argv[1:]:
   fx,fy,fw,fh=g['face']
   if fw:FX,FY,FW,FH=[(v-o)*S/side for v,o in((fx,x0),(fy,y0))]+[fw*S/side,fh*S/side]
   else:FX,FY,FW,FH=S*.28,S*.22,S*.44,S*.44
-  zx,zy,rx,ry=ZONE[e];cx,cy=FX+FW*zx,FY+FH*zy;yy,xx=np.mgrid[0:S,0:S]
+  zx,zy,rx,ry=ZONE[e[0]];cx,cy=FX+FW*zx,FY+FH*zy;yy,xx=np.mgrid[0:S,0:S]
+  if e=='m' and g.get('mouthc'):cx,cy=[(v-o)*S/side for v,o in zip(g['mouthc'],(x0,y0))]   # titik mulut manual (deteksi wajah meleset)
   ell=((xx-cx)/(FW*rx))**2+((yy-cy)/(FH*ry))**2<1
-  mk=(cv2.GaussianBlur(d,(0,0),2)>THR[e])&ell
+  mk=(cv2.GaussianBlur(d,(0,0),2)>THR[e[0]])&ell
   mk=cv2.morphologyEx(mk.astype(np.uint8),cv2.MORPH_CLOSE,np.ones((15,15),np.uint8))
   n,lab,st,_=cv2.connectedComponentsWithStats(mk);keep=np.zeros_like(mk)
   for i in range(1,n):

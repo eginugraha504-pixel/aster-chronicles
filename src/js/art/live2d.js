@@ -138,15 +138,17 @@ function l2dStory(el,id,t){const R=STORY_ASSET.tc&&STORY_ASSET.tc[id];if(!R)retu
  const dpr=Math.min(2,devicePixelRatio||1),sc=Math.min(1,rc.height/tx.H*dpr*L2D.q),w=Math.max(16,Math.round(tx.W*sc)),h=Math.max(16,Math.round(tx.H*sc));
  if(Math.abs(c.height-h)>h*.08){c.width=w;c.height=h}
  const W2=c.width,H2=c.height;if(L2D.cv.width<W2||L2D.cv.height<H2){L2D.cv.width=Math.max(W2,L2D.cv.width);L2D.cv.height=Math.max(H2,L2D.cv.height)}
- const tt=t+st.ph,B=.5-.5*Math.cos(tt*2*Math.PI/4.2),e=el.dataset.e,exT=e&&R.ex&&R.ex[e]?l2dTCEx(id,e):null;
+ const tt=t+st.ph,B=.5-.5*Math.cos(tt*2*Math.PI/4.2),e=el.dataset.e,hasEx=!!(e&&R.ex&&R.ex[e]);
  // mulut: buka-tutup acak selama suara tokoh ini berbunyi (atau teks masih diketik bila tanpa suara)
  const talk=!el.classList.contains('dim')&&typeof SP!=='undefined'&&SP&&SP.sp===id&&(SP.hasV?(!SVOX.paused&&!SVOX.ended):!!SP.typing);
- if(talk&&tx.mouth){if(t>st.mt){st.mo=st.mo?0:1;st.mt=t+(st.mo?.07+Math.random()*.1:.05+Math.random()*.09)+(Math.random()<.08?.18:0)}}else st.mo=0;
+ if(talk&&(tx.mouth||hasEx)){if(t>st.mt){st.mo=st.mo?0:1;st.mt=t+(st.mo?.07+Math.random()*.1:.05+Math.random()*.09)+(Math.random()<.08?.18:0)}}else st.mo=0;
+ // ekspresi juga berbicara: a/k = mulut terbuka (varian a2/k2 tertutup), d = tertutup (varian d2 terbuka); diam = mulut tertutup
+ let ek=null,exT=null;if(hasEx){const op=e==='d'?'d2':e,cl=e==='d'?'d':e+'2';ek=st.mo?op:cl;if(!R.ex[ek])ek=e;exT=l2dTCEx(id,ek);if(!exT&&ek!==e){ek=e;exT=l2dTCEx(id,e)}}
  gl.viewport(0,0,W2,H2);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
  const bind=(u,tex)=>{gl.activeTexture(gl.TEXTURE0+u);gl.bindTexture(gl.TEXTURE_2D,tex||l2dZero())};
  bind(0,tx.base);bind(1,tx.mask);bind(2,tx.eyes);bind(3,tx.mouth);bind(4,exT);
  gl.uniform2f(U.uSize,tx.W,tx.H);gl.uniform1f(U.uT,tt);gl.uniform1f(U.uB,B);gl.uniform1f(U.uBlink,tx.eyes&&R.eye?l2dBlink(st,t):0);gl.uniform1f(U.uGlow,0);
- gl.uniform4f(U.uEyeBox,...(R.eye||[0,0,1,1]));gl.uniform4f(U.uMouthBox,...(R.mouth||[0,0,1,1]));gl.uniform4f(U.uExBox,...(exT?R.ex[e]:[0,0,1,1]));
+ gl.uniform4f(U.uEyeBox,...(R.eye||[0,0,1,1]));gl.uniform4f(U.uMouthBox,...(R.mouth||[0,0,1,1]));gl.uniform4f(U.uExBox,...(exT?R.ex[ek]:[0,0,1,1]));
  gl.uniform1f(U.uTalk,st.mo);gl.uniform1f(U.uExOn,exT?1:0);gl.uniform2f(U.uAmp,.8,.45);
  const f=R.face;gl.uniform3f(U.uNeck,f[0]+f[2]/2,f[1]+f[3]*1.08,R.npc?.006:.011);
  gl.uniform2f(U.uHead,...R.head);gl.uniform2f(U.uChest,...R.chest);gl.uniform2f(U.uBody,R.waist,R.breast);gl.uniform4f(U.uSheenW,0,0,0,0);

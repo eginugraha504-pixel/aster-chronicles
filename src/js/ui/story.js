@@ -38,7 +38,7 @@ const SPLASH_DIM={};function splashDims(){for(const id in HD){const s=splash(id)
 function storyPreload(s){const P=[];const add=p=>{if(stHas(p)){const im=new Image();im.src=stUrl(p);P.push(im)}};add('bg/'+s.bg);
  const gl=typeof l2dInit==='function'&&l2dInit();
  for(const l of s.L){if(l.bg)add('bg/'+l.bg);if(l.cg)add('cg/'+l.cg);if(Array.isArray(l)&&l[0]!=='n'){const id=l[0],R=STORY_ASSET.tc&&STORY_ASSET.tc[id],e=l[1];
-  if(R){if(gl){l2dTC(id);if(e&&R.ex&&R.ex[e])l2dTCEx(id,e)}else{add((R.npc?'npc/':'tc/')+id);if(e&&R.ex&&R.ex[e])add('tc/'+id+'_'+e)}}
+  if(R){if(gl){l2dTC(id);if(e&&R.ex&&R.ex[e]){l2dTCEx(id,e);if(R.ex[e+'2'])l2dTCEx(id,e+'2')}}else{add((R.npc?'npc/':'tc/')+id);if(e&&R.ex&&R.ex[e])add('tc/'+id+'_'+e)}}
   else if(!HD[id])add('npc/'+id);else if(e&&e!=='n'&&e!=='-')add('ex/'+id+'_'+e)}}return P}
 const SVOX=new Audio();SVOX.preload='auto';
 function stVoice(k){try{SVOX.pause()}catch(e){}if(typeof voxStop==='function')voxStop();if(!k||!voxOn()||!stHas('v/'+k))return false;SVOX.muted=false;SVOX.src=stUrl('v/'+k);SVOX.volume=Math.min(1,voxVol()*1.15);const p=SVOX.play();if(p&&p.catch)p.catch(()=>{});return true}

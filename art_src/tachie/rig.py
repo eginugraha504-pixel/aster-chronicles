@@ -25,7 +25,7 @@ for k in ids:
     Image.fromarray(np.hstack([h2,b]).astype(np.uint8),'RGBA').save(f'{SRC}/tc/{k}_e.webp',quality=90,method=6);os.remove(f'{SRC}/tc/{k}_b.webp')
   if 'b' in T:r['eye']=T['b']
   if 'm' in T:r['mouth']=T['m']
-  r['ex']={e:T[e] for e in 'akd' if e in T}
+  r['ex']={e:T[e] for e in T if e[0] in 'akd'}   # a|k|d + varian mulut a2|k2 (tertutup) d2 (terbuka)
   # --- titik tubuh (koordinat tachie)
   r['head']=[round(cx),round(fy+fh*.55)];r['chest']=[round(cx),round(fy+fh*1.6)]
   r['breast']=round(fy+fh*1.35);r['waist']=round(max(fy+fh*c.get('waist',2.3),.36*H))
