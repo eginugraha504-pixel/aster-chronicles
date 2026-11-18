@@ -276,7 +276,7 @@ Server: `bank-worker/src/game.js` (Cloudflare Worker `aster-bank` + D1, tabel di
 - **Reset**: data simpanan lama (tanpa `se:2`) otomatis mulai dari 0 saat dibuka (`SAVE_SE` di state.js).
 - **Simpanan cloud**: `save()` menandai kotor → diunggah ±12 dtk (+ saat aplikasi disembunyikan). Server memegang versi `sv`; bila versi server lebih baru (diubah admin / perangkat lain) game memakai data server (ditunda selama battle/cerita).
 - **Bot = akun sungguhan**: tiap bot punya baris di `players` (UID 8 angka, username, password acak — hanya hash, tidak bisa login). Nama dibuat server dengan generator yang sama persis dengan game (`tools/gen_botcfg.mjs` → `bank-worker/src/botcfg.js`). Progres bot tetap simulasi deterministik di game (sama untuk semua pemain). Ubahan admin (`ov`: lv/cp/vip, sembunyikan) diterapkan di atasnya. Game mengirim potret 100 bot teratas + bot teman tiap 15 menit untuk dilihat admin.
-- **Reset bot hanya lewat Telegram** (`/resetbot`); opsi di Pengaturan dihapus. Game melihat generasi baru lewat ping dan memuat dunia baru.
+- **Reset bot hanya lewat Telegram** (`/resetbot`); opsi di Pengaturan dihapus. Reset juga mengosongkan seluruh riwayat Obrolan Dunia (game ikut membuang cache obrolan saat generasi bot berubah). Game melihat generasi baru lewat ping dan memuat dunia baru.
 - **Teman**: maks 100. Bot menjawab permintaanmu saat ia online (±62% terima, lebih mudah bila CP-mu mendekati CP-nya) dan 0–2 bot per hari bisa mengajakmu berteman lebih dulu (dihitung deterministik di game, dicatat di server).
 - **Pesan 1:1**: sesama teman, ✓ terkirim / ✓✓ dibaca, cek tiap 3 dtk saat terbuka. Bot tidak membalas.
 - **Obrolan Dunia**: hanya pemain asli (obrolan bot & Mode AI dimatikan). Tamu bisa membaca, menulis butuh akun.

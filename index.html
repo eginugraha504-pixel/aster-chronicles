@@ -7192,6 +7192,7 @@ async function netLogin(u,p){const o=await api('/api/acc/login',{u,p});if(!o.ok)
 /* ---------------- dunia bot dari server ---------------- */
 function netApplyWorld(d,full){if(!d||!d.ok)return;const L=d.bots||[];
  if(full||d.from===0){BOTS.uids=L.map(x=>x[0]);BOTS.srvNames=L.map(x=>x[1])}else{for(let k=0;k<L.length;k++){BOTS.uids[d.from+k]=L[k][0];BOTS.srvNames[d.from+k]=L[k][1]}}
+ if(NET.gen!=null&&d.gen!==NET.gen&&typeof WC!=='undefined'){WC.list=[];WC.since=0;WC.seen=0;try{localStorage.removeItem('aster_wcseen')}catch(e){}}  // dunia bot di-reset: riwayat obrolan ikut kosong
  BOTS.ov=d.ov||{};BOTS.uidIdx=null;BOTS.cache={};
  botsApplyWorld({epoch:d.epoch,gen:d.gen});BOTS.names=BOTS.srvNames.slice();BOTS.nameSet=null;BOTS.ready=true;NET.worldOk=true;NET.gen=d.gen;
  try{localStorage.setItem(WORLD_KEY,JSON.stringify({epoch:d.epoch,gen:d.gen,bots:BOTS.uids.map((u,k)=>[u,BOTS.srvNames[k]]),ov:BOTS.ov}))}catch(e){}

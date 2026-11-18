@@ -78,6 +78,8 @@ export async function resetBots(env) {
     env.DB.prepare('DELETE FROM friends WHERE a IN (SELECT uid FROM players WHERE bot IS NOT NULL) OR b IN (SELECT uid FROM players WHERE bot IS NOT NULL)'),
     env.DB.prepare('DELETE FROM dms WHERE frm IN (SELECT uid FROM players WHERE bot IS NOT NULL) OR too IN (SELECT uid FROM players WHERE bot IS NOT NULL)'),
     env.DB.prepare('DELETE FROM players WHERE bot IS NOT NULL'),
+    env.DB.prepare('DELETE FROM wchat'),   // riwayat Obrolan Dunia ikut dikosongkan
+    env.DB.prepare("DELETE FROM kv WHERE k IN ('ai_scene_at','ai_until','stk_at','stk_gap','watch_at')"),
     env.DB.prepare("INSERT INTO kv (k,v) VALUES ('world',?) ON CONFLICT(k) DO UPDATE SET v=excluded.v").bind(JSON.stringify(nw)),
   ]);
   return nw;
@@ -545,7 +547,7 @@ export async function adminMessage(env, chat, t, low, send) {
   }
   if (/^\/resetbot(?:@\w+)?$/i.test(t)) {
     const n = await env.DB.prepare('SELECT COUNT(*) n FROM players WHERE bot IS NOT NULL').first(), w = await getWorld(env);
-    await send(env, chat, `⚠️ <b>Reset semua bot?</b>\n\nSemua ${fmt(n.n)} akun bot (generasi ${w.gen}) beserta pertemanan & pesan dengan bot akan DIHAPUS. Dunia bot mulai lagi dari hari 1 dengan 0 pemain bot, lalu bertambah perlahan sampai ${fmt(BOTCFG.max)}.\n\nAkun pemain asli tidak berubah.`, { inline_keyboard: [[{ text: '♻️ Ya, reset bot', callback_data: 'rbot:yes' }, { text: 'Batal', callback_data: 'cancel' }]] });
+    await send(env, chat, `⚠️ <b>Reset semua bot?</b>\n\nSemua ${fmt(n.n)} akun bot (generasi ${w.gen}) beserta pertemanan & pesan dengan bot akan DIHAPUS, dan seluruh riwayat Obrolan Dunia dikosongkan. Dunia bot mulai lagi dari hari 1 dengan 0 pemain bot, lalu bertambah perlahan sampai ${fmt(BOTCFG.max)}.\n\nAkun pemain asli tidak berubah.`, { inline_keyboard: [[{ text: '♻️ Ya, reset bot', callback_data: 'rbot:yes' }, { text: 'Batal', callback_data: 'cancel' }]] });
     return true;
   }
   if (/^[A-Za-z][A-Za-z0-9]{2,13}$/.test(t) && !flow) {                 // ketik username saja
@@ -577,6 +579,6 @@ export async function adminCallback(env, chat, d, send) {
     return true;
   }
   if ((m = d.match(/^ai:(on|off)$/))) { await adminMessage(env, chat, '/ai ' + m[1], '/ai ' + m[1], send); return true }
-  if (d === 'rbot:yes') { const w = await resetBots(env); await send(env, chat, `♻️ <b>Dunia bot di-reset</b> (generasi ${w.gen}).\nSemua game akan memuat dunia baru dalam ±20 detik; bot mulai bergabung lagi dari 0.`); return true }
+  if (d === 'rbot:yes') { const w = await resetBots(env); await send(env, chat, `♻️ <b>Dunia bot di-reset</b> (generasi ${w.gen}).\nRiwayat Obrolan Dunia dikosongkan. Semua game akan memuat dunia baru dalam ±30 detik; bot mulai bergabung lagi dari 0.`); return true }
   return false;
 }
