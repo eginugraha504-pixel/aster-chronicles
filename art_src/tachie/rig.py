@@ -21,7 +21,7 @@ for k in ids:
   cx=fx+fw/2;r={'w':W,'h':H,'npc':int(npc),'face':[round(fx),round(fy),round(fw),round(fh)]}
   # --- atlas kedip
   if 'b' in T and os.path.exists(f'{SRC}/tc/{k}_b.webp'):
-    b=np.array(Image.open(f'{SRC}/tc/{k}_b.webp').convert('RGBA')).astype(np.float32);h2=b.copy();h2[...,3]*=.55
+    b=np.array(Image.open(f'{SRC}/tc/{k}_b.webp').convert('RGBA')).astype(np.float32);h2=b.copy()  # setengah = tertutup (campuran alpha terlihat berbayang)
     Image.fromarray(np.hstack([h2,b]).astype(np.uint8),'RGBA').save(f'{SRC}/tc/{k}_e.webp',quality=90,method=6);os.remove(f'{SRC}/tc/{k}_b.webp')
   if 'b' in T:r['eye']=T['b']
   if 'm' in T:r['mouth']=T['m']
