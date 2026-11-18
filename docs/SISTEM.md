@@ -265,3 +265,7 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - **Syarat fitur** (`js/systems/unlock.js`, `FEAT`): Summon 1-1 · Misi & Event 1-2 · Toko 1-3 · Dungeon 1-5 · Obrolan Lv3 · Peringkat Lv5 · Peleburan Lv8 · Arena Lv10. Klik tombol terkunci → toast syarat (dicek di pengendali klik global `featOfAct`). Saat syarat terpenuhi muncul popup "Fitur Baru Terbuka!" sekali (`S.unl`; ditunda saat battle/cerita/modal/tutorial). Pemain lama: fitur yang sudah memenuhi syarat dianggap terbuka tanpa popup.
 - **Isi ulang stamina** (`STAM_REFILL` di config.js): +60, maks 5x/hari, harga 100/150/200/300/400 permata (`S.daily.c.refill`). Stamina kurang saat mulai tahap → dialog isi ulang.
 - **Tiket dungeon** (`DG_TIX`, `DG_RESET`, `reset` per dungeon di dungeons.js): 5 tiket per jenis per hari, **tanpa stamina**, terpakai hanya saat menang/sapu. Tiket habis → Reset (isi 5 lagi) maks 5x/hari: 50/100/150/200/250 permata (Menara Kebangkitan 100/150/200/300/400). Ikon `dgtix`.
+
+
+## Efek suara
+`sfx(kunci, opsi)` (js/systems/sound.js) → `sfxKey` memilih sampel (krit/elemen/kelangkaan) → `sfxPlay` memutar AudioBuffer dari `SFX_SRC` (di-decode saat gestur pertama, `audUnlock`). Jeda anti-tumpuk `SFX_GAP`, volume `SFX_VOL`, variasi pitch ±4% untuk pukulan/klik. Fallback: sintesis `SFX_LIB`.

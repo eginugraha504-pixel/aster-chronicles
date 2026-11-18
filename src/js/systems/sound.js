@@ -1,6 +1,9 @@
 /* =====================================================================
-   AUDIO — efek suara sintetis (Web Audio API), tanpa file audio
+   AUDIO — efek suara (Web Audio API)
    ---------------------------------------------------------------------
+   Sejak 18 Nov 2026: tiap efek diputar dari SAMPEL Higgsfield (src/sfx/<kunci>.mp3 → SFX_SRC base64,
+   dibuat model mirelo_text_to_audio, diproses art_src/sfx_proc.py). Sintesis lama di SFX_LIB tetap
+   jadi cadangan bila sampel belum ter-decode / gagal.
    Rantai: suara -> bus SFX -> (kirim) reverb -> kompresor -> master -> speaker
    Pemakaian: sfx('nama', {opsi})  — daftar nama di SFX_LIB di bawah.
    Volume: S.vol (0..1), mati/hidup: S.sound
@@ -88,9 +91,30 @@ const SFX_LIB={
  star:(o)=>{const i=(o&&o.i)||0;bell(N(84+i*4),.6,{v:.08});noise(.2,{f:6000,q:1,v:.04})},
  lose:()=>{const mel=[[N(67),.25],[N(63),.25],[N(60),.25],[N(55),.8]];let t=0;mel.forEach(([n,d])=>{tone(n,d+.2,{type:'triangle',v:.08,at:t,rev:1});tone(n/2,d+.2,{type:'sine',v:.06,at:t});t+=d})}
 };
+// ---------- sampel Higgsfield ----------
+// kunci sampel per panggilan: varian krit / elemen / kelangkaan
+const sfxKey=(k,o)=>k==='hit'&&o.crit?'hit_crit':k==='skill'?'skill_'+(o.el&&SFX_SRC['skill_'+o.el]?o.el:'netral'):
+ k==='boom'?(o.r>=3?'boom_r3':o.r>=2?'boom_r2':'boom'):k==='meteor'&&o.r>=3?'meteor_r3':k==='card'&&o.r>=3?'card_r3':k;
+// volume per sampel (diukur dari kenyaringan, supaya klik UI tidak menyengat & ledakan tidak mendominasi)
+const SFX_VOL={click:.75,tab:.55,open:.8,close:.4,deny:.6,tap:.45,card:.85,card_r3:.8,coin:.7,claim:.8,equip:.75,sparkle:.4,star:.38,lvup:.8,
+ swing:.45,hit:.36,hit_crit:.9,hurt:.5,block:.8,die:.6,heal:.5,shield:.36,buff:.5,wave:.55,start:.9,boss:.85,win:.65,lose:.6,
+ portal:.85,meteor:.75,meteor_r3:.95,boom:.62,boom_r2:.66,boom_r3:.72,rare:.95,skill_api:.5,skill_air:.85,skill_tanah:.5,skill_cahaya:.9,skill_gelap:.62,skill_netral:.6};
+const SBUF={},SDEC={};
+function sfxLoad(k){if(SBUF[k]||SDEC[k]||typeof SFX_SRC==='undefined'||!SFX_SRC[k])return;const A=AUD.ctx;
+ try{const b=atob(SFX_SRC[k]),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
+  SDEC[k]=A.decodeAudioData(u.buffer).then(x=>{SBUF[k]=x}).catch(()=>{})}catch(e){}}
+function sfxPreload(){if(!AUD.ctx||typeof SFX_SRC==='undefined')return;Object.keys(SFX_SRC).forEach(sfxLoad)}
+function sfxPlay(k,o){const buf=SBUF[k];if(!buf){sfxLoad(k);return false}
+ const A=AUD.ctx,src=A.createBufferSource(),g=A.createGain();src.buffer=buf;
+ // variasi halus supaya serangan beruntun tidak terdengar mesin; bintang naik nada
+ let r=k==='star'?1+((o.i||0)*.07):({hit:1,hit_crit:1,swing:1,hurt:1,block:1,click:1,card:1,tap:1}[k]?.96+Math.random()*.08:1);
+ src.playbackRate.value=r;g.gain.value=(SFX_VOL[k]??.7);src.connect(g);g.connect(AUD.bus);src.start();return true}
 // batas jeda per efek supaya tidak menumpuk (ms)
-// penyeimbang volume per efek
+// penyeimbang volume per efek (sintesis cadangan)
 const SFX_GAIN={click:3,tab:2.6,open:3,close:3,tap:2.4,swing:5,hurt:3,die:2,block:1.8,card:1.4,deny:1.5,hit:1.4};
-const SFX_GAP={hit:55,swing:45,hurt:80,click:30,card:40,heal:150,block:90,die:60,sparkle:120};
-function sfx(k,o){if(typeof S==='undefined'||!S||!S.sound)return;if(typeof B!=='undefined'&&B&&B.sim)return;const fn=SFX_LIB[k];if(!fn)return;
- try{const A=audInit();if(A.state==='suspended')A.resume();const now=performance.now(),gap=SFX_GAP[k]||0;if(gap&&now-(AUD.last[k]||0)<gap)return;AUD.last[k]=now;AUD.k=SFX_GAIN[k]||1;fn(o||{});AUD.k=1}catch(e){}}
+const SFX_GAP={hit:55,swing:45,hurt:80,click:30,card:40,heal:150,block:90,die:60,sparkle:120,tab:40,tap:60,star:60,coin:50,skill:90,boom:120};
+function sfx(k,o){if(typeof S==='undefined'||!S||!S.sound)return;if(typeof B!=='undefined'&&B&&B.sim)return;const fn=SFX_LIB[k];if(!fn)return;o=o||{};
+ try{const A=audInit();if(A.state==='suspended')A.resume();const now=performance.now(),gap=SFX_GAP[k]||0;if(gap&&now-(AUD.last[k]||0)<gap)return;AUD.last[k]=now;
+  if(!AUD.pre){AUD.pre=1;sfxPreload()}
+  if(sfxPlay(sfxKey(k,o),o))return;
+  AUD.k=SFX_GAIN[k]||1;fn(o);AUD.k=1}catch(e){}}

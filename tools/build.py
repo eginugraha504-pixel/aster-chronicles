@@ -39,6 +39,9 @@ if os.path.isdir(AUDD):
 # suara karakter (src/voice/<hero>_<l|p><i>.mp3, <hero>_sk.mp3) -> VOICE_SRC, diputar oleh js/systems/voice.js
 VOD=os.path.join(SRC,'voice')
 vox={f[:-4]:'data:audio/mpeg;base64,'+base64.b64encode(open(os.path.join(VOD,f),'rb').read()).decode() for f in sorted(os.listdir(VOD)) if f.endswith('.mp3')} if os.path.isdir(VOD) else {}
+# efek suara Higgsfield (src/sfx/<kunci>.mp3, ~450 KB) -> SFX_SRC, diputar oleh js/systems/sound.js
+SFD=os.path.join(SRC,'sfx')
+sfxs={f[:-4]:base64.b64encode(open(os.path.join(SFD,f),'rb').read()).decode() for f in sorted(os.listdir(SFD)) if f.endswith('.mp3')} if os.path.isdir(SFD) else {}
 # sprite ilustrasi (src/img/sprites/h_<hero>.webp / e_<musuh>.webp, strip 8 frame 88x88) -> SPRITE_SRC
 SPD2=os.path.join(SRC,'img','sprites')
 sps={f[:-5]:'data:image/webp;base64,'+base64.b64encode(open(os.path.join(SPD2,f),'rb').read()).decode() for f in sorted(os.listdir(SPD2)) if f.endswith('.webp')} if os.path.isdir(SPD2) else {}
@@ -65,7 +68,7 @@ if os.path.isdir(STD_):
     # tachie live2d cerita (art_src/tachie/rig.py): hanya tokoh yang gambar dasarnya ada
     tcp=os.path.join(ROOT,'art_src','tachie','tc_rig.json')
     if os.path.exists(tcp):sta['tc']={k:v for k,v in json.load(open(tcp)).items() if (('npc/' if v.get('npc') else 'tc/')+k) in sta['f']}
-jsb="<script>\n'use strict';\nconst SPLASH_SRC="+json.dumps(spl)+";\nconst BGIMG_SRC="+json.dumps(bgi)+";\nconst ICONIMG_SRC="+json.dumps(ici)+";\nconst SPRITE_SRC="+json.dumps(sps)+";\nconst VOICE_SRC="+json.dumps(vox)+";\nconst RIG_SRC="+json.dumps(rig)+";\nconst MUSIC_SRC="+json.dumps(mus)+";\nconst STORY_ASSET="+json.dumps(sta,separators=(',',':'))+";\n"+'\n'.join(f'/* ==== {p} ==== */\n'+read(p) for p in js)+'</script>'
+jsb="<script>\n'use strict';\nconst SPLASH_SRC="+json.dumps(spl)+";\nconst BGIMG_SRC="+json.dumps(bgi)+";\nconst ICONIMG_SRC="+json.dumps(ici)+";\nconst SPRITE_SRC="+json.dumps(sps)+";\nconst VOICE_SRC="+json.dumps(vox)+";\nconst RIG_SRC="+json.dumps(rig)+";\nconst SFX_SRC="+json.dumps(sfxs)+";\nconst MUSIC_SRC="+json.dumps(mus)+";\nconst STORY_ASSET="+json.dumps(sta,separators=(',',':'))+";\n"+'\n'.join(f'/* ==== {p} ==== */\n'+read(p) for p in js)+'</script>'
 # logo studio (src/img/studio/logo.webp) ditanam langsung di HTML agar splash studio tampil sebelum script besar selesai dimuat
 STL=os.path.join(SRC,'img','studio','logo.webp')
 stlogo='data:image/webp;base64,'+base64.b64encode(open(STL,'rb').read()).decode() if os.path.exists(STL) else ''
