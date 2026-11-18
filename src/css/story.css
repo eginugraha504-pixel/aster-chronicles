@@ -120,3 +120,4 @@
 #story.fin .sbg img,#story.fin .scg img{filter:brightness(.38) saturate(.85);transition:filter 1.2s}
 #story.fin .sbox{background:rgba(6,8,22,.72);border-color:rgba(255,214,120,.55)}
 #story.fin .stx{text-align:center;font-weight:800;letter-spacing:.05em;color:#ffe7a8;white-space:pre-line;line-height:1.7}
+#story .sbox.ask .snx{display:none}

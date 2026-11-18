@@ -1968,6 +1968,7 @@ h2.st span{color:#fff3cf;background:rgba(10,14,34,.7);border:1.5px solid #e8b84a
 #story.fin .sbg img,#story.fin .scg img{filter:brightness(.38) saturate(.85);transition:filter 1.2s}
 #story.fin .sbox{background:rgba(6,8,22,.72);border-color:rgba(255,214,120,.55)}
 #story.fin .stx{text-align:center;font-weight:800;letter-spacing:.05em;color:#ffe7a8;white-space:pre-line;line-height:1.7}
+#story .sbox.ask .snx{display:none}
 </style>
 </head>
 <body>
@@ -8286,11 +8287,11 @@ function stAutoArm(){if(!SP||!SP.auto)return;clearTimeout(SP.at);const sp0=SP;
  const go=()=>{if(SP!==sp0||!SP.auto||SP.typing)return;stNext()};
  const base=900+SP.full.length*(LANG==='ja'?55:28);
  if(SP.hasV&&!SVOX.ended&&!SVOX.paused){SVOX.onended=()=>{SVOX.onended=null;SP&&(SP.at=setTimeout(go,700))};SP.at=setTimeout(go,Math.max(base,9000))}else SP.at=setTimeout(go,base)}
-function stChoice(ch){const w=SP.el.querySelector('.sch2');stShow('n');
+function stChoice(ch){const w=SP.el.querySelector('.sch2');if(SP.typing){clearInterval(SP.tm);SP.typing=0;SP.el.querySelector('.stx').textContent=SP.full}
  w.innerHTML=ch.map((c,i)=>`<button class="sopt" data-sc="${i}">${c[SL()]}</button>`).join('');w.classList.add('on');
- SP.el.querySelector('.sbox').classList.add('hid');SP.choosing=ch}
+ SP.el.querySelector('.sbox').classList.add('ask');SP.choosing=ch}
 function stTap(ev){if(!SP)return;const b=ev.target.closest('[data-sb],[data-sc]');ev.stopPropagation();
- if(b&&b.dataset.sc!=null){const c=SP.choosing[+b.dataset.sc];SP.choosing=null;const w=SP.el.querySelector('.sch2');w.classList.remove('on');w.innerHTML='';SP.el.querySelector('.sbox').classList.remove('hid');
+ if(b&&b.dataset.sc!=null){const c=SP.choosing[+b.dataset.sc];SP.choosing=null;const w=SP.el.querySelector('.sch2');w.classList.remove('on');w.innerHTML='';SP.el.querySelector('.sbox').classList.remove('ask');
   SP.log.push([T('Kapten'),c[SL()]]);const el=SP.el,nm=el.querySelector('.snm');nm.textContent=T('Kapten');nm.style.display='';el.querySelector('.sbox').classList.remove('nar');el.querySelector('.stx').textContent=c[SL()];SP.full=c[SL()];SP.typing=0;SP.hasV=false;if(typeof sfx==='function')sfx('click');stAutoArm();return}
  if(b){const k=b.dataset.sb;if(typeof sfx==='function')sfx('click');
   if(k==='auto'){SP.auto=!SP.auto;S.storyAuto=SP.auto;save();b.classList.toggle('on',SP.auto);if(SP.auto&&!SP.typing&&!SP.choosing)stAutoArm();else clearTimeout(SP.at);return}
