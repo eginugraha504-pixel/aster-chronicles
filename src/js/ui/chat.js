@@ -24,7 +24,8 @@ function wcStyle(P){const R={gaul:'anak gaul: huruf kecil, banyak singkatan (yg,
  return`${R[P.reg]||R.santai}; ketawa "${P.laugh[0]}"; panggil orang "${P.call}"; emotikon favorit ${P.emo[0]}`}
 /* ---- Mode AI: minta server menulis adegan obrolan / balasan dari bot yang sedang online ---- */
 function wcAiBody(kind){const now=Date.now(),d=new Date(now+BOT_CFG.TZ*36e5),HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
- const on=wcBotsOn().filter(i=>botUid(i)),t0=on.filter(i=>chPersona(i).chat>0),talk=t0.length>=3?t0:on;
+ // aturan sama dengan pemain: bot baru boleh menulis di Obrolan Dunia setelah Lv akun memenuhi syarat fitur 'chat' (Lv 3)
+ const on=wcBotsOn().filter(i=>botUid(i)&&botState(i,now).lv>=(FEAT.chat.lv||3)),t0=on.filter(i=>chPersona(i).chat>0),talk=t0.length>=3?t0:on;
  const recent=[...new Set(WC.list.filter(m=>now-m.ts<15*6e4).map(wcBot).filter(i=>i>=0&&on.includes(i)))].slice(-3);
  const r=bRng(now>>>0),pool=talk.map(i=>[i,(chPersona(i).chat+.2)*r()]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
  const idx=[...new Set([...recent,...pool])].slice(0,7),cands=chCandsDesc(idx,now);cands.forEach((c,k)=>{const i=idx[k],P=chPersona(i);c.uid=botUid(i);c.lower=!!P.lower;c.style=wcStyle(P)});
