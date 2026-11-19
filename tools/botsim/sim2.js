@@ -136,7 +136,7 @@ function session(hr){const k=K();SIM.sessions++;
  milestones();save()}
 // isi ulang stamina dengan permata (pembelanja): sampai batas harian
 function refill(){const T=SIM.tier&&TIERS[SIM.tier];if(!T)return false;checkDaily();const n=S.daily.c.refill||0;if(n>=Math.min(T.refill,STAM_REFILL.max))return false;
- const c=STAM_REFILL.cost[n];if(c==null||S.gems<c)return false;S.gems-=c;S.stam+=STAM_REFILL.give;S.daily.c.refill=n+1;SIM.refills++;use(4);return true}
+ const c=STAM_REFILL.cost[n];if(c==null||S.gems<c)return false;S.gems-=c;S.stam+=(typeof stamRefillGive==="function"?stamRefillGive():STAM_REFILL.give);S.daily.c.refill=n+1;SIM.refills++;use(4);return true}
 function stages(){for(let g=0;g<120&&timeLeft();g++){const c=choose(),st=STAGES[c.k];if(S.stam<st.cost&&!refill())break;if(S.stam<st.cost)break;
   if(c.t==='sweep'){const n=Math.floor(S.stam/st.cost);const r=sweepStage(c.k,n);if(r.err)break;SIM.sweeps+=n;SIM.counts.sweep+=n;use(5);continue}
   const r=fight(c.k);if(!r)break;SIM.counts[c.t]++;if(!r.win){SIM.failed[c.t==='replay'?'*'+c.k:c.k]=SIM.day+2}else if(c.t==='replay'&&r.stars<3)SIM.failed['*'+c.k]=SIM.day+2;

@@ -35,10 +35,12 @@ function render(){checkDaily();tuCardTick();if(S.iap&&!TU.timer&&tuWaiting().len
 const costTag=st=>st.dg?`${ic('dgtix',12)} 1`:`${ic('stam',12)} ${st.cost}`;
 const stamRefills=()=>{checkDaily();return S.daily.c.refill||0};
 const stamRefillCost=()=>STAM_REFILL.cost[stamRefills()]??null;
+// isi ulang (reset) stamina menambah sebanyak batas stamina saat ini (naik sesuai level)
+const stamRefillGive=()=>stamMax();
 function refillUI(){const c=stamRefillCost(),n=stamRefills();
  if(c==null){toast(T('Batas isi ulang stamina hari ini habis ({n}/{m}). Kembali besok!',{n,m:STAM_REFILL.max}),1);return}
- confirmBox(`${T('Isi ulang {a} dengan {b}?',{a:ic('stam')+' '+STAM_REFILL.give+' '+T('Stamina'),b:ic('gem')+' '+c+' '+T('Permata')})}<span class="rfl">${T('Isi ulang hari ini: {n}/{m}',{n,m:STAM_REFILL.max})}${n+1<STAM_REFILL.max?` · ${T('berikutnya {c}',{c:ic('gem',12)+' '+STAM_REFILL.cost[n+1]})}`:''}</span>`,()=>{
-  checkDaily();const cc=stamRefillCost();if(cc==null)return;if(S.gems<cc){toast(T('Permata tidak cukup!'),1);return}S.gems-=cc;S.stam+=STAM_REFILL.give;S.daily.c.refill=stamRefills()+1;save();updateTop();sfx('claim');toast(T('Stamina terisi!'));refreshScreen()},T('Isi'))}
+ confirmBox(`${T('Isi ulang {a} dengan {b}?',{a:ic('stam')+' '+stamRefillGive()+' '+T('Stamina'),b:ic('gem')+' '+c+' '+T('Permata')})}<span class="rfl">${T('Isi ulang hari ini: {n}/{m}',{n,m:STAM_REFILL.max})}${n+1<STAM_REFILL.max?` · ${T('berikutnya {c}',{c:ic('gem',12)+' '+STAM_REFILL.cost[n+1]})}`:''}</span>`,()=>{
+  checkDaily();const cc=stamRefillCost();if(cc==null)return;if(S.gems<cc){toast(T('Permata tidak cukup!'),1);return}S.gems-=cc;S.stam+=stamRefillGive();S.daily.c.refill=stamRefills()+1;save();updateTop();sfx('claim');toast(T('Stamina terisi!'));refreshScreen()},T('Isi'))}
 function stamShort(){if(stamRefillCost()==null){toast(T('Stamina tidak cukup!')+' '+T('Batas isi ulang hari ini habis.'),1);return}toast(T('Stamina tidak cukup!'),1);refillUI()}
 function dgResetUI(id){const d=DGD[id],c=dgResetCost(id),r=dgResets(id),L=dgResetList(id).length;
  if(dgLeft(id)){toast(T('Tiket masih ada. Reset hanya bisa saat tiket habis.'));return}

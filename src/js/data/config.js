@@ -52,7 +52,7 @@ const STAM_MAX=60,STAM_MS=120000;          // +1 stamina tiap 2 menit
 // stamina maksimal naik 1 per level akun (Lv 1 = 61, Lv 40 = 100, maks 200). Stamina dari hadiah/isi ulang boleh melewatinya.
 const stamMax=()=>Math.min(200,STAM_MAX+((typeof S!=='undefined'&&S&&S.lv)||1));
 // Isi ulang stamina dengan permata: maks STAM_REFILL.max kali per hari, harga naik tiap kali (reset tengah malam)
-const STAM_REFILL={give:60,max:5,cost:[100,150,200,300,400]};
+const STAM_REFILL={give:60,max:5,cost:[100,150,200,300,400]};   // give = cadangan lama; isi ulang sekarang memberi stamMax() (ui/core.js stamRefillGive)
 
 // Stat hero
 const RAR=[0,1,1.35,1.75];                 // pengali stat per bintang
