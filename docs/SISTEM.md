@@ -331,3 +331,8 @@ Server: `bank-worker/src/game.js` (Cloudflare Worker `aster-bank` + D1, tabel di
 
 ## Stamina maksimal naik sesuai level (19 Nov 2026)
 - `stamMax()` = 60 + level akun (maks 200). Regenerasi berhenti di batas itu; stamina dari hadiah, naik level, dan isi ulang tetap boleh melewati batas.
+
+## Menu Bos Dunia & Sapu tahap cerita (19 Nov 2026)
+- Petualangan punya tab ke-3 **Bos Dunia** (`advTab='wb'`, `wbMenuHTML` di ui/worldboss.js): status raid sekarang/berikutnya (bar HP, SERBU, top 5, peringkat lengkap), jadwal hari ini & besok (status Tumbang/Kabur + peringkatmu, Berlangsung, Segera, hitung mundur), Wujud Naga (5 kartu: elemen, kelemahan, jurus, cerita), fase, aturan, hadiah, mingguan. Pil beranda & popup fitur baru membuka tab ini (`ACT.wbPanel`). Bagian live diperbarui tiap detik (`wbMenuRefresh`).
+- Wujud naga kini bergilir berurutan per jadwal (`WB_ORD`), tidak pernah sama dua kali berturut-turut.
+- **Sapu tahap cerita**: tahap yang sudah dimenangkan (★ berapa pun) bisa diselesaikan instan dari jendela tahap — x1/x5/x10/Maks (maks 50, dibatasi stamina). Hadiah per kali = emas & EXP tahap (tanpa permata/perlengkapan), dihitung untuk misi & event "selesaikan tahap"/"kalahkan bos" (`sweepStage`, `stSweepUI` di ui/adventure.js).

@@ -167,3 +167,7 @@
 .dgsel .dgc.on{box-shadow:0 0 0 2.5px #ffd86a,0 0 12px rgba(255,210,90,.6);background:#24366a var(--dga) center 60%/cover no-repeat}
 .dgsel .dgc.on:before{background:linear-gradient(90deg,rgba(90,56,6,.9) 0%,rgba(90,56,6,.45) 70%,rgba(90,56,6,.15))}
 .dgday{color:#d8b8ff!important}
+/* Sapu tahap cerita (openStage) */
+.stsw{margin-top:8px;padding:8px;border-radius:12px;background:rgba(63,169,245,.08);border:1.5px dashed rgba(63,169,245,.45)}
+.stswh{display:flex;align-items:baseline;gap:6px;margin-bottom:6px}.stswh b{font-family:var(--fh);font-size:14px}.stswh small{font-size:11px;color:var(--mut)}
+.stswb{display:flex;gap:5px}.stswb .btn{flex:1;padding:5px 4px;font-size:13px;min-width:0}

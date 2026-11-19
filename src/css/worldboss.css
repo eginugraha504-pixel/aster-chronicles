@@ -73,3 +73,29 @@
 .wbres .wbsum{display:flex;justify-content:center;gap:12px;margin:6px 0}
 .wbres .wbsum div{display:flex;flex-direction:column;align-items:center}
 .wbres .wbsum small{font-size:10.5px;color:var(--mut)}.wbres .wbsum b{font-family:var(--fh);font-size:20px}.wbres .wbsum span{font-size:10px;color:var(--mut)}
+/* halaman menu (Petualangan › Bos Dunia) */
+.wbmenu{padding-bottom:12px}
+.wbmenu .sec small{font-weight:600;color:var(--mut);margin-left:4px;font-size:11px}
+.wbsched{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.wbsl{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;background:#fffaf0;border:1.5px solid rgba(0,0,0,.08);border-left:5px solid var(--ec)}
+.wbsl .wbst{display:flex;flex-direction:column;width:52px;flex:none;line-height:1.1}.wbsl .wbst small{font-size:9.5px;color:var(--mut)}.wbsl .wbst b{font-family:var(--fh);font-size:16px}
+.wbsl .wbsn{flex:1;min-width:0;font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wbsl em{font-style:normal;font-size:11px;font-weight:700;color:var(--mut);white-space:nowrap}
+.wbsl.past{opacity:.6}
+.wbsl.live{background:#fff0ee;border-color:rgba(216,48,58,.5)}.wbsl.live em{color:#d8303a;animation:pip 1s infinite}
+.wbsl.pre em{color:#c0602a}
+.wbsl.cur{box-shadow:0 0 0 2px rgba(216,48,58,.35)}
+.wbdex{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.wbdx{display:flex;gap:8px;align-items:center;padding:6px 8px;border-radius:12px;background:linear-gradient(135deg,#2a1e34,#3a2030);border:2px solid #1c110b;color:#fff;position:relative;overflow:hidden}
+.wbdx::before{content:'';position:absolute;left:-20px;top:-30px;width:110px;height:110px;border-radius:50%;background:var(--ec);opacity:.2}
+.wbdx img{width:86px;height:73px;flex:none;position:relative}
+.wbdx>div{display:flex;flex-direction:column;gap:1px;min-width:0;position:relative}
+.wbdx b{font-family:var(--fh);font-size:15px;-webkit-text-stroke:2px #1c110b;paint-order:stroke fill}
+.wbdx span{display:flex;align-items:center;gap:3px;flex-wrap:wrap;font-size:11px}
+.wbdx small{font-size:10.5px;color:#ffd98a}.wbdx p{margin:2px 0 0;font-size:10.5px;line-height:1.3;opacity:.85}
+.wbphs{display:flex;flex-direction:column;gap:3px;margin-bottom:8px}
+.wbphs div{display:flex;gap:8px;font-size:11.5px;padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.04)}
+.wbphs b{width:38px;flex:none;font-family:var(--fh)}.wbphs em{font-style:normal;font-weight:800}
+.wbrules{margin:0 0 8px;padding-left:18px;font-size:11.5px;line-height:1.4;color:var(--mut)}
+.amb b{white-space:nowrap}
+.wbpn{padding:10px;margin-bottom:8px}.wbpn .wbphs,.wbpn .wbrules{margin-bottom:0}.wbpn .wbrw{background:rgba(0,0,0,.05)}

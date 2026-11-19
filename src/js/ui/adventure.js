@@ -7,13 +7,13 @@ const teamRowHTML=()=>`<button class="teamrow" data-act="go" data-arg="team"><sp
 const worldOpen=i=>i===0||!!S.stages[i+'-5'];
 const worldStars=i=>SLIST.filter(st=>st.wi===i).reduce((a,st)=>a+(S.stages[st.key]||0),0);
 // tiga mode di atas: Cerita · Dungeon · Event (event musiman belum ada → terkunci)
-const advModeHTML=()=>`<div class="amode">${[['world','adv',T('Cerita')],['dg','pick',T('Dungeon')],['ev','event',T('Event')]].map(([k,icn,l])=>{const lk=k==='ev'||(k==='dg'&&!featOK('dungeon'));return`<button class="amb${advTab===k?' on':''}${lk?' lk':''}" data-act="advMode" data-arg="${k}"><img class="ix" src="${ICON[icn]}" alt=""><b>${l}</b>${lk?`<span class="amlk"><img class="ix" src="${ICON.lock}" alt=""></span>`:''}</button>`}).join('')}</div>`;
+const advModeHTML=()=>`<div class="amode">${[['world','adv',T('Cerita')],['dg','pick',T('Dungeon')],['wb','wb',T('Bos Dunia')],['ev','event',T('Event')]].map(([k,icn,l])=>{const lk=k==='ev'||(k==='dg'&&!featOK('dungeon'))||(k==='wb'&&!featOK('wb'));return`<button class="amb${advTab===k?' on':''}${lk?' lk':''}" data-act="advMode" data-arg="${k}"><img class="ix" src="${ICON[icn]}" alt=""><b>${l}</b>${lk?`<span class="amlk"><img class="ix" src="${ICON.lock}" alt=""></span>`:''}</button>`}).join('')}</div>`;
 const advTabsHTML=advModeHTML;   // nama lama (dipakai layar dungeon)
 function advChapHTML(){const ch=S.world>=5?1:0;
  return`<div class="achs">${ADV_CH.map((c,k)=>{const ok=worldOpen(c.w[0]);return`<button class="ach${k===ch?' on':''}${ok?'':' lk'}" data-act="world" data-arg="${c.w.find(i=>i===S.world)??(ok?Math.max(...c.w.filter(worldOpen)):c.w[0])}"><b>${c.n}</b><small>${ok?T(c.t):ic('lock',11)+' '+T('Kalahkan 5-5')}</small></button>`}).join('')}</div>
  <div class="wcar">${ADV_CH[ch].w.map(i=>{const w=WORLDS[i],ok=worldOpen(i),st=worldStars(i),bg=hasBgArt('w_'+w.art)?BGIMG_SRC['w_'+w.art]:'';
   return`<button class="wcd${i===S.world?' on':''}${ok?'':' lk'}" data-act="world" data-arg="${i}"><span class="wca"${bg?` style="background-image:url(${bg})"`:''}></span><i class="wcn">${i+1}</i><b>${w.n}</b><small>${ok?`<i>★</i> ${st}/15`:ic('lock',11)}</small>${ok&&st>=15?'<em class="wcok">✓</em>':''}</button>`}).join('')}</div>`}
-function advHTML(){if(advTab==='dg')return dungeonHTML();if(advTab==='ev')return advEventHTML();
+function advHTML(){if(advTab==='dg')return dungeonHTML();if(advTab==='wb')return typeof wbMenuHTML==='function'?wbMenuHTML():'';if(advTab==='ev')return advEventHTML();
  const w=WORLDS[S.world],wi=S.world;if(!BG[w.bg+'_map'])BG[w.bg+'_map']=makeBG(w.bg,90,160).toDataURL();
  const mapBg=hasBgArt('mp_'+w.art)?BGIMG_SRC['mp_'+w.art]:hasBgArt('m_'+w.art)?BGIMG_SRC['m_'+w.art]:BG[w.bg+'_map'];
  const ns=nextStage(),list=SLIST.filter(st=>st.wi===wi),nxt=list.find(st=>unlocked(st)&&!S.stages[st.key])||null;
@@ -47,7 +47,20 @@ function openStage(key){const st=STAGES[key];if(!unlocked(st))return toast(T('Se
  <div class="sec">Combat Power (CP)</div><div class="box"><div class="kv"><span>${T('CP disarankan')}</span><b>${fmt(st.rec)}</b></div><div class="kv"><span>${T('CP tim kamu')}</span><b style="color:${ok?'#2a9a3a':'#e04040'}">${fmt(tp)} ${ok?'✓':'!'}</b></div></div>
  <div class="sec">${T('Hadiah')}</div>${rewardHTML({gold:st.gold,exp:st.exp,...(!sr?{gems:st.gems}:{})})}${!sr?`<div style="font-size:12px;color:var(--mut)">${ic('gem',12)} ${T('Permata hanya untuk kemenangan pertama')}</div>`:''}
  <div class="sec">${T('Target bintang')}</div><div class="starsreq">${req.map(([s,t],i)=>`<div class="${sr>i?'got':'no'}"><i>${s}</i>${t}</div>`).join('')}</div>
- <div class="mrow"><button class="btn green" data-act="start" data-arg="${key}">${T('MULAI')}<small>${ic('stam',12)} ${st.cost} ${T('Stamina')}</small></button></div>`)}
+ <div class="mrow"><button class="btn green" data-act="start" data-arg="${key}">${T('MULAI')}<small>${ic('stam',12)} ${st.cost} ${T('Stamina')}</small></button></div>
+ ${sr?stSweepRowHTML(key):`<p class="sub" style="text-align:center;font-size:11px">${T('Menangkan tahap ini sekali untuk membuka Sapu (selesai instan).')}</p>`}`)}
+/* Sapu tahap cerita: tahap yang sudah dimenangkan bisa diselesaikan instan (emas + EXP, tanpa permata) untuk menghabiskan stamina */
+const stSweepMax=st=>Math.max(0,Math.min(50,Math.floor(S.stam/st.cost)));
+function stSweepRowHTML(key){const st=STAGES[key];regen();const mx=stSweepMax(st),opts=[...new Set([1,5,10,mx].filter(n=>n>=1&&n<=mx))].sort((a,b)=>a-b);
+ return`<div class="stsw"><div class="stswh"><b>${T('Sapu')}</b><small>${T('Selesai instan · {g} emas & {e} EXP per kali',{g:fmt(st.gold),e:st.exp})}</small></div>
+ ${opts.length?`<div class="stswb">${opts.map(n=>`<button class="btn blue" data-act="stSweep" data-arg="${key}:${n}">${n===mx&&n>10?T('Maks'):'x'+n}<small>${ic('stam',11)} ${st.cost*n}</small></button>`).join('')}</div>`:`<p class="sub" style="text-align:center;font-size:11px">${T('Stamina tidak cukup untuk Sapu.')} <button class="btn gold sm" data-act="refill">${T('Isi Ulang')}</button></p>`}</div>`}
+function sweepStage(key,n){const st=STAGES[key];if(!st||st.dg||st.arena||!S.stages[key])return{err:T('Menangkan tahap ini sekali dulu untuk membuka Sapu.')};regen();checkDaily();n=Math.max(1,Math.floor(n));
+ if(S.stam<st.cost*n)return{err:T('Stamina tidak cukup!'),stam:1};S.stam-=st.cost*n;
+ const rw={gold:st.gold*n,exp:st.exp*n},ups=grant(rw);S.daily.c.clear+=n;evCount('clear',n);if(st.boss){S.daily.c.boss+=n;evCount('boss',n)}save();return{rw,ups}}
+function stSweepUI(key,n){const r=sweepStage(key,n);if(r.err){if(r.stam)stamShort();else toast(r.err,1);return}sfx('claim');updateTop();const st=STAGES[key],mx=stSweepMax(st);
+ modal(`<h3>${T('Sapu Selesai!')}</h3><div class="sub" style="text-align:center">${st.key} · ${st.name} ×${n}</div>${rewardHTML(r.rw)}${r.ups?`<div class="sub" style="text-align:center;color:var(--hl)">${T('Level akun naik {n}x!',{n:r.ups})}</div>`:''}
+ <div class="rexp"><b>Lv ${S.lv}</b><span class="bar"><i style="width:${Math.min(100,S.exp/expNeed(S.lv)*100)}%"></i></span><small>${fmt(S.exp)}/${fmt(expNeed(S.lv))}</small></div>
+ <div class="mrow">${mx>=1?`<button class="btn blue" data-act="stSweep" data-arg="${key}:${Math.min(n,mx)}">${T('Lagi x{n}',{n:Math.min(n,mx)})}<small>${ic('stam',11)} ${st.cost*Math.min(n,mx)}</small></button>`:`<button class="btn gold" data-act="refill">${T('Isi Ulang')}</button>`}<button class="btn green" data-act="closeModal">OK</button></div>`)}
 function openSlot(i){const ids=Object.keys(S.heroes).sort((a,b)=>heroPow(b)-heroPow(a));
  modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Pilih Hero · Slot {n}',{n:+i+1})}</h3><div style="font-size:13px;color:var(--mut)">${T('Slot 1 adalah Leader. Penjaga & Petarung otomatis di barisan depan.')}</div><div class="pick">${ids.map(id=>heroCard(id,'setSlot').replace(`data-arg="${id}"`,`data-arg="${i}:${id}"`)).join('')}</div>${S.team[i]?`<div class="mrow"><button class="btn red" data-act="clearSlot" data-arg="${i}">${T('Kosongkan Slot')}</button></div>`:''}`)}
 

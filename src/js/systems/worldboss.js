@@ -18,7 +18,9 @@ function wbCur(now=Date.now()){const d=wibDay(now),C=WB_CFG;let next=null;
   if(now>=t0-C.pre&&now<t0)return{t0,st:'pre'};if(now>=t0&&now<t0+C.dur)return{t0,st:'live'};if(now>=t0+C.dur&&now<t0+C.dur+C.after)return{t0,st:'after'};
   if(t0>now&&(next==null||t0<next))next=t0}
  return{t0:next,st:'idle',next}}
-const wbBoss=t0=>WB_BOSS[bHash(Math.floor(t0/36e5),4242)%WB_BOSS.length];
+// wujud bergilir berurutan (tidak pernah sama dua jadwal berturut-turut)
+const WB_ORD=[1,3,0,2,4];
+const wbBoss=t0=>{const h=new Date(t0+BOT_CFG.TZ*36e5).getUTCHours(),k=Math.max(0,WB_CFG.slots.indexOf(h)),n=wibDay(t0)*WB_CFG.slots.length+k;return WB_BOSS[WB_ORD[((n%5)+5)%5]]};
 // kunci raid untuk server: '2026-11-19T20'
 function wbKey(t0){const d=new Date(t0+BOT_CFG.TZ*36e5);return d.toISOString().slice(0,13)}
 const wbWeek=t=>Math.floor((wibDay(t)+3)/7);   // Senin 00:00 WIB

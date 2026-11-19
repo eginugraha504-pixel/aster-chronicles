@@ -21,11 +21,13 @@ const WB_CFG={
 };
 // lima wujud naga, bergilir per jadwal. tint: warna kali (multiply) di atas sprite naga abu-abu; null = apa adanya
 const WB_BOSS=[
- {id:'abu',n:'Naga Abu',el:'gelap',tint:null,sk:'Napas Abu Kelam'},
- {id:'bara',n:'Naga Bara',el:'api',tint:'#ff8a5a',sk:'Semburan Bara'},
- {id:'samudra',n:'Naga Samudra',el:'air',tint:'#6ab8ff',sk:'Gelombang Pasang'},
- {id:'rimba',n:'Naga Rimba',el:'tanah',tint:'#8fd36e',sk:'Duri Bumi'},
- {id:'fajar',n:'Naga Fajar',el:'cahaya',tint:'#ffe08a',sk:'Sinar Penghakiman'}];
+ {id:'abu',n:'Naga Abu',el:'gelap',tint:null,sk:'Napas Abu Kelam',d:'Naga purba dari reruntuhan kota yang terbakar. Abunya menelan cahaya.'},
+ {id:'bara',n:'Naga Bara',el:'api',tint:'#ff8a5a',sk:'Semburan Bara',d:'Bersarang di kawah gunung. Sisiknya membara sampai batu di dekatnya meleleh.'},
+ {id:'samudra',n:'Naga Samudra',el:'air',tint:'#6ab8ff',sk:'Gelombang Pasang',d:'Penguasa laut dalam. Setiap auman memanggil ombak setinggi menara.'},
+ {id:'rimba',n:'Naga Rimba',el:'tanah',tint:'#8fd36e',sk:'Duri Bumi',d:'Tertidur ratusan tahun di hutan tua hingga lumut dan akar tumbuh di punggungnya.'},
+ {id:'fajar',n:'Naga Fajar',el:'cahaya',tint:'#ffe08a',sk:'Sinar Penghakiman',d:'Turun dari langit saat matahari terbit. Cahayanya menyilaukan siapa pun yang menatap.'}];
+// keterangan fase untuk menu
+const WB_PH_D=['Serangan biasa.','Serangan bos +30% dan lebih cepat.','Sisik mengeras: hanya elemen unggul yang menembus penuh (lainnya −40%).','Serangan +60% dan sangat cepat. Habisi secepatnya!'];
 // fase: pengali serangan bos, pengali damage diterima bos bila elemen penyerang TIDAK unggul, jeda serangan
 const WB_PH=[
  {n:'Fase 1',atk:1,res:1,cd:1},
