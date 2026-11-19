@@ -8,10 +8,14 @@
    Setelah update besar: jalankan simulasi lagi lalu salin angka per hari ke
      ===================================================================== */
 const BOT_CFG={
- max:10000,                   // jumlah bot maksimum
+ max:100000,                  // jumlah bot maksimum (dicapai bertahun-tahun, lihat JOIN)
  epoch:Date.UTC(2026,10,13,17,0,0), // waktu "rilis" dunia bot (14 Nov 2026 00:00 WIB)
  launch:0,                    // pemain yang langsung ada saat rilis (0 = mulai dari nol)
- tau:12,                      // hari; makin kecil makin cepat bertambah (kurva 1 - e^(-t/tau)): ±8% hari ke-1, 44% hari ke-7, 92% hari ke-30
+ tau:12,                      // gelombang rilis: bot ke-0..JOIN.k mengikuti kurva lama 10.000×(1−e^(−t/12)) (±800 bot di hari pertama)
+ // sesudahnya pertumbuhan alami & melambat: N(t) = a1(1−e^(−t/t1)) + a2(1−e^(−t/t2)), a2 = sisa sampai max.
+ // ±830 bot/hari di awal → ±190/hari setelah sebulan. Kira-kira: hari 7 ≈ 4rb, hari 30 ≈ 10rb, hari 90 ≈ 20rb, 1 tahun ≈ 53rb, 3 tahun ≈ 87rb.
+ // Jam bergabung mengikuti jam ramai WIB (HOURS).
+ JOIN:{k:800,old:10000,a1:3200,t1:5,t2:500},
  // profil gaya main. a = variasi kecepatan relatif kurva profilnya; sess = sesi per hari [min,maks];
  // opt = seberapa optimal pemain menyusun tim/meningkatkan senjata; chrono = geser jam main (jam)
  profiles:[
@@ -55,7 +59,11 @@ const BOT_CFG={
    {id:'f2p',    w:75},
    {id:'card',   w:17,card:1,  renew:.8, rate:.035,packs:[['g1',6],['g2',3]],                    banner:[0,1],bp:[['g1',3],['g2',2]]},
    {id:'dolphin',w:6, card:.85,renew:.9, rate:.16, packs:[['g1',2],['g2',5],['g3',4],['g4',1]],  banner:[1,2],bp:[['g2',2],['g3',4],['g4',2]]},
-   {id:'whale',  w:2, card:1,  renew:1,  rate:.42, packs:[['g3',2],['g4',3],['g5',3],['g6',3]],  banner:[2,5],bp:[['g4',1],['g5',2],['g6',4]]},
+   {id:'whale',  w:1.4,card:1, renew:1,  rate:.42, packs:[['g3',2],['g4',3],['g5',3],['g6',3]],  banner:[2,5],bp:[['g4',1],['g5',2],['g6',4]]},
+   // pengejar puncak: segala cara — main sangat rajin & optimal, selalu kejar rate-up, tidak menabung, tidak pernah berhenti,
+   // borong tiap banner & tanggal gajian, isi ulang stamina (speed), Kebangkitan lebih cepat (ASC.tier)
+   {id:'swhale', w:.45,card:1, renew:1,  rate:.75, packs:[['g4',2],['g5',4],['g6',6]],            banner:[5,9],bp:[['g5',2],['g6',6]],pf:['rajin','hardcore'],speed:1.12,opt:.95},
+   {id:'mwhale', w:.15,card:1, renew:1,  rate:1.3, packs:[['g5',2],['g6',8]],                     banner:[10,18],bp:[['g6',1]],pf:['hardcore'],speed:1.25,opt:.985},
   ],
   firstDay:[.3,4],                 // hari main sebelum pembelian pertama
   payday:{dates:[25,26,27,28,1],mul:2.2}, // tanggal gajian: peluang beli ×mul
@@ -76,7 +84,7 @@ const BOT_CFG={
  BENCH_LV:[.35,.7],           // level hero cadangan relatif terhadap cap
  // Kebangkitan bot (★4–★6): mulai setelah CP tim kira-kira menembus 5-5 (minCP). Anggaran bahan per hari main
  // dalam 'setara Kristal' (asc2 ≈ 3, asc3 ≈ 30 kristal), dikali tier belanja & ketelitian main. Urutan: semua ★4 dulu (hero → senjata → perlengkapan), lalu ★5, lalu ★6.
- ASC:{minCP:27000,perDay:28,tier:{f2p:1,card:1.15,dolphin:1.3,whale:1.6},
+ ASC:{minCP:27000,perDay:28,tier:{f2p:1,card:1.15,dolphin:1.3,whale:1.6,swhale:2.4,mwhale:3.6},
   cost:{h:{4:60,5:220,6:1200},w:{4:40,5:155,6:810},g:{4:30,5:114,6:570}}},
  // nama: dibuat Claude (integrasi sample) lalu disimpan bersama di db; hanya huruf & angka
  // bio/status profil: dibuat Claude, bertag supaya cocok dengan keadaan bot

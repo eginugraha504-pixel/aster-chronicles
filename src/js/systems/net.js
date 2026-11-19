@@ -50,7 +50,7 @@ async function netPush(force,keep){if(!loggedIn()||NET.pushing||(!NET.dirty&&!fo
 // pakai data dari server (admin mengubah lewat Telegram / perangkat lain). Ditunda selama battle/cerita berlangsung.
 function netAdopt(save,sv){if(!save)return;if((typeof B!=='undefined'&&B)||(typeof SP!=='undefined'&&SP)){NET.pend={save,sv};return}
  NET.pend=null;const lang=S&&S.lang;S=Object.assign(defState(),save);S.se=SAVE_SE;if(lang)S.lang=lang;try{migrate()}catch(e){}NET.acct.sv=sv;acctSave();
- try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}
+ lsPut(SAVE_KEY,JSON.stringify(S))
  const L=document.getElementById('login');if(L&&L.classList.contains('on'))return;
  try{if($('#modal').classList.contains('on'))closeModal()}catch(e){}try{refreshScreen()}catch(e){}toast(T('Data akunmu diperbarui dari server'))}
 async function netPull(){const o=await api('/api/load',{tok:netTok()});if(o.ok&&o.save&&o.sv!==NET.acct.sv)netAdopt(o.save,o.sv)}
@@ -70,7 +70,7 @@ async function netRegister(u,p,keep){const body={u,p};if(keep){S.name=u;S.named=
  if(!keep){const lg=S.lang;newGame();S.lang=lg}S.name=o.u;S.named=true;S.uid=o.uid;save();NET.dirty=true;netPush(true);return o}
 async function netLogin(u,p){const o=await api('/api/acc/login',{u,p});if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv,gm:o.gm?1:0};acctSave();
  const lg=S.lang;if(o.save&&o.save.heroes){S=Object.assign(defState(),o.save);S.se=SAVE_SE;try{migrate()}catch(e){}}else{newGame();S.lang=lg}
- S.name=o.u;S.named=true;S.uid=o.uid;try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}if(!o.save)NET.dirty=true;return o}
+ S.name=o.u;S.named=true;S.uid=o.uid;lsPut(SAVE_KEY,JSON.stringify(S));if(!o.save)NET.dirty=true;return o}
 
 /* ---------------- dunia bot dari server ---------------- */
 function netApplyWorld(d,full){if(!d||!d.ok)return;const L=d.bots||[];
@@ -115,7 +115,7 @@ async function netBotFriends(){if(!loggedIn()||!botsWarmOk()||!BOTS.uids)return;
 /* ---------------- potret bot untuk admin ---------------- */
 async function netBotSnap(){if(!loggedIn()||!botsWarmOk()||Date.now()-NET.snapAt<15*6e4)return;NET.snapAt=Date.now();const now=Date.now(),n=botsVisible(),L=[];
  for(let i=0;i<n;i++)L.push(i);const fr=new Set(NET.friends.friends.concat(NET.friends.out,NET.friends.inc).filter(f=>f.bot!=null).map(f=>f.bot));
- const pick=L.map(i=>[i,botState(i,now).cp]).sort((a,b)=>b[1]-a[1]).slice(0,100).map(x=>x[0]);fr.forEach(i=>{if(i<n&&!pick.includes(i))pick.push(i)});
+ const pick=L.map(i=>[i,botSum(i,now).cp]).sort((a,b)=>b[1]-a[1]).slice(0,100).map(x=>x[0]);fr.forEach(i=>{if(i<n&&!pick.includes(i))pick.push(i)});
  const list=pick.slice(0,120).map(i=>{const s=botState(i,now);return{i,lv:s.lv,cp:s.cp,vip:s.stats.vip,top:s.fav||s.team[0],stage:s.stage,team:s.team.map(id=>HD[id]?HD[id].name:id),online:botPresence(i,now).online}});
  api('/api/bots/snap',{tok:netTok(),list})}
 

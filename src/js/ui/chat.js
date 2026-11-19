@@ -77,7 +77,7 @@ function chRow(m,prev){const me=wcMine(m),same=prev&&prev.uid===m.uid&&m.ts-prev
 function chListHTML(L){if(!L.length)return`<p class="sub chempty">${WC.at?T('Belum ada obrolan. Sapa yang lain!'):T('Memuat obrolan...')}</p>`;return L.map((m,k)=>chRow(m,L[k-1])).join('')}
 // jumlah online = bot yang sedang bermain (jadwal sesi bot, sama untuk semua pemain) + pemain asli online (+ kamu)
 // daftar bot online memakai botPresence (sama dengan Peringkat & profil; bot yang baru bergabung juga online), disimpan 10 dtk
-function wcBotsOn(){const now=Date.now();if(WC.onAt&&now-WC.onAt<1e4)return WC.on;const L=[];try{const n=botsVisible(now);for(let i=0;i<n;i++)if(!botHidden(i)&&botPresence(i,now).online)L.push(i)}catch(e){}WC.onAt=now;return WC.on=L}
+function wcBotsOn(){const now=Date.now();if(WC.onAt&&now-WC.onAt<1e4)return WC.on;const L=[];try{const n=botsVisible(now);for(let i=0;i<n;i++)if(!botHidden(i)&&!botFrozen(i,now)&&botPresence(i,now).online)L.push(i)}catch(e){}WC.onAt=now;return WC.on=L}
 function wcOnline(){return wcBotsOn().length+NET.players.filter(p=>p.on&&!(NET.acct&&p.uid===NET.acct.uid)).length+1}
 function openChat(){chatOpen=true;wcFetch().then(()=>chatRefresh(true));netPlayers();
  modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3><img class="ix" src="${ICON.wchat||ICON.chat}" style="width:24px;height:24px"> ${T('Obrolan Dunia')}</h3><div class="chhd"><small><i class="on"></i><b id="chOn">${wcOnline()}</b> ${T('pemain online')}</small></div>

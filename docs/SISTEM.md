@@ -91,10 +91,12 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - **Pengumuman global** di lobby: bot yang mendapat ★3 dalam 3 jam terakhir, bergilir tiap 6 detik; ketuk untuk membuka profilnya.
 - **Setelah update besar:** jalankan `test/runsim.py DAYS "[jam]" out.json` untuk tiap gaya main, salin barisnya ke `CURVES`, dan selesai.
 
-## Reset dunia bot (sementara) & 10.000 bot
+## Reset dunia bot (sementara) & 100.000 bot
 - Pengaturan → **Reset Bot ke Hari 1**: `botsResetWorld()` menulis `bots/world = {epoch: sekarang, gen+1}`. Semua bot jadi karakter baru (seed memakai `gen`), jumlah bot mulai dari 0, dan snapshot peringkat dibersihkan. Progres pemain tidak berubah. Reset berlaku untuk semua yang membuka game (db bersama; cadangan localStorage `aster_botworld`).
-- Pertumbuhan: `max:10000`, `launch:0`, `tau:12` → sekitar 800 bot di hari ke-1, 4.400 di hari ke-7, 9.200 di hari ke-30.
+- Pertumbuhan (`data/bots.js` `max:100000`, `JOIN`): 800 bot pertama mengikuti kurva lama (`tau:12`), lalu dua gelombang: gelombang rilis `a1:3200` (τ 5 hari) dan pertumbuhan panjang sisa kuota (τ 500 hari). Hasil: ±800 hari ke-1, ±4.100 hari ke-7, ±9.400 hari ke-30, ±19.600 hari ke-90, ±53.600 setahun, ±89.000 tiga tahun. Jam bergabung ditekuk ke jam ramai WIB (`botJoinWarp` memakai `HOURS`), jadi pemain baru paling banyak muncul malam hari. Server (`bank-worker/src/game.js` `botJoin`) memakai rumus yang sama; nilai disalin oleh `tools/gen_botcfg.mjs`.
+- **Tier pembelanja** (`BOT_TIERS`): f2p, low, mid, dolphin, whale, **swhale** (super whale, 0,45%) dan **mwhale** (mega whale, 0,15%). Swhale/mwhale "pakai cara apa pun": profil dipaksa rajin/hardcore, tidak pernah berhenti main, selalu mengejar rate-up, membeli semua paket harian/banner/battle pass besar, laju progres ×1,12 / ×1,25, ascension lebih cepat (`ASC.tier`). Proyeksi: puncak CP hari ke-30 ±477rb (mwhale), setahun ±2,2–2,4 jt (mendekati batas ±2,98 jt).
 - Performa: state bot dihitung bertahap di latar belakang (`botsWarm`, potongan ±10 ms, ulang tiap 2 menit), jadi layar tidak membeku. Peringkat menampilkan "Memuat peringkat..." sampai siap (±3 detik di 9.000 bot); setelah itu refresh ±60 ms.
+- Skala besar: `botSum(i)` memberi ringkasan ringan (cp, lv, vip, hero top, stage). Bot yang sudah berhenti main (`botFrozen`) dihitung sekali lalu disimpan di localStorage `aster_botsum` (maks ±900rb karakter; dibuang otomatis bila kuota penuh supaya save pemain tetap aman, lihat `lsPut`). Bot aktif dicache di memori (`BSUMA`) selama kunci `botKey` sama. `botsList` di-memo 20 detik; cache `botState` LRU 15.000. Ukuran: 30 hari (9,4rb bot) daftar ±27 ms; setahun (53rb bot) daftar ±0,4 dtk dan pemanasan latar ±25 dtk (bertahap, tidak membekukan layar).
 - Nama disimpan per 2.000 nama: `bots/names`, `bots/names_1`, ... (`NAME_SHARD`).
 - Untuk menghapus tombol reset nanti: hapus blok "Dunia Bot (sementara)" + aksi `botReset` di `ui/actions.js`.
 

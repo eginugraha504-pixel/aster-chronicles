@@ -10,7 +10,7 @@
 const BSALE={at:0,busy:false,KEY:'aster_botsale_at'};
 const bsHex=b=>Array.from(b,x=>x.toString(16).padStart(2,'0')).join('');
 function botSales(from,to){const n=botsVisible(to),L=[];
- for(let i=0;i<n;i++){const b=botBase(i);if(b.tier.id==='f2p'||b.spend0>to)continue;const sp=botSpend(b,to);
+ for(let i=0;i<n;i++){const b=botBase(i);if(b.tier.id==='f2p'||b.spend0>to||b.endT<from)continue;const sp=botSpend(b,to);
   for(let k=sp.buys.length-1;k>=0;k--){const o=sp.buys[k];if(o.t<=from)break;if(o.t>to)continue;
    L.push({k:`${BOT_CFG.epoch}-${BOTS.gen}-${i}-${Math.floor(o.t)}-${o.id}`,n:botName(i,o.t),sku:o.id,p:o.price,t:Math.floor(o.t)})}}
  return L.sort((a,b)=>a.t-b.t)}

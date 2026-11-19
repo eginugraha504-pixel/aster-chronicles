@@ -38,7 +38,7 @@ const EL_ADV={api:'tanah',tanah:'air',air:'api',cahaya:'gelap',gelap:'cahaya'};
 function chPersona(i){if(CHAT.pers[i])return CHAT.pers[i];const r=chR(i,555),CS=CHAT_STYLE,R=CS.regs,keys=Object.keys(R);
  let x=r()*keys.reduce((a,k)=>a+R[k].w,0),reg=keys[0];for(const k of keys){if(x<R[k].w){reg=k;break}x-=R[k].w}
  const g=R[reg],b=botBase(i);let cx=r()*100,chat=0;for(const[v,p]of CS.chatty){if(cx<p){chat=v;break}cx-=p}
- chat*=b.pf==='hardcore'?1.3:b.pf==='santai'?.8:1;if(b.tier.id==='whale')chat*=1.4;
+ chat*=b.pf==='hardcore'?1.3:b.pf==='santai'?.8:1;if(/whale$/.test(b.tier.id))chat*=1.4;
  return CHAT.pers[i]={reg,g,lower:r()<g.lower,abbr:g.abbr*(.55+r()*.9),en:r()<g.en,jp:g.jp,laugh:[chPick(r,CS.laughs),chPick(r,CS.laughs)],emo:[chPick(r,CS.emos),chPick(r,CS.emos)],
   typo:g.typo[0]+r()*(g.typo[1]-g.typo[0]),call:chPick(r,CS.calls),chat,seed:bHash(i,556),cpK:r()<.55}}
 
@@ -54,7 +54,7 @@ function chWorld(now=Date.now()){if(CHAT.w&&now-CHAT.wAt<3e4)return CHAT.w;const
 /* ---------- siapa yang online (indeks sesi per hari WIB) ---------- */
 // sesi diurutkan menurut mulai -> cari dengan biner, cukup periksa sesi yang mulai ≤ 60 menit sebelum t
 function chDayIdx(d){const n=botsVisible();if(CHAT.idx[d]&&CHAT.idx[d].n===n)return CHAT.idx[d];const L=[];
- for(let i=0;i<n;i++){const b=botBase(i);for(const[s0,s1]of botSessions(b,d))L.push([s0,s1,i])}L.sort((a,b)=>a[0]-b[0]);
+ const dS=d*BDAY-BOT_CFG.TZ*36e5,dE=dS+BDAY;for(let i=0;i<n;i++){const b=botBase(i);if(b.join>dE||b.endT<dS)continue;for(const[s0,s1]of botSessions(b,d))L.push([s0,s1,i])}L.sort((a,b)=>a[0]-b[0]);
  const keys=Object.keys(CHAT.idx);if(keys.length>4)delete CHAT.idx[keys[0]];L.n=n;return CHAT.idx[d]=L}
 function chOnline(t){const d=wibDay(t),out=[],seen=new Set(),n=botsVisible(t);
  for(const dd of[d-1,d]){const L=chDayIdx(dd);let lo=0,hi=L.length;while(lo<hi){const m=(lo+hi)>>1;if(L[m][0]<=t)lo=m+1;else hi=m}
@@ -171,7 +171,7 @@ function chGenMinute(m){if(CHAT.mins.has(m))return;CHAT.mins.add(m);const t0=m*6
 /* ---------- kejadian nyata bot -> reaksi ---------- */
 const chSnap=(b,t)=>{const s=botSnap(b,t);return botActive(b,s)?s:null};
 function chEvents(from,to){if(!botsWarmOk()||to<=from)return;const n=botsVisible(to),out=[],W=chWorld(to),EV=CHAT_LINES.ev;
- for(let i=0;i<n;i++){const b=botBase(i),p=chPersona(i),talkW=Math.min(1,.35+p.chat*.4);
+ for(let i=0;i<n;i++){const b=botBase(i);if(b.join>=to||b.endT<from)continue;const p=chPersona(i),talkW=Math.min(1,.35+p.chat*.4);
   const say=(t,key,ex,o,prob,now)=>{const r=chR(i,chHashS(key+':'+Math.floor(t))%1e6);if(r()>=prob*talkW)return;const tt=now?t+Math.floor(r()*6e4):chSnap(b,t+4e3+Math.floor(r()*8e4));if(tt==null)return;
    const c=chCtx(i,tt),tpl=chLine('ev',key,c,r);if(tpl)chMk(out,tt,i,tpl,c,r,ex,o)};
   if(b.join>=from&&b.join<to){say(b.join+6e4,'join',{},{},.16,1);const r=chR(i,881);if(r()<.22){const on=chOnline(b.join+2e5).filter(x=>x!==i&&chPersona(x).chat>0);

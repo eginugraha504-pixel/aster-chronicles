@@ -38,7 +38,7 @@ function wbAttend(b,t0){const C=WB_CFG;if(t0<C.from||t0+C.dur<b.join||!botActive
 /* ---------- satu raid (dicache) ---------- */
 function wbRaid(t0){if(WB.cache.has(t0))return WB.cache.get(t0);const C=WB_CFG,n=botsVisible(t0+C.dur),P=[];
  for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const b=botBase(i),a=wbAttend(b,t0);if(!a)continue;
-  const cp=botState(i).cp;P.push(Object.assign({i,dps:wbDps(cp)*a.q,cp},a))}
+  const cp=botSum(i).cp;P.push(Object.assign({i,dps:wbDps(cp)*a.q,cp},a))}
  const r=bRng(bHash(Math.floor(t0/6e4),977)),full=P.reduce((s,p)=>s+p.dps*(p.fl-p.fj)/1000,0),x=r();
  const k=x<.12?1.08+r()*.17:x<.32?.92+r()*.08:.62+r()*.28;
  const R={t0,boss:wbBoss(t0),P,hp:Math.max(4e5,Math.round(full*k/1000)*1000)};
