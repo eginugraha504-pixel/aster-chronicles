@@ -10,9 +10,23 @@ function gmPanelHTML(){const o=(k,n,d)=>`<div class="gmrow"><div><b>${n}</b><sma
  <div class="sec">${T('Aksi cepat')}</div>
  <div class="gmgrid">${a('gmHeroes',T('Dapatkan semua hero'))}${a('gmWeapons',T('Dapatkan semua senjata'))}${a('gmGear',T('Dapatkan semua perlengkapan'))}${a('gmMax',T('Level & LB maksimal'))}
  ${a('gmLv',T('Level akun +10'))}${a('gmStages',T('Tamatkan semua tahap ★3'))}${a('gmTut',T('Lewati tutorial & cerita'))}${a('gmDaily',T('Reset misi & batas harian'))}</div>
- <p class="gmnote">${T('Saat bertarung: tombol Jeda › Menang Instan.')}</p>`}
+ <p class="gmnote">${T('Saat bertarung: tombol Jeda › Menang Instan.')}</p>
+ <div class="sec">${T('Gabung Server')}</div><div id="gmSrv">${gmSrvHTML()}</div>`}
+// gabung server: pemain & dunia bot server asal pindah ke server tujuan (permanen)
+const GMS={a:null,b:null};
+function gmSrvHTML(){const L=SRVL.list;if(!L){srvLoad().then(()=>{const e=$('#gmSrv');if(e)e.innerHTML=gmSrvHTML()});return`<p class="gmnote">${T('Memuat daftar server...')}</p>`}
+ if(L.length<2)return`<p class="gmnote">${T('Butuh minimal 2 server.')}</p>`;
+ const opt=(k,sel)=>L.map(x=>`<button class="btn ${sel===x.id?'green':'gray'} gmsb" data-act="gmSrvPick" data-arg="${k}:${x.id}">S${x.id} · ${esc(x.name)} (${fmt(x.n)})</button>`).join('');
+ return`<p class="gmnote">${T('Server asal digabung ke server tujuan: semua pemain & bot asal pindah, server asal hilang dari daftar. Tidak bisa dibatalkan.')}</p>
+ <small>${T('Server asal')}</small><div class="gmgrid">${opt('a',GMS.a)}</div><small>${T('Server tujuan')}</small><div class="gmgrid">${opt('b',GMS.b)}</div>
+ <div class="mrow"><button class="btn red" data-act="gmSrvGo"${GMS.a&&GMS.b&&GMS.a!==GMS.b?'':' disabled'}>${T('Gabungkan')}${GMS.a&&GMS.b&&GMS.a!==GMS.b?` S${GMS.a} → S${GMS.b}`:''}</button></div>`}
 function gmDone(msg){save();sfx('claim');toast(msg);try{render()}catch(e){}if($('#modal').classList.contains('on'))modalKeep('gm',gmPanelHTML())}
 Object.assign(ACT,{
+ gmSrvPick:v=>{const[k,id]=String(v).split(':');GMS[k]=+id;const e=$('#gmSrv');if(e)e.innerHTML=gmSrvHTML()},
+ gmSrvGo:()=>{if(!isGM()||!GMS.a||!GMS.b||GMS.a===GMS.b)return;const a=GMS.a,b=GMS.b;
+  confirmBox(T('Gabungkan {a} ke {b}? Semua pemain & bot {a} pindah ke {b}. Tidak bisa dibatalkan.',{a:srvNameOf(a),b:srvNameOf(b)}),async()=>{
+   const o=await api('/api/srv/merge',{tok:netTok(),from:a,to:b});if(!o.ok){toast(T('Gagal menggabungkan server.'),1);return}
+   GMS.a=GMS.b=null;SRVL.at=0;await srvLoad();toast(T('{a} digabung ke {b}.',{a:'S'+a,b:'S'+b}));netPing();const e=$('#gmSrv');if(e)e.innerHTML=gmSrvHTML()},T('Gabungkan'))},
  gmPanel:()=>{if(!isGM())return;modalKeep('gm',gmPanelHTML())},
  gmOpt:k=>{if(!isGM())return;S.gmo=S.gmo||{};S.gmo[k]=!gmOpt(k);gmTick();gmDone(T('Pengaturan GM disimpan.'))},
  gmHeroes:()=>{if(!isGM())return;let n=0;HEROES.forEach(h=>{if(!S.heroes[h.id]){S.heroes[h.id]={lv:1,lb:0,wpn:null};n++}});gmDone(T('{n} hero baru ditambahkan.',{n}))},

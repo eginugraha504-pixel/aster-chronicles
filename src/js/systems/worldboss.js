@@ -45,12 +45,12 @@ function wbBotUnit(i,b,a,t0,boss){const s=botState(i,t0),cp=s.cp,team=s.team.fil
  const sk=b.sk==='veteran'?1.05:b.sk==='baru'?.93:1,q=Math.pow(atk,1.4)*(.9+.2*r())*sk;
  const L=Math.max(10,Math.min(45,17*Math.pow(cp/1e4,.15)*(.8+.4*r())/def)),D=WB_CFG.respawn+1+r()*4,dps=wbDps(cp)*q;
  return Object.assign({i,cp,dps,L,D,dA:dps*(L+D)/L,el:atk},a)}
-function wbRaid(t0){if(WB.cache.has(t0))return WB.cache.get(t0);const C=WB_CFG,n=botsVisible(t0+C.dur),P=[],boss=wbBoss(t0);
- for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const b=botBase(i),a=wbAttend(b,t0);if(!a)continue;P.push(wbBotUnit(i,b,a,t0,boss))}
+function wbRaid(t0){const ck=t0+'|'+botsSig();if(WB.cache.has(ck))return WB.cache.get(ck);const C=WB_CFG,P=[],boss=wbBoss(t0);
+ for(const i of botsIds(t0+C.dur)){if(typeof botHidden==='function'&&botHidden(i))continue;const b=botBase(i),a=wbAttend(b,t0);if(!a)continue;P.push(wbBotUnit(i,b,a,t0,boss))}
  const r=bRng(bHash(Math.floor(t0/6e4),977)),full=P.reduce((s,p)=>s+wbBotDmgAt(p,p.fl),0),x=r();
  const k=x<.12?1.08+r()*.17:x<.32?.92+r()*.08:.62+r()*.28;
  const R={t0,boss:wbBoss(t0),P,hp:Math.max(4e5,Math.round(full*k/1000)*1000)};
- if(WB.cache.size>40)WB.cache.clear();WB.cache.set(t0,R);return R}
+ if(WB.cache.size>40)WB.cache.clear();WB.cache.set(ck,R);return R}
 // damage bot sampai waktu t: hidup L detik (menyerang), tumbang D detik (bangkit), berulang
 function wbBotDmgAt(p,t){const e=(Math.min(t,p.fl)-p.fj)/1000;if(e<=0)return 0;const C=p.L+p.D,n=Math.floor(e/C);return p.dA*(n*p.L+Math.min(e-n*C,p.L))}
 // sedang menunggu bangkit? → sisa detik (0 = sedang bertarung)
@@ -76,7 +76,7 @@ function wbBoard(t0,now=Date.now()){const st=wbState(t0,now),L=[];
 
 /* ---------- server ---------- */
 async function wbPull(t0,force){const now=Date.now();if(!force&&now-WB.sync<4500)return;WB.sync=now;
- try{const o=await api('/api/wb?slot='+wbKey(t0));if(o&&o.ok)WB.srv[t0]={rows:o.rows||[],lh:o.lh||null,ts:now}}catch(e){}}
+ try{const o=await api('/api/wb?slot='+wbKey(t0)+'&srv='+netSrv());if(o&&o.ok)WB.srv[t0]={rows:o.rows||[],lh:o.lh||null,ts:now}}catch(e){}}
 async function wbPush(t0,force){const now=Date.now();if(!loggedIn()||(!force&&now-WB.post<WB_CFG.report))return;WB.post=now;const d=wbMineLive(t0);if(!d)return;
  try{await api('/api/wb',{tok:netTok(),slot:wbKey(t0),dmg:d,cp:teamPow()})}catch(e){}}
 async function wbClaimLast(t0){if(!loggedIn())return false;try{const o=await api('/api/wb',{tok:netTok(),slot:wbKey(t0),lh:1});return!!(o&&o.lh&&String(o.lh.uid)===String(NET.acct.uid))}catch(e){return false}}

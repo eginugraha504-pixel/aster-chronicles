@@ -82,18 +82,29 @@ function openLogin(){cancelAnimationFrame(loginRAF);if(typeof bgmPlay==='functio
  <div class="lgver"><span>v${GAME_VER} · UID ${S.uid.replace(/(\d{4})(\d{4})/,'$1 $2')}</span><span>© HUN2 STUDIO</span></div>`;
  L.classList.add('on');L.classList.toggle('again',lgOpened);lgOpened=true;if(KA)return;const cv=document.getElementById('lgbg'),g=cv.getContext('2d');g.imageSmoothingEnabled=false;
  const t0=performance.now();const step=n=>{if(cv!==document.getElementById('lgbg'))return;drawHomeScene(g,(n-t0)/1000);loginRAF=requestAnimationFrame(step)};loginRAF=requestAnimationFrame(step)}
-function loginTapHTML(){return`<button class="lgtap" data-act="lgStart">${loggedIn()||S.named?`<span class="lgwel"><i>Lv${S.lv||1}</i><small>${T('Selamat datang kembali,')}</small><b>${esc(loggedIn()?NET.acct.u:S.name)}</b>${loggedIn()?'':`<em>${T('Tamu')}</em>`}</span>`:''}<span class="lgcta"><span>${T('KETUK UNTUK MULAI')}</span></span></button>`}
-function loginNameHTML(){return`<div class="lgcard"><button class="lgx" data-act="lgBack" aria-label="✕">✕</button><h3>${T('Masuk sebagai Tamu')}</h3><p>${T('Data petualanganmu disimpan di perangkat ini.')}</p>
+function loginTapHTML(){return`<button class="lgtap" data-act="lgStart">${loggedIn()||S.named?`<span class="lgwel"><i>Lv${S.lv||1}</i><small>${T('Selamat datang kembali,')}</small><b>${esc(loggedIn()?NET.acct.u:S.name)}</b>${loggedIn()?'':`<em>${T('Tamu')}</em>`}<small class="lgsrv">${esc(NET.srvName?`S${netSrv()} · ${NET.srvName}`:'S'+netSrv())}</small></span>`:''}<span class="lgcta"><span>${T('KETUK UNTUK MULAI')}</span></span></button>`}
+function loginNameHTML(){setTimeout(srvPickLoad,0);return`<div class="lgcard"><button class="lgx" data-act="lgBack" aria-label="✕">✕</button><h3>${T('Masuk sebagai Tamu')}</h3><p>${T('Data petualanganmu disimpan di perangkat ini.')}</p>
  <label for="lgName">${T('Nama Kapten')}</label><input class="nm" id="lgName" maxlength="12" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" value="${S.name&&S.name!=='Kapten'?esc(S.name):''}" placeholder="${T('3–12 huruf atau angka')}">
  <small class="lgrule" id="lgRule">${T('Hanya huruf dan angka, tanpa spasi atau simbol.')}</small>
+ <div class="srvwrap">${srvPickHTML()}</div>
  <div class="mrow"><button class="btn gray" data-act="lgDice">🎲 ${T('Acak')}</button><button class="btn" data-act="lgGo">${T('Mulai Petualangan')}</button></div></div>`}
+/* ---------- pilih server (daftar akun baru / tamu). Akun terikat ke satu server, tanpa pindah. ---------- */
+const SRVL={list:null,at:0,sel:null};
+async function srvLoad(){if(SRVL.list&&Date.now()-SRVL.at<6e4)return SRVL.list;const o=await api('/api/servers');if(o&&o.ok){SRVL.list=o.list;SRVL.at=Date.now()}return SRVL.list||[]}
+function srvState(x){const age=(Date.now()-x.opened)/864e5;return x.full?['full',T('PENUH')]:age<3?['new',T('BARU')]:x.n/x.cap>.7?['busy',T('RAMAI')]:['ok',T('LANCAR')]}
+function srvDefault(L){const ok=(L||[]).filter(x=>!x.full);return ok.length?ok.reduce((a,b)=>b.opened>a.opened||(b.opened===a.opened&&b.n<a.n)?b:a).id:null}
+function srvPickHTML(){const L=SRVL.list;if(!L)return`<div class="srvpick"><small>${T('Memuat daftar server...')}</small></div>`;if(SRVL.sel==null||!L.some(x=>x.id===SRVL.sel&&!x.full))SRVL.sel=srvDefault(L);
+ return`<label>${T('Server')}</label><div class="srvpick">${L.map(x=>{const[st,lb]=srvState(x);return`<button class="srvb ${st}${x.id===SRVL.sel?' on':''}" data-act="srvSel" data-arg="${x.id}"${x.full?' disabled':''}><b>S${x.id} · ${esc(x.name)}</b><small>${fmt(x.n)}/${fmt(x.cap)}</small><i>${lb}</i></button>`}).join('')}</div>
+ <small class="lgrule">${T('Akun terikat ke server pilihanmu dan tidak bisa pindah.')}</small>`}
+function srvPickLoad(){srvLoad().then(()=>{document.querySelectorAll('.srvwrap').forEach(e=>e.innerHTML=srvPickHTML())})}
+const srvNameOf=id=>{const x=(SRVL.list||[]).find(y=>y.id===+id);return x?`S${x.id} · ${x.name}`:'S'+id};
 // kartu Masuk / Daftar (akun server). mode 'link' = dari Pengaturan: daftarkan progres tamu saat ini
 let auTab='in';
-function authHTML(link){const reg=auTab==='up'||link;return`<div class="lgcard au">${link?'':'<button class="lgx" data-act="lgBack" aria-label="✕">✕</button>'}<h3>${link?T('Daftarkan Akun'):reg?T('Buat Akun'):T('Masuk Akun')}</h3>
+function authHTML(link){const reg=auTab==='up'||link;if(reg)setTimeout(srvPickLoad,0);return`<div class="lgcard au">${link?'':'<button class="lgx" data-act="lgBack" aria-label="✕">✕</button>'}<h3>${link?T('Daftarkan Akun'):reg?T('Buat Akun'):T('Masuk Akun')}</h3>
  ${link?`<p>${T('Progres tamu kamu saat ini akan disimpan ke akun baru.')}</p>`:`<div class="autab"><button class="${reg?'':'on'}" data-act="auTab" data-arg="in">${T('Masuk Akun')}</button><button class="${reg?'on':''}" data-act="auTab" data-arg="up">${T('Daftar')}</button></div>`}
  <label for="auU">${T('Username')}</label><input class="nm" id="auU" maxlength="12" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${T('3–12 huruf atau angka')}">
  <label for="auP" style="margin-top:10px">${T('Password')}</label><div class="aupw"><input class="nm" id="auP" type="password" maxlength="64" autocomplete="${reg?'new-password':'current-password'}" placeholder="${T('minimal 6 karakter')}"><button data-act="auEye" aria-label="👁">👁</button></div>
- ${reg?`<label for="auP2" style="margin-top:10px">${T('Ulangi Password')}</label><input class="nm" id="auP2" type="password" maxlength="64" autocomplete="new-password">`:''}
+ ${reg?`<label for="auP2" style="margin-top:10px">${T('Ulangi Password')}</label><input class="nm" id="auP2" type="password" maxlength="64" autocomplete="new-password"><div class="srvwrap">${srvPickHTML()}</div>`:''}
  <small class="lgrule" id="auErr">${reg?T('Username juga menjadi nama Kapten-mu. Simpan password baik-baik — tidak bisa dipulihkan lewat email.'):T('Masuk untuk memuat progres akunmu di perangkat mana pun.')}</small>
  <div class="mrow"><button class="btn" id="auGo" data-act="auGo" data-arg="${link?'link':''}">${reg?T('Daftar & Mulai'):T('Masuk Akun')}</button></div>
  ${link?'':`<button class="auguest" data-act="lgGuest">${T('Main sebagai Tamu')} ›</button>`}</div>`}
@@ -101,7 +112,8 @@ async function authGo(link){const u=($('#auU').value||'').trim(),p=$('#auP').val
  const bad=m=>{er.className='lgrule bad';er.textContent=m;sfx('deny')};
  if(!NAME_OK.test(u))return bad(netErr('uname'));if(p.length<6)return bad(netErr('pw'));if(reg&&p!==$('#auP2').value)return bad(T('Password tidak sama.'));
  bt.disabled=true;const old=bt.textContent;bt.textContent=T('Menghubungkan...');er.className='lgrule';er.textContent='';
- const o=reg?await netRegister(u,p,!!link):await netLogin(u,p);bt.disabled=false;bt.textContent=old;
+ if(reg&&!SRVL.sel)return bad(T('Pilih server dulu.'));
+ const o=reg?await netRegister(u,p,!!link,SRVL.sel):await netLogin(u,p);bt.disabled=false;bt.textContent=old;
  if(!o.ok)return bad(netErr(o.e));
  sfx('claim');document.activeElement&&document.activeElement.blur&&document.activeElement.blur();
  if(link){closeModal();toast(T('Akun {n} terdaftar! Progresmu kini tersimpan di server.',{n:o.u}));try{refreshScreen()}catch(e){}return}
@@ -141,7 +153,9 @@ Object.assign(ACT,{
  lgGo:()=>{if(entering)return;const v=($('#lgName').value||'').trim();if(!lgValidate(v)){const r=$('#lgRule');r.classList.add('bad');r.textContent=T('Nama harus 3–12 huruf atau angka, tanpa spasi atau simbol.');sfx('deny');return}
   if(BOTS.names.some(n=>n.toLowerCase()===v.toLowerCase())){toast(T('Nama itu sudah dipakai petualang lain!'),1);return}
   if(!S.uid||S.uid.length!==8)S.uid=String(10000000+Math.floor(Math.random()*89999999));
+  if(SRVL.sel){try{localStorage.setItem(SRV_KEY,String(SRVL.sel))}catch(e){}netWorld(true)}
   S.name=v;S.named=true;save();const i=$('#lgName');i&&i.blur();enterGame()},
+ srvSel:id=>{SRVL.sel=+id;sfx('tab');document.querySelectorAll('.srvwrap').forEach(e=>e.innerHTML=srvPickHTML())},
  lgBack:()=>{if(lgMode==='name'&&!loggedIn()){lgMode='auth';const P=$('#lgPanel');P.innerHTML=authHTML();sfx('close');return}lgMode='tap';sfx('close');const P=$('#lgPanel');P.classList.remove('card');P.innerHTML=loginTapHTML();P.querySelectorAll('.lgwel,.lgcta').forEach(e=>e.style.animationDelay='0s')},
  lgNews:()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Pengumuman')}</h3><div class="news">${NEWS.map(n=>`<div class="nwi"><b>${T(n.t)}</b><p>${T(n.d)}</p></div>`).join('')}</div><p class="sub" style="text-align:center">v${GAME_VER}</p>`),
  lgLang:()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Bahasa')}</h3><div class="mrow" style="flex-direction:column">${[['id','Bahasa Indonesia'],['en','English'],['ja','日本語']].map(([k,n])=>`<button class="btn ${S.lang===k?'':'blue'}" data-act="lgSetLang" data-arg="${k}">${n}</button>`).join('')}</div>`),

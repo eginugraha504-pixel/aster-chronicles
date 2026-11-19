@@ -14,7 +14,9 @@
    ===================================================================== */
 const NET={acct:null,dirty:false,pushAt:0,pushing:false,pingAt:0,sv:0,fr:0,dm:0,wc:0,wcSeen:0,players:[],plAt:0,
  friends:{friends:[],inc:[],out:[]},frAt:0,worldAt:0,worldOk:false,snapAt:0,pend:null,ban:false};
-const ACCT_KEY='aster_acct',WORLD_KEY='aster_world2';
+const ACCT_KEY='aster_acct',WORLD_KEY='aster_world3',SRV_KEY='aster_srv';
+// server pemain: akun -> server akunnya; tamu -> pilihan di layar masuk (localStorage)
+const netSrv=()=>loggedIn()?(+NET.acct.srv||1):(+(()=>{try{return localStorage.getItem(SRV_KEY)}catch(e){return 0}})()||1);
 const netApi=()=>(typeof TOPUP_CFG!=='undefined'&&TOPUP_CFG.api||'').replace(/\/$/,'');
 // pemutus sirkuit: server menolak (429 batas harian Cloudflare / 5xx) atau tidak terjangkau -> panggilan LATAR (ping, obrolan,
 // dunia, teman, simpan...) berhenti sementara 30 dtk, 1, 2, 4 ... maks 10 menit, supaya tidak memboroskan kuota permintaan.
@@ -65,34 +67,43 @@ async function netLogout(){if(loggedIn()){await netPush(true);await api('/api/ac
 const ERR_TXT={uname:'Username harus 3–12 huruf atau angka, tanpa spasi.',pw:'Password minimal 6 karakter.',taken:'Username sudah dipakai.',cred:'Username atau password salah.',
  botacc:'Akun ini tidak bisa dipakai masuk.',ban:'Akun ini diblokir oleh admin.',slow:'Terlalu banyak percobaan. Coba lagi 10 menit lagi.',net:'Tidak bisa terhubung ke server. Periksa internet.',empty:'Isi username dan password.',server:'Server sedang bermasalah. Coba lagi.'};
 const netErr=e=>T(ERR_TXT[e]||'Terjadi kesalahan.');
-async function netRegister(u,p,keep){const body={u,p};if(keep){S.name=u;S.named=true;body.save=saveBody();body.prof=netProf()}
- const o=await api('/api/acc/register',body);if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv};acctSave();
+async function netRegister(u,p,keep,srv){const body={u,p,srv:srv||netSrv()};if(keep){S.name=u;S.named=true;body.save=saveBody();body.prof=netProf()}
+ const o=await api('/api/acc/register',body);if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv,srv:o.srv||body.srv||1};acctSave();netWorld(true);
  if(!keep){const lg=S.lang;newGame();S.lang=lg}S.name=o.u;S.named=true;S.uid=o.uid;save();NET.dirty=true;netPush(true);return o}
-async function netLogin(u,p){const o=await api('/api/acc/login',{u,p});if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv,gm:o.gm?1:0};acctSave();
+async function netLogin(u,p){const o=await api('/api/acc/login',{u,p});if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv,gm:o.gm?1:0,srv:o.srv||1};acctSave();netWorld(true);
  const lg=S.lang;if(o.save&&o.save.heroes){S=Object.assign(defState(),o.save);S.se=SAVE_SE;try{migrate()}catch(e){}}else{newGame();S.lang=lg}
  S.name=o.u;S.named=true;S.uid=o.uid;lsPut(SAVE_KEY,JSON.stringify(S));if(!o.save)NET.dirty=true;return o}
 
-/* ---------------- dunia bot dari server ---------------- */
-function netApplyWorld(d,full){if(!d||!d.ok)return;const L=d.bots||[];
- if(full||d.from===0){BOTS.uids=L.map(x=>x[0]);BOTS.srvNames=L.map(x=>x[1])}else{for(let k=0;k<L.length;k++){BOTS.uids[d.from+k]=L[k][0];BOTS.srvNames[d.from+k]=L[k][1]}}
- if(NET.gen!=null&&d.gen!==NET.gen&&typeof WC!=='undefined'){WC.list=[];WC.since=0;WC.seen=0;try{localStorage.removeItem('aster_wcseen')}catch(e){}}  // dunia bot di-reset: riwayat obrolan ikut kosong
- BOTS.ov=d.ov||{};BOTS.uidIdx=null;BOTS.cache={};if(typeof rvApply==='function')rvApply(d.rv);
- botsApplyWorld({epoch:d.epoch,gen:d.gen});NET.worldEpoch=d.epoch;BOTS.names=BOTS.srvNames.slice();BOTS.nameSet=null;BOTS.ready=true;NET.worldOk=true;NET.gen=d.gen;
- try{localStorage.setItem(WORLD_KEY,JSON.stringify({epoch:d.epoch,gen:d.gen,bots:BOTS.uids.map((u,k)=>[u,BOTS.srvNames[k]]),ov:BOTS.ov}))}catch(e){}
+/* ---------------- dunia bot dari server ----------------
+   /api/world?srv=X → dunia-dunia bot server ini [{g,e,cap,newer,bots:[[uid,nama]...],ov,rv}]. Id bot j = slot×CAPX + indeks lokal. */
+function netApplyWorld(d,full){if(!d||!d.ok||!Array.isArray(d.worlds)||!d.worlds.length)return;const X=BOT_CFG.SRV.CAPX,sig=d.worlds.map(w=>w.g).join(',');
+ const reset=full||NET.wsig!==sig;if(reset){BOTS.uids=[];BOTS.srvNames=[];BOTS.ov={};BOTS.rvAll={}}
+ const W=[];d.worlds.forEach((w,s)=>{const L=w.bots||[];for(let k=0;k<L.length;k++){BOTS.uids[s*X+w.from+k]=L[k][0];BOTS.srvNames[s*X+w.from+k]=L[k][1]}
+  for(const k in BOTS.ov)if(Math.floor(+k/X)===s)delete BOTS.ov[k];for(const k in(w.ov||{}))BOTS.ov[s*X+(+k)]=w.ov[k];
+  for(const k in(w.rv||{}))BOTS.rvAll[s*X+(+k)]=w.rv[k];
+  let nn=0;while(nn<w.cap&&BOTS.srvNames[s*X+nn]!=null)nn++;W.push({g:w.g,e:w.e,cap:w.cap,newer:w.newer||[],nn})});
+ if(NET.wsig!=null&&NET.wsig!==sig&&typeof WC!=='undefined'){WC.list=[];WC.since=0;WC.seen=0;try{localStorage.removeItem('aster_wcseen')}catch(e){}}  // dunia berubah: obrolan dimuat ulang
+ BOTS.uidIdx=null;BOTS.cache={};botsSetWorlds(W);if(typeof rvApply==='function')rvApply(Object.assign({},BOTS.rvAll));
+ BOTS.names=BOTS.srvNames.slice();BOTS.nameSet=null;BOTS.ready=true;NET.worldOk=true;NET.wsig=sig;NET.worldSrv=d.srv;NET.srvName=d.name;NET.gen=BOTS.gen;
+ try{localStorage.setItem(WORLD_KEY,JSON.stringify({ok:true,srv:d.srv,name:d.name,worlds:d.worlds.map((w,s)=>({g:w.g,e:w.e,cap:w.cap,newer:w.newer,from:0,
+  bots:Array.from({length:W[s].nn},(_,k)=>[BOTS.uids[s*X+k],BOTS.srvNames[s*X+k]]),ov:Object.fromEntries(Object.entries(BOTS.ov).filter(([k])=>Math.floor(+k/X)===s).map(([k,v])=>[+k-s*X,v])),rv:{}}))}))}catch(e){}
  BOTS.onChange&&BOTS.onChange()}
-function netWorldCache(){try{const c=JSON.parse(localStorage.getItem(WORLD_KEY)||'null');if(c&&c.bots)netApplyWorld({ok:true,from:0,...c},true)}catch(e){}}
-async function netWorld(full){NET.worldAt=Date.now();const from=full||!BOTS.uids?0:BOTS.uids.length;const d=await api('/api/world?from='+from);
- if(d.ok){if(!full&&from>0&&d.gen!==NET.gen)return netWorld(true);netApplyWorld(d,from===0)}return d.ok}  // dunia di-reset: muat ulang penuh SEKALI (dulu bisa berulang tanpa henti)
+function netWorldCache(){try{const c=JSON.parse(localStorage.getItem(WORLD_KEY)||'null');if(c&&c.worlds&&c.srv===netSrv())netApplyWorld(c,true)}catch(e){}}
+async function netWorld(full){NET.worldAt=Date.now();const X=BOT_CFG.SRV.CAPX,srv=netSrv();if(NET.worldSrv!=null&&NET.worldSrv!==srv)full=true;
+ const from=full||!BOTS.W?'':(BOTS.W||[]).map(w=>w.nn||0).join(',');const d=await api('/api/world?srv='+srv+'&from='+from);
+ if(d.ok){const sig=(d.worlds||[]).map(w=>w.g).join(',');if(!full&&from&&sig!==NET.wsig)return netWorld(true);netApplyWorld(d,!from)}return d.ok}
 const botUid=i=>BOTS.uids&&BOTS.uids[i];
-function botIdxOf(uid){if(!BOTS.uids)return-1;if(!BOTS.uidIdx){BOTS.uidIdx=new Map();BOTS.uids.forEach((u,k)=>BOTS.uidIdx.set(u,k))}const k=BOTS.uidIdx.get(uid);return k==null?-1:k}
+function botIdxOf(uid){if(!BOTS.uids)return-1;if(!BOTS.uidIdx){BOTS.uidIdx=new Map();BOTS.uids.forEach((u,k)=>{if(u!=null)BOTS.uidIdx.set(u,k)})}const k=BOTS.uidIdx.get(uid);return k==null?-1:k}
 const botOv=i=>BOTS.ov&&BOTS.ov[i]||null;
 const botHidden=i=>{const o=botOv(i);return!!(o&&o.ban)};
 
 /* ---------------- pemain asli (peringkat) ---------------- */
-async function netPlayers(force){if(!force&&Date.now()-NET.plAt<45e3)return;NET.plAt=Date.now();const o=await api('/api/players');if(o.ok){NET.players=o.list||[];BOTS.onChange&&BOTS.onChange()}}
+async function netPlayers(force){if(!force&&Date.now()-NET.plAt<45e3)return;NET.plAt=Date.now();const o=await api('/api/players?srv='+netSrv());if(o.ok){NET.players=o.list||[];BOTS.onChange&&BOTS.onChange()}}
 
 /* ---------------- teman ---------------- */
-async function netFriends(){if(!loggedIn())return NET.friends;const o=await api('/api/fr/list',{tok:netTok()});if(o.ok){NET.friends={friends:o.friends,inc:o.inc,out:o.out};NET.frAt=Date.now();NET.fr=o.inc.length}return NET.friends}
+// kartu pemain dari server: (dunia, indeks lokal) -> id bot di game ini (null = bot server lain)
+function netCards(L){for(const p of L||[])if(p&&p.bot!=null){const j=botJ(p.bw,p.bot);p.bot=j;if(j==null)p.xsrv=1}return L}
+async function netFriends(){if(!loggedIn())return NET.friends;const o=await api('/api/fr/list',{tok:netTok()});if(o.ok){netCards(o.friends);netCards(o.inc);netCards(o.out);NET.friends={friends:o.friends,inc:o.inc,out:o.out};NET.frAt=Date.now();NET.fr=o.inc.length}return NET.friends}
 const isFriend=uid=>NET.friends.friends.some(f=>f.uid===uid);
 const frState=uid=>isFriend(uid)?'ok':NET.friends.out.some(f=>f.uid===uid)?'out':NET.friends.inc.some(f=>f.uid===uid)?'inc':null;
 // keputusan bot: menerima permintaanku (±70%, lebih mudah bila CP-ku mendekati CP-nya) saat ia online
@@ -100,23 +111,22 @@ function botAccepts(i){const s=botState(i),me=teamPow(),r=bHash(i,7700+(+NET.acc
 const BFR_KEY='aster_botfr';
 async function netBotFriends(){if(!loggedIn()||!botsWarmOk()||!BOTS.uids)return;const now=Date.now();let changed=false;
  // 1) jawab permintaanku yang menunggu, hanya saat bot itu sudah online setelah permintaan dikirim
- for(const f of NET.friends.out){if(f.bot==null)continue;const i=f.bot;if(!(i<botsVisible())||botHidden(i))continue;const pr=botPresence(i,now);
+ for(const f of NET.friends.out){if(f.bot==null)continue;const i=f.bot;if(!botIn(i)||botHidden(i))continue;const pr=botPresence(i,now);
   if(!(pr.online||pr.last>f.ts+6e4))continue;const ok=botAccepts(i);
   const o=await api('/api/fr/bot',{tok:netTok(),uid:f.uid,act:ok?'ok':'no'});if(o.ok){changed=true;if(o.st==='ok')toast(T('{n} menerima permintaan pertemananmu!',{n:botName(i)}))}}
  // 2) bot mengajak berteman: 0–2 bot per hari (acak per pemain), dikirim saat sesi pertama bot itu hari ini dimulai
- let done={};try{done=JSON.parse(localStorage.getItem(BFR_KEY)||'{}')}catch(e){}const d=wibDay(now),seed=+NET.acct.uid%1000003,n=botsVisible();
+ let done={};try{done=JSON.parse(localStorage.getItem(BFR_KEY)||'{}')}catch(e){}const d=wibDay(now),seed=+NET.acct.uid%1000003,ids=botsIds(now),n=ids.length;
  if(n>5){const k=[0,0,1,1,1,2][bHash(seed,8800+d)%6];
-  for(let j=0;j<k;j++){const i=bHash(seed,8900+d*7+j)%n,key=NET.gen+':'+d+':'+i;if(done[key]||botHidden(i))continue;const ss=botSessions(botBase(i),d);if(!ss.length){done[key]=1;continue}
+  for(let j=0;j<k;j++){const i=ids[bHash(seed,8900+d*7+j)%n],key=NET.wsig+':'+d+':'+i;if(done[key]||botHidden(i))continue;const ss=botSessions(botBase(i),d);if(!ss.length){done[key]=1;continue}
    if(ss[0][0]>now)continue;done[key]=1;const uid=botUid(i);if(!uid||frState(uid))continue;
    const o=await api('/api/fr/bot',{tok:netTok(),uid,act:'req'});if(o.ok&&o.st==='req'){changed=true;toast(T('{n} ingin berteman denganmu',{n:botName(i)}))}}
   for(const x in done)if(+x.split(':')[1]<d-3)delete done[x];try{localStorage.setItem(BFR_KEY,JSON.stringify(done))}catch(e){}}
  if(changed){await netFriends();refreshBadges()}}
 
 /* ---------------- potret bot untuk admin ---------------- */
-async function netBotSnap(){if(!loggedIn()||!botsWarmOk()||Date.now()-NET.snapAt<15*6e4)return;NET.snapAt=Date.now();const now=Date.now(),n=botsVisible(),L=[];
- for(let i=0;i<n;i++)L.push(i);const fr=new Set(NET.friends.friends.concat(NET.friends.out,NET.friends.inc).filter(f=>f.bot!=null).map(f=>f.bot));
- const pick=L.map(i=>[i,botSum(i,now).cp]).sort((a,b)=>b[1]-a[1]).slice(0,100).map(x=>x[0]);fr.forEach(i=>{if(i<n&&!pick.includes(i))pick.push(i)});
- const list=pick.slice(0,120).map(i=>{const s=botState(i,now);return{i,lv:s.lv,cp:s.cp,vip:s.stats.vip,top:s.fav||s.team[0],stage:s.stage,team:s.team.map(id=>HD[id]?HD[id].name:id),online:botPresence(i,now).online}});
+async function netBotSnap(){if(!loggedIn()||!botsWarmOk()||Date.now()-NET.snapAt<15*6e4)return;NET.snapAt=Date.now();const now=Date.now(),L=botsIds(now).slice();const fr=new Set(NET.friends.friends.concat(NET.friends.out,NET.friends.inc).filter(f=>f.bot!=null).map(f=>f.bot));
+ const pick=L.map(i=>[i,botSum(i,now).cp]).sort((a,b)=>b[1]-a[1]).slice(0,100).map(x=>x[0]);fr.forEach(i=>{if(botIn(i,now)&&!pick.includes(i))pick.push(i)});
+ const list=pick.slice(0,120).map(i=>{const s=botState(i,now);return{i,uid:botUid(i),lv:s.lv,cp:s.cp,vip:s.stats.vip,top:s.fav||s.team[0],stage:s.stage,team:s.team.map(id=>HD[id]?HD[id].name:id),online:botPresence(i,now).online}});
  api('/api/bots/snap',{tok:netTok(),list})}
 
 /* ---------------- ping & loop ---------------- */
@@ -124,7 +134,9 @@ async function netPing(){if(!loggedIn())return;NET.pingAt=Date.now();const o=awa
  if(o.u&&o.u!==NET.acct.u){NET.acct.u=o.u;acctSave()}
  if((o.gm?1:0)!==(NET.acct.gm?1:0)){NET.acct.gm=o.gm?1:0;acctSave();try{toast(o.gm?T('Akun ini sekarang GM. Buka Pengaturan › Panel GM.'):T('Status GM dicabut.'));if(typeof render==='function'&&!B)render()}catch(e){}}
  if(o.sv!==NET.acct.sv&&!NET.pushing)await netPull();
- if(NET.gen!=null&&o.gen!==NET.gen)netWorld(true);
+ // server digabung GM: akun pindah server -> rival & lawan Arena lama tidak berlaku
+ if(o.srv&&+o.srv!==+NET.acct.srv){NET.acct.srv=+o.srv;acctSave();try{if(S.rv)S.rv={};if(S.arena){S.arena.opps=[];S.arena.log=[]}save();toast(T('Servermu digabung dengan server lain. Selamat datang di dunia baru!'))}catch(e){}netWorld(true)}
+ else if(NET.wsig!=null&&o.wsig&&o.wsig!==NET.wsig)netWorld(true);
  const frUp=o.fr>NET.fr,dmUp=o.dm>NET.dm;if(frUp){toast(T('Ada permintaan pertemanan baru'));netFriends()}if(dmUp&&!(typeof dmOpenWith!=='undefined'&&dmOpenWith))toast(T('Pesan baru masuk'));
  NET.fr=o.fr;NET.dm=o.dm;NET.wc=o.wc;NET.ai=!!o.ai;refreshBadges()}
 function refreshBadges(){try{const b=document.getElementById('frBadge');if(b){const n=NET.fr+NET.dm;b.textContent=n>99?'99+':n;b.style.display=n?'':'none'}}catch(e){}}

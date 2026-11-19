@@ -63,7 +63,7 @@ function arDefPick(i){const A=S.arena,ids=Object.keys(S.heroes).sort((a,b)=>hero
 /* ---- riwayat ---- */
 function arLogHTML(){const A=S.arena;A.unseen=0;save();
  if(!A.log.length)return`<p class="sub arload">${T('Belum ada pertarungan. Tantang lawan pertamamu!')}</p>`;
- return`<div class="arlogs">${A.log.map(e=>{const nm=e.i<BOTS.names.length?botName(e.i,e.t):'???',st=e.i<botsVisible()?botState(e.i):null,me=e.k==='atk';
+ return`<div class="arlogs">${A.log.map(e=>{const nm=BOTS.names[e.i]!=null?botName(e.i,e.t):'???',st=botIn(e.i)?botState(e.i):null,me=e.k==='atk';
   const txt=me?(e.win?T('Kamu menang melawan'):T('Kamu kalah dari')):e.bRev?(e.win?T('Menahan balas dendam'):T('Dibalas dendam oleh')):(e.win?T('Menahan serangan'):T('Timmu dikalahkan'));
   return`<div class="arlog ${e.win?'w':'l'}"><span class="ark ${me?'atk':e.bRev?'def rv':'def'}">${me?T('SERANG'):e.bRev?T('DENDAM'):T('BERTAHAN')}</span>${st&&st.fav?`<img class="px" src="${portrait(st.fav)}">`:'<span class="noav"></span>'}
   <div class="ali"><small>${txt}</small><b>${esc(nm)}</b><small>CP ${fmt(e.cp||0)} · ${agoTxt(e.t)}</small></div><span class="ard ${e.d>=0?'aup':'adn'}">${e.d>=0?'+':''}${e.d}</span>

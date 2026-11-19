@@ -16,6 +16,11 @@ const BOT_CFG={
  // ±830 bot/hari di awal → ±190/hari setelah sebulan. Kira-kira: hari 7 ≈ 4rb, hari 30 ≈ 10rb, hari 90 ≈ 20rb, 1 tahun ≈ 53rb, 3 tahun ≈ 87rb.
  // Jam bergabung mengikuti jam ramai WIB (HOURS).
  JOIN:{k:800,old:10000,a1:3200,t1:5,t2:500},
+ // SERVER: tiap server punya dunia bot sendiri, maks cap pemain. Kurva bergabung per dunia (T = hari sejak server buka):
+ //   N(T) = cap × (w1·(1−e^(−T/t1)) + w2·(1−e^(−E/t2)))  — gelombang pembukaan + pertumbuhan ekor
+ //   E = hari efektif ekor: tiap server yang lebih baru dibuka, laju ekor dunia ini × slow (pemain baru pindah ke server baru)
+ //   Hasil (tanpa server baru): ±490 hari 1, ±1.200 hari 7, ±1.750 hari 30, penuh ±3 bulan. CAPX = ruang indeks per dunia (gabungan server).
+ SRV:{cap:2000,CAPX:2000,w1:.45,t1:1.5,w2:.55,t2:25,slow:.45},
  // profil gaya main. a = variasi kecepatan relatif kurva profilnya; sess = sesi per hari [min,maks];
  // opt = seberapa optimal pemain menyusun tim/meningkatkan senjata; chrono = geser jam main (jam)
  profiles:[

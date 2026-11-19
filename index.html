@@ -1062,6 +1062,7 @@ i.on{display:inline-block;width:9px;height:9px;border-radius:50%;background:#3ad
 .tulive{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:#eaf7ff;border:2px solid #5fb3e8;font-size:12px;font-weight:800;text-align:left}
 .tulive .spin{flex:none;width:18px;height:18px;border-radius:50%;border:3px solid #9fd2f5;border-top-color:#2a8ad8;animation:spin 1s linear infinite}
 .tuman{margin-top:8px;text-align:left}.tuman summary{font-size:12px;font-weight:900;color:var(--mut);cursor:pointer}
+.rkinfo .rksrv{font-style:normal;font-weight:900;color:#8a5a1a;margin-right:4px}
 
 /* ==== css/battle.css ==== */
 /* =====================================================================
@@ -1689,6 +1690,15 @@ button.frrow{cursor:pointer}
 @media (max-height:700px){.bhero{height:70%;bottom:26%}.binfo b{font-size:28px}.binfo p{display:none}.lgtop .alogo{width:76%}.lgside{top:calc(30% + env(safe-area-inset-top))}}
 @media (prefers-reduced-motion:reduce){#lgbg.kart,.bbg,.lgrays,.alogo::after,.bhero img{animation:none}}
 .binfo::before{content:'';position:absolute;inset:-34px -50px -24px -40px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 35% 55%,rgba(8,6,26,.78),rgba(8,6,26,.35) 55%,transparent 75%)}
+/* ---- pilih server ---- */
+.srvpick{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 2px}
+.srvb{flex:1 1 calc(50% - 6px);display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:6px 8px;border-radius:10px;border:2px solid #c9b48a;background:#fff8ea;color:#4a3420;text-align:left;position:relative;font-family:inherit}
+.srvb b{font-size:12.5px}.srvb small{font-size:10.5px;opacity:.75}
+.srvb i{position:absolute;right:6px;top:6px;font-style:normal;font-size:9px;font-weight:900;padding:1px 5px;border-radius:6px;background:#8a7a5a;color:#fff}
+.srvb.new i{background:#2fa84f}.srvb.busy i{background:#e08a1e}.srvb.full i{background:#9a3a30}.srvb.ok i{background:#3a8ae0}
+.srvb.on{border-color:#e0a020;background:#fff0c4;box-shadow:0 0 0 2px #ffd36a inset}
+.srvb:disabled{opacity:.5}
+.lgwel .lgsrv{display:block;font-size:11px;opacity:.85;margin-top:2px}
 
 /* ==== css/studio.css ==== */
 /* =====================================================================
@@ -2637,6 +2647,11 @@ const BOT_CFG={
  // ±830 bot/hari di awal → ±190/hari setelah sebulan. Kira-kira: hari 7 ≈ 4rb, hari 30 ≈ 10rb, hari 90 ≈ 20rb, 1 tahun ≈ 53rb, 3 tahun ≈ 87rb.
  // Jam bergabung mengikuti jam ramai WIB (HOURS).
  JOIN:{k:800,old:10000,a1:3200,t1:5,t2:500},
+ // SERVER: tiap server punya dunia bot sendiri, maks cap pemain. Kurva bergabung per dunia (T = hari sejak server buka):
+ //   N(T) = cap × (w1·(1−e^(−T/t1)) + w2·(1−e^(−E/t2)))  — gelombang pembukaan + pertumbuhan ekor
+ //   E = hari efektif ekor: tiap server yang lebih baru dibuka, laju ekor dunia ini × slow (pemain baru pindah ke server baru)
+ //   Hasil (tanpa server baru): ±490 hari 1, ±1.200 hari 7, ±1.750 hari 30, penuh ±3 bulan. CAPX = ruang indeks per dunia (gabungan server).
+ SRV:{cap:2000,CAPX:2000,w1:.45,t1:1.5,w2:.55,t2:25,slow:.45},
  // profil gaya main. a = variasi kecepatan relatif kurva profilnya; sess = sesi per hari [min,maks];
  // opt = seberapa optimal pemain menyusun tim/meningkatkan senjata; chrono = geser jam main (jam)
  profiles:[
@@ -5955,22 +5970,40 @@ function equipGear(hid,gid){const slot=GDD[gid].slot,k=gKey(slot);for(const h in
 const BOTS={cacheN:0,gen:0,names:[],ready:false,db:null,dbWrite:true,busy:false,failAt:0,base:{},cache:{},seen:0,init:false,onChange:null};
 const BDAY=864e5;
 function bRng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
-function bHash(i,s){i+=BOTS.gen*1000003;let h=(Math.imul(i+1,2654435761)^Math.imul(s+7,0x9E3779B1))>>>0;h=Math.imul(h^h>>>16,0x45d9f3b)>>>0;h=Math.imul(h^h>>>16,0x45d9f3b)>>>0;return(h^h>>>16)>>>0}
+// seed: indeks LOKAL bot di dunianya + gen dunianya (bot gabungan server tetap sama dengan aslinya); seed lain memakai dunia utama
+function bHash(i,s){const W=BOTS.W,X=BOT_CFG.SRV.CAPX;if(W&&W.length){const sl=Math.floor(i/X);if(i>=0&&sl<W.length)i=(i-sl*X)+W[sl].g*1000003;else i+=W[0].g*1000003}else i+=BOTS.gen*1000003;let h=(Math.imul(i+1,2654435761)^Math.imul(s+7,0x9E3779B1))>>>0;h=Math.imul(h^h>>>16,0x45d9f3b)>>>0;h=Math.imul(h^h>>>16,0x45d9f3b)>>>0;return(h^h>>>16)>>>0}
 function bInterp(T,x){if(x<=T[0][0])return T[0][1];for(let k=1;k<T.length;k++)if(x<=T[k][0]){const a=T[k-1],b=T[k];return a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0])}return T[T.length-1][1]}
 
-/* ---- kapan bot bergabung ---- */
-// gelombang rilis (i < JOIN.k): kurva lama; sesudahnya kurva dua-eksponen yang melambat + jam bergabung mengikuti jam ramai WIB
-function botJoinDays(i,C=BOT_CFG,e=C.epoch){const J=C.JOIN;if(i<J.k)return-C.tau*Math.log(1-(i+1)/(J.old+1));
- const t0=-C.tau*Math.log(1-J.k/(J.old+1)),a2=C.max-J.k-J.a1,n=i-J.k+1,N=t=>J.a1*(1-Math.exp(-t/J.t1))+a2*(1-Math.exp(-t/J.t2));
- if(n>=J.a1+a2)return Infinity;let lo=0,hi=1;while(N(hi)<n&&hi<1e6)hi*=2;for(let k=0;k<60;k++){const m=(lo+hi)/2;if(N(m)<n)lo=m;else hi=m}
- const E=e/BDAY;return Math.max(t0,botJoinWarp(E+t0+hi,C)-E)}   // tekuk ke jam WIB asli (hari kalender), bukan relatif jam reset
+/* ---- server & dunia ----
+   Server ini punya satu atau lebih dunia bot BOTS.W=[{g,e,cap,newer,nn}] (dunia server lain yang digabung ada di belakang).
+   Id bot j = slot×CAPX + i (i = indeks bot di dunianya). Server yang tidak pernah digabung: j = i (sama seperti dulu). */
+const bX=()=>BOT_CFG.SRV.CAPX;
+function bW(j){const W=BOTS.W;if(!W||!W.length)return null;const s=Math.floor(j/bX());return s>=0&&s<W.length?W[s]:null}
+const bLi=j=>j%bX();
+const botsSig=()=>(BOTS.W||[]).map(w=>w.g+'@'+w.e).join(',');
+// id bot dari (gen dunia, indeks lokal) — dipakai data server (teman, pesan, pencarian)
+function botJ(bw,i){const W=BOTS.W||[],s=W.findIndex(w=>w.g===+bw);return s<0||i==null?null:s*bX()+(+i)}
+/* ---- kapan bot bergabung (per dunia; sama persis dengan server bank-worker/src/game.js) ----
+   N(T) = cap × (w1·(1−e^(−T/t1)) + w2·(1−e^(−E/t2))), T = hari sejak dunia dibuka; E = hari efektif ekor (melambat tiap server lebih baru dibuka).
+   Setelah hari pertama, jam bergabung ditekuk ke jam ramai WIB. */
+function wEff(T,w){const C=BOT_CFG.SRV,O=w.newer||[];let e=0,last=0,k=0;for(const o of O){const d=(o-w.e)/BDAY;if(d>=T)break;if(d>last){e+=(d-last)*Math.pow(C.slow,k);last=d}k++}return e+(T-last)*Math.pow(C.slow,k)}
+function wJoinN(T,w){const C=BOT_CFG.SRV;return w.cap*(C.w1*(1-Math.exp(-T/C.t1))+C.w2*(1-Math.exp(-wEff(T,w)/C.t2)))}
+function botJoinDaysW(i,w){if(i>=w.cap)return Infinity;let lo=0,hi=1;while(wJoinN(hi,w)<i+1&&hi<1e5)hi*=2;if(wJoinN(hi,w)<i+1)return Infinity;
+ for(let k=0;k<50;k++){const m=(lo+hi)/2;if(wJoinN(m,w)<i+1)lo=m;else hi=m}
+ if(hi<1)return hi;const E=w.e/BDAY;return Math.max(1,botJoinWarp(E+hi,BOT_CFG)-E)}
 // geser waktu di dalam satu hari WIB mengikuti bobot jam ramai (monoton → urutan bot tetap)
 function botJoinWarp(d,C){const W=C.HOURS,tot=W.reduce((a,v)=>a+v,0),z=C.TZ/24,x=d+z,day=Math.floor(x),target=(x-day)*tot;
  let c=0,j=0;for(;j<23;j++){if(c+W[j]>=target)break;c+=W[j]}return day+(j+Math.min(1,Math.max(0,(target-c)/W[j])))/24-z}
-function botJoin(i){const C=BOT_CFG;if(i<C.launch)return C.epoch+i*55e3;return C.epoch+botJoinDays(i)*BDAY}
-function botsJoined(now=Date.now()){let lo=0,hi=BOT_CFG.max;while(lo<hi){const m=(lo+hi)>>1;if(botJoin(m)<=now)lo=m+1;else hi=m}return lo}
-/* jumlah bot yang tampil = yang sudah bergabung DAN sudah punya nama */
-const botsVisible=(now=Date.now())=>Math.min(botsJoined(now),BOTS.names.length);
+function botJoin(j){const w=bW(j);if(!w)return Infinity;const i=bLi(j);w.jt=w.jt||[];let t=w.jt[i];if(t==null)t=w.jt[i]=w.e+botJoinDaysW(i,w)*BDAY;return t}
+function botsJoinedW(w,s,now){let lo=0,hi=w.cap;while(lo<hi){const m=(lo+hi)>>1;if(botJoin(s*bX()+m)<=now)lo=m+1;else hi=m}return lo}
+const botsJoined=(now=Date.now())=>(BOTS.W||[]).reduce((a,w,s)=>a+botsJoinedW(w,s,now),0);
+/* bot yang tampil = sudah bergabung DAN sudah punya nama. botsIds = daftar id-nya (urut per dunia). */
+const BIDS={t:-1,k:'',L:[]};
+function botsIds(now=Date.now()){const W=BOTS.W||[],tb=Math.floor(now/2e3),k=botsSig()+'|'+BOTS.names.length;if(BIDS.t===tb&&BIDS.k===k)return BIDS.L;const L=[];
+ W.forEach((w,s)=>{const n=Math.min(botsJoinedW(w,s,now),w.nn==null?BOTS.names.length:w.nn);for(let i=0;i<n;i++)L.push(s*bX()+i)});
+ if(Math.abs(now-Date.now())<3e3){BIDS.t=tb;BIDS.k=k;BIDS.L=L}return L}
+const botsVisible=(now=Date.now())=>botsIds(now).length;
+function botIn(j,now=Date.now()){j=+j;const w=bW(j);if(!w||!(j>=0))return false;const s=Math.floor(j/bX()),i=bLi(j);return i<(w.nn==null?BOTS.names.length:w.nn)&&botJoin(j)<=now}
 
 /* ---- sifat tetap tiap bot ---- */
 function botBase(i){if(BOTS.base[i])return BOTS.base[i];const C=BOT_CFG,r=bRng(bHash(i,1));
@@ -6194,7 +6227,7 @@ function botSnap(b,t){for(let d=wibDay(t);d<=wibDay(t)+3;d++){for(const[s0,s1]of
    Bot yang sudah berhenti (endT lewat) tidak berubah lagi → ringkasannya disimpan di localStorage dan tidak dihitung ulang.
    Bot aktif: dari botState (cache penuh dibatasi ±5000 objek). Ganti SUM_VER bila keseimbangan CP berubah. */
 const SUM_VER=4,BSUM={d:{},key:'',dirty:0,at:0};
-const bsumKey=()=>BOTS.gen+':'+SUM_VER+':'+BOT_CFG.ERAS.length+':'+HEROES.length+':'+BOT_CFG.epoch;
+const bsumKey=()=>botsSig()+':'+SUM_VER+':'+BOT_CFG.ERAS.length+':'+HEROES.length;
 function bsumLoad(){const k=bsumKey();if(BSUM.key===k)return;BSUM.key=k;BSUM.d={};for(const q in BSUMA)delete BSUMA[q];try{const o=JSON.parse(localStorage.getItem('aster_botsum')||'null');if(o&&o.k===k){const D=o.d||{};for(const i in D){const x=D[i];BSUM.d[i]=Array.isArray(x)?{cp:x[0],lv:x[1],vip:x[2],top:x[3],st:x[4]}:x}}}catch(e){}}
 function bsumSave(){if(!BSUM.dirty||Date.now()-BSUM.at<3e4)return;BSUM.at=Date.now();BSUM.dirty=0;const d={};for(const i in BSUM.d){const o=BSUM.d[i];d[i]=[o.cp,o.lv,o.vip,o.top,o.st]}
  // hanya ringkasan bot beku (tidak berubah lagi) yang disimpan; dibatasi ~900rb karakter agar kuota save pemain aman
@@ -6211,14 +6244,14 @@ function botSum(i,now=Date.now(),sync=false){bsumLoad();const fz=botFrozen(i,now
 const botPres=(i,now)=>botFrozen(i,now)?{online:false,last:botBase(i).endT}:botPresence(i,now);
 /* ---- daftar semua bot yang tampil (+ pemain sendiri) ---- */
 const BLM={t:0,n:-1,L:null};
-function botsList(now=Date.now()){const n=botsVisible(now);let L;if(BLM.L&&BLM.n===n&&Math.abs(now-BLM.t)<6e3&&!BOTS.warming){L=BLM.L.map(e=>Object.assign({},e))}else{L=[];for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const s=botSum(i,now),p=botPres(i,now),b=botBase(i);L.push({i,name:botName(i,now),vip:s.vip,lv:s.lv,cp:s.cp,top:s.top,online:p.online,last:p.last,isNew:now-b.join<BDAY,back:b.back&&now>=b.segs[2][0]})}
+function botsList(now=Date.now()){const ids=botsIds(now),n=ids.length;let L;if(BLM.L&&BLM.n===n&&Math.abs(now-BLM.t)<6e3&&!BOTS.warming){L=BLM.L.map(e=>Object.assign({},e))}else{L=[];for(const i of ids){if(typeof botHidden==='function'&&botHidden(i))continue;const s=botSum(i,now),p=botPres(i,now),b=botBase(i);L.push({i,name:botName(i,now),vip:s.vip,lv:s.lv,cp:s.cp,top:s.top,online:p.online,last:p.last,isNew:now-b.join<BDAY,back:b.back&&now>=b.segs[2][0]})}
  bsumSave();BLM.t=now;BLM.n=n;BLM.L=L.map(e=>Object.assign({},e))}
  if(typeof NET!=='undefined')for(const p of NET.players){if(NET.acct&&p.uid===NET.acct.uid)continue;L.push({i:'h'+p.uid,h:p.uid,name:p.u,vip:p.vip||0,lv:p.lv,cp:p.cp,top:p.top,online:p.on,last:p.last})}
  L.push({me:true,name:S.name,vip:vipOf(S.iap&&S.iap.spent||0),lv:S.lv,cp:teamPow(),top:S.team.find(Boolean),online:true,last:now});return L}
 
 /* ---- hitung state semua bot sedikit demi sedikit (±10 ms per potong) supaya layar tidak membeku saat bot ribuan ---- */
 function botsWarm(cb){if(cb)(BOTS.warmCb=BOTS.warmCb||[]).push(cb);if(BOTS.warming)return;BOTS.warming=true;let i=0;const now=Date.now();
- const step=()=>{const n=botsVisible(now),t0=performance.now();try{while(i<n&&performance.now()-t0<10){botSum(i,now,true);botPres(i,now);i++}}catch(e){i=n}
+ const ids=botsIds(now);const step=()=>{const n=ids.length,t0=performance.now();try{while(i<n&&performance.now()-t0<10){botSum(ids[i],now,true);botPres(ids[i],now);i++}}catch(e){i=n}
   if(i<n){setTimeout(step,0);return}bsumSave();BOTS.warming=false;BOTS.warmAt=Date.now();const L=BOTS.warmCb||[];BOTS.warmCb=[];L.forEach(f=>{try{f()}catch(e){}})};
  setTimeout(step,0)}
 const botsWarmOk=()=>!!BOTS.warmAt&&!BOTS.warming;
@@ -6233,11 +6266,17 @@ setInterval(botsFresh,8e3);
    'bots/world' = {epoch, gen}. Reset -> epoch = sekarang, gen+1 (semua bot jadi karakter baru, mulai hari ke-1).
    Disimpan bersama di db supaya semua pemain melihat dunia yang sama; cadangan di localStorage. */
 const BW_KEY='aster_botworld';
-function botsApplyWorld(w){if(!w||!w.epoch)return;if(w.epoch===BOT_CFG.epoch&&(w.gen||0)===BOTS.gen)return;
- BOT_CFG.epoch=w.epoch;BOTS.gen=w.gen||0;BOTS.base={};BOTS.cache={};BOTS.cacheN=0;BSUM.key='';for(const k in BSUMA)delete BSUMA[k];BSQ.clear();BSES.clear();BSES0.clear();BPLAY.clear();for(const k in BSPEND)delete BSPEND[k];BSPEND_N=0;BLM.L=null;BOTS.seen=0;BOTS.warmAt=0;
- try{localStorage.setItem(BW_KEY,JSON.stringify({epoch:w.epoch,gen:BOTS.gen}));localStorage.removeItem('aster_ranksnap')}catch(e){}
+function botsClearCaches(){BOTS.base={};BOTS.cache={};BOTS.cacheN=0;BSUM.key='';for(const k in BSUMA)delete BSUMA[k];BSQ.clear();BSES.clear();BSES0.clear();BPLAY.clear();for(const k in BSPEND)delete BSPEND[k];BSPEND_N=0;BLM.L=null;BIDS.t=-1;BOTS.seen=0;BOTS.seenSet=null;BOTS.warmAt=0;if(typeof AR!=='undefined')AR.board=null;if(typeof WB!=='undefined'&&WB.cache)WB.cache.clear()}
+// dunia-dunia server ini [{g,e,cap,newer}] (systems/net.js). Berubah (reset/gabung/server baru) -> semua cache bot dibuang.
+function botsSetWorlds(W){const sig=W.map(w=>w.g+'@'+w.e+'#'+(w.newer||[]).length).join(','),old=(BOTS.W||[]).map(w=>w.g+'@'+w.e+'#'+(w.newer||[]).length).join(',');
+ if(sig===old){W.forEach((w,k)=>{BOTS.W[k].nn=w.nn});return false}
+ BOTS.W=W.map(w=>({g:w.g,e:w.e,cap:w.cap,newer:(w.newer||[]).slice().sort((a,b)=>a-b),nn:w.nn}));BOTS.gen=W[0].g;BOT_CFG.epoch=W[0].e;botsClearCaches();
+ try{localStorage.removeItem('aster_ranksnap')}catch(e){}
  if(typeof S!=='undefined'&&S&&S.rankDay&&(S.rankDay.gen||0)!==BOTS.gen){S.rankDay={gen:BOTS.gen}}
- if(typeof rankReset==='function')rankReset();BOTS.onChange&&BOTS.onChange();botsEnsure()}
+ if(typeof rankReset==='function')rankReset();BOTS.onChange&&BOTS.onChange();return true}
+// cadangan tanpa server: satu dunia lokal
+function botsApplyWorld(w){if(!w||!w.epoch)return;if(BOTS.W&&BOTS.W.length&&BOTS.W[0].e===w.epoch&&BOTS.W[0].g===(w.gen||0))return;
+ botsSetWorlds([{g:w.gen||0,e:w.epoch,cap:BOT_CFG.SRV.cap,newer:[]}]);try{localStorage.setItem(BW_KEY,JSON.stringify({epoch:w.epoch,gen:w.gen||0}))}catch(e){}botsEnsure()}
 // reset dunia bot HANYA lewat Telegram (/resetbot). Game menerima {epoch, gen} baru dari server (systems/net.js).
 
 /* ================= NAMA (integrasi Claude) ================= */
@@ -6258,7 +6297,7 @@ async function botsInit(){if(BOTS.init)return;BOTS.init=true;
  // server belum menjawab dalam 8 dtk -> pakai generator nama lokal (algoritmanya sama persis dengan server)
  setTimeout(()=>{if(!BOTS.ready){BOTS.ready=true;botsEnsure()}},8000)}
 // pastikan nama cukup untuk bot yang sudah bergabung (+ cadangan)
-async function botsEnsure(){if(!BOTS.ready||BOTS.busy)return;const need=Math.min(BOT_CFG.max,botsJoined()+10);if(BOTS.names.length>=need)return;
+async function botsEnsure(){if(!BOTS.ready||BOTS.busy)return;if(!BOTS.W||!BOTS.W.length)botsApplyWorld({epoch:BOT_CFG.epoch,gen:BOTS.gen||0});const need=Math.min(BOT_CFG.SRV.cap,botsJoined()+10);if(BOTS.names.length>=need)return;
  if(typeof NET!=='undefined'&&NET.worldOk){if(Date.now()-NET.worldAt>3e4)netWorld();return}  // akun bot dibuat server
  BOTS.busy=true;
  try{let got=[],allowLocal=true;const cl=null;
@@ -6273,7 +6312,7 @@ async function botsEnsure(){if(!BOTS.ready||BOTS.busy)return;const need=Math.min
   for(const s of got){const c=botCleanName(s);if(c&&!have.has(c.toLowerCase())){have.add(c.toLowerCase());add.push(c)}}
   // Claude tidak tersedia sama sekali (file lokal / izin ditolak): isi sisanya dengan nama lokal agar bot yang sudah bergabung tetap tampil
   let i=BOTS.names.length+add.length;const HN=HERO_NAMES();while(allowLocal&&BOTS.names.length+add.length<need){const c=botLocalName(i++);if(!have.has(c.toLowerCase())&&!HN.has(c.toLowerCase())){have.add(c.toLowerCase());add.push(c)}}
-  if(add.length){BOTS.names=BOTS.names.concat(add).slice(0,BOT_CFG.max);await botsPersist();BOTS.onChange&&BOTS.onChange()}
+  if(add.length){BOTS.names=BOTS.names.concat(add).slice(0,BOT_CFG.SRV.cap);if(BOTS.W&&BOTS.W[0])BOTS.W[0].nn=BOTS.names.length;await botsPersist();BOTS.onChange&&BOTS.onChange()}
   if(add.length&&BOTS.names.length<need)BOTS.again=(BOTS.again||0)+1;else BOTS.again=0;
  }finally{BOTS.busy=false}
  if(BOTS.again&&BOTS.again<5)setTimeout(botsEnsure,300)}
@@ -6309,7 +6348,7 @@ const RN_KEY='aster_botrenames';
 function botsSetRenames(L){const seen=new Set(),out=[];for(const x of L){const c=botCleanName(x);if(c&&!seen.has(c.toLowerCase())){seen.add(c.toLowerCase());out.push(c)}}if(out.length>BOTS.renames.length){BOTS.renames=out;try{localStorage.setItem(RN_KEY,JSON.stringify(out))}catch(e){}}}
 async function botsEnsureRenames(){return;if(!BOTS.rnInit){BOTS.rnInit=1;try{botsSetRenames(JSON.parse(localStorage.getItem(RN_KEY)||'[]'))}catch(e){}
   if(BOTS.db)BOTS.db.doc('bots/renames').onSnapshot(s=>{const d=s.exists?s.data():null;if(d&&Array.isArray(d.list))botsSetRenames(d.list)},()=>{})}
- const now=Date.now(),n=botsVisible(now);let need=0;for(let i=0;i<n;i++){const b=botBase(i);if(b.rn&&b.rn.t<=now+BDAY)need=Math.max(need,b.rn.k+1)}
+ const now=Date.now();let need=0;for(const i of botsIds(now)){const b=botBase(i);if(b.rn&&b.rn.t<=now+BDAY)need=Math.max(need,b.rn.k+1)}
  if(BOTS.renames.length>=need||BOTS.rnBusy||Date.now()-(BOTS.rnFail||0)<60e3)return;BOTS.rnBusy=true;
  try{let arr=[];const cl=window.claude,sample=cl&&typeof cl.use==='function'&&!BOTS.noClaude?await cl.use('sample').catch(()=>null):null;
   if(sample){const p=BOT_CFG.NAME_PROMPT(100);try{arr=typeof sample.json==='function'?await sample.json(p,{modelTier:'quick'}):null}catch(e){}
@@ -6927,6 +6966,7 @@ function arState(){const C=ARENA_CFG,now=Date.now();
  return A}
 // dipanggil setiap layar digambar: hadiah harian/mingguan lewat surat + reset tiket & poin musim
 function arCheck(now=Date.now()){const A=arState(),C=ARENA_CFG,d=wibDay(now),wk=arWeek(now);let ch=false;
+ if(BOTS.W&&BOTS.W.length&&A.sig!==botsSig()){if(A.sig)toast(T('Dunia server berubah: lawan Arena diperbarui.'));A.sig=botsSig();A.opps=[];A.log=(A.log||[]).filter(e=>e.k!=='atk'&&e.k!=='def');ch=true}   // reset / gabung server: id bot lama tidak berlaku
  if(A.day!==d){
   if(A.foughtDay===A.day){const L=arLg(A.pts),k=arLeague(A.pts);
    sendMail({id:'ar_d_'+A.day,from:T('Penjaga Arena'),title:T('Hadiah Harian Arena · Liga {l}',{l:T(L.n)}),body:T('Terima kasih sudah bertarung di Arena kemarin! Ini hadiah harian untuk Liga {l} ({p} poin).',{l:T(L.n),p:fmt(A.pts)}),rw:Object.assign({},L.day),ar:k})}
@@ -6966,7 +7006,7 @@ function arFindOpps(){const A=arState(),Bd=arBoard(),me=A.pts,my=Math.max(1,team
   let pool=Bd.filter(e=>ok(e)&&e.cp>=my*c0&&e.cp<my*c1&&e.pts>=me+lo*3&&e.pts<me+hi*3);if(pool.length<3)pool=Bd.filter(e=>ok(e)&&e.cp>=my*c0&&e.cp<my*c1);if(!pool.length)pool=Bd.filter(ok);
   pool=pool.sort((a,b)=>Math.abs(a.pts-mid)-Math.abs(b.pts-mid)).slice(0,6);if(!pool.length)return;const e=pool[Math.floor(r()*pool.length)];used.add(e.i);out.push({i:e.i,pts:e.pts})});
  A.opps=out;save();return out}
-function arOpps(){const A=arState();if(!A.opps.length||A.opps.some(o=>!(o.i<botsVisible())))arFindOpps();return A.opps}
+function arOpps(){const A=arState();if(!A.opps.length||A.opps.some(o=>!botIn(o.i)))arFindOpps();return A.opps}
 // perubahan poin (Elo). win = hasil dari sisi "me"
 function arDelta(me,opp,win,K){const C=ARENA_CFG,E=1/(1+Math.pow(10,(opp-me)/400));return win?Math.max(C.minWin,Math.round(K*(1-E))):-Math.max(C.minLose,Math.round(K*E))}
 
@@ -7022,7 +7062,7 @@ function arDefTick(now=Date.now()){const A=arState(),C=ARENA_CFG;if(!A.reg||!bot
  const from=Math.max(A.lastDef,now-48*36e5),seed=+S.uid||7,evs=[];
  for(let h=Math.floor(from/36e5);h<=Math.floor(now/36e5);h++){const r=bRng(bHash(seed,20000+h));if(r()<C.defPerHour){const t=h*36e5+Math.floor(r()*36e5);if(t>A.lastDef&&t<=now)evs.push([t,r(),null])}}
  // balas dendam: bot yang kalah dari seranganmu datang lagi saat online berikutnya
- for(const e of A.log){if(e.k!=='atk'||!e.win||e.rvx||e.i>=botsVisible(now))continue;const t=arRevengeAt(e);
+ for(const e of A.log){if(e.k!=='atk'||!e.win||e.rvx||!botIn(e.i,now))continue;const t=arRevengeAt(e);
   if(t==null||now-e.t>3*864e5){e.rvx=1;continue}if(t<=now){e.rvx=1;if(t>A.lastDef-6e4)evs.push([t,0,e.i])}}
  // rival abadi: menyerang sekali di sesi pertamanya tiap hari (systems/rival.js)
  if(typeof rvArenaEvents==='function')for(const v of rvArenaEvents(A.lastDef,now))if(arBotOnline(v[2],v[0])&&!evs.some(x=>x[2]===v[2]&&Math.abs(x[0]-v[0])<36e5))evs.push(v);
@@ -7167,7 +7207,7 @@ function chPersona(i){if(CHAT.pers[i])return CHAT.pers[i];const r=chR(i,555),CS=
 /* ---------- dunia saat ini (banner, hero baru, pemain teratas...) ---------- */
 function chWorld(now=Date.now()){if(CHAT.w&&now-CHAT.wAt<3e4)return CHAT.w;const E=BOT_CFG.ERAS[eraIdx(now)];
  let newId=null,newAt=0;for(const[id,t]of Object.entries(BOT_CFG.HERO_SINCE))if(t<=now&&t>newAt&&HD[id]){newAt=t;newId=id}
- let top=null,tcp=0;for(const k in BOTS.cache){const c=BOTS.cache[k];if(c&&c.cp>tcp&&+k<botsVisible(now)){tcp=c.cp;top=+k}}
+ let top=null,tcp=0;for(const k in BOTS.cache){const c=BOTS.cache[k];if(c&&c.cp>tcp&&botIn(+k,now)){tcp=c.cp;top=+k}}
  const lims=(E.limited.length?E.limited:E.hero).filter(id=>HD[id]),wp=(E.wpn||[]).find(Boolean);
  CHAT.wAt=now;return CHAT.w={lims:lims.length?lims:['celestine'],limId:lims[0]||'celestine',limw:wp&&WD[wp]?WD[wp].name:'senjata terbatas',newId:newId||'celestine',newRecent:newId&&now-newAt<5*BDAY,
   newHeal:newId&&HD[newId].skill==='heal',heals:HEROES.filter(h=>h.skill==='heal'&&h.r>=2).map(h=>h.name),events:(typeof EVENTS!=='undefined'?EVENTS.filter(evActive).map(e=>e.n):[]),
@@ -7175,12 +7215,12 @@ function chWorld(now=Date.now()){if(CHAT.w&&now-CHAT.wAt<3e4)return CHAT.w;const
 
 /* ---------- siapa yang online (indeks sesi per hari WIB) ---------- */
 // sesi diurutkan menurut mulai -> cari dengan biner, cukup periksa sesi yang mulai ≤ 60 menit sebelum t
-function chDayIdx(d){const n=botsVisible();if(CHAT.idx[d]&&CHAT.idx[d].n===n)return CHAT.idx[d];const L=[];
- const dS=d*BDAY-BOT_CFG.TZ*36e5,dE=dS+BDAY;for(let i=0;i<n;i++){const b=botBase(i);if(b.join>dE||b.endT<dS)continue;for(const[s0,s1]of botSessions(b,d))L.push([s0,s1,i])}L.sort((a,b)=>a[0]-b[0]);
+function chDayIdx(d){const ids=botsIds(),n=ids.length;if(CHAT.idx[d]&&CHAT.idx[d].n===n)return CHAT.idx[d];const L=[];
+ const dS=d*BDAY-BOT_CFG.TZ*36e5,dE=dS+BDAY;for(const i of ids){const b=botBase(i);if(b.join>dE||b.endT<dS)continue;for(const[s0,s1]of botSessions(b,d))L.push([s0,s1,i])}L.sort((a,b)=>a[0]-b[0]);
  const keys=Object.keys(CHAT.idx);if(keys.length>4)delete CHAT.idx[keys[0]];L.n=n;return CHAT.idx[d]=L}
-function chOnline(t){const d=wibDay(t),out=[],seen=new Set(),n=botsVisible(t);
+function chOnline(t){const d=wibDay(t),out=[],seen=new Set();
  for(const dd of[d-1,d]){const L=chDayIdx(dd);let lo=0,hi=L.length;while(lo<hi){const m=(lo+hi)>>1;if(L[m][0]<=t)lo=m+1;else hi=m}
-  for(let k=lo-1;k>=0&&L[k][0]>t-60*6e4;k--){const[s0,s1,i]=L[k];if(t<s1&&i<n&&!seen.has(i)&&botBase(i).join<=t){seen.add(i);out.push(i)}}}
+  for(let k=lo-1;k>=0&&L[k][0]>t-60*6e4;k--){const[s0,s1,i]=L[k];if(t<s1&&!seen.has(i)&&botIn(i,t)){seen.add(i);out.push(i)}}}
  return out.sort((a,b)=>a-b)}
 
 /* ---------- konteks bot (keadaan ASLI) ---------- */
@@ -7292,8 +7332,8 @@ function chGenMinute(m){if(CHAT.mins.has(m))return;CHAT.mins.add(m);const t0=m*6
 
 /* ---------- kejadian nyata bot -> reaksi ---------- */
 const chSnap=(b,t)=>{const s=botSnap(b,t);return botActive(b,s)?s:null};
-function chEvents(from,to){if(!botsWarmOk()||to<=from)return;const n=botsVisible(to),out=[],W=chWorld(to),EV=CHAT_LINES.ev;
- for(let i=0;i<n;i++){const b=botBase(i);if(b.join>=to||b.endT<from)continue;const p=chPersona(i),talkW=Math.min(1,.35+p.chat*.4);
+function chEvents(from,to){if(!botsWarmOk()||to<=from)return;const ids=botsIds(to),n=ids.length,out=[],W=chWorld(to),EV=CHAT_LINES.ev;
+ for(const i of ids){const b=botBase(i);if(b.join>=to||b.endT<from)continue;const p=chPersona(i),talkW=Math.min(1,.35+p.chat*.4);
   const say=(t,key,ex,o,prob,now)=>{const r=chR(i,chHashS(key+':'+Math.floor(t))%1e6);if(r()>=prob*talkW)return;const tt=now?t+Math.floor(r()*6e4):chSnap(b,t+4e3+Math.floor(r()*8e4));if(tt==null)return;
    const c=chCtx(i,tt),tpl=chLine('ev',key,c,r);if(tpl)chMk(out,tt,i,tpl,c,r,ex,o)};
   if(b.join>=from&&b.join<to){say(b.join+6e4,'join',{},{},.16,1);const r=chR(i,881);if(r()<.22){const on=chOnline(b.join+2e5).filter(x=>x!==i&&chPersona(x).chat>0);
@@ -7322,7 +7362,7 @@ function chatPump(now=Date.now()){if(!botsWarmOk()||!BOTS.names.length)return;ch
 function chatVisible(now=Date.now()){const L=CHAT.all.filter(m=>m.t<=now&&m.t>=now-CHAT_CFG.win*1.5).concat(CHAT.me.filter(m=>m.t<=now));return L.sort((a,b)=>a.t-b.t).slice(-CHAT_CFG.keep)}
 function chatTyping(now=Date.now()){const L=CHAT.all.concat(CHAT.me).filter(m=>!m.me&&!m.sys&&m.i!=null&&m.t>now&&m.t-now<Math.min(12e3,2500+m.text.length*260));return[...new Set(L.map(m=>m.i))].slice(0,3)}
 // nama tampil
-const chName=m=>m.me?(S.name||'Kamu'):m.i!=null&&m.i<BOTS.names.length?botName(m.i,m.t):'???';
+const chName=m=>m.me?(S.name||'Kamu'):m.i!=null&&BOTS.names[m.i]!=null?botName(m.i,m.t):'???';
 
 /* ---------- penyimpanan lokal ---------- */
 function chatInit(){if(CHAT.inited)return;CHAT.inited=true;try{CHAT.me=JSON.parse(localStorage.getItem(CH_ME)||'[]').filter(m=>m&&m.t)}catch(e){CHAT.me=[]}
@@ -7332,7 +7372,7 @@ function chatInit(){if(CHAT.inited)return;CHAT.inited=true;try{CHAT.me=JSON.pars
 function chatSaveMe(){try{CHAT.me=CHAT.me.sort((a,b)=>a.t-b.t).slice(-CHAT_CFG.meKeep);localStorage.setItem(CH_ME,JSON.stringify(CHAT.me));localStorage.setItem(CH_MEM,JSON.stringify(CHAT.mem))}catch(e){}}
 
 /* ---------- kamu mengirim pesan -> bot menanggapi ---------- */
-function chNameMap(){const m=new Map(),n=botsVisible();for(let i=0;i<n;i++){m.set(BOTS.names[i].toLowerCase(),i);const b=botBase(i);if(b.rn&&b.rn.k<BOTS.renames.length)m.set(botName(i).toLowerCase(),i)}return m}
+function chNameMap(){const m=new Map();for(const i of botsIds()){m.set(BOTS.names[i].toLowerCase(),i);const b=botBase(i);if(b.rn&&b.rn.k<BOTS.renames.length)m.set(botName(i).toLowerCase(),i)}return m}
 function chBrainRe(re){const all=HEROES.map(h=>h.name.toLowerCase()).join('|'),s3=HEROES.filter(h=>h.r===3).map(h=>h.name.toLowerCase()).join('|');return new RegExp(re.source.replace(/HERO3/g,'('+s3+')').replace(/HERO/g,'('+all+')'),re.flags)}
 function chMatch(txt){const low=txt.toLowerCase();for(const it of CHAT_BRAIN.intents){const re=it._re||(it._re=chBrainRe(it.re)),m=low.match(re);if(m){const x=(m.slice(1).filter(Boolean).find(g=>HEROES.some(h=>h.name.toLowerCase()===g))||m[3]||m[1]||'');
   return{it,x:x?x.charAt(0).toUpperCase()+x.slice(1):''}}}return null}
@@ -7489,14 +7529,14 @@ if(typeof tuDeliver==='function'){const _td=tuDeliver;tuDeliver=function(id){con
    ===================================================================== */
 const BSALE={at:0,busy:false,KEY:'aster_botsale_at'};
 const bsHex=b=>Array.from(b,x=>x.toString(16).padStart(2,'0')).join('');
-function botSales(from,to){const n=botsVisible(to),L=[];
- for(let i=0;i<n;i++){const b=botBase(i);if(b.tier.id==='f2p'||b.spend0>to||b.endT<from)continue;const sp=botSpend(b,to);
+function botSales(from,to){const L=[];
+ for(const i of botsIds(to)){const b=botBase(i);if(b.tier.id==='f2p'||b.spend0>to||b.endT<from)continue;const sp=botSpend(b,to);
   for(let k=sp.buys.length-1;k>=0;k--){const o=sp.buys[k];if(o.t<=from)break;if(o.t>to)continue;
-   L.push({k:`${BOT_CFG.epoch}-${BOTS.gen}-${i}-${Math.floor(o.t)}-${o.id}`,n:botName(i,o.t),sku:o.id,p:o.price,t:Math.floor(o.t)})}}
+   const w=bW(i);L.push({k:`${w.e}-${w.g}-${bLi(i)}-${Math.floor(o.t)}-${o.id}`,n:botName(i,o.t),sku:o.id,p:o.price,t:Math.floor(o.t)})}}
  return L.sort((a,b)=>a.t-b.t)}
 async function botSaleReport(){const api=TOPUP_CFG.api;if(typeof NET!=='undefined'&&NET.downUntil>Date.now())return;
  // hanya dunia bot ASLI dari server (bukan dunia cadangan lokal / halaman uji / simulator) yang boleh melapor ke bank
- if(typeof NET==='undefined'||!NET.worldOk||NET.worldEpoch!==BOT_CFG.epoch||NET.gen!==BOTS.gen)return;if(!api||BSALE.busy||!botsWarmOk()||!BOTS.names.length||BOTS.names.length<botsVisible())return;
+ if(typeof NET==='undefined'||!NET.worldOk||!NET.wsig||NET.wsig!==(BOTS.W||[]).map(w=>w.g).join(','))return;if(!api||BSALE.busy||!botsWarmOk()||!BOTS.names.length||BOTS.names.length<botsVisible())return;
  const now=Date.now();let at=BSALE.at;if(!at){try{at=+localStorage.getItem(BSALE.KEY)||0}catch(e){}}
  const from=Math.max(at,BOT_CFG.SPEND.bankFrom,now-3*BDAY+6e4),L=botSales(from,now-3e4);if(!L.length){BSALE.at=Math.max(from,now-3e4);return}
  BSALE.busy=true;try{for(let k=0;k<L.length;k+=40){const part=L.slice(k,k+40),sig=bsHex(hmac256(TOPUP_CFG.secret,part.map(s=>[s.k,s.n,s.sku,s.p,s.t].join('|')).join('\n')));
@@ -7522,7 +7562,9 @@ setTimeout(()=>{botSaleReport();setInterval(botSaleReport,6e4)},2e4);
    ===================================================================== */
 const NET={acct:null,dirty:false,pushAt:0,pushing:false,pingAt:0,sv:0,fr:0,dm:0,wc:0,wcSeen:0,players:[],plAt:0,
  friends:{friends:[],inc:[],out:[]},frAt:0,worldAt:0,worldOk:false,snapAt:0,pend:null,ban:false};
-const ACCT_KEY='aster_acct',WORLD_KEY='aster_world2';
+const ACCT_KEY='aster_acct',WORLD_KEY='aster_world3',SRV_KEY='aster_srv';
+// server pemain: akun -> server akunnya; tamu -> pilihan di layar masuk (localStorage)
+const netSrv=()=>loggedIn()?(+NET.acct.srv||1):(+(()=>{try{return localStorage.getItem(SRV_KEY)}catch(e){return 0}})()||1);
 const netApi=()=>(typeof TOPUP_CFG!=='undefined'&&TOPUP_CFG.api||'').replace(/\/$/,'');
 // pemutus sirkuit: server menolak (429 batas harian Cloudflare / 5xx) atau tidak terjangkau -> panggilan LATAR (ping, obrolan,
 // dunia, teman, simpan...) berhenti sementara 30 dtk, 1, 2, 4 ... maks 10 menit, supaya tidak memboroskan kuota permintaan.
@@ -7573,34 +7615,43 @@ async function netLogout(){if(loggedIn()){await netPush(true);await api('/api/ac
 const ERR_TXT={uname:'Username harus 3–12 huruf atau angka, tanpa spasi.',pw:'Password minimal 6 karakter.',taken:'Username sudah dipakai.',cred:'Username atau password salah.',
  botacc:'Akun ini tidak bisa dipakai masuk.',ban:'Akun ini diblokir oleh admin.',slow:'Terlalu banyak percobaan. Coba lagi 10 menit lagi.',net:'Tidak bisa terhubung ke server. Periksa internet.',empty:'Isi username dan password.',server:'Server sedang bermasalah. Coba lagi.'};
 const netErr=e=>T(ERR_TXT[e]||'Terjadi kesalahan.');
-async function netRegister(u,p,keep){const body={u,p};if(keep){S.name=u;S.named=true;body.save=saveBody();body.prof=netProf()}
- const o=await api('/api/acc/register',body);if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv};acctSave();
+async function netRegister(u,p,keep,srv){const body={u,p,srv:srv||netSrv()};if(keep){S.name=u;S.named=true;body.save=saveBody();body.prof=netProf()}
+ const o=await api('/api/acc/register',body);if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv,srv:o.srv||body.srv||1};acctSave();netWorld(true);
  if(!keep){const lg=S.lang;newGame();S.lang=lg}S.name=o.u;S.named=true;S.uid=o.uid;save();NET.dirty=true;netPush(true);return o}
-async function netLogin(u,p){const o=await api('/api/acc/login',{u,p});if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv,gm:o.gm?1:0};acctSave();
+async function netLogin(u,p){const o=await api('/api/acc/login',{u,p});if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv,gm:o.gm?1:0,srv:o.srv||1};acctSave();netWorld(true);
  const lg=S.lang;if(o.save&&o.save.heroes){S=Object.assign(defState(),o.save);S.se=SAVE_SE;try{migrate()}catch(e){}}else{newGame();S.lang=lg}
  S.name=o.u;S.named=true;S.uid=o.uid;lsPut(SAVE_KEY,JSON.stringify(S));if(!o.save)NET.dirty=true;return o}
 
-/* ---------------- dunia bot dari server ---------------- */
-function netApplyWorld(d,full){if(!d||!d.ok)return;const L=d.bots||[];
- if(full||d.from===0){BOTS.uids=L.map(x=>x[0]);BOTS.srvNames=L.map(x=>x[1])}else{for(let k=0;k<L.length;k++){BOTS.uids[d.from+k]=L[k][0];BOTS.srvNames[d.from+k]=L[k][1]}}
- if(NET.gen!=null&&d.gen!==NET.gen&&typeof WC!=='undefined'){WC.list=[];WC.since=0;WC.seen=0;try{localStorage.removeItem('aster_wcseen')}catch(e){}}  // dunia bot di-reset: riwayat obrolan ikut kosong
- BOTS.ov=d.ov||{};BOTS.uidIdx=null;BOTS.cache={};if(typeof rvApply==='function')rvApply(d.rv);
- botsApplyWorld({epoch:d.epoch,gen:d.gen});NET.worldEpoch=d.epoch;BOTS.names=BOTS.srvNames.slice();BOTS.nameSet=null;BOTS.ready=true;NET.worldOk=true;NET.gen=d.gen;
- try{localStorage.setItem(WORLD_KEY,JSON.stringify({epoch:d.epoch,gen:d.gen,bots:BOTS.uids.map((u,k)=>[u,BOTS.srvNames[k]]),ov:BOTS.ov}))}catch(e){}
+/* ---------------- dunia bot dari server ----------------
+   /api/world?srv=X → dunia-dunia bot server ini [{g,e,cap,newer,bots:[[uid,nama]...],ov,rv}]. Id bot j = slot×CAPX + indeks lokal. */
+function netApplyWorld(d,full){if(!d||!d.ok||!Array.isArray(d.worlds)||!d.worlds.length)return;const X=BOT_CFG.SRV.CAPX,sig=d.worlds.map(w=>w.g).join(',');
+ const reset=full||NET.wsig!==sig;if(reset){BOTS.uids=[];BOTS.srvNames=[];BOTS.ov={};BOTS.rvAll={}}
+ const W=[];d.worlds.forEach((w,s)=>{const L=w.bots||[];for(let k=0;k<L.length;k++){BOTS.uids[s*X+w.from+k]=L[k][0];BOTS.srvNames[s*X+w.from+k]=L[k][1]}
+  for(const k in BOTS.ov)if(Math.floor(+k/X)===s)delete BOTS.ov[k];for(const k in(w.ov||{}))BOTS.ov[s*X+(+k)]=w.ov[k];
+  for(const k in(w.rv||{}))BOTS.rvAll[s*X+(+k)]=w.rv[k];
+  let nn=0;while(nn<w.cap&&BOTS.srvNames[s*X+nn]!=null)nn++;W.push({g:w.g,e:w.e,cap:w.cap,newer:w.newer||[],nn})});
+ if(NET.wsig!=null&&NET.wsig!==sig&&typeof WC!=='undefined'){WC.list=[];WC.since=0;WC.seen=0;try{localStorage.removeItem('aster_wcseen')}catch(e){}}  // dunia berubah: obrolan dimuat ulang
+ BOTS.uidIdx=null;BOTS.cache={};botsSetWorlds(W);if(typeof rvApply==='function')rvApply(Object.assign({},BOTS.rvAll));
+ BOTS.names=BOTS.srvNames.slice();BOTS.nameSet=null;BOTS.ready=true;NET.worldOk=true;NET.wsig=sig;NET.worldSrv=d.srv;NET.srvName=d.name;NET.gen=BOTS.gen;
+ try{localStorage.setItem(WORLD_KEY,JSON.stringify({ok:true,srv:d.srv,name:d.name,worlds:d.worlds.map((w,s)=>({g:w.g,e:w.e,cap:w.cap,newer:w.newer,from:0,
+  bots:Array.from({length:W[s].nn},(_,k)=>[BOTS.uids[s*X+k],BOTS.srvNames[s*X+k]]),ov:Object.fromEntries(Object.entries(BOTS.ov).filter(([k])=>Math.floor(+k/X)===s).map(([k,v])=>[+k-s*X,v])),rv:{}}))}))}catch(e){}
  BOTS.onChange&&BOTS.onChange()}
-function netWorldCache(){try{const c=JSON.parse(localStorage.getItem(WORLD_KEY)||'null');if(c&&c.bots)netApplyWorld({ok:true,from:0,...c},true)}catch(e){}}
-async function netWorld(full){NET.worldAt=Date.now();const from=full||!BOTS.uids?0:BOTS.uids.length;const d=await api('/api/world?from='+from);
- if(d.ok){if(!full&&from>0&&d.gen!==NET.gen)return netWorld(true);netApplyWorld(d,from===0)}return d.ok}  // dunia di-reset: muat ulang penuh SEKALI (dulu bisa berulang tanpa henti)
+function netWorldCache(){try{const c=JSON.parse(localStorage.getItem(WORLD_KEY)||'null');if(c&&c.worlds&&c.srv===netSrv())netApplyWorld(c,true)}catch(e){}}
+async function netWorld(full){NET.worldAt=Date.now();const X=BOT_CFG.SRV.CAPX,srv=netSrv();if(NET.worldSrv!=null&&NET.worldSrv!==srv)full=true;
+ const from=full||!BOTS.W?'':(BOTS.W||[]).map(w=>w.nn||0).join(',');const d=await api('/api/world?srv='+srv+'&from='+from);
+ if(d.ok){const sig=(d.worlds||[]).map(w=>w.g).join(',');if(!full&&from&&sig!==NET.wsig)return netWorld(true);netApplyWorld(d,!from)}return d.ok}
 const botUid=i=>BOTS.uids&&BOTS.uids[i];
-function botIdxOf(uid){if(!BOTS.uids)return-1;if(!BOTS.uidIdx){BOTS.uidIdx=new Map();BOTS.uids.forEach((u,k)=>BOTS.uidIdx.set(u,k))}const k=BOTS.uidIdx.get(uid);return k==null?-1:k}
+function botIdxOf(uid){if(!BOTS.uids)return-1;if(!BOTS.uidIdx){BOTS.uidIdx=new Map();BOTS.uids.forEach((u,k)=>{if(u!=null)BOTS.uidIdx.set(u,k)})}const k=BOTS.uidIdx.get(uid);return k==null?-1:k}
 const botOv=i=>BOTS.ov&&BOTS.ov[i]||null;
 const botHidden=i=>{const o=botOv(i);return!!(o&&o.ban)};
 
 /* ---------------- pemain asli (peringkat) ---------------- */
-async function netPlayers(force){if(!force&&Date.now()-NET.plAt<45e3)return;NET.plAt=Date.now();const o=await api('/api/players');if(o.ok){NET.players=o.list||[];BOTS.onChange&&BOTS.onChange()}}
+async function netPlayers(force){if(!force&&Date.now()-NET.plAt<45e3)return;NET.plAt=Date.now();const o=await api('/api/players?srv='+netSrv());if(o.ok){NET.players=o.list||[];BOTS.onChange&&BOTS.onChange()}}
 
 /* ---------------- teman ---------------- */
-async function netFriends(){if(!loggedIn())return NET.friends;const o=await api('/api/fr/list',{tok:netTok()});if(o.ok){NET.friends={friends:o.friends,inc:o.inc,out:o.out};NET.frAt=Date.now();NET.fr=o.inc.length}return NET.friends}
+// kartu pemain dari server: (dunia, indeks lokal) -> id bot di game ini (null = bot server lain)
+function netCards(L){for(const p of L||[])if(p&&p.bot!=null){const j=botJ(p.bw,p.bot);p.bot=j;if(j==null)p.xsrv=1}return L}
+async function netFriends(){if(!loggedIn())return NET.friends;const o=await api('/api/fr/list',{tok:netTok()});if(o.ok){netCards(o.friends);netCards(o.inc);netCards(o.out);NET.friends={friends:o.friends,inc:o.inc,out:o.out};NET.frAt=Date.now();NET.fr=o.inc.length}return NET.friends}
 const isFriend=uid=>NET.friends.friends.some(f=>f.uid===uid);
 const frState=uid=>isFriend(uid)?'ok':NET.friends.out.some(f=>f.uid===uid)?'out':NET.friends.inc.some(f=>f.uid===uid)?'inc':null;
 // keputusan bot: menerima permintaanku (±70%, lebih mudah bila CP-ku mendekati CP-nya) saat ia online
@@ -7608,23 +7659,22 @@ function botAccepts(i){const s=botState(i),me=teamPow(),r=bHash(i,7700+(+NET.acc
 const BFR_KEY='aster_botfr';
 async function netBotFriends(){if(!loggedIn()||!botsWarmOk()||!BOTS.uids)return;const now=Date.now();let changed=false;
  // 1) jawab permintaanku yang menunggu, hanya saat bot itu sudah online setelah permintaan dikirim
- for(const f of NET.friends.out){if(f.bot==null)continue;const i=f.bot;if(!(i<botsVisible())||botHidden(i))continue;const pr=botPresence(i,now);
+ for(const f of NET.friends.out){if(f.bot==null)continue;const i=f.bot;if(!botIn(i)||botHidden(i))continue;const pr=botPresence(i,now);
   if(!(pr.online||pr.last>f.ts+6e4))continue;const ok=botAccepts(i);
   const o=await api('/api/fr/bot',{tok:netTok(),uid:f.uid,act:ok?'ok':'no'});if(o.ok){changed=true;if(o.st==='ok')toast(T('{n} menerima permintaan pertemananmu!',{n:botName(i)}))}}
  // 2) bot mengajak berteman: 0–2 bot per hari (acak per pemain), dikirim saat sesi pertama bot itu hari ini dimulai
- let done={};try{done=JSON.parse(localStorage.getItem(BFR_KEY)||'{}')}catch(e){}const d=wibDay(now),seed=+NET.acct.uid%1000003,n=botsVisible();
+ let done={};try{done=JSON.parse(localStorage.getItem(BFR_KEY)||'{}')}catch(e){}const d=wibDay(now),seed=+NET.acct.uid%1000003,ids=botsIds(now),n=ids.length;
  if(n>5){const k=[0,0,1,1,1,2][bHash(seed,8800+d)%6];
-  for(let j=0;j<k;j++){const i=bHash(seed,8900+d*7+j)%n,key=NET.gen+':'+d+':'+i;if(done[key]||botHidden(i))continue;const ss=botSessions(botBase(i),d);if(!ss.length){done[key]=1;continue}
+  for(let j=0;j<k;j++){const i=ids[bHash(seed,8900+d*7+j)%n],key=NET.wsig+':'+d+':'+i;if(done[key]||botHidden(i))continue;const ss=botSessions(botBase(i),d);if(!ss.length){done[key]=1;continue}
    if(ss[0][0]>now)continue;done[key]=1;const uid=botUid(i);if(!uid||frState(uid))continue;
    const o=await api('/api/fr/bot',{tok:netTok(),uid,act:'req'});if(o.ok&&o.st==='req'){changed=true;toast(T('{n} ingin berteman denganmu',{n:botName(i)}))}}
   for(const x in done)if(+x.split(':')[1]<d-3)delete done[x];try{localStorage.setItem(BFR_KEY,JSON.stringify(done))}catch(e){}}
  if(changed){await netFriends();refreshBadges()}}
 
 /* ---------------- potret bot untuk admin ---------------- */
-async function netBotSnap(){if(!loggedIn()||!botsWarmOk()||Date.now()-NET.snapAt<15*6e4)return;NET.snapAt=Date.now();const now=Date.now(),n=botsVisible(),L=[];
- for(let i=0;i<n;i++)L.push(i);const fr=new Set(NET.friends.friends.concat(NET.friends.out,NET.friends.inc).filter(f=>f.bot!=null).map(f=>f.bot));
- const pick=L.map(i=>[i,botSum(i,now).cp]).sort((a,b)=>b[1]-a[1]).slice(0,100).map(x=>x[0]);fr.forEach(i=>{if(i<n&&!pick.includes(i))pick.push(i)});
- const list=pick.slice(0,120).map(i=>{const s=botState(i,now);return{i,lv:s.lv,cp:s.cp,vip:s.stats.vip,top:s.fav||s.team[0],stage:s.stage,team:s.team.map(id=>HD[id]?HD[id].name:id),online:botPresence(i,now).online}});
+async function netBotSnap(){if(!loggedIn()||!botsWarmOk()||Date.now()-NET.snapAt<15*6e4)return;NET.snapAt=Date.now();const now=Date.now(),L=botsIds(now).slice();const fr=new Set(NET.friends.friends.concat(NET.friends.out,NET.friends.inc).filter(f=>f.bot!=null).map(f=>f.bot));
+ const pick=L.map(i=>[i,botSum(i,now).cp]).sort((a,b)=>b[1]-a[1]).slice(0,100).map(x=>x[0]);fr.forEach(i=>{if(botIn(i,now)&&!pick.includes(i))pick.push(i)});
+ const list=pick.slice(0,120).map(i=>{const s=botState(i,now);return{i,uid:botUid(i),lv:s.lv,cp:s.cp,vip:s.stats.vip,top:s.fav||s.team[0],stage:s.stage,team:s.team.map(id=>HD[id]?HD[id].name:id),online:botPresence(i,now).online}});
  api('/api/bots/snap',{tok:netTok(),list})}
 
 /* ---------------- ping & loop ---------------- */
@@ -7632,7 +7682,9 @@ async function netPing(){if(!loggedIn())return;NET.pingAt=Date.now();const o=awa
  if(o.u&&o.u!==NET.acct.u){NET.acct.u=o.u;acctSave()}
  if((o.gm?1:0)!==(NET.acct.gm?1:0)){NET.acct.gm=o.gm?1:0;acctSave();try{toast(o.gm?T('Akun ini sekarang GM. Buka Pengaturan › Panel GM.'):T('Status GM dicabut.'));if(typeof render==='function'&&!B)render()}catch(e){}}
  if(o.sv!==NET.acct.sv&&!NET.pushing)await netPull();
- if(NET.gen!=null&&o.gen!==NET.gen)netWorld(true);
+ // server digabung GM: akun pindah server -> rival & lawan Arena lama tidak berlaku
+ if(o.srv&&+o.srv!==+NET.acct.srv){NET.acct.srv=+o.srv;acctSave();try{if(S.rv)S.rv={};if(S.arena){S.arena.opps=[];S.arena.log=[]}save();toast(T('Servermu digabung dengan server lain. Selamat datang di dunia baru!'))}catch(e){}netWorld(true)}
+ else if(NET.wsig!=null&&o.wsig&&o.wsig!==NET.wsig)netWorld(true);
  const frUp=o.fr>NET.fr,dmUp=o.dm>NET.dm;if(frUp){toast(T('Ada permintaan pertemanan baru'));netFriends()}if(dmUp&&!(typeof dmOpenWith!=='undefined'&&dmOpenWith))toast(T('Pesan baru masuk'));
  NET.fr=o.fr;NET.dm=o.dm;NET.wc=o.wc;NET.ai=!!o.ai;refreshBadges()}
 function refreshBadges(){try{const b=document.getElementById('frBadge');if(b){const n=NET.fr+NET.dm;b.textContent=n>99?'99+':n;b.style.display=n?'':'none'}}catch(e){}}
@@ -7846,12 +7898,12 @@ function wbBotUnit(i,b,a,t0,boss){const s=botState(i,t0),cp=s.cp,team=s.team.fil
  const sk=b.sk==='veteran'?1.05:b.sk==='baru'?.93:1,q=Math.pow(atk,1.4)*(.9+.2*r())*sk;
  const L=Math.max(10,Math.min(45,17*Math.pow(cp/1e4,.15)*(.8+.4*r())/def)),D=WB_CFG.respawn+1+r()*4,dps=wbDps(cp)*q;
  return Object.assign({i,cp,dps,L,D,dA:dps*(L+D)/L,el:atk},a)}
-function wbRaid(t0){if(WB.cache.has(t0))return WB.cache.get(t0);const C=WB_CFG,n=botsVisible(t0+C.dur),P=[],boss=wbBoss(t0);
- for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const b=botBase(i),a=wbAttend(b,t0);if(!a)continue;P.push(wbBotUnit(i,b,a,t0,boss))}
+function wbRaid(t0){const ck=t0+'|'+botsSig();if(WB.cache.has(ck))return WB.cache.get(ck);const C=WB_CFG,P=[],boss=wbBoss(t0);
+ for(const i of botsIds(t0+C.dur)){if(typeof botHidden==='function'&&botHidden(i))continue;const b=botBase(i),a=wbAttend(b,t0);if(!a)continue;P.push(wbBotUnit(i,b,a,t0,boss))}
  const r=bRng(bHash(Math.floor(t0/6e4),977)),full=P.reduce((s,p)=>s+wbBotDmgAt(p,p.fl),0),x=r();
  const k=x<.12?1.08+r()*.17:x<.32?.92+r()*.08:.62+r()*.28;
  const R={t0,boss:wbBoss(t0),P,hp:Math.max(4e5,Math.round(full*k/1000)*1000)};
- if(WB.cache.size>40)WB.cache.clear();WB.cache.set(t0,R);return R}
+ if(WB.cache.size>40)WB.cache.clear();WB.cache.set(ck,R);return R}
 // damage bot sampai waktu t: hidup L detik (menyerang), tumbang D detik (bangkit), berulang
 function wbBotDmgAt(p,t){const e=(Math.min(t,p.fl)-p.fj)/1000;if(e<=0)return 0;const C=p.L+p.D,n=Math.floor(e/C);return p.dA*(n*p.L+Math.min(e-n*C,p.L))}
 // sedang menunggu bangkit? → sisa detik (0 = sedang bertarung)
@@ -7877,7 +7929,7 @@ function wbBoard(t0,now=Date.now()){const st=wbState(t0,now),L=[];
 
 /* ---------- server ---------- */
 async function wbPull(t0,force){const now=Date.now();if(!force&&now-WB.sync<4500)return;WB.sync=now;
- try{const o=await api('/api/wb?slot='+wbKey(t0));if(o&&o.ok)WB.srv[t0]={rows:o.rows||[],lh:o.lh||null,ts:now}}catch(e){}}
+ try{const o=await api('/api/wb?slot='+wbKey(t0)+'&srv='+netSrv());if(o&&o.ok)WB.srv[t0]={rows:o.rows||[],lh:o.lh||null,ts:now}}catch(e){}}
 async function wbPush(t0,force){const now=Date.now();if(!loggedIn()||(!force&&now-WB.post<WB_CFG.report))return;WB.post=now;const d=wbMineLive(t0);if(!d)return;
  try{await api('/api/wb',{tok:netTok(),slot:wbKey(t0),dmg:d,cp:teamPow()})}catch(e){}}
 async function wbClaimLast(t0){if(!loggedIn())return false;try{const o=await api('/api/wb',{tok:netTok(),slot:wbKey(t0),lh:1});return!!(o&&o.lh&&String(o.lh.uid)===String(NET.acct.uid))}catch(e){return false}}
@@ -7974,13 +8026,13 @@ function wbDraw(g,u,x){const boss=B.st.wb?wbBoss(B.wbT0):WB_BOSS[0],s=wbStrip(bo
 function rvS(){if(!S.rv)S.rv={i:null,cool:{},hist:[],boosts:[],chat:[],log:[],sc:{me:0,him:0}};const R=S.rv;R.cool=R.cool||{};R.hist=R.hist||[];R.boosts=R.boosts||[];R.chat=R.chat||[];R.log=R.log||[];R.sc=R.sc||{me:0,him:0};return R}
 // CP-ku untuk persaingan (fungsi biasa supaya bisa diganti saat pengujian)
 function rvMe(){return teamPow()}
-const rvOn=()=>S.rv&&S.rv.i!=null&&S.rv.gen===BOTS.gen;
+const rvOn=()=>S.rv&&S.rv.i!=null&&S.rv.gen===botsSig();
 const rvIs=i=>rvOn()&&S.rv.i===i;
 // ---- usaha ekstra (dipakai botKey di systems/bots.js) ----
 // BOTS.rv: {bot:[[t0,t1,dp],...]} dari server; ditambah usaha lokal yang belum tercatat server
 function rvEff(L,now){let e=0;for(const x of L){const t0=x[0],t1=x[1],dp=x[2];if(now<=t0)continue;e+=dp*Math.min(1,(now-t0)/Math.max(6e4,t1-t0))}return e}
 function botBoost(i,now){const A=BOTS.rv&&BOTS.rv[i];let e=A?rvEff(A,now):0;
- if(S&&S.rv&&S.rv.boosts&&S.rv.gen===BOTS.gen)for(const x of S.rv.boosts)if(x.i===i&&!(A&&A.some(y=>Math.abs(y[0]-x.t0)<1e3)))e+=rvEff([[x.t0,x.t1,x.dp]],now);return e}
+ if(S&&S.rv&&S.rv.boosts&&S.rv.gen===botsSig())for(const x of S.rv.boosts)if(x.i===i&&!(A&&A.some(y=>Math.abs(y[0]-x.t0)<1e3)))e+=rvEff([[x.t0,x.t1,x.dp]],now);return e}
 // data server berubah: segarkan hanya bot yang usahanya berubah
 function rvApply(rv){const old=BOTS.rv||{},nw=rv||{};BOTS.rv=nw;const ks=new Set([...Object.keys(old),...Object.keys(nw)]);
  for(const k of ks){if(JSON.stringify(old[k]||[])===JSON.stringify(nw[k]||[]))continue;const i=+k;delete BOTS.cache[i];if(typeof BSUMA!=='undefined')delete BSUMA[i];if(typeof BSUM!=='undefined'&&BSUM.d)delete BSUM.d[i]}}
@@ -8009,7 +8061,7 @@ function rvPlanBoost(i,now){const C=RIVAL_CFG.boost,R=rvS(),b=botBase(i);if(R.bo
  const dp=Math.min(C.max,(C.tier[b.tier.id]||.2)*(C.sk[b.sk]||1)*(.85+(bHash(i,now/36e5|0)%300)/1000));
  const x={i,t0:Math.round(t0),t1:Math.round(t1),dp:+dp.toFixed(3),at:now,sent:0};R.boosts.push(x);while(R.boosts.length>30)R.boosts.shift();return x}
 async function rvSendBoosts(){if(!loggedIn())return;const R=rvS();for(const x of R.boosts){if(x.sent)continue;x.sent=1;
- const o=await api('/api/rv/boost',{tok:netTok(),gen:BOTS.gen,bot:x.i,t0:x.t0,t1:x.t1,dp:x.dp});if(!o.ok&&(o.e==='net'||o.e==='server'))x.sent=0;else if(!o.ok)x.rej=o.e;save()}}
+ const w=bW(x.i);if(!w){x.sent=1;continue}const o=await api('/api/rv/boost',{tok:netTok(),gen:w.g,bot:bLi(x.i),t0:x.t0,t1:x.t1,dp:x.dp});if(!o.ok&&(o.e==='net'||o.e==='server'))x.sent=0;else if(!o.ok)x.rej=o.e;save()}}
 // ---- momen untuk Obrolan Dunia ----
 function rvChat(ev,i,now){const C=RIVAL_CFG,R=rvS();if(bRng(bHash(i,now/6e4|0))()>(C.chat[ev]||0))return;R.chat.push({ev,i,k:ev+':'+i+':'+(now/6e4|0),t:now});while(R.chat.length>6)R.chat.shift()}
 // dipanggil wcAiBody: momen yang si rivalnya sedang online
@@ -8025,14 +8077,14 @@ function rvEnd(why,now){const R=rvS(),i=R.i,C=RIVAL_CFG;if(i==null)return;
  else if(why==='gone')toast('⚔ '+T('Rivalmu {n} sudah lama tidak bermain.',{n:nm}));
  save();BOTS.onChange&&BOTS.onChange()}
 // ---- detak utama (tiap 20 detik) ----
-function rvTick(now=Date.now()){if(!S||!S.welcomed||!BOTS.warmAt||!BOTS.ready||BOTS.gen==null)return;const C=RIVAL_CFG,R=rvS();
+function rvTick(now=Date.now()){if(!S||!S.welcomed||!BOTS.warmAt||!BOTS.ready||!BOTS.W||!BOTS.W.length)return;const C=RIVAL_CFG,R=rvS();
  rvLog(now);
- if(R.gen!==BOTS.gen){if(R.i!=null)R.hist=[];R.i=null;R.gen=BOTS.gen;R.boosts=[];R.chat=[];R.cool={};R.next=0}   // dunia bot di-reset
+ if(R.gen!==botsSig()){if(R.i!=null)R.hist=[];R.i=null;R.gen=botsSig();R.boosts=[];R.chat=[];R.cool={};R.next=0}   // dunia bot di-reset / server digabung
  if(S.lv<C.minLv)return;if(!R.first){R.first=now;save();return}if(now-R.first<C.firstAfter)return;
  if(R.i==null){if(now<(R.next||0))return;const e=rvPick(now);if(!e){R.next=now+36e5;return}
   R.i=e.i;R.since=now;R.sc={me:0,him:0};R.lead=rvMe()>=e.cp?'me':'him';R.cand=null;R.gs=R.bs=null;rvChat('new',e.i,now);
   toast('⚔ '+T('Rival baru: {n} mulai mengejarmu di peringkat!',{n:botName(e.i)}));save();BOTS.onChange&&BOTS.onChange();return}
- const i=R.i;if(!(i<botsVisible(now))||botHidden(i)){rvEnd('gone',now);return}
+ const i=R.i;if(!botIn(i,now)||botHidden(i)){rvEnd('gone',now);return}
  const b=botBase(i),pr=botPresence(i,now);if(b.endT<now||now-pr.last>C.gone){rvEnd('gone',now);return}
  const me=rvMe(),his=botSum(i,now,true).cp;if(!me||!his)return;
  // salip-menyalip dengan jeda (ganti tim sebentar tidak dihitung)
@@ -8056,7 +8108,7 @@ function rvBarHTML(){if(!rvOn())return'';const R=S.rv,i=R.i,now=Date.now(),s=bot
   <span class="rvgap ${d>0?'dn':'up'}"><b>${d>0?'+':'−'}${fmt(Math.abs(d))}</b><small>${d>0?T('di depanmu'):T('di belakangmu')}</small></span></button>`}
 function rvProfHTML(i){const R=S.rv;if(!R)return'';const now=Date.now();
  if(rvIs(i))return`<div class="rvprof">⚔ ${T('Rivalmu sejak {t}',{t:agoMs(now-R.since)})} · ${T('saling salip: kamu {a}, dia {b}',{a:R.sc.me,b:R.sc.him})}</div>`;
- const h=(R.hist||[]).find(x=>x.i===i&&x.gen===BOTS.gen);return h?`<div class="rvprof old">${T('Mantan rival')} · ${rvWhy(h.why)} · ${T('saling salip: kamu {a}, dia {b}',{a:h.me,b:h.him})}</div>`:''}
+ const h=(R.hist||[]).find(x=>x.i===i&&x.gen===botsSig());return h?`<div class="rvprof old">${T('Mantan rival')} · ${rvWhy(h.why)} · ${T('saling salip: kamu {a}, dia {b}',{a:h.me,b:h.him})}</div>`:''}
 setTimeout(()=>{setInterval(()=>{try{rvTick()}catch(e){console.error(e)}},2e4)},15e3);
 
 /* ==== js/ui/core.js ==== */
@@ -8776,7 +8828,7 @@ function rankRow(e,k){const md=k<3?` m${k+1}`:'';return`<button class="rkrow${e.
  <span class="rkv">${rankTab==='ar'?`<b>${lgIc(e.pts,14)} ${fmt(e.pts)}</b><small>CP ${fmt(e.cp)}</small>`:`<b>${rankTab==='cp'?fmt(e.cp):'Lv '+e.lv}</b><small>${rankTab==='cp'?'Lv '+e.lv:'CP '+fmt(e.cp)}</small>`}</span></button>`}
 function rankListHTML(){const L=rankSorted(),me=L.findIndex(e=>e.me),n=L.length-1,on=L.filter(e=>e.online&&!e.me).length;
  if(!n)return`<p class="sub" style="text-align:center;padding:30px 0">${BOTS.ready?T('Memanggil para petualang...'):T('Memuat pemain...')}</p>`;
- return`<div class="rkinfo"><span><b>${n}</b> ${T('pemain')}</span><span><i class="on"></i><b>${on}</b> ${T('online')}</span></div>
+ return`<div class="rkinfo"><span>${typeof NET!=='undefined'&&NET.srvName?`<em class="rksrv">S${netSrv()} · ${esc(NET.srvName)}</em> `:''}<b>${n}</b> ${T('pemain')}</span><span><i class="on"></i><b>${on}</b> ${T('online')}</span></div>
  ${rankTab!=='ar'&&typeof rvBarHTML==='function'?rvBarHTML():''}<div class="rklist" id="rkScroll">${L.slice(0,100).map(rankRow).join('')}</div>${me>=100?`<div class="rkme">${rankRow(L[me],me)}</div>`:''}`}
 function openRank(){botsInit();botsEnsure();botsEnsureBios();rankBot=null;netPlayers();
  if(!botsWarmOk()){modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Peringkat')}</h3><p class="sub" style="text-align:center;padding:30px 0">${T('Memuat peringkat...')}</p>`);botsWarm(()=>{if($('#modal').classList.contains('on')&&!rankBot)openRank()});return}if(!RANK_PREV||!openRank.done){rankSnapUpdate();openRank.done=1}
@@ -8784,9 +8836,9 @@ function openRank(){botsInit();botsEnsure();botsEnsureBios();rankBot=null;netPla
  <div class="mtabs"><button class="btn ${rankTab==='cp'?'':'blue'}" data-act="rankTab" data-arg="cp">${T('CP Tim')}</button><button class="btn ${rankTab==='lv'?'':'blue'}" data-act="rankTab" data-arg="lv">${T('Level')}</button><button class="btn ${rankTab==='ar'?'':'blue'}" data-act="rankTab" data-arg="ar">${T('Arena')}</button></div>
  <div id="rkBody">${rankListHTML()}</div>`);rankStartTimer()}
 function rankRefresh(){const b=$('#rkBody');if(!b)return;const sc=$('#rkScroll'),top=sc?sc.scrollTop:0;b.innerHTML=rankListHTML();const sc2=$('#rkScroll');if(sc2)sc2.scrollTop=top}
-function rankStartTimer(){if(rankTimer)return;BOTS.seen=botsVisible();
+function rankStartTimer(){if(rankTimer)return;BOTS.seenSet=new Set(botsIds());
  rankTimer=setInterval(()=>{const open=$('#modal').classList.contains('on')&&($('#rkBody')||$('#botBody'));if(!open){clearInterval(rankTimer);rankTimer=null;return}
-  botsEnsure();netPlayers();const n=botsVisible();if(n>BOTS.seen){for(let i=BOTS.seen;i<n&&i<BOTS.seen+3;i++)toast(T('{n} bergabung ke Aster!',{n:botName(i)}));BOTS.seen=n}
+  botsEnsure();netPlayers();const ids=botsIds();if(!BOTS.seenSet)BOTS.seenSet=new Set(ids);const nw=ids.filter(i=>!BOTS.seenSet.has(i));nw.slice(0,3).forEach(i=>toast(T('{n} bergabung ke Aster!',{n:botName(i)})));nw.forEach(i=>BOTS.seenSet.add(i))
   if($('#rkBody'))rankRefresh();else if($('#botBody')&&rankBot!=null)$('#botBody').innerHTML=botBodyHTML(rankBot)},5000)}
 BOTS.onChange=()=>{if($('#rkBody'))rankRefresh()};
 
@@ -8807,7 +8859,7 @@ function botBodyHTML(i){const s=botState(i),p=botPresence(i),b=botBase(i),now=Da
  <div class="sec">${T('Tim Utama')}</div><div class="bteam">${s.team.map(id=>botHeroCard(s,id,true)).join('')}</div>
  <div class="sec">${T('Koleksi Hero')} · ${ids.length}/${HEROES.length}</div><div class="broster">${ids.map(id=>botHeroCard(s,id,false)).join('')}</div>
  <p class="sub" style="text-align:center;margin-top:6px">${T('Senjata dimiliki: {n}',{n:Object.keys(s.weapons).length})} · ${T('Perlengkapan: {n}',{n:Object.keys(s.gear).length})}</p>`}
-function openBot(i,back){i=+i;if(!(i<botsVisible())||botHidden(i))return;rankBot=i;botsEnsureBios();const uid=botUid(i);
+function openBot(i,back){i=+i;if(!botIn(i)||botHidden(i))return;rankBot=i;botsEnsureBios();const uid=botUid(i);
  modal(`<button class="btn red mclose" data-act="${back||'rank'}">‹</button><h3>${T('Profil Pemain')}</h3><div id="botBody">${botBodyHTML(i)}</div>${uid?profActions(uid):''}`);rankStartTimer();
  if(uid&&loggedIn()&&Date.now()-NET.frAt>15e3)netFriends().then(()=>{const pa=$('#modal .pfact');if(pa&&rankBot===i)pa.outerHTML=profActions(uid)})}
 
@@ -8887,7 +8939,7 @@ function arDefPick(i){const A=S.arena,ids=Object.keys(S.heroes).sort((a,b)=>hero
 /* ---- riwayat ---- */
 function arLogHTML(){const A=S.arena;A.unseen=0;save();
  if(!A.log.length)return`<p class="sub arload">${T('Belum ada pertarungan. Tantang lawan pertamamu!')}</p>`;
- return`<div class="arlogs">${A.log.map(e=>{const nm=e.i<BOTS.names.length?botName(e.i,e.t):'???',st=e.i<botsVisible()?botState(e.i):null,me=e.k==='atk';
+ return`<div class="arlogs">${A.log.map(e=>{const nm=BOTS.names[e.i]!=null?botName(e.i,e.t):'???',st=botIn(e.i)?botState(e.i):null,me=e.k==='atk';
   const txt=me?(e.win?T('Kamu menang melawan'):T('Kamu kalah dari')):e.bRev?(e.win?T('Menahan balas dendam'):T('Dibalas dendam oleh')):(e.win?T('Menahan serangan'):T('Timmu dikalahkan'));
   return`<div class="arlog ${e.win?'w':'l'}"><span class="ark ${me?'atk':e.bRev?'def rv':'def'}">${me?T('SERANG'):e.bRev?T('DENDAM'):T('BERTAHAN')}</span>${st&&st.fav?`<img class="px" src="${portrait(st.fav)}">`:'<span class="noav"></span>'}
   <div class="ali"><small>${txt}</small><b>${esc(nm)}</b><small>CP ${fmt(e.cp||0)} · ${agoTxt(e.t)}</small></div><span class="ard ${e.d>=0?'aup':'adn'}">${e.d>=0?'+':''}${e.d}</span>
@@ -9031,9 +9083,9 @@ let chatOpen=false,chatSig='';
 const chTime=t=>{const d=new Date(t+BOT_CFG.TZ*36e5);return String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0')};
 try{WC.seen=+localStorage.getItem('aster_wcseen')||0}catch(e){}
 async function wcFetch(){if(WC.busy)return;WC.busy=true;WC.at=Date.now();
- try{const o=await api('/api/wc?since='+WC.since);if(o.ok){NET.ai=!!o.ai;if(o.list.length){const have=new Set(WC.list.map(m=>m.id));WC.list=WC.list.concat(o.list.filter(m=>!have.has(m.id))).sort((a,b)=>a.ts-b.ts||a.id-b.id).slice(-150);WC.since=WC.list[WC.list.length-1].ts}}}finally{WC.busy=false}}
+ try{const o=await api('/api/wc?since='+WC.since+'&srv='+netSrv());if(o.ok){NET.ai=!!o.ai;if(o.list.length){const have=new Set(WC.list.map(m=>m.id));WC.list=WC.list.concat(o.list.filter(m=>!have.has(m.id))).sort((a,b)=>a.ts-b.ts||a.id-b.id).slice(-150);WC.since=WC.list[WC.list.length-1].ts}}}finally{WC.busy=false}}
 // bot pengirim pesan (akun bot di server) -> VIP & potret dari simulasi bot
-function wcBot(m){const i=typeof botIdxOf==='function'?botIdxOf(m.uid):-1;return i>=0&&i<botsVisible()?i:-1}
+function wcBot(m){const i=typeof botIdxOf==='function'?botIdxOf(m.uid):-1;return i>=0&&botIn(i)?i:-1}
 function wcVip(m){const i=wcBot(m);return i>=0?botState(i).stats.vip:m.vip}
 function wcTop(m){const i=wcBot(m);if(i>=0){const s=botState(i);return s.fav||s.team[0]}return m.top}
 // gaya mengetik tiap bot (dari persona chat) -> dikirim ke AI supaya tiap orang terasa beda
@@ -9075,7 +9127,7 @@ function wcAiBody(kind,reTo){const now=Date.now();
  const idx=[...new Set([...(rv?[rv.i]:[]),...tgt,...ment,...recent,...pool])].slice(0,5);
  const cands=idx.map(i=>{const D=wcDesc(i,now),s=botState(i,now);return{uid:botUid(i),pub:D.pub,priv:D.priv,style:wcStyle(i),lower:wcPersona(i).lower,fav:s.fav||''}});
  const humans=NET.players.filter(p=>p.on&&!(NET.acct&&p.uid===NET.acct.uid)).map(p=>`${p.u} (Lv ${p.lv})`).join(', ');
- return{tok:netTok(),kind,watch:chatOpen&&!!$('#chList'),online:wcOnline(),world:chWorldTxt(now),humans,cands,player:loggedIn()?{name:NET.acct.u,pub:wcMePub()}:null,n:chatOpen?'2-5':'2-4',wb:kind==='tick'&&typeof WB!=='undefined'&&WB.ev?WB.ev:null,rv:rv?{ev:rv.ev,who:botUid(rv.i),k:rv.k}:null}}
+ return{tok:netTok(),srv:netSrv(),kind,watch:chatOpen&&!!$('#chList'),online:wcOnline(),world:chWorldTxt(now),humans,cands,player:loggedIn()?{name:NET.acct.u,pub:wcMePub()}:null,n:chatOpen?'2-5':'2-4',wb:kind==='tick'&&typeof WB!=='undefined'&&WB.ev?WB.ev:null,rv:rv?{ev:rv.ev,who:botUid(rv.i),k:rv.k}:null}}
 async function wcAi(kind,reTo){if(!NET.ai||WC.aiBusy||!botsWarmOk()||document.hidden)return;WC.aiBusy=true;
  try{chatInit();const b=wcAiBody(kind,reTo);if(!b.cands.length){WC.aiNext=Date.now()+6e4;return}const o=await api('/api/wc/ai',b);
   if(kind==='tick'&&b.wb&&WB.ev===b.wb)WB.ev=null;if(b.rv&&o.rv)rvChatDone(b.rv.k);if(kind==='tick')WC.aiNext=Date.now()+Math.min(9e4,Math.max(3e4,o.next||0))+Math.random()*1e4;if(o.ok)setTimeout(wcFetch,2500)}catch(e){WC.aiNext=Date.now()+6e4}finally{WC.aiBusy=false}}
@@ -9093,7 +9145,7 @@ function chRow(m,prev){const me=wcMine(m),same=prev&&prev.uid===m.uid&&m.ts-prev
 function chListHTML(L){if(!L.length)return`<p class="sub chempty">${WC.at?T('Belum ada obrolan. Sapa yang lain!'):T('Memuat obrolan...')}</p>`;return L.map((m,k)=>chRow(m,L[k-1])).join('')}
 // jumlah online = bot yang sedang bermain (jadwal sesi bot, sama untuk semua pemain) + pemain asli online (+ kamu)
 // daftar bot online memakai botPresence (sama dengan Peringkat & profil; bot yang baru bergabung juga online), disimpan 10 dtk
-function wcBotsOn(){const now=Date.now();if(WC.onAt&&now-WC.onAt<1e4)return WC.on;const L=[];try{const n=botsVisible(now);for(let i=0;i<n;i++)if(!botHidden(i)&&!botFrozen(i,now)&&botPresence(i,now).online)L.push(i)}catch(e){}WC.onAt=now;return WC.on=L}
+function wcBotsOn(){const now=Date.now();if(WC.onAt&&now-WC.onAt<1e4)return WC.on;const L=[];try{for(const i of botsIds(now))if(!botHidden(i)&&!botFrozen(i,now)&&botPresence(i,now).online)L.push(i)}catch(e){}WC.onAt=now;return WC.on=L}
 function wcOnline(){return wcBotsOn().length+NET.players.filter(p=>p.on&&!(NET.acct&&p.uid===NET.acct.uid)).length+1}
 function openChat(){chatOpen=true;wcFetch().then(()=>chatRefresh(true));netPlayers();
  modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3><img class="ix" src="${ICON.wchat||ICON.chat}" style="width:24px;height:24px"> ${T('Obrolan Dunia')}</h3><div class="chhd"><small><i class="on"></i><b id="chOn">${wcOnline()}</b> ${T('pemain online')}</small></div>
@@ -9141,9 +9193,9 @@ let socTab='fr',dmOpenWith=null,dmTimer=null,dmLast=0,dmSeen=0,dmList=[];
 const needAcct=()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Butuh Akun')}</h3><p style="text-align:center;font-size:13px">${T('Fitur teman, pesan, dan obrolan butuh akun. Daftarkan akun — progres tamu kamu ikut tersimpan.')}</p><div class="mrow"><button class="btn green" data-act="accLink">${T('Daftarkan Akun')}</button></div>`);
 const onDot=p=>p.bot!=null?botPresence(p.bot).online:p.on;
 const lastSeen=p=>p.bot!=null?botPresence(p.bot).last:p.last;
-function socAv(p){const top=p.bot!=null&&p.bot<botsVisible()?(botState(p.bot).fav||botState(p.bot).team[0]):p.top;return`<span class="rkav">${top&&HD[top]?`<img class="px" src="${portrait(top)}">`:''}${onDot(p)?'<i class="on"></i>':''}</span>`}
-function socName(p){const v=p.bot!=null&&p.bot<botsVisible()?botState(p.bot).stats.vip:p.vip;return`${v?`<i class="vip v${Math.min(7,v)}">VIP${v}</i>`:''}${esc(p.bot!=null?botName(p.bot):p.u)}`}
-function socSub(p){const s=p.bot!=null&&p.bot<botsVisible()?botState(p.bot):p;return`Lv ${s.lv} · CP ${fmt(s.cp)} · ${onDot(p)?`<em class="ok">${T('Online')}</em>`:T('Aktif {t}',{t:agoMs(Date.now()-lastSeen(p))})}`}
+function socAv(p){const top=p.bot!=null&&botIn(p.bot)?(botState(p.bot).fav||botState(p.bot).team[0]):p.top;return`<span class="rkav">${top&&HD[top]?`<img class="px" src="${portrait(top)}">`:''}${onDot(p)?'<i class="on"></i>':''}</span>`}
+function socName(p){const v=p.bot!=null&&botIn(p.bot)?botState(p.bot).stats.vip:p.vip;return`${v?`<i class="vip v${Math.min(7,v)}">VIP${v}</i>`:''}${esc(p.bot!=null?botName(p.bot):p.u)}`}
+function socSub(p){const s=p.bot!=null&&botIn(p.bot)?botState(p.bot):p;return`Lv ${s.lv} · CP ${fmt(s.cp)} · ${onDot(p)?`<em class="ok">${T('Online')}</em>`:T('Aktif {t}',{t:agoMs(Date.now()-lastSeen(p))})}`}
 function socRow(p,btns){return`<div class="frrow"><button class="frmain" data-act="profView" data-arg="${p.uid}">${socAv(p)}<span class="rknm"><b>${socName(p)}</b><small>${socSub(p)}</small></span></button><span class="frbt">${btns}</span></div>`}
 function socBody(){const F=NET.friends;
  if(socTab==='fr'){const L=F.friends.slice().sort((a,b)=>onDot(b)-onDot(a)||lastSeen(b)-lastSeen(a));
@@ -9163,10 +9215,10 @@ function openSocial(tab){if(!loggedIn())return needAcct();if(tab)socTab=tab;
  if(box){if(box.dataset.soc!==html){box.innerHTML=html;box.dataset.soc=html}}else{modal(html);$('#modal .mbox').classList.add('socbox');$('#modal .mbox').dataset.soc=html}
  if(socTab==='dm')dmThreads();
  const f=$('#frFind');if(f)f.onsubmit=async e=>{e.preventDefault();const q=($('#frQ').value||'').trim();if(q.length<2)return;const r=$('#frRes');r.innerHTML=`<p class="sub frempty">${T('Mencari...')}</p>`;
-  const o=await api('/api/find?q='+encodeURIComponent(q));if(!$('#frRes'))return;const L=(o.list||[]).filter(p=>p.uid!==NET.acct.uid&&(p.bot==null||(p.bot<botsVisible()&&!botHidden(p.bot))));
+  const o=await api('/api/find?q='+encodeURIComponent(q)+'&srv='+netSrv());netCards(o.list);if(!$('#frRes'))return;const L=(o.list||[]).filter(p=>p.uid!==NET.acct.uid&&(p.bot==null||(botIn(p.bot)&&!botHidden(p.bot))));
   r.innerHTML=L.length?`<div class="frlist">${L.map(p=>socRow(p,frBtn(p.uid))).join('')}</div>`:`<p class="sub frempty">${o.ok?T('Pemain tidak ditemukan.'):netErr(o.e)}</p>`}}
 function frBtn(uid){const st=frState(uid);return st==='ok'?`<button class="btn sm" data-act="dmOpen" data-arg="${uid}">💬</button>`:st==='out'?`<button class="btn sm gray" disabled>${T('Diminta')}</button>`:st==='inc'?`<button class="btn sm green" data-act="frResp" data-arg="${uid}:1">${T('Terima')}</button>`:`<button class="btn sm green" data-act="frAdd" data-arg="${uid}">+ ${T('Teman')}</button>`}
-async function dmThreads(){const o=await api('/api/dm/threads',{tok:netTok()}),box=$('#dmThreads');if(!box)return;const L=o.list||[];
+async function dmThreads(){const o=await api('/api/dm/threads',{tok:netTok()}),box=$('#dmThreads');if(!box)return;const L=netCards(o.list||[]);
  box.innerHTML=L.length?`<div class="frlist">${L.map(p=>`<button class="frrow dmth" data-act="dmOpen" data-arg="${p.uid}">${socAv(p)}<span class="rknm"><b>${socName(p)}</b><small>${p.msg.me?T('Kamu')+': ':''}${esc(p.msg.txt)}</small></span><span class="dmt"><small>${agoMs(Date.now()-p.msg.ts)}</small>${p.unread?`<i class="dot n">${p.unread}</i>`:''}</span></button>`).join('')}</div>`:`<p class="sub frempty">${T('Belum ada pesan. Kirim pesan ke teman dari tab Teman.')}</p>`}
 
 /* ---------------- pesan 1:1 ---------------- */
@@ -9211,7 +9263,7 @@ async function openProfile(uid,back){profBack=back||null;const bi=botIdxOf(uid);
  if(loggedIn()&&uid===NET.acct.uid){closeModal();return}
  modal(`<button class="btn red mclose" data-act="${back||'closeModal'}">‹</button><h3>${T('Profil Pemain')}</h3><div id="pfBody"><p class="sub frempty">${T('Memuat profil...')}</p></div>`);
  const o=await api('/api/prof?uid='+uid);const b=$('#pfBody');if(!b)return;if(!o.ok){b.innerHTML=`<p class="sub frempty">${T('Pemain tidak ditemukan.')}</p>`;return}
- if(o.bot!=null){openBot(o.bot,back||'closeModal');return}
+ if(o.bot!=null){const j=botJ(o.bw,o.bot);if(j!=null&&botIn(j)){openBot(j,back||'closeModal');return}b.innerHTML=`<p class="sub frempty">${T('Pemain ini ada di server lain.')}</p>`;return}
  b.innerHTML=profBodyHTML(o)+profActions(uid)}
 async function frAct(path,uid,extra){if(!loggedIn())return needAcct();const o=await api('/api/fr/'+path,{tok:netTok(),uid,...extra});if(!o.ok){toast(o.e==='full'?T('Daftar teman sudah penuh (100).'):netErr(o.e));return o}await netFriends();refreshBadges();return o}
 Object.assign(ACT,{
@@ -9421,18 +9473,29 @@ function openLogin(){cancelAnimationFrame(loginRAF);if(typeof bgmPlay==='functio
  <div class="lgver"><span>v${GAME_VER} · UID ${S.uid.replace(/(\d{4})(\d{4})/,'$1 $2')}</span><span>© HUN2 STUDIO</span></div>`;
  L.classList.add('on');L.classList.toggle('again',lgOpened);lgOpened=true;if(KA)return;const cv=document.getElementById('lgbg'),g=cv.getContext('2d');g.imageSmoothingEnabled=false;
  const t0=performance.now();const step=n=>{if(cv!==document.getElementById('lgbg'))return;drawHomeScene(g,(n-t0)/1000);loginRAF=requestAnimationFrame(step)};loginRAF=requestAnimationFrame(step)}
-function loginTapHTML(){return`<button class="lgtap" data-act="lgStart">${loggedIn()||S.named?`<span class="lgwel"><i>Lv${S.lv||1}</i><small>${T('Selamat datang kembali,')}</small><b>${esc(loggedIn()?NET.acct.u:S.name)}</b>${loggedIn()?'':`<em>${T('Tamu')}</em>`}</span>`:''}<span class="lgcta"><span>${T('KETUK UNTUK MULAI')}</span></span></button>`}
-function loginNameHTML(){return`<div class="lgcard"><button class="lgx" data-act="lgBack" aria-label="✕">✕</button><h3>${T('Masuk sebagai Tamu')}</h3><p>${T('Data petualanganmu disimpan di perangkat ini.')}</p>
+function loginTapHTML(){return`<button class="lgtap" data-act="lgStart">${loggedIn()||S.named?`<span class="lgwel"><i>Lv${S.lv||1}</i><small>${T('Selamat datang kembali,')}</small><b>${esc(loggedIn()?NET.acct.u:S.name)}</b>${loggedIn()?'':`<em>${T('Tamu')}</em>`}<small class="lgsrv">${esc(NET.srvName?`S${netSrv()} · ${NET.srvName}`:'S'+netSrv())}</small></span>`:''}<span class="lgcta"><span>${T('KETUK UNTUK MULAI')}</span></span></button>`}
+function loginNameHTML(){setTimeout(srvPickLoad,0);return`<div class="lgcard"><button class="lgx" data-act="lgBack" aria-label="✕">✕</button><h3>${T('Masuk sebagai Tamu')}</h3><p>${T('Data petualanganmu disimpan di perangkat ini.')}</p>
  <label for="lgName">${T('Nama Kapten')}</label><input class="nm" id="lgName" maxlength="12" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" value="${S.name&&S.name!=='Kapten'?esc(S.name):''}" placeholder="${T('3–12 huruf atau angka')}">
  <small class="lgrule" id="lgRule">${T('Hanya huruf dan angka, tanpa spasi atau simbol.')}</small>
+ <div class="srvwrap">${srvPickHTML()}</div>
  <div class="mrow"><button class="btn gray" data-act="lgDice">🎲 ${T('Acak')}</button><button class="btn" data-act="lgGo">${T('Mulai Petualangan')}</button></div></div>`}
+/* ---------- pilih server (daftar akun baru / tamu). Akun terikat ke satu server, tanpa pindah. ---------- */
+const SRVL={list:null,at:0,sel:null};
+async function srvLoad(){if(SRVL.list&&Date.now()-SRVL.at<6e4)return SRVL.list;const o=await api('/api/servers');if(o&&o.ok){SRVL.list=o.list;SRVL.at=Date.now()}return SRVL.list||[]}
+function srvState(x){const age=(Date.now()-x.opened)/864e5;return x.full?['full',T('PENUH')]:age<3?['new',T('BARU')]:x.n/x.cap>.7?['busy',T('RAMAI')]:['ok',T('LANCAR')]}
+function srvDefault(L){const ok=(L||[]).filter(x=>!x.full);return ok.length?ok.reduce((a,b)=>b.opened>a.opened||(b.opened===a.opened&&b.n<a.n)?b:a).id:null}
+function srvPickHTML(){const L=SRVL.list;if(!L)return`<div class="srvpick"><small>${T('Memuat daftar server...')}</small></div>`;if(SRVL.sel==null||!L.some(x=>x.id===SRVL.sel&&!x.full))SRVL.sel=srvDefault(L);
+ return`<label>${T('Server')}</label><div class="srvpick">${L.map(x=>{const[st,lb]=srvState(x);return`<button class="srvb ${st}${x.id===SRVL.sel?' on':''}" data-act="srvSel" data-arg="${x.id}"${x.full?' disabled':''}><b>S${x.id} · ${esc(x.name)}</b><small>${fmt(x.n)}/${fmt(x.cap)}</small><i>${lb}</i></button>`}).join('')}</div>
+ <small class="lgrule">${T('Akun terikat ke server pilihanmu dan tidak bisa pindah.')}</small>`}
+function srvPickLoad(){srvLoad().then(()=>{document.querySelectorAll('.srvwrap').forEach(e=>e.innerHTML=srvPickHTML())})}
+const srvNameOf=id=>{const x=(SRVL.list||[]).find(y=>y.id===+id);return x?`S${x.id} · ${x.name}`:'S'+id};
 // kartu Masuk / Daftar (akun server). mode 'link' = dari Pengaturan: daftarkan progres tamu saat ini
 let auTab='in';
-function authHTML(link){const reg=auTab==='up'||link;return`<div class="lgcard au">${link?'':'<button class="lgx" data-act="lgBack" aria-label="✕">✕</button>'}<h3>${link?T('Daftarkan Akun'):reg?T('Buat Akun'):T('Masuk Akun')}</h3>
+function authHTML(link){const reg=auTab==='up'||link;if(reg)setTimeout(srvPickLoad,0);return`<div class="lgcard au">${link?'':'<button class="lgx" data-act="lgBack" aria-label="✕">✕</button>'}<h3>${link?T('Daftarkan Akun'):reg?T('Buat Akun'):T('Masuk Akun')}</h3>
  ${link?`<p>${T('Progres tamu kamu saat ini akan disimpan ke akun baru.')}</p>`:`<div class="autab"><button class="${reg?'':'on'}" data-act="auTab" data-arg="in">${T('Masuk Akun')}</button><button class="${reg?'on':''}" data-act="auTab" data-arg="up">${T('Daftar')}</button></div>`}
  <label for="auU">${T('Username')}</label><input class="nm" id="auU" maxlength="12" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${T('3–12 huruf atau angka')}">
  <label for="auP" style="margin-top:10px">${T('Password')}</label><div class="aupw"><input class="nm" id="auP" type="password" maxlength="64" autocomplete="${reg?'new-password':'current-password'}" placeholder="${T('minimal 6 karakter')}"><button data-act="auEye" aria-label="👁">👁</button></div>
- ${reg?`<label for="auP2" style="margin-top:10px">${T('Ulangi Password')}</label><input class="nm" id="auP2" type="password" maxlength="64" autocomplete="new-password">`:''}
+ ${reg?`<label for="auP2" style="margin-top:10px">${T('Ulangi Password')}</label><input class="nm" id="auP2" type="password" maxlength="64" autocomplete="new-password"><div class="srvwrap">${srvPickHTML()}</div>`:''}
  <small class="lgrule" id="auErr">${reg?T('Username juga menjadi nama Kapten-mu. Simpan password baik-baik — tidak bisa dipulihkan lewat email.'):T('Masuk untuk memuat progres akunmu di perangkat mana pun.')}</small>
  <div class="mrow"><button class="btn" id="auGo" data-act="auGo" data-arg="${link?'link':''}">${reg?T('Daftar & Mulai'):T('Masuk Akun')}</button></div>
  ${link?'':`<button class="auguest" data-act="lgGuest">${T('Main sebagai Tamu')} ›</button>`}</div>`}
@@ -9440,7 +9503,8 @@ async function authGo(link){const u=($('#auU').value||'').trim(),p=$('#auP').val
  const bad=m=>{er.className='lgrule bad';er.textContent=m;sfx('deny')};
  if(!NAME_OK.test(u))return bad(netErr('uname'));if(p.length<6)return bad(netErr('pw'));if(reg&&p!==$('#auP2').value)return bad(T('Password tidak sama.'));
  bt.disabled=true;const old=bt.textContent;bt.textContent=T('Menghubungkan...');er.className='lgrule';er.textContent='';
- const o=reg?await netRegister(u,p,!!link):await netLogin(u,p);bt.disabled=false;bt.textContent=old;
+ if(reg&&!SRVL.sel)return bad(T('Pilih server dulu.'));
+ const o=reg?await netRegister(u,p,!!link,SRVL.sel):await netLogin(u,p);bt.disabled=false;bt.textContent=old;
  if(!o.ok)return bad(netErr(o.e));
  sfx('claim');document.activeElement&&document.activeElement.blur&&document.activeElement.blur();
  if(link){closeModal();toast(T('Akun {n} terdaftar! Progresmu kini tersimpan di server.',{n:o.u}));try{refreshScreen()}catch(e){}return}
@@ -9480,7 +9544,9 @@ Object.assign(ACT,{
  lgGo:()=>{if(entering)return;const v=($('#lgName').value||'').trim();if(!lgValidate(v)){const r=$('#lgRule');r.classList.add('bad');r.textContent=T('Nama harus 3–12 huruf atau angka, tanpa spasi atau simbol.');sfx('deny');return}
   if(BOTS.names.some(n=>n.toLowerCase()===v.toLowerCase())){toast(T('Nama itu sudah dipakai petualang lain!'),1);return}
   if(!S.uid||S.uid.length!==8)S.uid=String(10000000+Math.floor(Math.random()*89999999));
+  if(SRVL.sel){try{localStorage.setItem(SRV_KEY,String(SRVL.sel))}catch(e){}netWorld(true)}
   S.name=v;S.named=true;save();const i=$('#lgName');i&&i.blur();enterGame()},
+ srvSel:id=>{SRVL.sel=+id;sfx('tab');document.querySelectorAll('.srvwrap').forEach(e=>e.innerHTML=srvPickHTML())},
  lgBack:()=>{if(lgMode==='name'&&!loggedIn()){lgMode='auth';const P=$('#lgPanel');P.innerHTML=authHTML();sfx('close');return}lgMode='tap';sfx('close');const P=$('#lgPanel');P.classList.remove('card');P.innerHTML=loginTapHTML();P.querySelectorAll('.lgwel,.lgcta').forEach(e=>e.style.animationDelay='0s')},
  lgNews:()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Pengumuman')}</h3><div class="news">${NEWS.map(n=>`<div class="nwi"><b>${T(n.t)}</b><p>${T(n.d)}</p></div>`).join('')}</div><p class="sub" style="text-align:center">v${GAME_VER}</p>`),
  lgLang:()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Bahasa')}</h3><div class="mrow" style="flex-direction:column">${[['id','Bahasa Indonesia'],['en','English'],['ja','日本語']].map(([k,n])=>`<button class="btn ${S.lang===k?'':'blue'}" data-act="lgSetLang" data-arg="${k}">${n}</button>`).join('')}</div>`),
@@ -9715,9 +9781,23 @@ function gmPanelHTML(){const o=(k,n,d)=>`<div class="gmrow"><div><b>${n}</b><sma
  <div class="sec">${T('Aksi cepat')}</div>
  <div class="gmgrid">${a('gmHeroes',T('Dapatkan semua hero'))}${a('gmWeapons',T('Dapatkan semua senjata'))}${a('gmGear',T('Dapatkan semua perlengkapan'))}${a('gmMax',T('Level & LB maksimal'))}
  ${a('gmLv',T('Level akun +10'))}${a('gmStages',T('Tamatkan semua tahap ★3'))}${a('gmTut',T('Lewati tutorial & cerita'))}${a('gmDaily',T('Reset misi & batas harian'))}</div>
- <p class="gmnote">${T('Saat bertarung: tombol Jeda › Menang Instan.')}</p>`}
+ <p class="gmnote">${T('Saat bertarung: tombol Jeda › Menang Instan.')}</p>
+ <div class="sec">${T('Gabung Server')}</div><div id="gmSrv">${gmSrvHTML()}</div>`}
+// gabung server: pemain & dunia bot server asal pindah ke server tujuan (permanen)
+const GMS={a:null,b:null};
+function gmSrvHTML(){const L=SRVL.list;if(!L){srvLoad().then(()=>{const e=$('#gmSrv');if(e)e.innerHTML=gmSrvHTML()});return`<p class="gmnote">${T('Memuat daftar server...')}</p>`}
+ if(L.length<2)return`<p class="gmnote">${T('Butuh minimal 2 server.')}</p>`;
+ const opt=(k,sel)=>L.map(x=>`<button class="btn ${sel===x.id?'green':'gray'} gmsb" data-act="gmSrvPick" data-arg="${k}:${x.id}">S${x.id} · ${esc(x.name)} (${fmt(x.n)})</button>`).join('');
+ return`<p class="gmnote">${T('Server asal digabung ke server tujuan: semua pemain & bot asal pindah, server asal hilang dari daftar. Tidak bisa dibatalkan.')}</p>
+ <small>${T('Server asal')}</small><div class="gmgrid">${opt('a',GMS.a)}</div><small>${T('Server tujuan')}</small><div class="gmgrid">${opt('b',GMS.b)}</div>
+ <div class="mrow"><button class="btn red" data-act="gmSrvGo"${GMS.a&&GMS.b&&GMS.a!==GMS.b?'':' disabled'}>${T('Gabungkan')}${GMS.a&&GMS.b&&GMS.a!==GMS.b?` S${GMS.a} → S${GMS.b}`:''}</button></div>`}
 function gmDone(msg){save();sfx('claim');toast(msg);try{render()}catch(e){}if($('#modal').classList.contains('on'))modalKeep('gm',gmPanelHTML())}
 Object.assign(ACT,{
+ gmSrvPick:v=>{const[k,id]=String(v).split(':');GMS[k]=+id;const e=$('#gmSrv');if(e)e.innerHTML=gmSrvHTML()},
+ gmSrvGo:()=>{if(!isGM()||!GMS.a||!GMS.b||GMS.a===GMS.b)return;const a=GMS.a,b=GMS.b;
+  confirmBox(T('Gabungkan {a} ke {b}? Semua pemain & bot {a} pindah ke {b}. Tidak bisa dibatalkan.',{a:srvNameOf(a),b:srvNameOf(b)}),async()=>{
+   const o=await api('/api/srv/merge',{tok:netTok(),from:a,to:b});if(!o.ok){toast(T('Gagal menggabungkan server.'),1);return}
+   GMS.a=GMS.b=null;SRVL.at=0;await srvLoad();toast(T('{a} digabung ke {b}.',{a:'S'+a,b:'S'+b}));netPing();const e=$('#gmSrv');if(e)e.innerHTML=gmSrvHTML()},T('Gabungkan'))},
  gmPanel:()=>{if(!isGM())return;modalKeep('gm',gmPanelHTML())},
  gmOpt:k=>{if(!isGM())return;S.gmo=S.gmo||{};S.gmo[k]=!gmOpt(k);gmTick();gmDone(T('Pengaturan GM disimpan.'))},
  gmHeroes:()=>{if(!isGM())return;let n=0;HEROES.forEach(h=>{if(!S.heroes[h.id]){S.heroes[h.id]={lv:1,lb:0,wpn:null};n++}});gmDone(T('{n} hero baru ditambahkan.',{n}))},

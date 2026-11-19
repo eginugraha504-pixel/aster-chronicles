@@ -9,14 +9,14 @@
    ===================================================================== */
 const BSALE={at:0,busy:false,KEY:'aster_botsale_at'};
 const bsHex=b=>Array.from(b,x=>x.toString(16).padStart(2,'0')).join('');
-function botSales(from,to){const n=botsVisible(to),L=[];
- for(let i=0;i<n;i++){const b=botBase(i);if(b.tier.id==='f2p'||b.spend0>to||b.endT<from)continue;const sp=botSpend(b,to);
+function botSales(from,to){const L=[];
+ for(const i of botsIds(to)){const b=botBase(i);if(b.tier.id==='f2p'||b.spend0>to||b.endT<from)continue;const sp=botSpend(b,to);
   for(let k=sp.buys.length-1;k>=0;k--){const o=sp.buys[k];if(o.t<=from)break;if(o.t>to)continue;
-   L.push({k:`${BOT_CFG.epoch}-${BOTS.gen}-${i}-${Math.floor(o.t)}-${o.id}`,n:botName(i,o.t),sku:o.id,p:o.price,t:Math.floor(o.t)})}}
+   const w=bW(i);L.push({k:`${w.e}-${w.g}-${bLi(i)}-${Math.floor(o.t)}-${o.id}`,n:botName(i,o.t),sku:o.id,p:o.price,t:Math.floor(o.t)})}}
  return L.sort((a,b)=>a.t-b.t)}
 async function botSaleReport(){const api=TOPUP_CFG.api;if(typeof NET!=='undefined'&&NET.downUntil>Date.now())return;
  // hanya dunia bot ASLI dari server (bukan dunia cadangan lokal / halaman uji / simulator) yang boleh melapor ke bank
- if(typeof NET==='undefined'||!NET.worldOk||NET.worldEpoch!==BOT_CFG.epoch||NET.gen!==BOTS.gen)return;if(!api||BSALE.busy||!botsWarmOk()||!BOTS.names.length||BOTS.names.length<botsVisible())return;
+ if(typeof NET==='undefined'||!NET.worldOk||!NET.wsig||NET.wsig!==(BOTS.W||[]).map(w=>w.g).join(','))return;if(!api||BSALE.busy||!botsWarmOk()||!BOTS.names.length||BOTS.names.length<botsVisible())return;
  const now=Date.now();let at=BSALE.at;if(!at){try{at=+localStorage.getItem(BSALE.KEY)||0}catch(e){}}
  const from=Math.max(at,BOT_CFG.SPEND.bankFrom,now-3*BDAY+6e4),L=botSales(from,now-3e4);if(!L.length){BSALE.at=Math.max(from,now-3e4);return}
  BSALE.busy=true;try{for(let k=0;k<L.length;k+=40){const part=L.slice(k,k+40),sig=bsHex(hmac256(TOPUP_CFG.secret,part.map(s=>[s.k,s.n,s.sku,s.p,s.t].join('|')).join('\n')));

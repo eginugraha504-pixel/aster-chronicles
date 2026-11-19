@@ -9,9 +9,9 @@ let socTab='fr',dmOpenWith=null,dmTimer=null,dmLast=0,dmSeen=0,dmList=[];
 const needAcct=()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Butuh Akun')}</h3><p style="text-align:center;font-size:13px">${T('Fitur teman, pesan, dan obrolan butuh akun. Daftarkan akun — progres tamu kamu ikut tersimpan.')}</p><div class="mrow"><button class="btn green" data-act="accLink">${T('Daftarkan Akun')}</button></div>`);
 const onDot=p=>p.bot!=null?botPresence(p.bot).online:p.on;
 const lastSeen=p=>p.bot!=null?botPresence(p.bot).last:p.last;
-function socAv(p){const top=p.bot!=null&&p.bot<botsVisible()?(botState(p.bot).fav||botState(p.bot).team[0]):p.top;return`<span class="rkav">${top&&HD[top]?`<img class="px" src="${portrait(top)}">`:''}${onDot(p)?'<i class="on"></i>':''}</span>`}
-function socName(p){const v=p.bot!=null&&p.bot<botsVisible()?botState(p.bot).stats.vip:p.vip;return`${v?`<i class="vip v${Math.min(7,v)}">VIP${v}</i>`:''}${esc(p.bot!=null?botName(p.bot):p.u)}`}
-function socSub(p){const s=p.bot!=null&&p.bot<botsVisible()?botState(p.bot):p;return`Lv ${s.lv} · CP ${fmt(s.cp)} · ${onDot(p)?`<em class="ok">${T('Online')}</em>`:T('Aktif {t}',{t:agoMs(Date.now()-lastSeen(p))})}`}
+function socAv(p){const top=p.bot!=null&&botIn(p.bot)?(botState(p.bot).fav||botState(p.bot).team[0]):p.top;return`<span class="rkav">${top&&HD[top]?`<img class="px" src="${portrait(top)}">`:''}${onDot(p)?'<i class="on"></i>':''}</span>`}
+function socName(p){const v=p.bot!=null&&botIn(p.bot)?botState(p.bot).stats.vip:p.vip;return`${v?`<i class="vip v${Math.min(7,v)}">VIP${v}</i>`:''}${esc(p.bot!=null?botName(p.bot):p.u)}`}
+function socSub(p){const s=p.bot!=null&&botIn(p.bot)?botState(p.bot):p;return`Lv ${s.lv} · CP ${fmt(s.cp)} · ${onDot(p)?`<em class="ok">${T('Online')}</em>`:T('Aktif {t}',{t:agoMs(Date.now()-lastSeen(p))})}`}
 function socRow(p,btns){return`<div class="frrow"><button class="frmain" data-act="profView" data-arg="${p.uid}">${socAv(p)}<span class="rknm"><b>${socName(p)}</b><small>${socSub(p)}</small></span></button><span class="frbt">${btns}</span></div>`}
 function socBody(){const F=NET.friends;
  if(socTab==='fr'){const L=F.friends.slice().sort((a,b)=>onDot(b)-onDot(a)||lastSeen(b)-lastSeen(a));
@@ -31,10 +31,10 @@ function openSocial(tab){if(!loggedIn())return needAcct();if(tab)socTab=tab;
  if(box){if(box.dataset.soc!==html){box.innerHTML=html;box.dataset.soc=html}}else{modal(html);$('#modal .mbox').classList.add('socbox');$('#modal .mbox').dataset.soc=html}
  if(socTab==='dm')dmThreads();
  const f=$('#frFind');if(f)f.onsubmit=async e=>{e.preventDefault();const q=($('#frQ').value||'').trim();if(q.length<2)return;const r=$('#frRes');r.innerHTML=`<p class="sub frempty">${T('Mencari...')}</p>`;
-  const o=await api('/api/find?q='+encodeURIComponent(q));if(!$('#frRes'))return;const L=(o.list||[]).filter(p=>p.uid!==NET.acct.uid&&(p.bot==null||(p.bot<botsVisible()&&!botHidden(p.bot))));
+  const o=await api('/api/find?q='+encodeURIComponent(q)+'&srv='+netSrv());netCards(o.list);if(!$('#frRes'))return;const L=(o.list||[]).filter(p=>p.uid!==NET.acct.uid&&(p.bot==null||(botIn(p.bot)&&!botHidden(p.bot))));
   r.innerHTML=L.length?`<div class="frlist">${L.map(p=>socRow(p,frBtn(p.uid))).join('')}</div>`:`<p class="sub frempty">${o.ok?T('Pemain tidak ditemukan.'):netErr(o.e)}</p>`}}
 function frBtn(uid){const st=frState(uid);return st==='ok'?`<button class="btn sm" data-act="dmOpen" data-arg="${uid}">💬</button>`:st==='out'?`<button class="btn sm gray" disabled>${T('Diminta')}</button>`:st==='inc'?`<button class="btn sm green" data-act="frResp" data-arg="${uid}:1">${T('Terima')}</button>`:`<button class="btn sm green" data-act="frAdd" data-arg="${uid}">+ ${T('Teman')}</button>`}
-async function dmThreads(){const o=await api('/api/dm/threads',{tok:netTok()}),box=$('#dmThreads');if(!box)return;const L=o.list||[];
+async function dmThreads(){const o=await api('/api/dm/threads',{tok:netTok()}),box=$('#dmThreads');if(!box)return;const L=netCards(o.list||[]);
  box.innerHTML=L.length?`<div class="frlist">${L.map(p=>`<button class="frrow dmth" data-act="dmOpen" data-arg="${p.uid}">${socAv(p)}<span class="rknm"><b>${socName(p)}</b><small>${p.msg.me?T('Kamu')+': ':''}${esc(p.msg.txt)}</small></span><span class="dmt"><small>${agoMs(Date.now()-p.msg.ts)}</small>${p.unread?`<i class="dot n">${p.unread}</i>`:''}</span></button>`).join('')}</div>`:`<p class="sub frempty">${T('Belum ada pesan. Kirim pesan ke teman dari tab Teman.')}</p>`}
 
 /* ---------------- pesan 1:1 ---------------- */
@@ -79,7 +79,7 @@ async function openProfile(uid,back){profBack=back||null;const bi=botIdxOf(uid);
  if(loggedIn()&&uid===NET.acct.uid){closeModal();return}
  modal(`<button class="btn red mclose" data-act="${back||'closeModal'}">‹</button><h3>${T('Profil Pemain')}</h3><div id="pfBody"><p class="sub frempty">${T('Memuat profil...')}</p></div>`);
  const o=await api('/api/prof?uid='+uid);const b=$('#pfBody');if(!b)return;if(!o.ok){b.innerHTML=`<p class="sub frempty">${T('Pemain tidak ditemukan.')}</p>`;return}
- if(o.bot!=null){openBot(o.bot,back||'closeModal');return}
+ if(o.bot!=null){const j=botJ(o.bw,o.bot);if(j!=null&&botIn(j)){openBot(j,back||'closeModal');return}b.innerHTML=`<p class="sub frempty">${T('Pemain ini ada di server lain.')}</p>`;return}
  b.innerHTML=profBodyHTML(o)+profActions(uid)}
 async function frAct(path,uid,extra){if(!loggedIn())return needAcct();const o=await api('/api/fr/'+path,{tok:netTok(),uid,...extra});if(!o.ok){toast(o.e==='full'?T('Daftar teman sudah penuh (100).'):netErr(o.e));return o}await netFriends();refreshBadges();return o}
 Object.assign(ACT,{

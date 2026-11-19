@@ -4,13 +4,13 @@
 function rvS(){if(!S.rv)S.rv={i:null,cool:{},hist:[],boosts:[],chat:[],log:[],sc:{me:0,him:0}};const R=S.rv;R.cool=R.cool||{};R.hist=R.hist||[];R.boosts=R.boosts||[];R.chat=R.chat||[];R.log=R.log||[];R.sc=R.sc||{me:0,him:0};return R}
 // CP-ku untuk persaingan (fungsi biasa supaya bisa diganti saat pengujian)
 function rvMe(){return teamPow()}
-const rvOn=()=>S.rv&&S.rv.i!=null&&S.rv.gen===BOTS.gen;
+const rvOn=()=>S.rv&&S.rv.i!=null&&S.rv.gen===botsSig();
 const rvIs=i=>rvOn()&&S.rv.i===i;
 // ---- usaha ekstra (dipakai botKey di systems/bots.js) ----
 // BOTS.rv: {bot:[[t0,t1,dp],...]} dari server; ditambah usaha lokal yang belum tercatat server
 function rvEff(L,now){let e=0;for(const x of L){const t0=x[0],t1=x[1],dp=x[2];if(now<=t0)continue;e+=dp*Math.min(1,(now-t0)/Math.max(6e4,t1-t0))}return e}
 function botBoost(i,now){const A=BOTS.rv&&BOTS.rv[i];let e=A?rvEff(A,now):0;
- if(S&&S.rv&&S.rv.boosts&&S.rv.gen===BOTS.gen)for(const x of S.rv.boosts)if(x.i===i&&!(A&&A.some(y=>Math.abs(y[0]-x.t0)<1e3)))e+=rvEff([[x.t0,x.t1,x.dp]],now);return e}
+ if(S&&S.rv&&S.rv.boosts&&S.rv.gen===botsSig())for(const x of S.rv.boosts)if(x.i===i&&!(A&&A.some(y=>Math.abs(y[0]-x.t0)<1e3)))e+=rvEff([[x.t0,x.t1,x.dp]],now);return e}
 // data server berubah: segarkan hanya bot yang usahanya berubah
 function rvApply(rv){const old=BOTS.rv||{},nw=rv||{};BOTS.rv=nw;const ks=new Set([...Object.keys(old),...Object.keys(nw)]);
  for(const k of ks){if(JSON.stringify(old[k]||[])===JSON.stringify(nw[k]||[]))continue;const i=+k;delete BOTS.cache[i];if(typeof BSUMA!=='undefined')delete BSUMA[i];if(typeof BSUM!=='undefined'&&BSUM.d)delete BSUM.d[i]}}
@@ -39,7 +39,7 @@ function rvPlanBoost(i,now){const C=RIVAL_CFG.boost,R=rvS(),b=botBase(i);if(R.bo
  const dp=Math.min(C.max,(C.tier[b.tier.id]||.2)*(C.sk[b.sk]||1)*(.85+(bHash(i,now/36e5|0)%300)/1000));
  const x={i,t0:Math.round(t0),t1:Math.round(t1),dp:+dp.toFixed(3),at:now,sent:0};R.boosts.push(x);while(R.boosts.length>30)R.boosts.shift();return x}
 async function rvSendBoosts(){if(!loggedIn())return;const R=rvS();for(const x of R.boosts){if(x.sent)continue;x.sent=1;
- const o=await api('/api/rv/boost',{tok:netTok(),gen:BOTS.gen,bot:x.i,t0:x.t0,t1:x.t1,dp:x.dp});if(!o.ok&&(o.e==='net'||o.e==='server'))x.sent=0;else if(!o.ok)x.rej=o.e;save()}}
+ const w=bW(x.i);if(!w){x.sent=1;continue}const o=await api('/api/rv/boost',{tok:netTok(),gen:w.g,bot:bLi(x.i),t0:x.t0,t1:x.t1,dp:x.dp});if(!o.ok&&(o.e==='net'||o.e==='server'))x.sent=0;else if(!o.ok)x.rej=o.e;save()}}
 // ---- momen untuk Obrolan Dunia ----
 function rvChat(ev,i,now){const C=RIVAL_CFG,R=rvS();if(bRng(bHash(i,now/6e4|0))()>(C.chat[ev]||0))return;R.chat.push({ev,i,k:ev+':'+i+':'+(now/6e4|0),t:now});while(R.chat.length>6)R.chat.shift()}
 // dipanggil wcAiBody: momen yang si rivalnya sedang online
@@ -55,14 +55,14 @@ function rvEnd(why,now){const R=rvS(),i=R.i,C=RIVAL_CFG;if(i==null)return;
  else if(why==='gone')toast('⚔ '+T('Rivalmu {n} sudah lama tidak bermain.',{n:nm}));
  save();BOTS.onChange&&BOTS.onChange()}
 // ---- detak utama (tiap 20 detik) ----
-function rvTick(now=Date.now()){if(!S||!S.welcomed||!BOTS.warmAt||!BOTS.ready||BOTS.gen==null)return;const C=RIVAL_CFG,R=rvS();
+function rvTick(now=Date.now()){if(!S||!S.welcomed||!BOTS.warmAt||!BOTS.ready||!BOTS.W||!BOTS.W.length)return;const C=RIVAL_CFG,R=rvS();
  rvLog(now);
- if(R.gen!==BOTS.gen){if(R.i!=null)R.hist=[];R.i=null;R.gen=BOTS.gen;R.boosts=[];R.chat=[];R.cool={};R.next=0}   // dunia bot di-reset
+ if(R.gen!==botsSig()){if(R.i!=null)R.hist=[];R.i=null;R.gen=botsSig();R.boosts=[];R.chat=[];R.cool={};R.next=0}   // dunia bot di-reset / server digabung
  if(S.lv<C.minLv)return;if(!R.first){R.first=now;save();return}if(now-R.first<C.firstAfter)return;
  if(R.i==null){if(now<(R.next||0))return;const e=rvPick(now);if(!e){R.next=now+36e5;return}
   R.i=e.i;R.since=now;R.sc={me:0,him:0};R.lead=rvMe()>=e.cp?'me':'him';R.cand=null;R.gs=R.bs=null;rvChat('new',e.i,now);
   toast('⚔ '+T('Rival baru: {n} mulai mengejarmu di peringkat!',{n:botName(e.i)}));save();BOTS.onChange&&BOTS.onChange();return}
- const i=R.i;if(!(i<botsVisible(now))||botHidden(i)){rvEnd('gone',now);return}
+ const i=R.i;if(!botIn(i,now)||botHidden(i)){rvEnd('gone',now);return}
  const b=botBase(i),pr=botPresence(i,now);if(b.endT<now||now-pr.last>C.gone){rvEnd('gone',now);return}
  const me=rvMe(),his=botSum(i,now,true).cp;if(!me||!his)return;
  // salip-menyalip dengan jeda (ganti tim sebentar tidak dihitung)
@@ -86,5 +86,5 @@ function rvBarHTML(){if(!rvOn())return'';const R=S.rv,i=R.i,now=Date.now(),s=bot
   <span class="rvgap ${d>0?'dn':'up'}"><b>${d>0?'+':'−'}${fmt(Math.abs(d))}</b><small>${d>0?T('di depanmu'):T('di belakangmu')}</small></span></button>`}
 function rvProfHTML(i){const R=S.rv;if(!R)return'';const now=Date.now();
  if(rvIs(i))return`<div class="rvprof">⚔ ${T('Rivalmu sejak {t}',{t:agoMs(now-R.since)})} · ${T('saling salip: kamu {a}, dia {b}',{a:R.sc.me,b:R.sc.him})}</div>`;
- const h=(R.hist||[]).find(x=>x.i===i&&x.gen===BOTS.gen);return h?`<div class="rvprof old">${T('Mantan rival')} · ${rvWhy(h.why)} · ${T('saling salip: kamu {a}, dia {b}',{a:h.me,b:h.him})}</div>`:''}
+ const h=(R.hist||[]).find(x=>x.i===i&&x.gen===botsSig());return h?`<div class="rvprof old">${T('Mantan rival')} · ${rvWhy(h.why)} · ${T('saling salip: kamu {a}, dia {b}',{a:h.me,b:h.him})}</div>`:''}
 setTimeout(()=>{setInterval(()=>{try{rvTick()}catch(e){console.error(e)}},2e4)},15e3);

@@ -10,6 +10,6 @@ const ctx={S:{},T:s=>s,Math,Date,console,Object,JSON,Array,Set,Map};vm.createCon
 let code='';for(const f of FILES)code+=fs.readFileSync(path.join(SRC,f+'.js'),'utf8').replace(/^(const|let) /gm,'var ')+'\n';
 vm.runInContext(code,ctx);
 const C=ctx.BOT_CFG;
-const out={max:C.max,epoch:C.epoch,launch:C.launch,tau:C.tau,JOIN:C.JOIN,TZ:C.TZ,HOURS:C.HOURS,SYL:C.SYL,heroNames:ctx.HEROES.map(h=>h.name.toLowerCase()),stickers:ctx.STICKERS.map(s=>({k:s.k,n:s.n}))};
+const out={max:C.max,epoch:C.epoch,launch:C.launch,tau:C.tau,JOIN:C.JOIN,SRV:C.SRV,TZ:C.TZ,HOURS:C.HOURS,SYL:C.SYL,heroNames:ctx.HEROES.map(h=>h.name.toLowerCase()),stickers:ctx.STICKERS.map(s=>({k:s.k,n:s.n}))};
 fs.writeFileSync(path.join(ROOT,'bank-worker/src/botcfg.js'),'// DIBUAT OTOMATIS oleh tools/gen_botcfg.mjs — jangan diedit manual\nexport const BOTCFG='+JSON.stringify(out)+';\n');
 console.log('botcfg.js:',out.max,'bot maks, epoch',new Date(out.epoch).toISOString());

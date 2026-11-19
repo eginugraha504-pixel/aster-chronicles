@@ -59,8 +59,9 @@ Ubah/tambah teks di sini bila ada fitur baru yang perlu dijelaskan dengan kata-k
 - Hadiah harian (sesuai liga, bila bertarung hari itu) dan hadiah akhir musim lewat Kotak Surat.
 
 ## Peringkat & dunia pemain
+- Server: game punya beberapa server (S1 Aster, S2 Lumina, S3 Bara, S4 Samudra, server baru dibuka berkala). Tiap server maks 2.000 pemain dengan peringkat, obrolan dunia, Bos Dunia, dan Arena sendiri. Akun terikat ke server yang dipilih saat daftar dan tidak bisa pindah. Server baru biasanya paling ramai pemain baru.
 - Peringkat: tab CP Tim, Level, Arena. Ada label BARU (pemain baru) dan KEMBALI (kembali main), indikator online, naik/turun peringkat.
-- Server berisi ribuan pemain lain (bertambah pelan sampai 100.000) yang bermain di jam masing-masing (ramai malam hari WIB), ada yang santai, reguler, rajin, hardcore; ada yang gratis, pakai Kartu Bulanan, belanja sedang, sampai sultan. Ada yang menabung permata untuk banner tertentu, ada yang ganti nama, ada yang berhenti lalu kembali saat banner baru.
+- Tiap server berisi sampai 2.000 pemain lain yang bermain di jam masing-masing (ramai malam hari WIB), ada yang santai, reguler, rajin, hardcore; ada yang gratis, pakai Kartu Bulanan, belanja sedang, sampai sultan. Ada yang menabung permata untuk banner tertentu, ada yang ganti nama, ada yang berhenti lalu kembali saat banner baru.
 - Profil pemain: favorit, tim utama, koleksi hero, total summon, ★3 didapat, hari login, waktu main, status hoki/apes gacha, bio, VIP, Kartu Bulanan.
 - Rival: di atas Peringkat ada bar ⚔ Rival — satu pemain yang CP-nya kejar-kejaran denganmu (selisih CP, skor salip-menyalip). Kalau kamu menyalipnya ia biasanya farming lebih keras di sesi berikutnya; kalau selisih sudah jauh ia bisa menyerah atau melesat, lalu muncul rival baru.
 

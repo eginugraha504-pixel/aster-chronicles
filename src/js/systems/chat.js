@@ -45,7 +45,7 @@ function chPersona(i){if(CHAT.pers[i])return CHAT.pers[i];const r=chR(i,555),CS=
 /* ---------- dunia saat ini (banner, hero baru, pemain teratas...) ---------- */
 function chWorld(now=Date.now()){if(CHAT.w&&now-CHAT.wAt<3e4)return CHAT.w;const E=BOT_CFG.ERAS[eraIdx(now)];
  let newId=null,newAt=0;for(const[id,t]of Object.entries(BOT_CFG.HERO_SINCE))if(t<=now&&t>newAt&&HD[id]){newAt=t;newId=id}
- let top=null,tcp=0;for(const k in BOTS.cache){const c=BOTS.cache[k];if(c&&c.cp>tcp&&+k<botsVisible(now)){tcp=c.cp;top=+k}}
+ let top=null,tcp=0;for(const k in BOTS.cache){const c=BOTS.cache[k];if(c&&c.cp>tcp&&botIn(+k,now)){tcp=c.cp;top=+k}}
  const lims=(E.limited.length?E.limited:E.hero).filter(id=>HD[id]),wp=(E.wpn||[]).find(Boolean);
  CHAT.wAt=now;return CHAT.w={lims:lims.length?lims:['celestine'],limId:lims[0]||'celestine',limw:wp&&WD[wp]?WD[wp].name:'senjata terbatas',newId:newId||'celestine',newRecent:newId&&now-newAt<5*BDAY,
   newHeal:newId&&HD[newId].skill==='heal',heals:HEROES.filter(h=>h.skill==='heal'&&h.r>=2).map(h=>h.name),events:(typeof EVENTS!=='undefined'?EVENTS.filter(evActive).map(e=>e.n):[]),
@@ -53,12 +53,12 @@ function chWorld(now=Date.now()){if(CHAT.w&&now-CHAT.wAt<3e4)return CHAT.w;const
 
 /* ---------- siapa yang online (indeks sesi per hari WIB) ---------- */
 // sesi diurutkan menurut mulai -> cari dengan biner, cukup periksa sesi yang mulai ≤ 60 menit sebelum t
-function chDayIdx(d){const n=botsVisible();if(CHAT.idx[d]&&CHAT.idx[d].n===n)return CHAT.idx[d];const L=[];
- const dS=d*BDAY-BOT_CFG.TZ*36e5,dE=dS+BDAY;for(let i=0;i<n;i++){const b=botBase(i);if(b.join>dE||b.endT<dS)continue;for(const[s0,s1]of botSessions(b,d))L.push([s0,s1,i])}L.sort((a,b)=>a[0]-b[0]);
+function chDayIdx(d){const ids=botsIds(),n=ids.length;if(CHAT.idx[d]&&CHAT.idx[d].n===n)return CHAT.idx[d];const L=[];
+ const dS=d*BDAY-BOT_CFG.TZ*36e5,dE=dS+BDAY;for(const i of ids){const b=botBase(i);if(b.join>dE||b.endT<dS)continue;for(const[s0,s1]of botSessions(b,d))L.push([s0,s1,i])}L.sort((a,b)=>a[0]-b[0]);
  const keys=Object.keys(CHAT.idx);if(keys.length>4)delete CHAT.idx[keys[0]];L.n=n;return CHAT.idx[d]=L}
-function chOnline(t){const d=wibDay(t),out=[],seen=new Set(),n=botsVisible(t);
+function chOnline(t){const d=wibDay(t),out=[],seen=new Set();
  for(const dd of[d-1,d]){const L=chDayIdx(dd);let lo=0,hi=L.length;while(lo<hi){const m=(lo+hi)>>1;if(L[m][0]<=t)lo=m+1;else hi=m}
-  for(let k=lo-1;k>=0&&L[k][0]>t-60*6e4;k--){const[s0,s1,i]=L[k];if(t<s1&&i<n&&!seen.has(i)&&botBase(i).join<=t){seen.add(i);out.push(i)}}}
+  for(let k=lo-1;k>=0&&L[k][0]>t-60*6e4;k--){const[s0,s1,i]=L[k];if(t<s1&&!seen.has(i)&&botIn(i,t)){seen.add(i);out.push(i)}}}
  return out.sort((a,b)=>a-b)}
 
 /* ---------- konteks bot (keadaan ASLI) ---------- */
@@ -170,8 +170,8 @@ function chGenMinute(m){if(CHAT.mins.has(m))return;CHAT.mins.add(m);const t0=m*6
 
 /* ---------- kejadian nyata bot -> reaksi ---------- */
 const chSnap=(b,t)=>{const s=botSnap(b,t);return botActive(b,s)?s:null};
-function chEvents(from,to){if(!botsWarmOk()||to<=from)return;const n=botsVisible(to),out=[],W=chWorld(to),EV=CHAT_LINES.ev;
- for(let i=0;i<n;i++){const b=botBase(i);if(b.join>=to||b.endT<from)continue;const p=chPersona(i),talkW=Math.min(1,.35+p.chat*.4);
+function chEvents(from,to){if(!botsWarmOk()||to<=from)return;const ids=botsIds(to),n=ids.length,out=[],W=chWorld(to),EV=CHAT_LINES.ev;
+ for(const i of ids){const b=botBase(i);if(b.join>=to||b.endT<from)continue;const p=chPersona(i),talkW=Math.min(1,.35+p.chat*.4);
   const say=(t,key,ex,o,prob,now)=>{const r=chR(i,chHashS(key+':'+Math.floor(t))%1e6);if(r()>=prob*talkW)return;const tt=now?t+Math.floor(r()*6e4):chSnap(b,t+4e3+Math.floor(r()*8e4));if(tt==null)return;
    const c=chCtx(i,tt),tpl=chLine('ev',key,c,r);if(tpl)chMk(out,tt,i,tpl,c,r,ex,o)};
   if(b.join>=from&&b.join<to){say(b.join+6e4,'join',{},{},.16,1);const r=chR(i,881);if(r()<.22){const on=chOnline(b.join+2e5).filter(x=>x!==i&&chPersona(x).chat>0);
@@ -200,7 +200,7 @@ function chatPump(now=Date.now()){if(!botsWarmOk()||!BOTS.names.length)return;ch
 function chatVisible(now=Date.now()){const L=CHAT.all.filter(m=>m.t<=now&&m.t>=now-CHAT_CFG.win*1.5).concat(CHAT.me.filter(m=>m.t<=now));return L.sort((a,b)=>a.t-b.t).slice(-CHAT_CFG.keep)}
 function chatTyping(now=Date.now()){const L=CHAT.all.concat(CHAT.me).filter(m=>!m.me&&!m.sys&&m.i!=null&&m.t>now&&m.t-now<Math.min(12e3,2500+m.text.length*260));return[...new Set(L.map(m=>m.i))].slice(0,3)}
 // nama tampil
-const chName=m=>m.me?(S.name||'Kamu'):m.i!=null&&m.i<BOTS.names.length?botName(m.i,m.t):'???';
+const chName=m=>m.me?(S.name||'Kamu'):m.i!=null&&BOTS.names[m.i]!=null?botName(m.i,m.t):'???';
 
 /* ---------- penyimpanan lokal ---------- */
 function chatInit(){if(CHAT.inited)return;CHAT.inited=true;try{CHAT.me=JSON.parse(localStorage.getItem(CH_ME)||'[]').filter(m=>m&&m.t)}catch(e){CHAT.me=[]}
@@ -210,7 +210,7 @@ function chatInit(){if(CHAT.inited)return;CHAT.inited=true;try{CHAT.me=JSON.pars
 function chatSaveMe(){try{CHAT.me=CHAT.me.sort((a,b)=>a.t-b.t).slice(-CHAT_CFG.meKeep);localStorage.setItem(CH_ME,JSON.stringify(CHAT.me));localStorage.setItem(CH_MEM,JSON.stringify(CHAT.mem))}catch(e){}}
 
 /* ---------- kamu mengirim pesan -> bot menanggapi ---------- */
-function chNameMap(){const m=new Map(),n=botsVisible();for(let i=0;i<n;i++){m.set(BOTS.names[i].toLowerCase(),i);const b=botBase(i);if(b.rn&&b.rn.k<BOTS.renames.length)m.set(botName(i).toLowerCase(),i)}return m}
+function chNameMap(){const m=new Map();for(const i of botsIds()){m.set(BOTS.names[i].toLowerCase(),i);const b=botBase(i);if(b.rn&&b.rn.k<BOTS.renames.length)m.set(botName(i).toLowerCase(),i)}return m}
 function chBrainRe(re){const all=HEROES.map(h=>h.name.toLowerCase()).join('|'),s3=HEROES.filter(h=>h.r===3).map(h=>h.name.toLowerCase()).join('|');return new RegExp(re.source.replace(/HERO3/g,'('+s3+')').replace(/HERO/g,'('+all+')'),re.flags)}
 function chMatch(txt){const low=txt.toLowerCase();for(const it of CHAT_BRAIN.intents){const re=it._re||(it._re=chBrainRe(it.re)),m=low.match(re);if(m){const x=(m.slice(1).filter(Boolean).find(g=>HEROES.some(h=>h.name.toLowerCase()===g))||m[3]||m[1]||'');
   return{it,x:x?x.charAt(0).toUpperCase()+x.slice(1):''}}}return null}

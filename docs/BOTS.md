@@ -35,11 +35,21 @@ Rincian per fitur yang lebih lama ada di `docs/SISTEM.md`; dokumen ini merangkum
 
 ---
 
+## 2b. Server (19 Nov 2026)
+
+- Seperti game pada umumnya: **4 server dibuka bersamaan** (S1 Aster, S2 Lumina, S3 Bara, S4 Samudra), server baru dibuka manual lewat Telegram `/server buka [nama]`. Tiap server maks **2.000 pemain** (bot + asli); penuh → tidak bisa dipilih saat daftar.
+- **Akun terikat ke satu server** (dipilih saat daftar; tamu memilih di kartu Tamu, disimpan `aster_srv`), tanpa pindah. Akun lama → S1.
+- Tabel `servers` (migrasi 0010): `worlds` = daftar dunia bot `[{g,e,cap}]`. Dunia pertama milik server itu; **gabung server** (hanya akun GM, Panel GM › Gabung Server, `/api/srv/merge`) menambahkan dunia server asal ke belakang server tujuan, memindahkan pemain asli & obrolannya, dan server asal hilang dari daftar.
+- Di game: `BOTS.W` = dunia-dunia server ini; **id bot j = slot × 2.000 + indeks lokal**. Server yang tidak pernah digabung: j = indeks lama. Seed bot memakai indeks lokal + gen dunianya (`bHash`), jadi bot hasil gabungan tetap orang yang sama (level, CP, gacha). Semua loop memakai `botsIds(now)`, cek keberadaan `botIn(j)`; data server (teman, pesan, pencarian) dipetakan lewat `botJ(bw, bot)`.
+- **Kurva bergabung per dunia** (`BOT_CFG.SRV`): N(T) = 2.000 × (0,45·(1−e^(−T/1,5)) + 0,55·(1−e^(−E/25))) — ±490 hari 1, ±1.200 hari 7, ±1.750 hari 30, penuh ±3 bulan. Tiap server lebih baru dibuka, ekor dunia lama melambat ×0,45 (pemain baru memilih server baru). Server & game memakai rumus yang sama (`wJoinN`, `botJoinDaysW`).
+- **Per server**: obrolan dunia (`wchat.srv`, kunci AI `ai_scene_at:<srv>` dst.), Bos Dunia (slot `"<srv>:<tgl>T<jam>"`), peringkat pemain asli (`/api/players?srv=`), pencarian, rival, Arena. Reset bot per server (`/resetbot <id>`); `/server` = daftar + tombol reset.
+- Penyimpanan ringkasan & tanda tangan dunia memakai `botsSig()` (gen@epoch tiap dunia). Dunia berubah (reset/gabung) → cache bot, lawan Arena, rival dibuang.
+
 ## 3. Lahir: siapa bot ini (`botBase(i)`)
 
 Setiap bot punya sifat tetap, diambil dari aliran acak masing-masing:
 
-- **Waktu bergabung** `botJoin(i)`: 800 bot pertama mengikuti kurva lama (`tau:12`), lalu gelombang rilis (`JOIN.a1` 3.200, τ 5 hari) + pertumbuhan panjang sampai `max:100000` (τ 500 hari). Jam bergabung ditekuk ke jam ramai WIB (`botJoinWarp` + `HOURS`, memakai hari kalender asli). Hasil: ±800 hari ke-1, ±4.100 hari ke-7, ±9.400 hari ke-30, ±53.600 setahun.
+- **Waktu bergabung** `botJoin(j)`: per dunia server (lihat §2b). Setelah hari pertama, jam bergabung ditekuk ke jam ramai WIB (`botJoinWarp` + `HOURS`).
 - **Profil login** (`profiles`): santai 40% / reguler 35% / rajin 20% / hardcore 5% → jumlah & panjang sesi per hari, laju `a`, `opt` (kerapian build).
 - **Pengalaman main** (`SKILL`, `pf.sk`): baru / biasa / veteran, condong ke veteran untuk profil rajin/hardcore. Lihat §5.
 - **Tier belanja** (`BOT_TIERS`): f2p, low, mid, dolphin, whale (1,4%), swhale (0,45%), mwhale (0,15%). Lihat §6.

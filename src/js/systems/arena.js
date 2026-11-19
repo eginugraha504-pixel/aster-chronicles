@@ -29,6 +29,7 @@ function arState(){const C=ARENA_CFG,now=Date.now();
  return A}
 // dipanggil setiap layar digambar: hadiah harian/mingguan lewat surat + reset tiket & poin musim
 function arCheck(now=Date.now()){const A=arState(),C=ARENA_CFG,d=wibDay(now),wk=arWeek(now);let ch=false;
+ if(BOTS.W&&BOTS.W.length&&A.sig!==botsSig()){if(A.sig)toast(T('Dunia server berubah: lawan Arena diperbarui.'));A.sig=botsSig();A.opps=[];A.log=(A.log||[]).filter(e=>e.k!=='atk'&&e.k!=='def');ch=true}   // reset / gabung server: id bot lama tidak berlaku
  if(A.day!==d){
   if(A.foughtDay===A.day){const L=arLg(A.pts),k=arLeague(A.pts);
    sendMail({id:'ar_d_'+A.day,from:T('Penjaga Arena'),title:T('Hadiah Harian Arena · Liga {l}',{l:T(L.n)}),body:T('Terima kasih sudah bertarung di Arena kemarin! Ini hadiah harian untuk Liga {l} ({p} poin).',{l:T(L.n),p:fmt(A.pts)}),rw:Object.assign({},L.day),ar:k})}
@@ -68,7 +69,7 @@ function arFindOpps(){const A=arState(),Bd=arBoard(),me=A.pts,my=Math.max(1,team
   let pool=Bd.filter(e=>ok(e)&&e.cp>=my*c0&&e.cp<my*c1&&e.pts>=me+lo*3&&e.pts<me+hi*3);if(pool.length<3)pool=Bd.filter(e=>ok(e)&&e.cp>=my*c0&&e.cp<my*c1);if(!pool.length)pool=Bd.filter(ok);
   pool=pool.sort((a,b)=>Math.abs(a.pts-mid)-Math.abs(b.pts-mid)).slice(0,6);if(!pool.length)return;const e=pool[Math.floor(r()*pool.length)];used.add(e.i);out.push({i:e.i,pts:e.pts})});
  A.opps=out;save();return out}
-function arOpps(){const A=arState();if(!A.opps.length||A.opps.some(o=>!(o.i<botsVisible())))arFindOpps();return A.opps}
+function arOpps(){const A=arState();if(!A.opps.length||A.opps.some(o=>!botIn(o.i)))arFindOpps();return A.opps}
 // perubahan poin (Elo). win = hasil dari sisi "me"
 function arDelta(me,opp,win,K){const C=ARENA_CFG,E=1/(1+Math.pow(10,(opp-me)/400));return win?Math.max(C.minWin,Math.round(K*(1-E))):-Math.max(C.minLose,Math.round(K*E))}
 
@@ -124,7 +125,7 @@ function arDefTick(now=Date.now()){const A=arState(),C=ARENA_CFG;if(!A.reg||!bot
  const from=Math.max(A.lastDef,now-48*36e5),seed=+S.uid||7,evs=[];
  for(let h=Math.floor(from/36e5);h<=Math.floor(now/36e5);h++){const r=bRng(bHash(seed,20000+h));if(r()<C.defPerHour){const t=h*36e5+Math.floor(r()*36e5);if(t>A.lastDef&&t<=now)evs.push([t,r(),null])}}
  // balas dendam: bot yang kalah dari seranganmu datang lagi saat online berikutnya
- for(const e of A.log){if(e.k!=='atk'||!e.win||e.rvx||e.i>=botsVisible(now))continue;const t=arRevengeAt(e);
+ for(const e of A.log){if(e.k!=='atk'||!e.win||e.rvx||!botIn(e.i,now))continue;const t=arRevengeAt(e);
   if(t==null||now-e.t>3*864e5){e.rvx=1;continue}if(t<=now){e.rvx=1;if(t>A.lastDef-6e4)evs.push([t,0,e.i])}}
  // rival abadi: menyerang sekali di sesi pertamanya tiap hari (systems/rival.js)
  if(typeof rvArenaEvents==='function')for(const v of rvArenaEvents(A.lastDef,now))if(arBotOnline(v[2],v[0])&&!evs.some(x=>x[2]===v[2]&&Math.abs(x[0]-v[0])<36e5))evs.push(v);

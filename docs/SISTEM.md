@@ -349,3 +349,6 @@ Server: `bank-worker/src/game.js` (Cloudflare Worker `aster-bank` + D1, tabel di
 - Naik level → stamina langsung penuh sesuai batas level baru (`addExp`, tidak mengurangi bila sedang di atas batas). Dulu +20.
 - Isi ulang dengan permata → +`stamMax()` (`stamRefillGive`, ui/core.js). Dulu +60 tetap.
 - Efek: pemain yang rajin Sapu bisa merantai naik level di awal (satu bar stamina bisa memberi >1 level sampai ±Lv 50 tergantung tahap). Kurva bot disimulasikan ulang dengan aturan ini.
+
+## Server (19 Nov 2026)
+- 4 server dibuka bersamaan (hari 1), server baru manual lewat Telegram `/server buka [nama]`; maks 2.000 pemain per server; akun terikat ke satu server (pilih saat daftar / tamu). Gabung server hanya oleh akun GM (Panel GM). Obrolan, Bos Dunia, peringkat, Arena, rival, teman per server. Detail teknis: `docs/BOTS.md` §2b. Migrasi 0010 (`servers`, `players.srv`, `players.bw`, `wchat.srv`).
