@@ -14,7 +14,7 @@
    ===================================================================== */
 const BGM={el:null,key:null,gain:null,an:null,want:null,tm:0,primed:false,url:{},tok:0,h:{t:-1,stall:0,mute:0,kick:0,ok:0}};
 const bgmOn=()=>typeof S==='undefined'||!S||S.music!==false;
-const BGM_VOL={login:.55,game:.4,win:.6};  // volume per lagu (bt_* / st_* lihat bgmV)
+const BGM_VOL={login:.55,game:.4,win:.6,wb:.45};  // volume per lagu (bt_* / st_* lihat bgmV)
 /* OST tambahan (18 Nov 2026): bt_w1..bt_w8 (battle per dunia), bt_boss (tahap x-5), bt_final (8-5), bt_dungeon, bt_arena,
    win (jingle menang, tidak diulang), st_prolog/hangat/tegang/sedih/misteri/harapan/kehampaan (cerita, lihat STORY_BGM).
    Lagu yang belum ada otomatis diganti 'game'. Pergantian lagu: pudar keluar 0,45 dtk lalu lagu baru pudar masuk. */
@@ -66,4 +66,4 @@ function bgmStop(sec=1.2){BGM.want=null;if(!BGM.el||BGM.el.paused)return;bgmFade
 function bgmResume(){if(!BGM.primed){bgmPrime();return}if(BGM.want&&(!BGM.el||BGM.el.paused))bgmPlay(BGM.want)}
 document.addEventListener('visibilitychange',()=>{if(!BGM.el)return;if(document.hidden){if(!BGM.el.paused)BGM.el.pause()}else if(BGM.want)bgmPlay(BGM.want)});
 // musik sesuai layar saat ini (dipakai tombol Musik di Pengaturan)
-const bgmScene=()=>{const L=document.getElementById('login');return L&&L.classList.contains('on')?'login':'game'};
+const bgmScene=()=>{const L=document.getElementById('login');return L&&L.classList.contains('on')?'login':typeof B!=='undefined'&&B&&B.st.wb?'wb':typeof wbMode==='function'&&wbMode()?'wb':'game'};

@@ -197,7 +197,10 @@ function botSessions(b,day){const k=b.i*100000+day;if(BSES.has(k))return BSES.ge
  let n=pf.sess[0]+Math.floor(r()*(pf.sess[1]-pf.sess[0]+1))+(wk?C.WEEKEND_EXTRA:0);const W=C.HOURS,tot=W.reduce((a,v)=>a+v,0),out=[];
  for(let s=0;s<n;s++){let x=r()*tot,h=0;for(;h<23;h++){if(x<W[h])break;x-=W[h]}h=(h+b.chrono+24)%24;
   const st=day*BDAY-C.TZ*36e5+(h*60+Math.floor(r()*60))*6e4,len=(pf.len[0]+r()*(pf.len[1]-pf.len[0]))*6e4;if(botActive(b,st))out.push([st,st+len])}
- out.sort((a,c)=>a[0]-c[0]);if(BSES.size>60000)BSES.clear();BSES.set(k,out);return out}
+ // Bos Dunia: bot yang ikut raid login menjelang naga muncul & bertahan sampai selesai (systems/worldboss.js)
+ if(typeof wbAttend==='function')for(const h of WB_CFG.slots){const a=wbAttend(b,wbSlotT(day,h));if(a)out.push([a.arrive,a.off])}
+ out.sort((a,c)=>a[0]-c[0]);const M=[];for(const s of out){const L=M[M.length-1];if(L&&s[0]<=L[1])L[1]=Math.max(L[1],s[1]);else M.push(s.slice())}
+ if(BSES.size>60000)BSES.clear();BSES.set(k,M);return M}
 const wibDay=(t=Date.now())=>Math.floor((t+BOT_CFG.TZ*36e5)/BDAY);
 function botPresence(i,now=Date.now()){const b=botBase(i);if(now<b.join)return{online:false,last:b.join};if(now-b.join<15*6e4)return{online:true,last:now};
  const from=Math.min(now,b.endT),d0=wibDay(from);

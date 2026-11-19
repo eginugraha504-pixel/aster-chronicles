@@ -28,8 +28,9 @@ function homeHTML(){const ns=nextStage(),id=homeHero(),h=HD[id],mdot=missionClai
  // medali samping: cincin emas + pita nama (aset img/ui/n_medal, n_ribbon)
  const md=(act,arg,icon,label,dot,cls='')=>`<button class="md${cls}" data-act="${act}"${arg?` data-arg="${arg}"`:''}><span class="mdi"><img class="ix" src="${icon}" alt=""></span><span class="mdl">${label}</span>${dot}</button>`;
  const many=homeList().length>1,LK=k=>!featOK(k),lkB=`<span class="mdlk"><img class="ix" src="${ICON.lock}" alt=""></span>`;
- return`<div class="home">
+ return`<div class="home${typeof wbMode==='function'&&wbMode()?' wbmode':''}">
  ${homeArt()?`<img class="hbg art" src="${BGIMG_SRC[homeArt()]}" alt="">`:`<canvas class="hbg" id="hbgc" width="${HOME_W}" height="${HOME_H}"></canvas>`}<div class="hfx"></div>
+ <div id="wbPill">${typeof wbPillHTML==='function'?wbPillHTML():''}</div>
  <div class="hbanw"><button class="harrs l" data-act="banStep" data-arg="-1" aria-label="‹"></button><button class="hban" id="hban" data-act="banGo">${banHTML()}</button><button class="harrs r" data-act="banStep" data-arg="1" aria-label="›"></button></div>
  <div class="rcol l">${md('goEvent','',ICON.event,T('Event'),LK('event')?lkB:edot?'<i class="dot"></i>':'',LK('event')?' lock':'')}${md('go','mission',ICON.mission,T('Misi'),LK('mission')?lkB:mdot?'<i class="dot"></i>':'',LK('mission')?' lock':'')}${md('mail','',ICON.gift,T('Hadiah'),mp?`<i class="dot n">${mp}</i>`:'')}${md('friends','',ICON.friend,T('Teman'),`<i class="dot n" id="frBadge"${NET.fr+NET.dm?'':' style="display:none"'}>${Math.min(99,NET.fr+NET.dm)}</i>`)}${md('shop','',ICON.shop,T('Toko'),LK('shop')?lkB:'',LK('shop')?' lock':'')}</div>
  <div class="rcol r"><button class="cpb" data-act="cpInfo"><span>${T('CP TIM')}</span><b>${fmt(teamPow())}</b></button>${md('go','team',ICON.team,T('Tim'),'')}${md('rank','',ICON.rank,T('Peringkat'),LK('rank')?lkB:'',LK('rank')?' lock':'')}${md('guild','',ICON.guild||ICON.team,T('Guild'),`<span class="mdlk"><img class="ix" src="${ICON.lock}" alt=""></span><em class="mdsoon">${T('Segera')}</em>`,' lock')}${md('settings','',ICON.gear,T('Menu'),'')}</div>
@@ -44,7 +45,7 @@ function homeHTML(){const ns=nextStage(),id=homeHero(),h=HD[id],mdot=missionClai
  </div></div>`}
 let lobby=null;
 // latar beranda ilustrasi: versi senja jam 17.00–04.59 (jam perangkat), selain itu versi siang
-function homeArt(){const h=new Date().getHours(),k=(h>=17||h<5)&&hasBgArt('home_eve')?'home_eve':'home_day';return hasBgArt(k)?k:null}
+function homeArt(){if(typeof wbMode==='function'&&wbMode()&&hasBgArt('home_wb'))return'home_wb';const h=new Date().getHours(),k=(h>=17||h<5)&&hasBgArt('home_eve')?'home_eve':'home_day';return hasBgArt(k)?k:null}
 function initLobby(){const cv=$('#lobbyc'),st=$('.hstage');if(!st)return;lobbyPlace();const bc=$('#hbgc');lobby={cv,st,g:cv&&cv.getContext('2d'),bg:bc&&bc.getContext('2d'),id:homeHero(),t:0,jump:0,happy:0,banT:0};if(lobby.bg)drawHomeScene(lobby.bg,0)}
 function drawLobby(dt){const L=lobby;if(!L||!L.st.isConnected){lobby=null;return}L.t+=dt;
  {const now=Date.now();if(HB.hide&&now>HB.hide)bubbleHide();if(!HB.hide&&now>HB.next){const v=heroLineV(L.id);bubbleShow(L.id,v.t,bubbleMs(v.t));if(v.k)voice(v.k);HB.next=now+6e4+Math.random()*12e4}}

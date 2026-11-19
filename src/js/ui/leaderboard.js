@@ -63,4 +63,4 @@ setTimeout(()=>{botsInit();botsWarm();setInterval(()=>{botsEnsure();botsEnsureRe
 function rankReset(){RANK_PREV=null}
 
 // status kasar bot yang sedang online (seperti status di game asli): Petualangan / Dungeon / Arena / Summon
-function botWhere(i,now){try{const a=typeof botActivity==='function'&&botActivity(i,now);const w=a&&{push:'Petualangan',stuck:'Petualangan',dg:'Dungeon',arena:'Arena',gacha:'Summon'}[a.k];return w?' · '+T('di {w}',{w:T(w)}):''}catch(e){return''}}
+function botWhere(i,now){try{const a=typeof botActivity==='function'&&botActivity(i,now);const w=a&&{push:'Petualangan',stuck:'Petualangan',dg:'Dungeon',arena:'Arena',gacha:'Summon',wb:'Bos Dunia',wbpre:'Bos Dunia'}[a.k];return w?' · '+T('di {w}',{w:T(w)}):''}catch(e){return''}}

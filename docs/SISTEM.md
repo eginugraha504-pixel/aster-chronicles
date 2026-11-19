@@ -317,3 +317,17 @@ Server: `bank-worker/src/game.js` (Cloudflare Worker `aster-bank` + D1, tabel di
 - **Aktivitas bot** `botActivity(i,now)` (systems/chat.js): saat online bot benar-benar memainkan fitur yang sudah terbuka untuknya — awal sesi ambil hadiah & misi, push tahap berikut (macet di bos bila CP kurang), Dungeon (setelah 1-5; Menara bila CP ≥27rb), Arena (Lv 10+), naik level/senjata/perlengkapan, gacha (★3 dari riwayat gacha aslinya), nabung, auto. Masuk ke konteks AI (SEDANG, pribadi) dan status kasar di profil (Online · di Petualangan/Dungeon/Arena/Summon).
 - Arena: bot di bawah Lv 10 tidak ikut papan Arena; poin baru dihitung sejak bot mencapai Lv 10 (`botLvTime`).
 - Level hero bot di awal main dibatasi emas: maks `2+3×level akun` (Lv1 ±5), mulai Lv 8 mengikuti batas akun seperti biasa.
+
+## Bos Dunia / World Boss (19 Nov 2026)
+- File: `data/worldboss.js` (WB_CFG, WB_BOSS, WB_PH, WB_RW), `systems/worldboss.js` (jadwal, model raid, server, hadiah, mode battle, gambar naga), `ui/worldboss.js` (pil beranda, panel, HUD, hasil, detak 1 dtk), `css/worldboss.css`. Server: `/api/wb` + tabel `wbdmg` (migrasi 0008). Terbuka Lv 8 (`FEAT.wb`).
+- Jadwal 12.00/16.00/20.00/23.00 WIB, 10 menit; 10 menit sebelumnya fase `pre` (pengumuman, bot berdatangan, beranda `home_wb.webp` + bara + BGM `audio/wb.mp3`), 15 menit sesudahnya `after` (hasil). Raid pertama `WB_CFG.from` = 19 Nov 2026 12.00.
+- Wujud naga bergilir (`wbBoss(t0)`): Abu/gelap, Bara/api, Samudra/air, Rimba/tanah, Fajar/cahaya — satu sprite abu-abu `img/sprites/wb_dragon.webp` (8 frame 208×176, dari `art_src/sprites/wbdragon.py`) diwarnai multiply.
+- Model raid deterministik (`wbRaid`): bot ikut lewat `wbAttend(b,t0)` (murni; peluang per gaya main × jam ramai; 22% telat; 18% keluar lebih awal) — juga dimasukkan ke `botSessions` sehingga jumlah online melonjak. DPS = `WB_CFG.dps.k × CP^a` (dikalibrasi dari mesin pertarungan, tim tumbang ±tiap 30–45 dtk). HP bos = total damage bot penuh × k acak (0,62–0,9 biasa; 12% raid 1,08–1,25 → kabur kecuali pemain asli ikut menutup).
+- HP tersisa = HP − damage bot(t) − damage pemain asli (server, termasuk punyaku lokal). Fase 75/50/25%: Mengamuk / Sisik Baja (hanya elemen unggul menembus penuh) / Amukan Terakhir.
+- Pertarungan: `wbStart()` → B.st.wb; bos tidak mati lokal; tim tumbang → `wbDown` 10 dtk → `wbRevive`; kecepatan dikunci ×1 (waktu nyata); papan damage samping (`#wbSide`), notifikasi salip (`#wbNotes`), angka damage pemain lain melayang. Damage disimpan `S.wb.log[t0].dmg`, dikirim ke `/api/wb` tiap 8 dtk. Pukulan terakhir: pemain asli pertama yang mengklaim saat bos tumbang.
+- Hadiah (`wbSettle`, Kotak Surat): peringkat 1/2/3/4–10/lainnya + peti kontribusi (Kontributor/Pejuang/Pahlawan = damage ≥0,5×/1×/2× rata-rata penyerang) + pukulan terakhir; bos kabur = ×0,5. Juara #1 dapat gelar "Penakluk …" 6 jam. Mingguan (Poin Pemburu, `wbWeekBoard`): top 3 Kristal Kebangkitan.
+- Obrolan dunia: game mengirim momen (`pre/start/half/low/kill/escape`) di `wcAiBody(...).wb`; server menjalankan satu adegan khusus per momen per raid (`WB_EVS`, kv `wbev:`).
+- Bot: aktivitas `wb`/`wbpre` ("lagi nyerang Bos Dunia …"), status profil "di Bos Dunia".
+
+## Stamina maksimal naik sesuai level (19 Nov 2026)
+- `stamMax()` = 60 + level akun (maks 200). Regenerasi berhenti di batas itu; stamina dari hadiah, naik level, dan isi ulang tetap boleh melewati batas.

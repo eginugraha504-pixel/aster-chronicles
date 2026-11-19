@@ -41,7 +41,7 @@ function migrate(){
  if(S.banner>=BANNERS.length)S.banner=0;if(S.world>=WORLDS.length)S.world=0}
 function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}if(typeof netMarkDirty==='function')netMarkDirty()}
 function checkDaily(){const d=today();if(S.daily.date!==d){S.daily={date:d,c:{summon:0,clear:0,lvup:0,boss:0,dg:0},claimed:{}};S.loginDays=(S.loginDays||0)+1}}
-function regen(){const now=Date.now();if(S.stam>=STAM_MAX){S.stamTs=now;return}const n=Math.floor((now-S.stamTs)/STAM_MS);if(n>0){S.stam=Math.min(STAM_MAX,S.stam+n);S.stamTs+=n*STAM_MS;if(S.stam>=STAM_MAX)S.stamTs=now}}
+function regen(){const now=Date.now();if(S.stam>=stamMax()){S.stamTs=now;return}const n=Math.floor((now-S.stamTs)/STAM_MS);if(n>0){S.stam=Math.min(stamMax(),S.stam+n);S.stamTs+=n*STAM_MS;if(S.stam>=stamMax())S.stamTs=now}}
 const expNeed=lv=>40+lv*25;
 function addExp(x){S.exp+=x;let ups=0;while(S.exp>=expNeed(S.lv)){S.exp-=expNeed(S.lv);S.lv++;S.stam+=20;ups++}return ups}
 const unlocked=st=>st.n===0||(typeof gmOpt==='function'&&gmOpt('unl'))||!!S.stages[SLIST[st.n-1].key];

@@ -121,6 +121,8 @@ HINDARI (bikin kelihatan palsu/cringe)
 
 PRIVASI (wajib): tiap penulis hanya tahu data PRIBADI dirinya sendiri (SEDANG, pity, permata, top up, tabungan, hoki/apes, berapa hari main). Data pribadi orang lain (termasuk pemain asli) TIDAK diketahui kecuali orang itu sendiri sudah menyebutnya di obrolan. Yang bisa dilihat semua orang hanya: nama, level, CP, peringkat, lencana VIP, tim & hero di profil, tahap terjauh, liga Arena, dan pengumuman ★3.
 FAKTA: semua fakta game harus benar sesuai pengetahuan di bawah; jangan mengarang fitur (guild & guild war BELUM ada). Pakai istilah game ini: ★3 / bintang 3 (bukan SSR/UR), permata, tiket, tahap 3-4; bos hanya di tahap x-5. Tanpa emoji, tanpa tautan, ramah keluarga, tidak menyebut orang nyata/merek/politik, tidak pernah mengaku AI/bot. Hanya penulis dari daftar yang boleh bicara. Balas HANYA JSON.`;
+// momen Bos Dunia yang dikirim game (b.wb) → satu adegan obrolan khusus per momen per raid
+const WB_EVS = { pre: 'Bos Dunia {b} akan muncul beberapa menit lagi (sudah diumumkan di game). Orang siap-siap, ngajak ikut, nanya elemen lemahnya, nyiapin tim.', start: 'Bos Dunia {b} BARU SAJA muncul dan semua lagi nyerbu. Ramai: saling semangatin, ada yang tim-nya tumbang & nunggu bangkit 10 detik, bahas peringkat damage di samping layar.', half: 'Bos Dunia {b} sisa sekitar {p}% HP dan masuk fase ganas (serangan makin sakit, sisik keras kecuali elemen unggul). Agak panik, ngeluh mati terus, saran elemen singkat.', low: 'Bos Dunia {b} tinggal {p}% HP! "dikit lagi", ngejar pukulan terakhir, rebutan peringkat.', kill: 'Bos Dunia {b} BARU SAJA TUMBANG. Lega & senang, pamer peringkat/damage atau ngeluh telat masuk, nunggu hadiah di kotak surat.', escape: 'Bos Dunia {b} KABUR karena waktu habis (sisa {p}% HP). Kesal, saling nyalahin dikit, janji ikut jadwal berikutnya.' };
 const TOPIK = ['kalah di bos tahap', 'tiket dungeon habis', 'drop perlengkapan dari dungeon', 'arena: kalah sama tim yang lebih kuat / naik liga', 'stamina habis', 'banner sekarang worth atau skip', 'hero mana yang bagus buat tahap sekarang', 'elemen lawan di tahap tertentu', 'naikin senjata pakai bijih', 'misi harian', 'event login', 'ngantuk / baru bangun', 'baru pulang kerja / kuliah', 'hujan / macet', 'lagi makan', 'nanya tim orang', 'pamer CP / dapat ★3', 'kebangkitan ★4 mahal bahannya', 'sinyal jelek / lag', 'sepi amat chat', 'auto battle sambil ngerjain hal lain', 'nanya level berapa', 'bingung pilih hero buat dinaikin'];
 // kata/frasa yang sudah terlalu sering muncul (biar tidak mengulang)
 const STOPW = new Set('yg gk ga gak aja aj aku gw gue lu lo kamu dia itu ini di ke dan atau yang ya iya udh udah sudah juga jg lagi lg buat bisa ada tapi tp klo kalo kalau sama sm mau nih tuh sih dong deh kok jadi jd biar baru masih belum blm dulu dl bgt banget'.split(' '));
@@ -131,9 +133,9 @@ function overused(rows, n = 6) {
 }
 async function aiChat(env, b, u) {
   if (!(await aiOnline(env))) return { ok: false, e: 'off' };
-  const kind = b.kind === 'reply' ? 'reply' : 'tick', t = now();
+  const kind = b.kind === 'reply' ? 'reply' : 'tick', t = now(); let wbEv = null;
   // penulis: hanya akun bot sungguhan, nama dari server
-  const C = (Array.isArray(b.cands) ? b.cands : []).slice(0, 6).filter(c => /^\d{8}$/.test(c.uid)).map(c => ({ uid: c.uid, pub: clip(c.pub, 220), priv: clip(c.priv, 220), style: clip(c.style, 180), lower: !!c.lower, fav: clip(c.fav, 16) }));
+  const C = (Array.isArray(b.cands) ? b.cands : []).slice(0, 6).filter(c => /^\d{8}$/.test(c.uid)).map(c => ({ uid: c.uid, pub: clip(c.pub, 320), priv: clip(c.priv, 300), style: clip(c.style, 320), lower: !!c.lower, fav: clip(c.fav, 16) }));
   if (C.length < 1) return { ok: false, e: 'cands' };
   const rows = (await env.DB.prepare(`SELECT uid,uname FROM players WHERE bot IS NOT NULL AND ban=0 AND uid IN (${C.map(() => '?').join(',')})`).bind(...C.map(c => c.uid)).all()).results;
   const byUid = new Map(rows.map(r => [r.uid, r.uname])), cands = C.filter(c => byUid.has(c.uid)).map(c => ({ ...c, name: byUid.get(c.uid) }));
@@ -154,7 +156,9 @@ async function aiChat(env, b, u) {
     const [at, until, wat, stkAt, stkGap] = await Promise.all(['ai_scene_at', 'ai_until', 'watch_at', 'stk_at', 'stk_gap'].map(async k => +(await kvGet(env, k) || 0)));
     const hr = new Date(t + 7 * 36e5).getUTCHours(), night = hr < 6 ? 1.9 : hr < 8 || hr >= 23 ? 1.35 : 1;
     const gap = (t - wat < 6e4 ? 95e3 + (at % 50) * 1e3 : 9 * 6e4) * night;
-    if (!(cands.length >= 2 && t - at >= gap && t > until - 8e3)) {
+    const W = b.wb && typeof b.wb === 'object' && /^\d{4}-\d\d-\d\dT\d\d$/.test(String(b.wb.k)) && WB_EVS[b.wb.ev] ? b.wb : null;
+    if (W && cands.length >= 1) { const kk = `wbev:${W.k}:${W.ev}`; if (!(await kvGet(env, kk))) { await kvSet(env, kk, t); wbEv = W } }
+    if (!wbEv && !(cands.length >= 2 && t - at >= gap && t > until - 8e3)) {
       // bot gabut kirim stiker (tanpa AI)
       if (t - stkAt < (stkGap || 12e4) || t < until) return { ok: false, skip: 1, next: Math.max(2e4, (stkGap || 12e4) - (t - stkAt)) };
       await kvSet(env, 'stk_at', t); await kvSet(env, 'stk_gap', Math.round((240 + rnd01() * 480) * 1000 * night));
@@ -199,6 +203,10 @@ ${lines.join('\n') || '(sepi)'}
     user += `\nPESAN BARU #${num.get(humanMsg.id) || '?'} dari PEMAIN ${clip(P?.name || u.uname, 16)}: "${clip(showTxt(humanMsg.txt), 120)}"${humanMsg.re ? ` — membalas ${target ? '#' + num.get(target.id) : `pesan lama ${quoted ? quoted.name + ': "' + clip(showTxt(quoted.txt), 80) + '"' : ''}`}` : ''}
 Tulis ${nRep} pesan balasan dari paling banyak ${nWho} penulis yang paling wajar menanggapi${tName ? ` (${tName} yang dibalas sebaiknya menjawab bila ada di daftar)` : ''}. Pertanyaan dijawab benar & singkat dengan gaya masing-masing; sapaan cukup dibalas pendek ("halo", "yo", "malam") oleh satu orang; candaan/stiker cukup "wkwk" atau stiker, atau tidak usah. Boleh tanpa menyebut nama pemain. Yang lain boleh tetap lanjut obrolannya sendiri. Isi "re" hanya bila menanggapi pesan yang bukan pesan terakhir. delay = detik mengetik 3-15.
 JSON: {"out":[{"who":"nama","text":"...","re":null,"stk":"","delay":5}]}`;
+  } else if (wbEv) {
+    user += `\nKEJADIAN SEKARANG DI GAME: ${WB_EVS[wbEv.ev].replace('{b}', clip(String(wbEv.boss || 'Naga'), 20)).replace('{p}', Math.max(0, Math.min(100, +wbEv.p || 0)))}
+Tulis 3-6 pesan dari 2-4 penulis yang bereaksi ke kejadian itu secara alami (bukan pengumuman resmi), pendek-pendek, sebagian saling sahut. delay = detik 2-15.
+JSON: {"out":[{"who":"nama","text":"...","re":null,"stk":"","delay":4}]}`;
   } else { const tp = [TOPIK[Math.floor(rnd01() * TOPIK.length)], TOPIK[Math.floor(rnd01() * TOPIK.length)]];
     user += `\nTulis KELANJUTAN obrolan: ${clip(b.n, 4) || '2-5'} pesan dari 2-3 penulis. Kalau obrolan terakhir masih hangat (kurang dari 10 menit), lanjutkan secara wajar; kalau sudah basi atau sepi, mulai hal baru dari SEDANG seseorang atau ide ini: ${tp.join(' / ')}. Pesan pendek, tidak semua orang menjawab hal yang sama, tidak saling menyebut nama. Isi "re" hanya bila menanggapi pesan yang bukan pesan terakhir. delay = detik sejak pesan sebelumnya 5-40.`;
     user += `
@@ -423,6 +431,25 @@ export async function gameRoute(req, env, url, json) {
 
   // ---- obrolan dunia ---- (dibaca per waktu: ?since=<ts>; pesan berjadwal baru muncul saat waktunya tiba)
   if (p === '/api/wc/ai') { let u = null; if (b.tok) { u = await auth(env, b); if (u?.ban) u = null } return json(await aiChat(env, b, u)) }
+  // ---------- Bos Dunia: damage pemain asli per raid ----------
+  if (p === '/api/wb') {
+    const slot = String(req.method === 'GET' ? url.searchParams.get('slot') : b.slot || '');
+    if (!/^\d{4}-\d\d-\d\dT(12|16|20|23)$/.test(slot)) return fail('slot');
+    const t0 = Date.parse(slot + ':00:00Z') - 7 * 36e5, t = now();
+    const out = async () => {
+      const { results } = await env.DB.prepare('SELECT w.uid,w.name,w.dmg,w.cp FROM wbdmg w JOIN players p ON p.uid=w.uid WHERE w.slot=? AND p.ban=0 AND p.gm=0 ORDER BY w.dmg DESC LIMIT 100').bind(slot).all();
+      const lh = await kvGet(env, 'wblh:' + slot);
+      return json({ ok: true, rows: results.map(r => ({ uid: r.uid, u: r.name, dmg: r.dmg, cp: r.cp })), lh: lh ? pj(lh, null) : null });
+    };
+    if (req.method === 'GET') return out();
+    const [u, f] = await me(); if (f) return f;
+    if (t < t0 || t > t0 + 12 * 6e4) return fail('closed');
+    if (b.lh) { const k = 'wblh:' + slot; if (!(await kvGet(env, k))) await kvSet(env, k, JSON.stringify({ uid: u.uid, u: u.uname, t })); return out() }
+    const dmg = Math.max(0, Math.min(1e13, Math.round(+b.dmg || 0))), cp = Math.max(0, Math.min(1e10, Math.round(+b.cp || 0)));
+    await env.DB.prepare('INSERT INTO wbdmg (slot,uid,name,dmg,cp,ts) VALUES (?,?,?,?,?,?) ON CONFLICT(slot,uid) DO UPDATE SET dmg=MAX(dmg,excluded.dmg), cp=excluded.cp, name=excluded.name, ts=excluded.ts').bind(slot, u.uid, u.uname, dmg, cp, t).run();
+    if (Math.random() < .02) await env.DB.prepare('DELETE FROM wbdmg WHERE ts < ?').bind(t - 9 * 864e5).run();
+    return out();
+  }
   if (p === '/api/wc') {
     if (req.method === 'GET') {
       const since = Math.max(0, +url.searchParams.get('since') || 0), t = now();

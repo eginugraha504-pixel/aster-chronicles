@@ -24,5 +24,5 @@ Object.assign(ACT,{
  gmStages:()=>{if(!isGM())return;SLIST.forEach(st=>{S.stages[st.key]=3});const ss=storyState();STORY.forEach(s=>ss.seen[s.id]=1);ss.pend=null;gmDone(T('Semua tahap ditamatkan ★3.'))},
  gmTut:()=>{if(!isGM())return;S.tut='done';S.welcomed=true;const ss=storyState();STORY.forEach(s=>ss.seen[s.id]=1);ss.pend=null;if(typeof tutSync==='function')tutSync();gmDone(T('Tutorial & cerita ditandai selesai.'))},
  gmDaily:()=>{if(!isGM())return;S.daily={};checkDaily();S.freeDate='';if(S.arena)S.arena.tix=ARENA_CFG.tix;gmDone(T('Misi & batas harian direset.'))},
- gmWin:()=>{if(!isGM()||!B||B.state==='end')return;B.paused=false;$('#bOver').classList.remove('on');B.units.forEach(u=>{if(u.side!=='hero'&&u.alive){u.hp=0;u.alive=false;u.deathT=.6}});B.pend=[];battleFin(true)}
+ gmWin:()=>{if(!isGM()||!B||B.state==='end')return;if(B.st.wb){const R=wbRaid(B.wbT0);R.hp=Math.round(wbBotsDmg(R,Date.now())+wbMineLive(B.wbT0)+1);B.paused=false;$('#bOver').classList.remove('on');return}B.paused=false;$('#bOver').classList.remove('on');B.units.forEach(u=>{if(u.side!=='hero'&&u.alive){u.hp=0;u.alive=false;u.deathT=.6}});B.pend=[];battleFin(true)}
 });

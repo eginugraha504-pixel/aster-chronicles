@@ -18,7 +18,7 @@ const ACCT_KEY='aster_acct',WORLD_KEY='aster_world2';
 const netApi=()=>(typeof TOPUP_CFG!=='undefined'&&TOPUP_CFG.api||'').replace(/\/$/,'');
 // pemutus sirkuit: server menolak (429 batas harian Cloudflare / 5xx) atau tidak terjangkau -> panggilan LATAR (ping, obrolan,
 // dunia, teman, simpan...) berhenti sementara 30 dtk, 1, 2, 4 ... maks 10 menit, supaya tidak memboroskan kuota permintaan.
-const NET_BG=/^\/api\/(ping|wc|world|players|fr\/list|bots\/snap|dm\/threads|dm\/get|save|load)\b/;
+const NET_BG=/^\/api\/(ping|wc|wb|world|players|fr\/list|bots\/snap|dm\/threads|dm\/get|save|load)\b/;
 function netDown(){const b=NET.backoff=Math.min(6e5,(NET.backoff||15e3)*2);NET.downUntil=Date.now()+b;if(!NET.downNote||Date.now()-NET.downNote>6e5){NET.downNote=Date.now();try{toast(T('Server sedang sibuk. Mencoba lagi sebentar lagi...'))}catch(e){}}}
 async function api(path,body,opt={}){if(!netApi())return{ok:false,e:'net'};
  if(NET.downUntil>Date.now()&&NET_BG.test(path))return{ok:false,e:'net',down:1};

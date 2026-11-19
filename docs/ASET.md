@@ -192,3 +192,8 @@ Dipilih sendiri (Egi: "kamu directornya") untuk melengkapi 6 hero ★3 standar d
 - `src/img/ui/logo.webp` — logo "ASTER CHRONICLES" dari Higgsfield nano_banana_pro, latar putih di-key manual (alpha dari jarak ke putih, cahaya bintang biru tetap). Dipakai lewat `var(--ui-logo)` di kelas `.alogo` (+ kilau `::after` bertopeng logo). Subjudul lokal `.asub`.
 - Loading (#boot) & transisi (`transEl`): key art buram + ilustrasi tachie hero acak (`pickArtHero`, dari `story/tc/`) + elemen/gelar/lore + kotak TIPS + bar progres tipis berkilau.
 - Layar judul: key art Ken Burns + sinar berputar + logo + tombol samping (Pengumuman/Bahasa/Akun) + sapaan "Lv · nama" untuk pemain lama + versi/UID & © HUN2 STUDIO. Kartu nama memakai skin UI game (ui2.css).
+
+## Bos Dunia (19 Nov 2026)
+- Naga: `art_src/sprites/wbdragon_sheet.png` (nano_banana_pro, gaya sprite lama sebagai referensi, abu-abu di latar magenta) → `art_src/sprites/wbdragon.py` → `src/img/sprites/wb_dragon.webp` (8 frame 208×176, grayscale; diwarnai per wujud saat runtime).
+- Beranda saat raid: `art_src/full_home_wb.png` (edit `full_home_eve.png`: langit merah, siluet naga) → `src/img/bg/home_wb.webp` 288×512.
+- BGM raid: `art_src/wb_theme.mp3` (ElevenLabs Music v2.5, instrumental 120 dtk) → `src/audio/wb.mp3` 96 kbps, kunci `wb`, volume .45.

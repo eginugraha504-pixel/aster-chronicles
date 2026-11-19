@@ -12,6 +12,7 @@ const FEAT={
  dungeon:{st:'1-5',icon:'pick',n:['Dungeon','Dungeons','ダンジョン'],d:['Material senjata, emas & bahan kebangkitan. 5 tiket per jenis per hari.','Weapon materials, gold and ascension items. 5 tickets per type each day.','武器素材・ゴールド・覚醒素材。種類ごとに1日5枚のチケット。']},
  rank:{lv:5,icon:'rank',n:['Peringkat','Rankings','ランキング'],d:['Bandingkan kekuatanmu dengan kapten lain.','Compare your power with other captains.','他のキャプテンと戦力を比べよう。']},
  smelt:{lv:8,icon:'smelt',n:['Peleburan','Smelting','精錬'],d:['Lebur salinan senjata & perlengkapan jadi material.','Smelt spare weapons and gear into materials.','余った武器や装備を素材に変えよう。']},
+ wb:{lv:8,icon:'wb',n:['Bos Dunia','World Boss','ワールドボス'],d:['Naga raksasa muncul 4× sehari. Serang bersama semua pemain, rebut peringkat damage!','A giant dragon appears 4 times a day. Attack it with everyone and climb the damage ranking!','巨大な竜が1日4回出現。全員で挑み、ダメージランキング上位を目指せ！']},
  arena:{lv:10,icon:'arena',n:['Arena','Arena','アリーナ'],d:['Adu tim melawan kapten lain dan naik liga!','Battle other captains\' teams and climb the leagues!','他のキャプテンと対戦してリーグを駆け上がれ！']}
 };
 const featOK=k=>{const f=FEAT[k];if(!f)return true;if(typeof gmOpt==='function'&&gmOpt('unl'))return true;if(f.st&&!S.stages[f.st])return false;if(f.lv&&S.lv<f.lv)return false;return true};
@@ -27,6 +28,6 @@ function featDeny(k){if(typeof sfx==='function')sfx('deny');toast(`${ic('lock',1
 // popup fitur baru (antre bila sedang bertarung / cerita / modal terbuka)
 function featCheck(){if(!S||!Array.isArray(S.unl))return;if(B||(typeof SP!=='undefined'&&SP)||document.getElementById('login').classList.contains('on')||$('#modal').classList.contains('on')||(typeof TUT_BUSY==='function'&&TUT_BUSY()))return;
  const n=featNew();if(!n.length)return;const k=n[0];S.unl.push(k);save();const f=FEAT[k];if(typeof sfx==='function')sfx('rare');
- const go={summon:'go:summon',mission:'go:mission',event:'goEvent:',shop:'shop:',chat:'chat:',dungeon:'goDg:',rank:'rank:',smelt:'smelt:',arena:'arena:'}[k].split(':');
+ const go=({summon:'go:summon',mission:'go:mission',event:'goEvent:',shop:'shop:',chat:'chat:',dungeon:'goDg:',rank:'rank:',smelt:'smelt:',arena:'arena:',wb:'wbPanel:'}[k]||'closeModal:').split(':');
  modal(`<div class="funl"><div class="funr"></div><small>${T('FITUR BARU TERBUKA!')}</small><span class="funi"><img class="ix" src="${ICON[f.icon]||ICON.lock}" alt=""></span><b>${featName(k)}</b><p>${f.d[typeof SL==='function'?SL():0]}</p></div>
   <div class="mrow"><button class="btn gray" data-act="closeModal">${T('Nanti')}</button><button class="btn green" data-act="featGo" data-arg="${go[0]}:${go[1]||''}">${T('Lihat Sekarang')}</button></div>`)}

@@ -77,6 +77,8 @@ function botSessionAt(i,now=Date.now()){const b=botBase(i);for(const d of[wibDay
 function botActivity(i,now=Date.now()){const p=botPresence(i,now);if(!p.online)return null;const s=botState(i,now),ss=botSessionAt(i,now)||[now-5*6e4,now+6e5],m=(now-ss[0])/6e4;
  const si=SLIST.findIndex(x=>x.key===s.stage),nx=SLIST[si+1],r=bRng(bHash(i,Math.floor(ss[0]/6e4)+Math.floor(m/6)*7919));
  const got=s.ev.filter(e=>!e.w&&e.t>=ss[0]&&e.t<=now).pop();
+ if(typeof wbAttend==='function'){const c=wbCur(now);if(c.st==='pre'||c.st==='live'){const a=wbAttend(botBase(i),c.t0);if(a&&now>=a.arrive){const bn=wbBoss(c.t0).n;
+  if(c.st==='pre')return{k:'wbpre',t:`nunggu Bos Dunia ${bn} muncul, nyiapin tim`};if(now<a.fl&&!wbState(c.t0,now).dead)return{k:'wb',t:`lagi nyerang Bos Dunia ${bn}`}}}}
  if(m<3)return{k:'login',t:'baru login, ngambil hadiah login & misi harian'};
  if(got&&now-got.t<12*6e4)return{k:'gacha',t:`barusan gacha, dapat ★3 ${HD[got.id].name}`};
  const dgOk=si>=SLIST.findIndex(x=>x.key==='1-5'),L=[];

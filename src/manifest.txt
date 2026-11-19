@@ -23,6 +23,7 @@ css/skin.css
 css/ui2.css
 css/frames.css
 css/story.css
+css/worldboss.css
 
 js/core/util.js
 js/core/i18n.js
@@ -43,6 +44,7 @@ js/data/chat/threads.js
 js/data/chat/brain.js
 js/data/stickers.js
 js/data/enemies.js
+js/data/worldboss.js
 js/data/worlds.js
 js/data/banners.js
 js/data/missions.js
@@ -101,6 +103,7 @@ js/systems/smelt.js
 js/systems/ascend.js
 js/systems/unlock.js
 js/systems/gm.js
+js/systems/worldboss.js
 
 # --- UI layar ---
 js/ui/core.js
@@ -127,6 +130,7 @@ js/ui/boot.js
 js/ui/story.js
 js/ui/tutorial.js
 js/ui/gm.js
+js/ui/worldboss.js
 
 js/art/iconart.js
 js/main.js

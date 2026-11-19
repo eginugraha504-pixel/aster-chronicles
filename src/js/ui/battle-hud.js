@@ -21,9 +21,9 @@ function bhCard(u,i){const h=HD[u.id]||{r:1},sp=splash(u.id),fc=splashFocus(u.id
  <span class="brdy">SKILL</span><span class="bko">${T('Gugur')}</span></button>`}
 function battleUI(){const hs=B.units.filter(u=>u.side==='hero');$('#bHeroes').innerHTML=hs.map(bhCard).join('');
  B.cards=[...$('#bHeroes').children];B.cards.forEach((c,k)=>c.style.animationDelay=(k*.07)+'s');B.hud={};updBtns();hudWave();$('#bBoss').innerHTML='';$('#bBoss').className='bboss';
- $('#bOver').classList.remove('on');$('#battle').classList.add('on');$('#battle').classList.toggle('arena',!!B.st.arena)}
+ $('#bOver').classList.remove('on');$('#battle').classList.add('on');$('#battle').classList.toggle('arena',!!B.st.arena);$('#battle').classList.toggle('wb',!!B.st.wb);if(typeof wbHudInit==='function')wbHudInit()}
 // titik gelombang (bos = mahkota) atau label Arena
-function hudWave(){const e=$('#bWave');if(!e||!B)return;if(B.st.arena){e.innerHTML=`<span class="bvs">VS</span>`;return}
+function hudWave(){const e=$('#bWave');if(!e||!B)return;if(B.st.wb){e.innerHTML=`<span class="bvs wbv">${T('BOS DUNIA')}</span>`;return}if(B.st.arena){e.innerHTML=`<span class="bvs">VS</span>`;return}
  const W=B.st.waves;e.innerHTML=`<small>${T('Gelombang')}</small><span class="pips">${W.map((w,i)=>`<i class="${i<B.wave?'done':i===B.wave?'cur':''}${w.some(d=>d.boss)?' boss':''}"></i>`).join('')}</span>`}
 function updBtns(){const a=$('#bAuto'),s=$('#bSpd');if(!a||!B)return;
  a.className='bcb auto'+(B.auto?' on':'');a.innerHTML=`<span class="ico"></span><b>AUTO</b>`;
@@ -37,13 +37,15 @@ function hudTick(){if(!B||!B.cards)return;const H=B.hud||(B.hud={});
   if(H[i]===k)return;H[i]=k;setBar(c.querySelector('.bhp'),hp);c.style.setProperty('--ch',ch);c.classList.toggle('ready',rd);c.classList.toggle('dead',!u.alive);c.classList.toggle('low',u.alive&&hp<30)});
  // bar atas: bos (cerita) atau kedua tim (Arena)
  const bb=$('#bBoss');if(bb){let key,html=null;
-  if(B.st.arena){const sum=s=>B.units.filter(u=>u.side===s).reduce((a,u)=>[a[0]+Math.max(0,u.hp),a[1]+u.maxHp],[0,0]),A=sum('hero'),E=sum('enemy'),r=typeof arRage==='function'?arRage():1;
+  if(B.st.wb){wbHudBar(bb,H)}
+  else if(B.st.arena){const sum=s=>B.units.filter(u=>u.side===s).reduce((a,u)=>[a[0]+Math.max(0,u.hp),a[1]+u.maxHp],[0,0]),A=sum('hero'),E=sum('enemy'),r=typeof arRage==='function'?arRage():1;
    key='ar';if(H.bb!==key){H.bb=key;bb.className='bboss on ar';bb.innerHTML=`<div class="tb tme"><b>${esc(S.name)}</b><span class="bbar"><i class="lag"></i><i class="cur"></i></span></div><div class="rg"></div><div class="tb top"><b>${esc((B.ar&&B.ar.name)||'')}</b><span class="bbar"><i class="lag"></i><i class="cur"></i></span></div>`}
    setBar(bb.querySelector('.tme .bbar'),pct(A[0],A[1]));setBar(bb.querySelector('.top .bbar'),pct(E[0],E[1]));const rg=bb.querySelector('.rg');const rt=r>1?'ATK ×'+r.toFixed(1):'';if(rg.textContent!==rt){rg.textContent=rt;rg.classList.toggle('on',r>1)}}
   else{const boss=B.units.find(u=>u.side==='enemy'&&u.boss&&(u.alive||u.deathT>0));
    if(boss){key='b'+boss.i+B.wave;if(H.bb!==key){H.bb=key;bb.className='bboss on boss';bb.innerHTML=`<div class="bbn"><img class="px" src="${ICON.el[boss.el]}"><b>${boss.name}</b><small>BOSS</small></div><span class="bbar big"><i class="lag"></i><i class="cur"></i><em></em></span>`}
     const p=pct(boss.hp,boss.maxHp);setBar(bb.querySelector('.bbar'),p);const em=bb.querySelector('em'),t=Math.ceil(p)+'%';if(em.textContent!==t)em.textContent=t}
    else if(H.bb){H.bb=null;bb.className='bboss'}}}
+ if(B.st.wb){const rem=Math.max(0,Math.ceil((wbEnd(B.wbT0)-Date.now())/1000)),tw=Math.floor(rem/60)+':'+String(rem%60).padStart(2,'0');if(H.t!==tw){H.t=tw;$('#bTime').textContent=tw;$('#bTime').classList.toggle('warn',rem<=60)}return}
  const s=Math.floor(B.time),tt=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');if(H.t!==tt){H.t=tt;$('#bTime').textContent=tt;
   const lim=B.st.arena?(B.limit||ARENA_CFG.limit):0;$('#bTime').classList.toggle('warn',!!lim&&B.time>lim-15)}}
 // jeda: panel dengan info tahap, keunggulan elemen, menyerah/lanjut
