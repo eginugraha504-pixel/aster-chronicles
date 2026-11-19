@@ -2181,6 +2181,7 @@ h2.st span{color:#fff3cf;background:rgba(10,14,34,.7);border:1.5px solid #e8b84a
 .wbrules{margin:0 0 8px;padding-left:18px;font-size:11.5px;line-height:1.4;color:var(--mut)}
 .amb b{white-space:nowrap}
 .wbpn{padding:10px;margin-bottom:8px}.wbpn .wbphs,.wbpn .wbrules{margin-bottom:0}.wbpn .wbrw{background:rgba(0,0,0,.05)}
+.wbsr .wbdn{font-style:normal;font-size:9px;color:#ff9a8a;margin-right:3px;opacity:.9}
 </style>
 </head>
 <body>
@@ -7831,14 +7832,25 @@ function wbAttend(b,t0){const C=WB_CFG;if(t0<C.from||t0+C.dur<b.join||!botActive
  return{arrive,fj,fl,off:Math.max(fl,t0+C.dur)+(2+r()*13)*6e4,q:.8+r()*.4}}
 
 /* ---------- satu raid (dicache) ---------- */
-function wbRaid(t0){if(WB.cache.has(t0))return WB.cache.get(t0);const C=WB_CFG,n=botsVisible(t0+C.dur),P=[];
- for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const b=botBase(i),a=wbAttend(b,t0);if(!a)continue;
-  const cp=botSum(i).cp;P.push(Object.assign({i,dps:wbDps(cp)*a.q,cp},a))}
- const r=bRng(bHash(Math.floor(t0/6e4),977)),full=P.reduce((s,p)=>s+p.dps*(p.fl-p.fj)/1000,0),x=r();
+/* Bot di raid: CP & tim diambil SAAT naga muncul (t0) → papan sama untuk semua penonton, kapan pun dilihat.
+   Kekuatan = DPS dari CP × keunggulan elemen tim terhadap naga × sedikit keberuntungan/pengalaman.
+   Tim bot juga tumbang lalu menunggu bangkit (WB_CFG.respawn) seperti pemain: damage masuk berupa semburan,
+   diam selama bangkit. Lama bertahan tergantung CP & elemen (yang lemah elemen lebih cepat tumbang). */
+function wbBotUnit(i,b,a,t0,boss){const s=botState(i,t0),cp=s.cp,team=s.team.filter(id=>HD[id]),r=bRng(bHash(i,Math.floor(t0/6e4)+77));
+ const atk=team.length?team.reduce((x,id)=>x+elMult(HD[id].el,boss.el),0)/team.length:1,def=team.length?team.reduce((x,id)=>x+elMult(boss.el,HD[id].el),0)/team.length:1;
+ const sk=b.sk==='veteran'?1.05:b.sk==='baru'?.93:1,q=Math.pow(atk,1.4)*(.9+.2*r())*sk;
+ const L=Math.max(15,Math.min(75,30*Math.pow(cp/1e4,.5)*(.8+.4*r())/def)),D=WB_CFG.respawn+1+r()*4,dps=wbDps(cp)*q;
+ return Object.assign({i,cp,dps,L,D,dA:dps*(L+D)/L,el:atk},a)}
+function wbRaid(t0){if(WB.cache.has(t0))return WB.cache.get(t0);const C=WB_CFG,n=botsVisible(t0+C.dur),P=[],boss=wbBoss(t0);
+ for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const b=botBase(i),a=wbAttend(b,t0);if(!a)continue;P.push(wbBotUnit(i,b,a,t0,boss))}
+ const r=bRng(bHash(Math.floor(t0/6e4),977)),full=P.reduce((s,p)=>s+wbBotDmgAt(p,p.fl),0),x=r();
  const k=x<.12?1.08+r()*.17:x<.32?.92+r()*.08:.62+r()*.28;
  const R={t0,boss:wbBoss(t0),P,hp:Math.max(4e5,Math.round(full*k/1000)*1000)};
  if(WB.cache.size>40)WB.cache.clear();WB.cache.set(t0,R);return R}
-const wbBotDmgAt=(p,t)=>p.dps*Math.max(0,Math.min(t,p.fl)-p.fj)/1000;
+// damage bot sampai waktu t: hidup L detik (menyerang), tumbang D detik (bangkit), berulang
+function wbBotDmgAt(p,t){const e=(Math.min(t,p.fl)-p.fj)/1000;if(e<=0)return 0;const C=p.L+p.D,n=Math.floor(e/C);return p.dA*(n*p.L+Math.min(e-n*C,p.L))}
+// sedang menunggu bangkit? → sisa detik (0 = sedang bertarung)
+function wbBotDown(p,t){if(t<p.fj||t>=p.fl)return 0;const e=(t-p.fj)/1000,C=p.L+p.D,m=e-Math.floor(e/C)*C;return m>p.L?Math.ceil(C-m):0}
 const wbBotsDmg=(R,t)=>R.P.reduce((s,p)=>s+wbBotDmgAt(p,t),0);
 // damage pemain asli lain (server) + punyaku (lokal, paling baru)
 function wbRealOthers(t0){const s=WB.srv[t0];if(!s)return[];const me=typeof loggedIn==='function'&&loggedIn()?String(NET.acct.uid):null;return(s.rows||[]).filter(r=>String(r.uid)!==me)}
@@ -7853,7 +7865,7 @@ function wbState(t0,now=Date.now()){const R=wbRaid(t0),real=wbRealOthers(t0).red
  const ph=WB_CFG.ph.filter(x=>p<=x).length;return{R,hp:R.hp,left,p,ph,dead:kt!=null&&now>=kt,killT:kt,escaped:now>=wbEnd(t0)&&(kt==null||kt>now),tt}}
 // papan peringkat damage
 function wbBoard(t0,now=Date.now()){const st=wbState(t0,now),L=[];
- for(const p of st.R.P){const d=wbBotDmgAt(p,st.tt);if(d>0||now>=p.arrive)L.push({bot:p.i,name:botName(p.i,now),dmg:Math.round(d),cp:p.cp})}
+ for(const p of st.R.P){const d=wbBotDmgAt(p,st.tt);if(d>0||now>=p.arrive)L.push({bot:p.i,name:botName(p.i,now),dmg:Math.round(d),cp:p.cp,dn:st.dead?0:wbBotDown(p,now)})}
  for(const r of wbRealOthers(t0))L.push({uid:r.uid,name:r.u,dmg:r.dmg,cp:r.cp});
  const md=wbMineLive(t0);if(md>0||(B&&B.st.wb))L.push({me:1,name:S.name,dmg:md,cp:teamPow()});
  L.sort((a,b)=>b.dmg-a.dmg);L.forEach((e,k)=>e.rank=k+1);return{st,L,me:L.find(e=>e.me)}}
@@ -7926,8 +7938,8 @@ function wbFrame(dt){const now=Date.now(),t0=B.wbT0;if(B.state==='end')return;B.
   B.wbWin=st.dead;if(st.dead&&!B.wbLhTried){B.wbLhTried=1;wbClaimLast(t0).then(ok=>{if(ok&&S.wb.log[t0]){S.wb.log[t0].lh=1;save()}})}
   wbSaveDmg();battleFin(!!st.dead);return}
  // angka damage pemain lain yang sedang menyerang (hiasan)
- const boss=B.units.find(u=>u.wb),act=st.R.P.filter(p=>now>=p.fj&&now<p.fl);
- if(boss&&act.length&&Math.random()<Math.min(.9,act.length*.12*step/.25)){const p=act[Math.floor(Math.random()*act.length)],n=Math.round(p.dps*rnd(.6,1.4)*rnd(.8,2.4));
+ const boss=B.units.find(u=>u.wb),act=st.R.P.filter(p=>now>=p.fj&&now<p.fl&&!wbBotDown(p,now));
+ if(boss&&act.length&&Math.random()<Math.min(.9,act.length*.12*step/.25)){const p=act[Math.floor(Math.random()*act.length)],n=Math.round(p.dA*rnd(.6,1.4)*rnd(.8,2.4));
   B.texts.push({x:boss.x+rnd(-30,22),y:boss.y-rnd(40,110),t:botName(p.i,now)+' '+fmt(n),c:'#bfe3ff',life:.9,sm:1})}}
 function wbSaveDmg(){if(!B||!B.st.wb)return;const L=S.wb.log[B.wbT0];if(!L)return;const d=wbBattleDmg();L.dmg+=d-B.wbBase;B.wbBase=d;save()}
 // akhir pertarungan / keluar
@@ -9799,7 +9811,7 @@ function wbHudBar(bb,H){const st=B.wbSt,boss=B.units.find(u=>u.wb);if(!boss)retu
  const ph=(WB_PH[st.ph]||WB_PH[0]).n;const pe=bb.querySelector('.wbph');if(pe.textContent!==ph)pe.textContent=ph;
  const d=$('#wbDownO');if(d){const on=B.state==='down',txt=on?Math.ceil(B.downT):'';if(d.dataset.t!==String(txt)){d.dataset.t=txt;d.className=on?'on':'';d.innerHTML=on?`<small>${T('Tim tumbang')}</small><b>${txt}</b><span>${T('bangkit lagi…')}</span>`:''}}}
 function wbSideRender(){const el=$('#wbSide');if(!el||!B||!B.st.wb)return;const b=wbBoard(B.wbT0),top=b.L.slice(0,6),me=b.me;
- el.innerHTML=`<div class="wbsh">${T('DAMAGE')}</div>${top.map(e=>`<div class="wbsr${e.me?' me':''}"><i>${e.rank}</i><b>${esc(e.name)}</b><span>${fmtS(e.dmg)}</span></div>`).join('')}${me&&me.rank>6?`<div class="wbsr me"><i>${me.rank}</i><b>${esc(me.name)}</b><span>${fmtS(me.dmg)}</span></div>`:''}`;
+ el.innerHTML=`<div class="wbsh">${T('DAMAGE')}</div>${top.map(e=>`<div class="wbsr${e.me?' me':''}"><i>${e.rank}</i><b>${esc(e.name)}</b><span>${e.dn?`<em class="wbdn">↻${e.dn}</em>`:''}${fmtS(e.dmg)}</span></div>`).join('')}${me&&me.rank>6?`<div class="wbsr me"><i>${me.rank}</i><b>${esc(me.name)}</b><span>${fmtS(me.dmg)}</span></div>`:''}`;
  if(me){const prev=B.wbRank;B.wbRank=me.rank;if(prev&&me.rank!==prev&&me.rank<=30){if(me.rank>prev){const by=b.L[me.rank-2];wbNote(T('Disalip {n}! #{a} → #{b}',{n:by?by.name:'?',a:prev,b:me.rank}),'down')}else wbNote(T('Naik ke #{b}!',{b:me.rank}),'up')}}}
 const fmtS=n=>n>=1e9?(n/1e9).toFixed(1)+'M':n>=1e6?(n/1e6).toFixed(1)+'jt':n>=1e4?Math.round(n/1e3)+'rb':fmt(Math.round(n));
 function wbNote(msg,kind){const el=$('#wbNotes');if(!el)return;const d=document.createElement('div');d.className='wbn '+(kind||'');d.textContent=msg;el.appendChild(d);while(el.children.length>3)el.firstChild.remove();setTimeout(()=>d.remove(),3200)}
@@ -9824,8 +9836,8 @@ function wbTick(){if(!S||!S.named)return;const now=Date.now();if(!wbOpen())retur
  // momen besar → obrolan dunia ikut heboh (sekali per raid per momen, server menyaring ganda)
  if(c.st==='pre'||c.st==='live'){const st=c.st==='live'?wbState(c.t0,now):null,k=wbKey(c.t0);
   const ev=c.st==='pre'?(c.t0-now<4*6e4?'pre':null):st.dead?'kill':st.p<=.1?'low':st.ph>=2?'half':now-c.t0<90e3?'start':null;
-  if(ev&&WB_EV[k+ev]!==1){WB_EV[k+ev]=1;WB.ev={k,ev,boss:wbBoss(c.t0).n,p:st?Math.round(st.p*100):100}}}
- else if(c.st==='after'){const k=wbKey(c.t0);if(WB_EV[k+'end']!==1){WB_EV[k+'end']=1;const st=wbState(c.t0,now);if(!st.dead)WB.ev={k,ev:'escape',boss:wbBoss(c.t0).n,p:Math.round(st.p*100)}}}
+  if(ev&&WB_EV[k+ev]!==1){WB_EV[k+ev]=1;WB.ev={k,ev,boss:wbBoss(c.t0).n,el:wbBoss(c.t0).el,p:st?Math.round(st.p*100):100}}}
+ else if(c.st==='after'){const k=wbKey(c.t0);if(WB_EV[k+'end']!==1){WB_EV[k+'end']=1;const st=wbState(c.t0,now);if(!st.dead)WB.ev={k,ev:'escape',boss:wbBoss(c.t0).n,el:wbBoss(c.t0).el,p:Math.round(st.p*100)}}}
  if(WB.ev&&typeof WC!=='undefined'&&WC.aiNext>now+4000)WC.aiNext=now+1500;
  if(now%5000<1000)wbSettle()}
 // bgm beranda yang sesuai (dipanggil saat kembali ke beranda)

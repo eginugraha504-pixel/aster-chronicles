@@ -36,14 +36,25 @@ function wbAttend(b,t0){const C=WB_CFG;if(t0<C.from||t0+C.dur<b.join||!botActive
  return{arrive,fj,fl,off:Math.max(fl,t0+C.dur)+(2+r()*13)*6e4,q:.8+r()*.4}}
 
 /* ---------- satu raid (dicache) ---------- */
-function wbRaid(t0){if(WB.cache.has(t0))return WB.cache.get(t0);const C=WB_CFG,n=botsVisible(t0+C.dur),P=[];
- for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const b=botBase(i),a=wbAttend(b,t0);if(!a)continue;
-  const cp=botSum(i).cp;P.push(Object.assign({i,dps:wbDps(cp)*a.q,cp},a))}
- const r=bRng(bHash(Math.floor(t0/6e4),977)),full=P.reduce((s,p)=>s+p.dps*(p.fl-p.fj)/1000,0),x=r();
+/* Bot di raid: CP & tim diambil SAAT naga muncul (t0) → papan sama untuk semua penonton, kapan pun dilihat.
+   Kekuatan = DPS dari CP × keunggulan elemen tim terhadap naga × sedikit keberuntungan/pengalaman.
+   Tim bot juga tumbang lalu menunggu bangkit (WB_CFG.respawn) seperti pemain: damage masuk berupa semburan,
+   diam selama bangkit. Lama bertahan tergantung CP & elemen (yang lemah elemen lebih cepat tumbang). */
+function wbBotUnit(i,b,a,t0,boss){const s=botState(i,t0),cp=s.cp,team=s.team.filter(id=>HD[id]),r=bRng(bHash(i,Math.floor(t0/6e4)+77));
+ const atk=team.length?team.reduce((x,id)=>x+elMult(HD[id].el,boss.el),0)/team.length:1,def=team.length?team.reduce((x,id)=>x+elMult(boss.el,HD[id].el),0)/team.length:1;
+ const sk=b.sk==='veteran'?1.05:b.sk==='baru'?.93:1,q=Math.pow(atk,1.4)*(.9+.2*r())*sk;
+ const L=Math.max(15,Math.min(75,30*Math.pow(cp/1e4,.5)*(.8+.4*r())/def)),D=WB_CFG.respawn+1+r()*4,dps=wbDps(cp)*q;
+ return Object.assign({i,cp,dps,L,D,dA:dps*(L+D)/L,el:atk},a)}
+function wbRaid(t0){if(WB.cache.has(t0))return WB.cache.get(t0);const C=WB_CFG,n=botsVisible(t0+C.dur),P=[],boss=wbBoss(t0);
+ for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const b=botBase(i),a=wbAttend(b,t0);if(!a)continue;P.push(wbBotUnit(i,b,a,t0,boss))}
+ const r=bRng(bHash(Math.floor(t0/6e4),977)),full=P.reduce((s,p)=>s+wbBotDmgAt(p,p.fl),0),x=r();
  const k=x<.12?1.08+r()*.17:x<.32?.92+r()*.08:.62+r()*.28;
  const R={t0,boss:wbBoss(t0),P,hp:Math.max(4e5,Math.round(full*k/1000)*1000)};
  if(WB.cache.size>40)WB.cache.clear();WB.cache.set(t0,R);return R}
-const wbBotDmgAt=(p,t)=>p.dps*Math.max(0,Math.min(t,p.fl)-p.fj)/1000;
+// damage bot sampai waktu t: hidup L detik (menyerang), tumbang D detik (bangkit), berulang
+function wbBotDmgAt(p,t){const e=(Math.min(t,p.fl)-p.fj)/1000;if(e<=0)return 0;const C=p.L+p.D,n=Math.floor(e/C);return p.dA*(n*p.L+Math.min(e-n*C,p.L))}
+// sedang menunggu bangkit? → sisa detik (0 = sedang bertarung)
+function wbBotDown(p,t){if(t<p.fj||t>=p.fl)return 0;const e=(t-p.fj)/1000,C=p.L+p.D,m=e-Math.floor(e/C)*C;return m>p.L?Math.ceil(C-m):0}
 const wbBotsDmg=(R,t)=>R.P.reduce((s,p)=>s+wbBotDmgAt(p,t),0);
 // damage pemain asli lain (server) + punyaku (lokal, paling baru)
 function wbRealOthers(t0){const s=WB.srv[t0];if(!s)return[];const me=typeof loggedIn==='function'&&loggedIn()?String(NET.acct.uid):null;return(s.rows||[]).filter(r=>String(r.uid)!==me)}
@@ -58,7 +69,7 @@ function wbState(t0,now=Date.now()){const R=wbRaid(t0),real=wbRealOthers(t0).red
  const ph=WB_CFG.ph.filter(x=>p<=x).length;return{R,hp:R.hp,left,p,ph,dead:kt!=null&&now>=kt,killT:kt,escaped:now>=wbEnd(t0)&&(kt==null||kt>now),tt}}
 // papan peringkat damage
 function wbBoard(t0,now=Date.now()){const st=wbState(t0,now),L=[];
- for(const p of st.R.P){const d=wbBotDmgAt(p,st.tt);if(d>0||now>=p.arrive)L.push({bot:p.i,name:botName(p.i,now),dmg:Math.round(d),cp:p.cp})}
+ for(const p of st.R.P){const d=wbBotDmgAt(p,st.tt);if(d>0||now>=p.arrive)L.push({bot:p.i,name:botName(p.i,now),dmg:Math.round(d),cp:p.cp,dn:st.dead?0:wbBotDown(p,now)})}
  for(const r of wbRealOthers(t0))L.push({uid:r.uid,name:r.u,dmg:r.dmg,cp:r.cp});
  const md=wbMineLive(t0);if(md>0||(B&&B.st.wb))L.push({me:1,name:S.name,dmg:md,cp:teamPow()});
  L.sort((a,b)=>b.dmg-a.dmg);L.forEach((e,k)=>e.rank=k+1);return{st,L,me:L.find(e=>e.me)}}
@@ -131,8 +142,8 @@ function wbFrame(dt){const now=Date.now(),t0=B.wbT0;if(B.state==='end')return;B.
   B.wbWin=st.dead;if(st.dead&&!B.wbLhTried){B.wbLhTried=1;wbClaimLast(t0).then(ok=>{if(ok&&S.wb.log[t0]){S.wb.log[t0].lh=1;save()}})}
   wbSaveDmg();battleFin(!!st.dead);return}
  // angka damage pemain lain yang sedang menyerang (hiasan)
- const boss=B.units.find(u=>u.wb),act=st.R.P.filter(p=>now>=p.fj&&now<p.fl);
- if(boss&&act.length&&Math.random()<Math.min(.9,act.length*.12*step/.25)){const p=act[Math.floor(Math.random()*act.length)],n=Math.round(p.dps*rnd(.6,1.4)*rnd(.8,2.4));
+ const boss=B.units.find(u=>u.wb),act=st.R.P.filter(p=>now>=p.fj&&now<p.fl&&!wbBotDown(p,now));
+ if(boss&&act.length&&Math.random()<Math.min(.9,act.length*.12*step/.25)){const p=act[Math.floor(Math.random()*act.length)],n=Math.round(p.dA*rnd(.6,1.4)*rnd(.8,2.4));
   B.texts.push({x:boss.x+rnd(-30,22),y:boss.y-rnd(40,110),t:botName(p.i,now)+' '+fmt(n),c:'#bfe3ff',life:.9,sm:1})}}
 function wbSaveDmg(){if(!B||!B.st.wb)return;const L=S.wb.log[B.wbT0];if(!L)return;const d=wbBattleDmg();L.dmg+=d-B.wbBase;B.wbBase=d;save()}
 // akhir pertarungan / keluar

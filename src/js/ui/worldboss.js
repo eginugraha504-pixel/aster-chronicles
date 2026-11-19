@@ -83,7 +83,7 @@ function wbHudBar(bb,H){const st=B.wbSt,boss=B.units.find(u=>u.wb);if(!boss)retu
  const ph=(WB_PH[st.ph]||WB_PH[0]).n;const pe=bb.querySelector('.wbph');if(pe.textContent!==ph)pe.textContent=ph;
  const d=$('#wbDownO');if(d){const on=B.state==='down',txt=on?Math.ceil(B.downT):'';if(d.dataset.t!==String(txt)){d.dataset.t=txt;d.className=on?'on':'';d.innerHTML=on?`<small>${T('Tim tumbang')}</small><b>${txt}</b><span>${T('bangkit lagi…')}</span>`:''}}}
 function wbSideRender(){const el=$('#wbSide');if(!el||!B||!B.st.wb)return;const b=wbBoard(B.wbT0),top=b.L.slice(0,6),me=b.me;
- el.innerHTML=`<div class="wbsh">${T('DAMAGE')}</div>${top.map(e=>`<div class="wbsr${e.me?' me':''}"><i>${e.rank}</i><b>${esc(e.name)}</b><span>${fmtS(e.dmg)}</span></div>`).join('')}${me&&me.rank>6?`<div class="wbsr me"><i>${me.rank}</i><b>${esc(me.name)}</b><span>${fmtS(me.dmg)}</span></div>`:''}`;
+ el.innerHTML=`<div class="wbsh">${T('DAMAGE')}</div>${top.map(e=>`<div class="wbsr${e.me?' me':''}"><i>${e.rank}</i><b>${esc(e.name)}</b><span>${e.dn?`<em class="wbdn">↻${e.dn}</em>`:''}${fmtS(e.dmg)}</span></div>`).join('')}${me&&me.rank>6?`<div class="wbsr me"><i>${me.rank}</i><b>${esc(me.name)}</b><span>${fmtS(me.dmg)}</span></div>`:''}`;
  if(me){const prev=B.wbRank;B.wbRank=me.rank;if(prev&&me.rank!==prev&&me.rank<=30){if(me.rank>prev){const by=b.L[me.rank-2];wbNote(T('Disalip {n}! #{a} → #{b}',{n:by?by.name:'?',a:prev,b:me.rank}),'down')}else wbNote(T('Naik ke #{b}!',{b:me.rank}),'up')}}}
 const fmtS=n=>n>=1e9?(n/1e9).toFixed(1)+'M':n>=1e6?(n/1e6).toFixed(1)+'jt':n>=1e4?Math.round(n/1e3)+'rb':fmt(Math.round(n));
 function wbNote(msg,kind){const el=$('#wbNotes');if(!el)return;const d=document.createElement('div');d.className='wbn '+(kind||'');d.textContent=msg;el.appendChild(d);while(el.children.length>3)el.firstChild.remove();setTimeout(()=>d.remove(),3200)}
@@ -108,8 +108,8 @@ function wbTick(){if(!S||!S.named)return;const now=Date.now();if(!wbOpen())retur
  // momen besar → obrolan dunia ikut heboh (sekali per raid per momen, server menyaring ganda)
  if(c.st==='pre'||c.st==='live'){const st=c.st==='live'?wbState(c.t0,now):null,k=wbKey(c.t0);
   const ev=c.st==='pre'?(c.t0-now<4*6e4?'pre':null):st.dead?'kill':st.p<=.1?'low':st.ph>=2?'half':now-c.t0<90e3?'start':null;
-  if(ev&&WB_EV[k+ev]!==1){WB_EV[k+ev]=1;WB.ev={k,ev,boss:wbBoss(c.t0).n,p:st?Math.round(st.p*100):100}}}
- else if(c.st==='after'){const k=wbKey(c.t0);if(WB_EV[k+'end']!==1){WB_EV[k+'end']=1;const st=wbState(c.t0,now);if(!st.dead)WB.ev={k,ev:'escape',boss:wbBoss(c.t0).n,p:Math.round(st.p*100)}}}
+  if(ev&&WB_EV[k+ev]!==1){WB_EV[k+ev]=1;WB.ev={k,ev,boss:wbBoss(c.t0).n,el:wbBoss(c.t0).el,p:st?Math.round(st.p*100):100}}}
+ else if(c.st==='after'){const k=wbKey(c.t0);if(WB_EV[k+'end']!==1){WB_EV[k+'end']=1;const st=wbState(c.t0,now);if(!st.dead)WB.ev={k,ev:'escape',boss:wbBoss(c.t0).n,el:wbBoss(c.t0).el,p:Math.round(st.p*100)}}}
  if(WB.ev&&typeof WC!=='undefined'&&WC.aiNext>now+4000)WC.aiNext=now+1500;
  if(now%5000<1000)wbSettle()}
 // bgm beranda yang sesuai (dipanggil saat kembali ke beranda)
