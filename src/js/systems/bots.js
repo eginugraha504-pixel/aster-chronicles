@@ -55,7 +55,8 @@ function botBase(i){if(BOTS.base[i])return BOTS.base[i];const C=BOT_CFG,r=bRng(b
  const segs=[];if(quit===Infinity)segs.push([join,Infinity,a]);
  else{const qT=join+quit*BDAY,fadeAt=join+quit*(1-C.FADE)*BDAY;segs.push([join,fadeAt,a],[fadeAt,qT,a*C.FADE_RATE]);
   const era=C.ERAS.find(e=>e.at>qT);if(era&&r()<C.COMEBACK.p){const s0=era.at+r()*BDAY,len=(C.COMEBACK.days[0]+r()*(C.COMEBACK.days[1]-C.COMEBACK.days[0]))*BDAY;segs.push([s0,s0+len,a*C.COMEBACK.rate])}}
- const B=BOTS.base[i]={i,pf:pf.id,pfo:pf,sk,cv:C.CURVES[pf.id+'_'+sk]?pf.id+'_'+sk:pf.id,a,quit,join,chaser:chaser2,chrono,opt:opt2,segs,seed:bHash(i,2),endT:segs[segs.length-1][1],back:segs.length>2,
+ const cvS=pf.id+'_'+sk,cvT=cvS+'_'+tier.id;
+ const B=BOTS.base[i]={i,pf:pf.id,pfo:pf,sk,cv:C.CURVES[cvT]?cvT:cvS,cvS,a,quit,join,chaser:chaser2,chrono,opt:opt2,segs,seed:bHash(i,2),endT:segs[segs.length-1][1],back:segs.length>2,
   tier,mood,saver:!tier.pf&&chaser2&&Q[4]<EM.saver,spend0:join+(SP.firstDay[0]+Q[5]*(SP.firstDay[1]-SP.firstDay[0]))*BDAY,cardP:Q[6]<(tier.card||0),
   bioEvery:LF.bioEvery[0]+Q[7]*(LF.bioEvery[1]-LF.bioEvery[0]),loyal:Q[8]<LF.loyal,rn:null};
  if(Q[9]<LF.rename.p){const t=join+(LF.rename.days[0]+Q[10]*(LF.rename.days[1]-LF.rename.days[0]))*BDAY;if(t<B.endT)B.rn={t:botSnap(B,t),k:Math.floor(Q[11]*LF.rename.pool)}}
@@ -156,12 +157,12 @@ function eraPool(t,isW,up){const k=eraIdx(t),E=BOT_CFG.ERAS[k],av=HEROES.filter(
  return BPOOL[key]=P}
 
 /* ---- gacha tersimulasi sepanjang waktu (peluang asli + banner yang aktif saat itu) ---- */
-function botGacha(b,P,now=Date.now()){const C=BOT_CFG,total=Math.max(0,botCurve(b.cv,2,P)),nH=Math.floor(total*C.HERO_SHARE),nW=Math.floor(total*(1-C.HERO_SHARE));
+function botGacha(b,P,now=Date.now()){const C=BOT_CFG,total=Math.max(0,botCurve(b.cvS,2,P)),nH=Math.floor(total*C.HERO_SHARE),nW=Math.floor(total*(1-C.HERO_SHARE));
  const heroes={},weapons={},ev=[];STARTERS().forEach(id=>heroes[id]={lv:1,lb:0,wpn:null});STARTERS().map(id=>basicWeapon(HD[id].wcls)).filter(Boolean).forEach(w=>weapons[w]=newWpn());
  // waktu tiap tarikan: gratis (dari kurva progres) + berbayar (dari top up), lalu diurutkan
- const fT=(k,share)=>Math.max(b.join,botProgInv(b,botSumInv(b.cv,k/share))),tH=[],tW=[];
+ const fT=(k,share)=>Math.max(b.join,botProgInv(b,botSumInv(b.cvS,k/share))),tH=[],tW=[];
  for(let k=0;k<nH;k++)tH.push(fT(k,C.HERO_SHARE));for(let k=0;k<nW;k++)tW.push(fT(k,1-C.HERO_SHARE));
- const SP=botSpend(b,now),paid=botPaidPulls(SP.gems);paid.forEach((t,k)=>(bHash(b.i,9000+k)%100<C.SPEND.heroShare*100?tH:tW).push(t));
+ const SP=botSpend(b,now),burn=b.tier.burn||0,paid=botPaidPulls(burn?SP.gems.map(([t,g])=>[t,g*(1-burn)]):SP.gems);paid.forEach((t,k)=>(bHash(b.i,9000+k)%100<C.SPEND.heroShare*100?tH:tW).push(t));
  const sv=botSaveTimes(b,tH.sort((x,y)=>x-y),now);tW.sort((x,y)=>x-y);
  const run=(ts,isW,rng)=>{const st={pity:0,g:false};for(const t of ts){const ek=eraIdx(t),E=C.ERAS[ek];
   const ups=isW?E.wpn:E.hero,up=b.chaser&&ups.length?ups[bHash(b.i,ek+(isW?50:0))%ups.length]:null,pool=eraPool(t,isW,up);
@@ -251,7 +252,7 @@ function botSnap(b,t){for(let d=wibDay(t);d<=wibDay(t)+3;d++){for(const[s0,s1]of
 /* ---- ringkasan bot (CP, level, VIP, hero) — skala sampai 100rb bot ----
    Bot yang sudah berhenti (endT lewat) tidak berubah lagi → ringkasannya disimpan di localStorage dan tidak dihitung ulang.
    Bot aktif: dari botState (cache penuh dibatasi ±5000 objek). Ganti SUM_VER bila keseimbangan CP berubah. */
-const SUM_VER=2,BSUM={d:{},key:'',dirty:0,at:0};
+const SUM_VER=3,BSUM={d:{},key:'',dirty:0,at:0};
 const bsumKey=()=>BOTS.gen+':'+SUM_VER+':'+BOT_CFG.ERAS.length+':'+HEROES.length+':'+BOT_CFG.epoch;
 function bsumLoad(){const k=bsumKey();if(BSUM.key===k)return;BSUM.key=k;BSUM.d={};for(const q in BSUMA)delete BSUMA[q];try{const o=JSON.parse(localStorage.getItem('aster_botsum')||'null');if(o&&o.k===k){const D=o.d||{};for(const i in D){const x=D[i];BSUM.d[i]=Array.isArray(x)?{cp:x[0],lv:x[1],vip:x[2],top:x[3],st:x[4]}:x}}}catch(e){}}
 function bsumSave(){if(!BSUM.dirty||Date.now()-BSUM.at<3e4)return;BSUM.at=Date.now();BSUM.dirty=0;const d={};for(const i in BSUM.d){const o=BSUM.d[i];d[i]=[o.cp,o.lv,o.vip,o.top,o.st]}

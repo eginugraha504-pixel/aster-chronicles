@@ -4,6 +4,7 @@ from playwright.async_api import async_playwright
 # runsim2.py PROFIL SKILL HARI SEED out.json
 PF={'santai':([12,21],[6,18]),'reguler':([8,13,18,22],[8,22]),'rajin':([7,10,12,16,19,22],[10,30]),'hardcore':([6,8,10,12,14,16,18,20,22],[15,45])}
 pf,sk,DAYS,seed,out=sys.argv[1],sys.argv[2],int(sys.argv[3]),int(sys.argv[4]),sys.argv[5]
+tier=sys.argv[6] if len(sys.argv)>6 and sys.argv[6]!='f2p' else None
 async def main():
     async with async_playwright() as p:
         b=await p.chromium.launch(args=['--no-sandbox'])
@@ -12,7 +13,7 @@ async def main():
         await pg.goto('file://'+os.path.abspath(GAME)+'#skipboot');await pg.wait_for_timeout(1500)
         await pg.add_script_tag(path=os.path.join(HERE,'sim2.js'))
         hrs,ln=PF[pf]
-        await pg.evaluate("o=>{closeModal();SIM.reset(o)}",{'skill':sk,'hrs':hrs,'len':ln,'seed':seed})
+        await pg.evaluate("o=>{closeModal();SIM.reset(o)}",{'skill':sk,'hrs':hrs,'len':ln,'seed':seed,'tier':tier})
         rows=[];t0=time.time()
         for d in range(DAYS):
             r=await pg.evaluate("SIM.runDay()");rows.append(r)

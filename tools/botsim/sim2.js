@@ -7,7 +7,10 @@ class FD extends _D{constructor(...a){if(a.length)super(...a);else super(_D.now(
 window.Date=FD;
 window.setTimeout=(f,ms)=>0;window.requestAnimationFrame=()=>0;
 const SIM=window.SIM={log:[],ms:{},play:0,battles:0,wins:0,losses:0,sweeps:0,summons:0,day:0,sessions:0,storyT:0,wbN:0,arN:0,
- counts:{story:0,dg:0,replay:0,sweep:0},seen:{},failed:{},skill:'biasa',len:[8,22],hrs:[8,13,18,22],seed:1};
+ counts:{story:0,dg:0,replay:0,sweep:0},seen:{},failed:{},skill:'biasa',len:[8,22],hrs:[8,13,18,22],seed:1,
+ // pembelanja (null = F2P): gems = permata top up per hari, refill = isi ulang stamina per hari, dgr = reset dungeon per jenis per hari
+ tier:null,refills:0,dgResets:0,gemsPaid:0};
+const TIERS={whale:{gems:3000,refill:3,dgr:2},swhale:{gems:7000,refill:5,dgr:5},mwhale:{gems:15000,refill:5,dgr:5}};
 let rs=1;const rng=()=>{rs=(rs+0x6D2B79F5)>>>0;let t=rs;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};
 // ---- tingkat pengalaman ----
 // spd: kecepatan tempur; story: read/half/skip; readS: detik per baris dialog; over: detik menu per sesi; load: detik muat per tempur;
@@ -95,9 +98,11 @@ window.dgBest=dgBest;function dgBest(id,tp){return DG_STAGES.filter(s=>s.dg===id
 function doDungeons(){const k=K();if(!featOK('dungeon'))return;const tp=teamPow(),N=dgNeed();
  const all=rng()<k.ops,ids=['mine','shrine','vault','tower'].filter(id=>all||(id==='mine'?N.needOre:id==='shrine'?N.needLB:id==='vault'?N.needGold:false));
  for(const id of ids){if(!timeLeft())return;if(rng()>k.dgP)continue;let left=dgLeft(id);
+  const T=SIM.tier&&TIERS[SIM.tier];
+  for(let rr=0;rr<6;rr++){if(rr){if(!T||dgResets(id)>=T.dgr||!timeLeft())break;const r=dgReset(id);if(r.err)break;SIM.dgResets++;use(3);left=dgLeft(id)}
   while(left>0&&timeLeft()){const st=dgBest(id,tp);if(!st)break;
    if(S.stages[st.key]&&k.sweep>=.5){const r=sweepDg(st.key,left);if(r.err)break;SIM.sweeps+=left;SIM.counts.dg+=left;use(4);left=0;break}
-   const r=fight(st.key);if(!r)break;SIM.counts.dg++;left=dgLeft(id);if(!r.win){SIM.failed[st.key]=SIM.day+2;break}}}}
+   const r=fight(st.key);if(!r)break;SIM.counts.dg++;left=dgLeft(id);if(!r.win){SIM.failed[st.key]=SIM.day+2;break}}}}}
 // ---- Bos Dunia (Lv8): 10 menit, hadiah peringkat bawah + peti kontribusi; tidak disimulasikan pertarungannya ----
 function doWB(hr){const k=K();if(S.lv<WB_CFG.lv)return;SIM.wbDone=SIM.wbDone||{};
  // ikut slot terdekat (veteran mengatur jam main supaya pas jadwal naga)
@@ -119,7 +124,8 @@ function choose(){const k=K(),ns=SLIST.find(st=>!S.stages[st.key]),tp=teamPow();
  // macet: veteran menyapu tahap tertinggi (EXP & emas cepat), pemain biasa kadang, pemula main ulang manual
  if(S.stages[top.key]&&rng()<k.sweep)return{k:top.key,t:'sweep'};
  return{k:top.key,t:'replay'}}
-function session(hr){const k=K();SIM.sessions++;SIM.tt=0;SIM.budget=(SIM.len[0]+rng()*(SIM.len[1]-SIM.len[0]))*60;
+function session(hr){const k=K();SIM.sessions++;
+ const T=SIM.tier&&TIERS[SIM.tier];if(T){const g=Math.round(T.gems/SIM.hrs.length);S.gems+=g;SIM.gemsPaid+=g}SIM.tt=0;SIM.budget=(SIM.len[0]+rng()*(SIM.len[1]-SIM.len[0]))*60;
  if(SIM.sessions===1){SIM.budget+=k.tut;use(k.tut*.6);for(const s of STORY.filter(s=>s.at==='start'))readScene(s)}
  regen();checkDaily();use(k.over*.5);if(rng()<k.claimP)claimAll();summonAll();upgrade();shopping();support();summonAll();upgrade();
  doWB(hr);
@@ -128,7 +134,10 @@ function session(hr){const k=K();SIM.sessions++;SIM.tt=0;SIM.budget=(SIM.len[0]+
  if(rng()<k.claimP)claimAll();upgrade();
  for(const x in SIM.failed)if(SIM.failed[x]<=SIM.day)delete SIM.failed[x];
  milestones();save()}
-function stages(){for(let g=0;g<80&&timeLeft();g++){const c=choose(),st=STAGES[c.k];if(S.stam<st.cost)break;
+// isi ulang stamina dengan permata (pembelanja): sampai batas harian
+function refill(){const T=SIM.tier&&TIERS[SIM.tier];if(!T)return false;checkDaily();const n=S.daily.c.refill||0;if(n>=Math.min(T.refill,STAM_REFILL.max))return false;
+ const c=STAM_REFILL.cost[n];if(c==null||S.gems<c)return false;S.gems-=c;S.stam+=STAM_REFILL.give;S.daily.c.refill=n+1;SIM.refills++;use(4);return true}
+function stages(){for(let g=0;g<120&&timeLeft();g++){const c=choose(),st=STAGES[c.k];if(S.stam<st.cost&&!refill())break;if(S.stam<st.cost)break;
   if(c.t==='sweep'){const n=Math.floor(S.stam/st.cost);const r=sweepStage(c.k,n);if(r.err)break;SIM.sweeps+=n;SIM.counts.sweep+=n;use(5);continue}
   const r=fight(c.k);if(!r)break;SIM.counts[c.t]++;if(!r.win){SIM.failed[c.t==='replay'?'*'+c.k:c.k]=SIM.day+2}else if(c.t==='replay'&&r.stars<3)SIM.failed['*'+c.k]=SIM.day+2;
   if(c.t==='story'&&rng()<K().claimP*.5)claimAll();upgrade()}}
@@ -141,7 +150,7 @@ const snap=p=>({p,lv:S.lv,sum:SIM.summons,wl:wAvg(o=>o.lv),wlb:wAvg(o=>o.lb),hou
 SIM.runDay=function(){const base=_D.now(),sub=[];SIM.hrs.forEach((h,j)=>{const d=new _D(base);d.setHours(0,0,0,0);OFF=d.getTime()+SIM.day*864e5+h*36e5-_D.now();session(h);
   if(SIM.day<3)sub.push(snap(+(SIM.day+(SIM.day===0&&j===0?.03:(j+1)/SIM.hrs.length)).toFixed(3)))});arenaDayEnd();SIM.day++;
  return{sub,day:SIM.day,lv:S.lv,cp:teamPow(),stages:SLIST.filter(st=>S.stages[st.key]).length,stars:SLIST.reduce((a,st)=>a+(S.stages[st.key]||0),0),heroes:Object.keys(S.heroes).length,
-  gems:S.gems,gold:S.gold,hours:+(SIM.play/3600).toFixed(2),sum:SIM.summons,wl:wAvg(o=>o.lv),wlb:wAvg(o=>o.lb),story:+(SIM.storyT/60).toFixed(1),battles:SIM.battles,sweeps:SIM.sweeps,wb:SIM.wbN,ar:SIM.arN,asc:SIM.asc||0,stars6:Object.values(S.heroes).filter(o=>(o.asc||0)>=4).length,
+  gems:S.gems,gold:S.gold,hours:+(SIM.play/3600).toFixed(2),sum:SIM.summons,wl:wAvg(o=>o.lv),wlb:wAvg(o=>o.lb),story:+(SIM.storyT/60).toFixed(1),battles:SIM.battles,sweeps:SIM.sweeps,wb:SIM.wbN,ar:SIM.arN,refills:SIM.refills,dgr:SIM.dgResets,asc:SIM.asc||0,stars6:Object.values(S.heroes).filter(o=>(o.asc||0)>=4).length,
   team:S.team.map(id=>id&&`${id}:${S.heroes[id].lv}/${maxLv(id)}`)}};
 SIM.reset=function(o){Object.assign(SIM,o||{});rs=(SIM.seed*2654435761)>>>0;OFF=0;try{localStorage.removeItem(SAVE_KEY)}catch(e){}S=defState();S.welcomed=true;S.sound=false;S.lang='id';
  const d=new _D();d.setHours(8,0,0,0);OFF=d.getTime()-_D.now();S.stamTs=Date.now();checkDaily();save()};
