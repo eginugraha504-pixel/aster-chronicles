@@ -5865,10 +5865,10 @@ function bInterp(T,x){if(x<=T[0][0])return T[0][1];for(let k=1;k<T.length;k++)if
 
 /* ---- kapan bot bergabung ---- */
 // gelombang rilis (i < JOIN.k): kurva lama; sesudahnya kurva dua-eksponen yang melambat + jam bergabung mengikuti jam ramai WIB
-function botJoinDays(i,C=BOT_CFG){const J=C.JOIN;if(i<J.k)return-C.tau*Math.log(1-(i+1)/(J.old+1));
+function botJoinDays(i,C=BOT_CFG,e=C.epoch){const J=C.JOIN;if(i<J.k)return-C.tau*Math.log(1-(i+1)/(J.old+1));
  const t0=-C.tau*Math.log(1-J.k/(J.old+1)),a2=C.max-J.k-J.a1,n=i-J.k+1,N=t=>J.a1*(1-Math.exp(-t/J.t1))+a2*(1-Math.exp(-t/J.t2));
  if(n>=J.a1+a2)return Infinity;let lo=0,hi=1;while(N(hi)<n&&hi<1e6)hi*=2;for(let k=0;k<60;k++){const m=(lo+hi)/2;if(N(m)<n)lo=m;else hi=m}
- return Math.max(t0,botJoinWarp(t0+hi,C))}
+ const E=e/BDAY;return Math.max(t0,botJoinWarp(E+t0+hi,C)-E)}   // tekuk ke jam WIB asli (hari kalender), bukan relatif jam reset
 // geser waktu di dalam satu hari WIB mengikuti bobot jam ramai (monoton → urutan bot tetap)
 function botJoinWarp(d,C){const W=C.HOURS,tot=W.reduce((a,v)=>a+v,0),z=C.TZ/24,x=d+z,day=Math.floor(x),target=(x-day)*tot;
  let c=0,j=0;for(;j<23;j++){if(c+W[j]>=target)break;c+=W[j]}return day+(j+Math.min(1,Math.max(0,(target-c)/W[j])))/24-z}

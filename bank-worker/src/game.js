@@ -41,11 +41,11 @@ function botLocalName(i, gen) { const r = bRng(bHash(i, 9, gen)), Y = BOTCFG.SYL
 // sama persis dengan botJoinDays/botJoinWarp di src/js/systems/bots.js (gelombang rilis lalu pertumbuhan alami melambat)
 function botJoinWarp(d, C) { const W = C.HOURS, tot = W.reduce((a, v) => a + v, 0), z = C.TZ / 24, x = d + z, day = Math.floor(x), target = (x - day) * tot;
   let c = 0, j = 0; for (; j < 23; j++) { if (c + W[j] >= target) break; c += W[j] } return day + (j + Math.min(1, Math.max(0, (target - c) / W[j]))) / 24 - z }
-function botJoinDays(i, C = BOTCFG) { const J = C.JOIN; if (i < J.k) return -C.tau * Math.log(1 - (i + 1) / (J.old + 1));
+function botJoinDays(i, C = BOTCFG, e = 0) { const J = C.JOIN; if (i < J.k) return -C.tau * Math.log(1 - (i + 1) / (J.old + 1));
   const t0 = -C.tau * Math.log(1 - J.k / (J.old + 1)), a2 = C.max - J.k - J.a1, n = i - J.k + 1, N = t => J.a1 * (1 - Math.exp(-t / J.t1)) + a2 * (1 - Math.exp(-t / J.t2));
   if (n >= J.a1 + a2) return Infinity; let lo = 0, hi = 1; while (N(hi) < n && hi < 1e6) hi *= 2; for (let k = 0; k < 60; k++) { const m = (lo + hi) / 2; if (N(m) < n) lo = m; else hi = m }
-  return Math.max(t0, botJoinWarp(t0 + hi, C)) }
-function botJoin(i, epoch) { const C = BOTCFG; if (i < C.launch) return epoch + i * 55e3; return epoch + botJoinDays(i) * DAY }
+  const E = e / DAY; return Math.max(t0, botJoinWarp(E + t0 + hi, C) - E) }
+function botJoin(i, epoch) { const C = BOTCFG; if (i < C.launch) return epoch + i * 55e3; return epoch + botJoinDays(i, BOTCFG, epoch) * DAY }
 function botsJoined(epoch, t = now()) { let lo = 0, hi = BOTCFG.max; while (lo < hi) { const m = (lo + hi) >> 1; if (botJoin(m, epoch) <= t) lo = m + 1; else hi = m } return lo }
 export async function getWorld(env) {
   const w = pj(await kvGet(env, 'world'));
