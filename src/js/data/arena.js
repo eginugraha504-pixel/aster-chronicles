@@ -35,7 +35,8 @@ const ARENA_CFG={
   {id:'legend',  n:'Legenda', min:1800,c:'#ff7ad0',c2:'#7a1f8a',day:{gems:100,gold:25000},week:{gems:1000,gold:120000,tixH:5,mats:{asc1:30,asc2:15,asc3:2,badge:30}}},
  ],
  // poin bot: target = start + span × (persentil CP)^curve ± jitter; makin lama musim berjalan makin dekat ke target
- bot:{span:1150,curve:1.6,jitter:220,speed:{santai:.35,reguler:.55,rajin:.8,hardcore:1.1}},
+ bot:{span:1150,curve:1.6,jitter:220,speed:{santai:.35,reguler:.55,rajin:.8,hardcore:1.1},
+  sk:{baru:-90,biasa:0,veteran:110}},   // pengalaman: veteran pintar memilih lawan (lebih sering menang), pemula sebaliknya
  // pencarian lawan: 3 kartu (lebih lemah / setara / lebih kuat) dalam rentang poin ini
  match:[[-220,-40],[-40,40],[40,220]],
  matchCp:[[0,.92],[.88,1.12],[1.08,9]],   // rentang CP lawan dibanding CP timmu untuk tiap kartu

@@ -65,7 +65,7 @@ function chOnline(t){const d=wibDay(t),out=[],seen=new Set(),n=botsVisible(t);
 function chCtx(i,t){const s=botState(i),b=botBase(i),st=s.stats,p=chPersona(i),fav=s.fav||s.team[0]||Object.keys(s.heroes)[0];
  const si=SLIST.findIndex(x=>x.key===s.stage);
  return{i,t,name:botName(i,t),heroId:fav,hero:HD[fav]?HD[fav].name:'Celestine',ids:Object.keys(s.heroes),has:id=>!!s.heroes[id],cp:s.cp,lv:s.lv,stage:s.stage,stageN:si,
-  pity:st.pity||0,held:st.held||0,paid:st.spent>0,card:!!st.card,vip:st.vip||0,luck:st.luck,mood:b.mood,pf:b.pf,days:st.days,
+  pity:st.pity||0,held:st.held||0,paid:st.spent>0,card:!!st.card,vip:st.vip||0,luck:st.luck,mood:b.mood,pf:b.pf,sk:b.sk,days:st.days,
   fading:b.quit<Infinity&&t>=b.segs[1][0]&&t<b.endT,night:wibHour(t)>=23||wibHour(t)<4,newRecent:chWorld().newRecent,newId:chWorld().newId,top:chWorld().top,
   get league(){if(typeof arBotPtsNow!=='function')return'';const v=arBotPtsNow(i);return v==null?'':T(arLg(v).n)},p}}
 

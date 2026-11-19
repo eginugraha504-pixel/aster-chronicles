@@ -42,16 +42,20 @@ function botBase(i){if(BOTS.base[i])return BOTS.base[i];const C=BOT_CFG,r=bRng(b
  let tx=Q[0]*100,tier=SP.tiers[0];for(const t of SP.tiers){if(tx<t.w){tier=t;break}tx-=t.w}
  // pengejar puncak (super/mega whale): gaya main sangat rajin, optimal, selalu kejar rate-up, tidak pernah berhenti
  let chaser2=chaser,opt2=opt;if(tier.pf){const id=tier.pf[bHash(i,41)%tier.pf.length],np=C.profiles.find(p=>p.id===id);if(np&&np!==pf){pf=np;a=pf.a[0]+Q[11]*(pf.a[1]-pf.a[0])}a*=tier.speed||1;quit=Infinity;chaser2=true;opt2=Math.max(opt,tier.opt||opt)}
+ // pengalaman main (pemula / biasa / veteran): aliran acak sendiri; condong ke veteran untuk profil rajin/hardcore
+ const SK=C.SKILL,skw=pf.sk||{baru:.33,biasa:.34,veteran:.33};let sk='biasa';{let y=bRng(bHash(i,51))()*Object.values(skw).reduce((a,v)=>a+v,0);for(const k in skw){if(y<skw[k]){sk=k;break}y-=skw[k]}}
+ if(tier.sk)sk=tier.sk[bHash(i,52)%tier.sk.length];
+ opt2=Math.min(.995,Math.max(.3,opt2+(SK[sk].opt||0)));
  const mood=botEarlyMood(bHash(i,2),chaser);if(mood!=='normal')a*=EM[mood].speed;
  // pemain berbayar & yang hoki lebih betah; yang apes lebih cepat menyerah
- const cm=(tier.id==='f2p'?1:SP.churnMul)*(mood==='normal'?1:EM[mood].churn);
+ const cm=(tier.id==='f2p'?1:SP.churnMul)*(mood==='normal'?1:EM[mood].churn)*(SK[sk].churn||1);
  if(tier.pf)quit=Infinity;else if(quit<Infinity&&cm<1&&Q[1]<1-cm)quit=Infinity;
  else if(cm>1){if(quit<Infinity)quit/=Math.sqrt(cm);else if(Q[2]<(cm-1)*.22)quit=.8+Q[3]*4}
  // masa aktif: [mulai, selesai, kecepatan]. Melambat sebelum berhenti; bisa kembali saat era banner baru
  const segs=[];if(quit===Infinity)segs.push([join,Infinity,a]);
  else{const qT=join+quit*BDAY,fadeAt=join+quit*(1-C.FADE)*BDAY;segs.push([join,fadeAt,a],[fadeAt,qT,a*C.FADE_RATE]);
   const era=C.ERAS.find(e=>e.at>qT);if(era&&r()<C.COMEBACK.p){const s0=era.at+r()*BDAY,len=(C.COMEBACK.days[0]+r()*(C.COMEBACK.days[1]-C.COMEBACK.days[0]))*BDAY;segs.push([s0,s0+len,a*C.COMEBACK.rate])}}
- const B=BOTS.base[i]={i,pf:pf.id,pfo:pf,a,quit,join,chaser:chaser2,chrono,opt:opt2,segs,seed:bHash(i,2),endT:segs[segs.length-1][1],back:segs.length>2,
+ const B=BOTS.base[i]={i,pf:pf.id,pfo:pf,sk,cv:C.CURVES[pf.id+'_'+sk]?pf.id+'_'+sk:pf.id,a,quit,join,chaser:chaser2,chrono,opt:opt2,segs,seed:bHash(i,2),endT:segs[segs.length-1][1],back:segs.length>2,
   tier,mood,saver:!tier.pf&&chaser2&&Q[4]<EM.saver,spend0:join+(SP.firstDay[0]+Q[5]*(SP.firstDay[1]-SP.firstDay[0]))*BDAY,cardP:Q[6]<(tier.card||0),
   bioEvery:LF.bioEvery[0]+Q[7]*(LF.bioEvery[1]-LF.bioEvery[0]),loyal:Q[8]<LF.loyal,rn:null};
  if(Q[9]<LF.rename.p){const t=join+(LF.rename.days[0]+Q[10]*(LF.rename.days[1]-LF.rename.days[0]))*BDAY;if(t<B.endT)B.rn={t:botSnap(B,t),k:Math.floor(Q[11]*LF.rename.pool)}}
@@ -105,8 +109,25 @@ function botSaveTimes(b,ts,now){if(!b.saver)return{ts,held:0};const E=BOT_CFG.ER
   hold.push(t);if(hold.length>=BOT_CFG.EMO.saveCap){out.push(...hold.map(()=>t));hold=[]}}
  return{ts:out.filter(t=>t<=now).sort((x,y)=>x-y),held:hold.length+out.filter(t=>t>now).length}}
 // progres (hari bermain efektif) pada waktu t, dan kebalikannya
-function botProg(b,t){let P=0;for(const[s0,s1,r]of b.segs){if(t<=s0)break;P+=r*(Math.min(t,s1)-s0)/BDAY}return P}
-function botProgInv(b,P){let acc=0;for(const[s0,s1,r]of b.segs){const len=(s1-s0)/BDAY*r;if(acc+len>=P)return s0+(P-acc)/r*BDAY;acc+=len}return Infinity}
+// progres linear (masa aktif × kecepatan)
+function botProgLin(b,t){let P=0;for(const[s0,s1,r]of b.segs){if(t<=s0)break;P+=r*(Math.min(t,s1)-s0)/BDAY}return P}
+function botProgInvLin(b,P){let acc=0;for(const[s0,s1,r]of b.segs){const len=(s1-s0)/BDAY*r;if(acc+len>=P)return s0+(P-acc)/r*BDAY;acc+=len}return Infinity}
+/* Progres hanya bertambah saat bot sedang MAIN: jatah progres satu "hari progres" (05:00–05:00 WIB, jam paling sepi)
+   dibagi ke sesi-sesi main hari itu. Saat offline angkanya diam; saat online naik sedikit demi sedikit. */
+const PDAY_H=5;
+const pDay=t=>Math.floor((t+(BOT_CFG.TZ-PDAY_H)*36e5)/BDAY),pDayStart=d=>d*BDAY-(BOT_CFG.TZ-PDAY_H)*36e5;
+const BPLAY=new Map();
+function botPlay(b,d){const k=b.i*100000+d;let o=BPLAY.get(k);if(o)return o;const ds=pDayStart(d),de=ds+BDAY,L=[];
+ for(let w=wibDay(ds);w<=wibDay(de);w++)for(const[s0,s1]of botSessions0(b,w)){const a=Math.max(s0,ds),z=Math.min(s1,de);if(z>a)L.push([a,z])}
+ if(b.join>=ds&&b.join<de)L.push([b.join,Math.min(de,b.join+15*6e4)]);   // sesi pertama: tutorial saat baru bergabung
+ L.sort((x,y)=>x[0]-y[0]);const M=[];for(const s of L){const l=M[M.length-1];if(l&&s[0]<=l[1])l[1]=Math.max(l[1],s[1]);else M.push(s.slice())}
+ o={L:M,tot:M.reduce((a,s)=>a+s[1]-s[0],0)};if(BPLAY.size>80000)BPLAY.clear();BPLAY.set(k,o);return o}
+function botProg(b,t){if(t<=b.join)return 0;const d=pDay(t),ds=pDayStart(d),a=botProgLin(b,Math.max(ds,b.join)),z=botProgLin(b,ds+BDAY);if(z<=a)return a;
+ const S=botPlay(b,d);if(!S.tot)return a;let x=0;for(const[s0,s1]of S.L){if(t<=s0)break;x+=Math.min(t,s1)-s0}return a+(z-a)*x/S.tot}
+// kebalikan: kapan progres P tercapai (selalu di dalam sesi main)
+function botProgInv(b,P){const tl=botProgInvLin(b,P);if(!isFinite(tl))return tl;const d=pDay(tl),ds=pDayStart(d),a=botProgLin(b,Math.max(ds,b.join)),z=botProgLin(b,ds+BDAY);
+ const S=botPlay(b,d);if(z<=a||!S.tot){for(let e=d+1;e<=d+4;e++){const T=botPlay(b,e);if(T.tot)return T.L[0][0]}return tl}
+ let x=(P-a)/(z-a)*S.tot;for(const[s0,s1]of S.L){if(x<=s1-s0)return s0+x;x-=s1-s0}return S.L[S.L.length-1][1]}
 const botActive=(b,t)=>b.segs.some(([s0,s1])=>t>=s0&&t<s1);
 
 /* ---- kurva per gaya main (hasil simulasi) ---- */
@@ -119,7 +140,7 @@ function botLv(pf,P){const T=BOT_CFG.CURVES[pf],L=T[T.length-1];if(P<=L[0])retur
  if(BXP[pf]==null){const a=T[T.length-1-BOT_CFG.XP_TAIL_DAYS];let xp=0;for(let l=a[1];l<L[1];l++)xp+=expNeed(l);BXP[pf]=xp/(L[0]-a[0])}
  let lv=L[1],xp=(P-L[0])*BXP[pf];while(lv<999&&xp>=expNeed(lv)){xp-=expNeed(lv);lv++}return lv}
 // waktu bot mencapai level akun L (dari kurva level gaya mainnya)
-function botLvTime(b,L){const T=BOT_CFG.CURVES[b.pf];for(let k=1;k<T.length;k++)if(T[k][1]>=L){const a=T[k-1],c=T[k];return botProgInv(b,a[0]+(c[0]-a[0])*(L-a[1])/Math.max(1e-9,c[1]-a[1]))}return botProgInv(b,T[T.length-1][0])}
+function botLvTime(b,L){const T=BOT_CFG.CURVES[b.cv];for(let k=1;k<T.length;k++)if(T[k][1]>=L){const a=T[k-1],c=T[k];return botProgInv(b,a[0]+(c[0]-a[0])*(L-a[1])/Math.max(1e-9,c[1]-a[1]))}return botProgInv(b,T[T.length-1][0])}
 // progres saat total summon mencapai n
 function botSumInv(pf,n){const T=BOT_CFG.CURVES[pf];if(n<=T[0][2])return 0;for(let k=1;k<T.length;k++)if(T[k][2]>=n){const a=T[k-1],b=T[k];return a[0]+(b[0]-a[0])*(n-a[2])/Math.max(1e-9,b[2]-a[2])}
  const L=T[T.length-1];return L[0]+(n-L[2])/Math.max(1e-9,bTail(pf,2))}
@@ -135,10 +156,10 @@ function eraPool(t,isW,up){const k=eraIdx(t),E=BOT_CFG.ERAS[k],av=HEROES.filter(
  return BPOOL[key]=P}
 
 /* ---- gacha tersimulasi sepanjang waktu (peluang asli + banner yang aktif saat itu) ---- */
-function botGacha(b,P,now=Date.now()){const C=BOT_CFG,total=Math.max(0,botCurve(b.pf,2,P)),nH=Math.floor(total*C.HERO_SHARE),nW=Math.floor(total*(1-C.HERO_SHARE));
+function botGacha(b,P,now=Date.now()){const C=BOT_CFG,total=Math.max(0,botCurve(b.cv,2,P)),nH=Math.floor(total*C.HERO_SHARE),nW=Math.floor(total*(1-C.HERO_SHARE));
  const heroes={},weapons={},ev=[];STARTERS().forEach(id=>heroes[id]={lv:1,lb:0,wpn:null});STARTERS().map(id=>basicWeapon(HD[id].wcls)).filter(Boolean).forEach(w=>weapons[w]=newWpn());
  // waktu tiap tarikan: gratis (dari kurva progres) + berbayar (dari top up), lalu diurutkan
- const fT=(k,share)=>Math.max(b.join,botProgInv(b,botSumInv(b.pf,k/share))),tH=[],tW=[];
+ const fT=(k,share)=>Math.max(b.join,botProgInv(b,botSumInv(b.cv,k/share))),tH=[],tW=[];
  for(let k=0;k<nH;k++)tH.push(fT(k,C.HERO_SHARE));for(let k=0;k<nW;k++)tW.push(fT(k,1-C.HERO_SHARE));
  const SP=botSpend(b,now),paid=botPaidPulls(SP.gems);paid.forEach((t,k)=>(bHash(b.i,9000+k)%100<C.SPEND.heroShare*100?tH:tW).push(t));
  const sv=botSaveTimes(b,tH.sort((x,y)=>x-y),now);tW.sort((x,y)=>x-y);
@@ -156,10 +177,10 @@ function botBestTeam(ids){const top=ids.map(id=>[id,heroPow(id)]).sort((a,b)=>b[
  const rec=(st,cur)=>{if(cur.length===k){const v=teamCP(cur).total;if(v>bv){bv=v;best=cur.slice()}return}for(let j=st;j<top.length;j++){cur.push(top[j]);rec(j+1,cur);cur.pop()}};rec(0,[]);return best}
 
 /* ---- Kebangkitan bot: anggaran bahan sejak (perkiraan) menembus 5-5, dibelanjakan berurutan ★4 → ★5 → ★6 ---- */
-function botAscend(b,P,opt,core,heroes,weapons,gear,lvF){const A=BOT_CFG.ASC;if(!A)return;
+function botAscend(b,P,opt,core,heroes,weapons,gear,lvF){const C0=BOT_CFG,A=C0.ASC;if(!A)return;
  const pre=teamCP(core.slice(0,4)).total;if(pre<A.minCP)return;
  // perkiraan hari sejak CP melewati minCP (CP kira-kira tumbuh sebanding hari main)
- let B=P*(1-A.minCP/pre)*A.perDay*(A.tier[b.tier.id]||1)*(.55+.45*opt);if(B<=0)return;
+ let B=P*(1-A.minCP/pre)*A.perDay*(A.tier[b.tier.id]||1)*(C0.SKILL[b.sk].asc||1)*(.55+.45*opt);if(B<=0)return;
  const steps=[];for(const s of[4,5,6]){for(const id of core.slice(0,4))steps.push(['h',id,s]);for(const id of core.slice(0,4))if(heroes[id].wpn)steps.push(['w',heroes[id].wpn,s]);
   for(const id of core.slice(0,4))for(const sl of['ar','ac'])if(heroes[id][sl])steps.push(['g',heroes[id][sl],s])}
  for(const[k,key,s]of steps){const c=A.cost[k][s];if(B<c)break;B-=c;
@@ -169,7 +190,7 @@ function botAscend(b,P,opt,core,heroes,weapons,gear,lvF){const A=BOT_CFG.ASC;if(
 
 /* ---- keadaan bot pada waktu now ---- */
 // kunci cache: berubah hanya saat progres/level/era/top up/tabungan berubah
-function botKey(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now),lv=botLv(b.pf,P),sp0=botSpend(b,now);return{b,P,lv,key:Math.floor(P*48)+':'+lv+':'+C.ERAS.length+':'+sp0.gems.length+':'+(b.saver?Math.floor(now/36e5):0)}}
+function botKey(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now),lv=botLv(b.cv,P),sp0=botSpend(b,now);return{b,P,lv,key:Math.floor(P*96)+':'+lv+':'+C.ERAS.length+':'+sp0.gems.length+':'+(b.saver?Math.floor(now/36e5):0)}}
 function botState(i,now=Date.now()){const C=BOT_CFG,{b,P,lv,key}=botKey(i,now);const c=BOTS.cache[i];if(c&&c.key===key)return c;
  const G=botGacha(b,P,now),heroes=G.heroes,weapons=G.weapons;
  const F={lv,exp:0,heroes,weapons,gear:{},team:[],mats:{}};const keep=S;S=F;let out;
@@ -180,7 +201,7 @@ function botState(i,now=Date.now()){const C=BOT_CFG,{b,P,lv,key}=botKey(i,now);c
   const fav=!b.loyal&&lastLim?lastLim.id:firstH?firstH.id:own[bHash(i,9)%own.length];
   const ids=own.sort((x,y)=>maxLvRaw(y)-maxLvRaw(x)||HD[y].r-HD[x].r||heroes[y].lb-heroes[x].lb||(x<y?-1:1));const core=ids.slice(0,4);if(!core.includes(fav))core.push(fav);
   const lvF={};ids.forEach(id=>{const f=core.includes(id)?opt+r()*(1-opt):C.BENCH_LV[0]+r()*(C.BENCH_LV[1]-C.BENCH_LV[0])*(.6+.4*opt);lvF[id]=f;heroes[id].lv=Math.max(1,Math.min(Math.round(maxLv(id)*f),2+3*lv))});   // awal main: level hero dibatasi emas (Lv1 ±5, Lv3 ±11, Lv8 menyusul batas akun)
-  const wl=Math.round(botCurve(b.pf,3,P)*(.8+.2*opt)),wlb=Math.floor(botCurve(b.pf,4,P)*(opt>.8?1:.75)+.001),used=new Set();
+  const wl=Math.round(botCurve(b.cv,3,P)*(.8+.2*opt)),wlb=Math.floor(botCurve(b.cv,4,P)*(opt>.8?1:.75)+.001),used=new Set();
   for(const id of ids){const cls=HD[id].wcls;const cand=Object.keys(weapons).filter(w=>WD[w].cls===cls&&!used.has(w)).sort((x,y)=>(WD[y].owner===id)-(WD[x].owner===id)||WD[y].r-WD[x].r||weapons[y].ref-weapons[x].ref);
    // pemain kurang optimal kadang lupa memasang senjata terbaik
    const w=cand.length>1&&r()>opt+.15?cand[1]:cand[0];if(!w)continue;used.add(w);heroes[id].wpn=w;const o=weapons[w],isC=core.includes(id);o.lb=Math.min(WPN_LB_MAX,isC?wlb:Math.floor(wlb/2));o.lv=Math.max(1,Math.min(wMaxLv(w),isC?wl:Math.round(wl*.6)))}
@@ -195,24 +216,30 @@ function botState(i,now=Date.now()){const C=BOT_CFG,{b,P,lv,key}=botKey(i,now);c
   const n3=G.ev.length,exp3=(G.nH+G.nW)*RATES[3]/100*1.05,z=(n3-exp3)/Math.sqrt(Math.max(1,exp3)),luck=z>1?'hoki':z<-1?'sial':'normal';
   let days=0;for(const[s0,s1]of b.segs){if(now<=s0)break;days+=(Math.min(now,s1)-s0)/BDAY}
   out={i,key,lv,P,heroes,weapons,gear:F.gear,team,fav,pw,cp:teamCP(team).total,ev:G.ev,
-   stats:{sum:G.nH+G.nW,s3:n3,lim3:G.ev.filter(e=>e.lim).length,luck,days:Math.max(1,Math.ceil(days)),hours:Math.max(.1,botCurve(b.pf,5,P)),
+   stats:{sum:G.nH+G.nW,s3:n3,lim3:G.ev.filter(e=>e.lim).length,luck,days:Math.max(1,Math.ceil(days)),hours:Math.max(.1,botCurve(b.cv,5,P)),
     paid:G.paid,held:G.held,pity:G.pity,spent:G.spend.total,vip:G.spend.vip,card:G.spend.card,buys:G.spend.buys.length}};
  }finally{S=keep}
- let st=null;for(const s of SLIST){if(s.rec<=out.cp*1.08)st=s;else break}out.stage=st?st.key:'1-1';
+ let nCP=0;for(const s of SLIST){if(s.rec<=out.cp*1.12)nCP++;else break}
+ const T=C.CURVES[b.cv],Lc=T[T.length-1];let nS=Lc[6]!=null?Math.floor(botCurve(b.cv,6,P)+1e-6):nCP;nS=Math.min(nS,nCP);if(P>Lc[0])nS=Math.max(nS,nCP);
+ out.stage=SLIST[Math.max(0,Math.min(SLIST.length,nS)-1)].key;out.stN=nS;
  const ov=typeof botOv==='function'&&botOv(i);if(ov){if(ov.lv!=null)out.lv=ov.lv;if(ov.cp!=null)out.cp=ov.cp;if(ov.vip!=null)out.stats.vip=ov.vip}
  if(!BOTS.cache[i]&&++BOTS.cacheN>15000){BOTS.cache={};BOTS.cacheN=1}
  return BOTS.cache[i]=out}
 
 /* ---- online / terakhir aktif: sesi harian mengikuti jam ramai WIB ---- */
 const BSES=new Map();
-function botSessions(b,day){const k=b.i*100000+day;if(BSES.has(k))return BSES.get(k);const C=BOT_CFG,pf=b.pfo,r=bRng(bHash(b.i,1000+day)),dow=new Date(day*BDAY).getUTCDay(),wk=dow===0||dow===6;
- let n=pf.sess[0]+Math.floor(r()*(pf.sess[1]-pf.sess[0]+1))+(wk?C.WEEKEND_EXTRA:0);const W=C.HOURS,tot=W.reduce((a,v)=>a+v,0),out=[];
- for(let s=0;s<n;s++){let x=r()*tot,h=0;for(;h<23;h++){if(x<W[h])break;x-=W[h]}h=(h+b.chrono+24)%24;
-  const st=day*BDAY-C.TZ*36e5+(h*60+Math.floor(r()*60))*6e4,len=(pf.len[0]+r()*(pf.len[1]-pf.len[0]))*6e4;if(botActive(b,st))out.push([st,st+len])}
+const BSES0=new Map();
+function botSessions(b,day){const k=b.i*100000+day;if(BSES.has(k))return BSES.get(k);const out=botSessions0(b,day).slice();
  // Bos Dunia: bot yang ikut raid login menjelang naga muncul & bertahan sampai selesai (systems/worldboss.js)
  if(typeof wbAttend==='function')for(const h of WB_CFG.slots){const a=wbAttend(b,wbSlotT(day,h));if(a)out.push([a.arrive,a.off])}
  out.sort((a,c)=>a[0]-c[0]);const M=[];for(const s of out){const L=M[M.length-1];if(L&&s[0]<=L[1])L[1]=Math.max(L[1],s[1]);else M.push(s.slice())}
  if(BSES.size>60000)BSES.clear();BSES.set(k,M);return M}
+function botSessions0(b,day){const k=b.i*100000+day;if(BSES0.has(k))return BSES0.get(k);const C=BOT_CFG,pf=b.pfo,r=bRng(bHash(b.i,1000+day)),dow=new Date(day*BDAY).getUTCDay(),wk=dow===0||dow===6;
+ let n=pf.sess[0]+Math.floor(r()*(pf.sess[1]-pf.sess[0]+1))+(wk?C.WEEKEND_EXTRA:0);const W=C.HOURS,tot=W.reduce((a,v)=>a+v,0),out=[];
+ for(let s=0;s<n;s++){let x=r()*tot,h=0;for(;h<23;h++){if(x<W[h])break;x-=W[h]}h=(h+b.chrono+24)%24;
+  const st=day*BDAY-C.TZ*36e5+(h*60+Math.floor(r()*60))*6e4,len=(pf.len[0]+r()*(pf.len[1]-pf.len[0]))*6e4;if(botActive(b,st))out.push([st,st+len])}
+ out.sort((a,c)=>a[0]-c[0]);const M=[];for(const s of out){const L=M[M.length-1];if(L&&s[0]<=L[1])L[1]=Math.max(L[1],s[1]);else M.push(s.slice())}
+ if(BSES0.size>60000)BSES0.clear();BSES0.set(k,M);return M}
 const wibDay=(t=Date.now())=>Math.floor((t+BOT_CFG.TZ*36e5)/BDAY);
 function botPresence(i,now=Date.now()){const b=botBase(i);if(now<b.join)return{online:false,last:b.join};if(now-b.join<15*6e4)return{online:true,last:now};
  const from=Math.min(now,b.endT),d0=wibDay(from);
@@ -224,7 +251,7 @@ function botSnap(b,t){for(let d=wibDay(t);d<=wibDay(t)+3;d++){for(const[s0,s1]of
 /* ---- ringkasan bot (CP, level, VIP, hero) — skala sampai 100rb bot ----
    Bot yang sudah berhenti (endT lewat) tidak berubah lagi → ringkasannya disimpan di localStorage dan tidak dihitung ulang.
    Bot aktif: dari botState (cache penuh dibatasi ±5000 objek). Ganti SUM_VER bila keseimbangan CP berubah. */
-const SUM_VER=1,BSUM={d:{},key:'',dirty:0,at:0};
+const SUM_VER=2,BSUM={d:{},key:'',dirty:0,at:0};
 const bsumKey=()=>BOTS.gen+':'+SUM_VER+':'+BOT_CFG.ERAS.length+':'+HEROES.length+':'+BOT_CFG.epoch;
 function bsumLoad(){const k=bsumKey();if(BSUM.key===k)return;BSUM.key=k;BSUM.d={};for(const q in BSUMA)delete BSUMA[q];try{const o=JSON.parse(localStorage.getItem('aster_botsum')||'null');if(o&&o.k===k){const D=o.d||{};for(const i in D){const x=D[i];BSUM.d[i]=Array.isArray(x)?{cp:x[0],lv:x[1],vip:x[2],top:x[3],st:x[4]}:x}}}catch(e){}}
 function bsumSave(){if(!BSUM.dirty||Date.now()-BSUM.at<3e4)return;BSUM.at=Date.now();BSUM.dirty=0;const d={};for(const i in BSUM.d){const o=BSUM.d[i];d[i]=[o.cp,o.lv,o.vip,o.top,o.st]}
@@ -233,31 +260,39 @@ function bsumSave(){if(!BSUM.dirty||Date.now()-BSUM.at<3e4)return;BSUM.at=Date.n
  try{localStorage.setItem('aster_botsum',j)}catch(e){try{localStorage.removeItem('aster_botsum')}catch(e2){}}}
 const botFrozen=(i,now=Date.now())=>{const b=botBase(i);return b.endT<now-6e4};
 const BSUMA={};   // ringkasan bot aktif di memori, berlaku selama kunci botKey sama
-function botSum(i,now=Date.now()){bsumLoad();const fz=botFrozen(i,now);let o=fz?BSUM.d[i]:null;
- if(!o&&!fz){const k=botKey(i,now).key,a=BSUMA[i];if(a&&a.k===k)o=a.o}
+// sync=false: boleh memakai ringkasan lama sebentar; bot itu masuk antrean penyegaran latar (BSQ) -> daftar tetap ringan & angka naik sendiri
+const BSQ=new Set();
+function botSum(i,now=Date.now(),sync=false){bsumLoad();const fz=botFrozen(i,now);let o=fz?BSUM.d[i]:null;
+ if(!o&&!fz){const k=botKey(i,now).key,a=BSUMA[i];if(a&&a.k===k)o=a.o;else if(a&&!sync){o=a.o;BSQ.add(i)}}
  if(!o){const s=botState(i,now);o={cp:s.cp,lv:s.lv,vip:s.stats.vip,top:s.fav||s.team[0],st:s.stage};if(fz){BSUM.d[i]=o;BSUM.dirty++}else BSUMA[i]={k:s.key,o}}
  const ov=typeof botOv==='function'&&botOv(i);if(ov&&(ov.lv!=null||ov.cp!=null||ov.vip!=null))o=Object.assign({},o,ov.lv!=null?{lv:ov.lv}:{},ov.cp!=null?{cp:ov.cp}:{},ov.vip!=null?{vip:ov.vip}:{});return o}
 const botPres=(i,now)=>botFrozen(i,now)?{online:false,last:botBase(i).endT}:botPresence(i,now);
 /* ---- daftar semua bot yang tampil (+ pemain sendiri) ---- */
 const BLM={t:0,n:-1,L:null};
-function botsList(now=Date.now()){const n=botsVisible(now);let L;if(BLM.L&&BLM.n===n&&Math.abs(now-BLM.t)<2e4&&!BOTS.warming){L=BLM.L.map(e=>Object.assign({},e))}else{L=[];for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const s=botSum(i,now),p=botPres(i,now),b=botBase(i);L.push({i,name:botName(i,now),vip:s.vip,lv:s.lv,cp:s.cp,top:s.top,online:p.online,last:p.last,isNew:now-b.join<BDAY,back:b.back&&now>=b.segs[2][0]})}
+function botsList(now=Date.now()){const n=botsVisible(now);let L;if(BLM.L&&BLM.n===n&&Math.abs(now-BLM.t)<6e3&&!BOTS.warming){L=BLM.L.map(e=>Object.assign({},e))}else{L=[];for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const s=botSum(i,now),p=botPres(i,now),b=botBase(i);L.push({i,name:botName(i,now),vip:s.vip,lv:s.lv,cp:s.cp,top:s.top,online:p.online,last:p.last,isNew:now-b.join<BDAY,back:b.back&&now>=b.segs[2][0]})}
  bsumSave();BLM.t=now;BLM.n=n;BLM.L=L.map(e=>Object.assign({},e))}
  if(typeof NET!=='undefined')for(const p of NET.players){if(NET.acct&&p.uid===NET.acct.uid)continue;L.push({i:'h'+p.uid,h:p.uid,name:p.u,vip:p.vip||0,lv:p.lv,cp:p.cp,top:p.top,online:p.on,last:p.last})}
  L.push({me:true,name:S.name,vip:vipOf(S.iap&&S.iap.spent||0),lv:S.lv,cp:teamPow(),top:S.team.find(Boolean),online:true,last:now});return L}
 
 /* ---- hitung state semua bot sedikit demi sedikit (±10 ms per potong) supaya layar tidak membeku saat bot ribuan ---- */
 function botsWarm(cb){if(cb)(BOTS.warmCb=BOTS.warmCb||[]).push(cb);if(BOTS.warming)return;BOTS.warming=true;let i=0;const now=Date.now();
- const step=()=>{const n=botsVisible(now),t0=performance.now();try{while(i<n&&performance.now()-t0<10){botSum(i,now);botPres(i,now);i++}}catch(e){i=n}
+ const step=()=>{const n=botsVisible(now),t0=performance.now();try{while(i<n&&performance.now()-t0<10){botSum(i,now,true);botPres(i,now);i++}}catch(e){i=n}
   if(i<n){setTimeout(step,0);return}bsumSave();BOTS.warming=false;BOTS.warmAt=Date.now();const L=BOTS.warmCb||[];BOTS.warmCb=[];L.forEach(f=>{try{f()}catch(e){}})};
  setTimeout(step,0)}
 const botsWarmOk=()=>!!BOTS.warmAt&&!BOTS.warming;
+// penyegaran realtime: bot yang ringkasannya basi dihitung ulang di latar (potongan ±8 ms), lalu daftar/peringkat yang terbuka ikut diperbarui
+function botsFresh(){if(!BSQ.size||BOTS.warming||BOTS.fresh)return;BOTS.fresh=true;const Q=[...BSQ];BSQ.clear();let k=0,ch=0;
+ const step=()=>{const now=Date.now(),t0=performance.now();try{while(k<Q.length&&performance.now()-t0<8){const i=Q[k++],a=BSUMA[i],o0=a&&a.o,o=botSum(i,now,true);if(!o0||o0.cp!==o.cp||o0.lv!==o.lv)ch++}}catch(e){k=Q.length}
+  if(k<Q.length){setTimeout(step,0);return}BOTS.fresh=false;if(ch){BLM.t=0;if(typeof BOTS.onChange==='function')try{BOTS.onChange()}catch(e){}}};
+ setTimeout(step,0)}
+setInterval(botsFresh,8e3);
 
 /* ================= DUNIA BOT: epoch & generasi (bisa di-reset) =================
    'bots/world' = {epoch, gen}. Reset -> epoch = sekarang, gen+1 (semua bot jadi karakter baru, mulai hari ke-1).
    Disimpan bersama di db supaya semua pemain melihat dunia yang sama; cadangan di localStorage. */
 const BW_KEY='aster_botworld';
 function botsApplyWorld(w){if(!w||!w.epoch)return;if(w.epoch===BOT_CFG.epoch&&(w.gen||0)===BOTS.gen)return;
- BOT_CFG.epoch=w.epoch;BOTS.gen=w.gen||0;BOTS.base={};BOTS.cache={};BOTS.cacheN=0;BSUM.key='';for(const k in BSUMA)delete BSUMA[k];BOTS.seen=0;BOTS.warmAt=0;
+ BOT_CFG.epoch=w.epoch;BOTS.gen=w.gen||0;BOTS.base={};BOTS.cache={};BOTS.cacheN=0;BSUM.key='';for(const k in BSUMA)delete BSUMA[k];BSQ.clear();BSES.clear();BSES0.clear();BPLAY.clear();for(const k in BSPEND)delete BSPEND[k];BSPEND_N=0;BLM.L=null;BOTS.seen=0;BOTS.warmAt=0;
  try{localStorage.setItem(BW_KEY,JSON.stringify({epoch:w.epoch,gen:BOTS.gen}));localStorage.removeItem('aster_ranksnap')}catch(e){}
  if(typeof S!=='undefined'&&S&&S.rankDay&&(S.rankDay.gen||0)!==BOTS.gen){S.rankDay={gen:BOTS.gen}}
  if(typeof rankReset==='function')rankReset();BOTS.onChange&&BOTS.onChange();botsEnsure()}

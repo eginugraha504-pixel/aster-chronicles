@@ -46,7 +46,7 @@ const AR={board:null,at:0};
 function arBotLast(b,now){let t=-1;for(const[s0,s1]of b.segs){if(now<s0)break;t=Math.min(now,s1)}return t}
 function arBotPts(i,pct,now){const b=botBase(i),C=ARENA_CFG,wk=arWeek(now),ws=arWeekStart(wk),t=arBotLast(b,now);if(t<ws)return null;  // belum aktif di musim ini
  const t10=botLvTime(b,FEAT.arena.lv||10);if(t<t10)return null;   // Arena baru terbuka di Lv 10
- const tgt=w=>{const r=bRng(bHash(i,5000+w));return Math.max(900,C.start+C.bot.span*Math.pow(pct,C.bot.curve)+(r()-.5)*C.bot.jitter)};
+ const tgt=w=>{const r=bRng(bHash(i,5000+w));return Math.max(900,C.start+C.bot.span*Math.pow(pct,C.bot.curve)+(r()-.5)*C.bot.jitter+((C.bot.sk||{})[b.sk]||0))};
  const s0=b.join<ws?C.start+Math.max(0,tgt(wk-1)-C.start)*C.soft:C.start;
  const days=(t-Math.max(ws,b.join,t10))/BDAY,f=1-Math.exp(-Math.max(0,days)*(C.bot.speed[b.pf]||.5)*.9);
  const h=Math.floor(t/36e5),wig=Math.round(Math.sin(h*1.7+i*.37)*10*f);

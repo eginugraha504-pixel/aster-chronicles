@@ -2628,16 +2628,35 @@ const BOT_CFG={
  // profil gaya main. a = variasi kecepatan relatif kurva profilnya; sess = sesi per hari [min,maks];
  // opt = seberapa optimal pemain menyusun tim/meningkatkan senjata; chrono = geser jam main (jam)
  profiles:[
-  {id:'santai',  w:40,a:[.75,1.15],sess:[1,3],opt:.55,len:[6,18]},
-  {id:'reguler', w:35,a:[.8,1.15], sess:[3,5],opt:.72,len:[8,22]},
-  {id:'rajin',   w:20,a:[.85,1.12],sess:[5,7],opt:.86,len:[10,30]},
-  {id:'hardcore',w:5, a:[.9,1.1],  sess:[7,10],opt:.97,len:[15,45]},
+  {id:'santai',  w:40,a:[.75,1.15],sess:[1,3],opt:.55,len:[6,18], sk:{baru:45,biasa:45,veteran:10}},
+  {id:'reguler', w:35,a:[.8,1.15], sess:[3,5],opt:.72,len:[8,22], sk:{baru:30,biasa:50,veteran:20}},
+  {id:'rajin',   w:20,a:[.85,1.12],sess:[5,7],opt:.86,len:[10,30],sk:{baru:15,biasa:50,veteran:35}},
+  {id:'hardcore',w:5, a:[.9,1.1],  sess:[7,10],opt:.97,len:[15,45],sk:{baru:5, biasa:35,veteran:60}},
  ],
-  CURVES:{ // [hari bermain, level akun, total summon (hero+senjata), rata2 level senjata tim, rata2 LB senjata tim, jam main] — dari test/runsim.py
-   santai:[[0,1,0,1,0,0],[0.05,5,50,15,0,0.05],[1,11,67,30,1,0.3],[2,15,104,30,1,0.6],[3,18,117,30,1,0.8],[4,23,134,35,1.5,1.3],[5,24,156,32.5,1.25,1.3],[6,26,190,32.5,1.25,1.7],[7,29,202,35,1.5,1.9],[8,30,232,37.8,2,2.1],[9,31,238,40,2,2.2],[10,33,240,40,2,2.5],[11,35,267,42.5,2.25,2.8],[12,37,268,42.5,2.25,3.1],[13,39,269,42.5,2.25,3.3],[14,41,281,42.5,2.25,3.7],[15,43,283,42.5,2.25,4],[16,44,284,45,2.5,4.2],[17,45,285,47.5,3,4.3],[18,46,298,50.5,3.25,4.4],[19,47,300,55,3.5,4.5],[20,47,301,57,3.75,4.6]],
-   reguler:[[0,1,0,1,0,0],[0.05,5,69,15,0,0.05],[1,13,92,8.3,0.25,0.3],[2,17,104,22.5,0.5,0.6],[3,22,132,27.5,0.75,1.1],[4,29,144,30,1,1.9],[5,32,196,35,1.5,2.3],[6,35,208,37.5,1.75,2.8],[7,39,253,37.5,1.75,3.5],[8,43,266,40,2,4.1],[9,45,296,44.5,2.5,4.4],[10,47,297,47.5,2.75,4.8],[11,49,299,51.3,3.25,5.1],[12,51,313,57.5,3.75,5.3],[13,53,326,60,4,5.7],[14,55,327,60,4,6.2],[15,58,328,60,4,6.7],[16,60,329,60,4,7.3],[17,63,330,60,4,7.9],[18,65,332,60,4,8.5],[19,67,344,60,4,9.1],[20,69,345,60,4,9.7]],
-   rajin:[[0,1,0,1,0,0],[0.05,5,50,15,0,0.05],[1,15,67,32.5,1.25,0.5],[2,20,79,32.5,1.25,1.1],[3,25,133,35,1.5,1.8],[4,31,171,36.5,1.75,2.5],[5,36,182,37.5,1.75,3.2],[6,41,239,37.5,1.75,4.1],[7,44,251,40,2,4.7],[8,48,264,47,2.75,5.2],[9,50,296,53.3,3.5,5.6],[10,53,308,60,4,6],[11,56,310,60,4,6.8],[12,60,311,60,4,7.7],[13,63,324,60,4,8.5],[14,66,325,60,4,9.3],[15,69,326,60,4,10.1],[16,72,327,60,4,10.9],[17,75,329,60,4,11.7],[18,78,342,60,4,12.5],[19,80,343,60,4,13.2],[20,83,344,60,4,14]],
-   hardcore:[[0,1,0,1,0,0],[0.05,5,80,15,0,0.05],[1,22,107,30,1,1.1],[2,31,142,30.5,1.5,2.1],[3,39,203,35,1.5,3.2],[4,46,233,40.5,2.25,4.2],[5,50,269,52.5,3.5,4.7],[6,55,280,60,4,5.5],[7,60,291,60,4,6.6],[8,65,292,60,4,7.7],[9,70,298,60,4,8.8],[10,75,299,60,4,10],[11,79,300,60,4,11.1],[12,83,315,60,4,12.2],[13,86,316,60,4,13.3],[14,90,317,60,4,14.4],[15,93,318,60,4,15.4],[16,96,320,60,4,16.5],[17,100,321,60,4,17.6],[18,103,333,60,4,18.7],[19,106,334,60,4,19.7],[20,108,335,60,4,20.8]],
+ // pengalaman main — terpisah dari seberapa sering login (profil) dan seberapa banyak belanja (tier).
+ //  baru    : pertama kali main gacha. Membaca cerita, tempur ×1, tarik satu-satu, emas habis untuk hero cadangan, lupa dungeon.
+ //            Belajar sendiri: ±10 hari kemudian bermain seperti pemain biasa (tercermin di kurvanya).
+ //  biasa   : paham dasar; kadang skip cerita, Sapu saat mentok, dungeon yang dibutuhkan. Makin lama makin mendekati veteran.
+ //  veteran : sudah biasa main game sejenis. Skip cerita, tempur ×3, semua tiket dungeon disapu tiap hari, bakar stamina di tahap
+ //            tertinggi dengan Sapu saat mentok, beli bijih & stamina di Toko Emas, lebur barang sampah, Arena & Bos Dunia rutin.
+ // opt = tambahan ketelitian menyusun tim; asc = pengali anggaran Kebangkitan; churn = pengali peluang berhenti main
+ SKILL:{baru:{opt:-.12,asc:.6,churn:1.25},biasa:{opt:0,asc:1,churn:1},veteran:{opt:.1,asc:1.5,churn:.8}},
+  CURVES:{ // [hari bermain efektif, level akun, total summon (hero+senjata), rata2 level senjata tim, rata2 LB senjata tim, jam main, tahap cerita tamat]
+  // kunci = profil_pengalaman. Dari simulasi pemain F2P yang memainkan game ASLI (tools/botsim: sim2.js + runall.sh, 2 seed × 30 hari, dirata-rata):
+  // cerita (dibaca/dilewati), tutorial, Sapu tahap & dungeon, Toko Emas, lebur, Arena, Bos Dunia, misi & event.
+  // Setelah update besar: build, jalankan `tools/botsim/runall.sh 30` lalu `python3 tools/botsim/mkcurves.py` dan salin hasilnya ke sini.
+  santai_baru:[[0,1,0,1,0,0,0],[0.03,2.5,18,5.5,0,0.39,4.5],[1,3,44,5.5,0,0.59,7],[1.5,3.5,56,6.5,0,0.79,8.5],[2,4.5,64,6.7,0,0.98,8.5],[2.5,10.5,78,6.7,0,1.17,9],[3,11,100,6.7,0,1.43,11],[4,17.5,117,6.7,0,1.82,12],[5,19.5,142,6.7,0,2.38,12.5],[6,21.5,162,8.4,0.25,2.84,13],[7,24,191,10.2,0.25,3.35,15],[8,27,196,10.9,0.25,3.89,16],[9,29,204,11,0.25,4.44,16.5],[10,32,207,11.5,0.25,4.9,17],[11,34,217,11.5,0.25,5.3,18.5],[12,36.5,218,11.5,0.38,5.66,19],[13,39.5,225,11.5,0.38,6.06,19],[14,42.5,241,12.2,0.38,6.51,19.5],[15,45.5,243,13.5,0.62,7.09,20],[16,48.5,250,14.6,0.62,7.39,20],[17,51.5,259,15.1,0.62,7.75,20.5],[18,55,260,16.1,0.62,8.1,20.5],[19,57.5,263,17.8,0.75,8.46,20.5],[20,60,270,18.6,0.88,8.77,20.5],[21,63,277,19.4,0.88,9.27,20.5],[22,65.5,278,23,0.88,9.71,20.5],[23,68.5,279,24.6,1,10.15,20.5],[24,71,292,26.1,1.12,10.39,20.5],[25,73.5,294,27,1.25,10.83,21],[26,75.5,295,28.4,1.38,11.3,21],[27,77.5,296,29.1,1.38,11.62,21],[28,80,297,30.9,1.5,12.04,21],[29,82.5,304,33,1.62,12.45,21],[30,85,312,33.8,1.62,12.84,21]],
+  santai_biasa:[[0,1,0,1,0,0,0],[0.03,11.5,28,5.4,0,0.34,9],[1,13,56,5.5,0,0.61,10.5],[1.5,15,82,6.6,0.12,0.83,10.5],[2,16.5,93,6.8,0.12,1.01,11.5],[2.5,18,110,7.1,0.25,1.18,12],[3,19.5,116,7.4,0.25,1.45,12.5],[4,24.5,134,7.6,0.25,1.86,14],[5,27.5,150,7.6,0.25,2.29,15.5],[6,30,186,8.6,0.38,2.68,16.5],[7,33.5,212,10.5,0.5,3.22,18],[8,35.5,219,10.5,0.5,3.66,18.5],[9,38,220,10.5,0.5,4.06,19],[10,41,229,10.5,0.5,4.54,19],[11,43,230,10.9,0.5,4.96,19],[12,45,243,12.2,0.5,5.37,19],[13,48.5,244,13.2,0.5,5.75,19],[14,51,245,15.5,0.62,6.24,19],[15,54.5,246,18,0.62,6.56,19],[16,57,248,19.9,0.75,7.06,19],[17,59.5,248,22.5,0.88,7.38,19],[18,62.5,262,24.2,1,7.88,19],[19,64.5,264,26.5,1.12,8.18,19],[20,67.5,266,28.2,1.12,8.57,19],[21,70.5,268,29.1,1.25,9.05,19],[22,72.5,277,31.2,1.62,9.56,20.5],[23,75.5,292,32.4,1.88,10.06,20.5],[24,77.5,294,33.1,2,10.38,23],[25,80,303,34.1,2.12,10.77,23],[26,82.5,310,34.8,2.12,11.14,23],[27,85.5,312,36.1,2.25,11.52,23],[28,88,318,37.1,2.38,11.98,23.5],[29,91,322,38.2,2.38,12.38,23.5],[30,93.5,323,39.5,2.5,12.82,23.5]],
+  santai_veteran:[[0,1,0,1,0,0,0],[0.03,12,28,5.4,0,0.14,7],[1,16,56,10.6,0.38,0.48,13],[1.5,20,87,14.8,0.38,0.79,14.5],[2,21,114,14.8,0.5,1.01,14.5],[2.5,24,126,16.4,0.75,1.27,16],[3,26,132,17.4,0.75,1.48,16],[4,31.5,154,18.4,1.12,1.92,19],[5,37.5,196,20.6,1.12,2.42,19],[6,43,208,24.4,1.5,2.9,19],[7,47,220,26.9,1.62,3.25,19],[8,51.5,224,31.6,1.88,3.75,21.5],[9,56,246,34.9,2.25,4.22,21.5],[10,60,247,37.1,2.38,4.64,24.5],[11,63.5,272,40.5,2.5,5.13,24.5],[12,67,273,47.5,3.12,5.61,24.5],[13,71,298,50.8,3.38,5.99,24.5],[14,74.5,300,52.9,3.5,6.47,25],[15,78,320,57.5,3.88,6.94,25],[16,81.5,328,59.8,4,7.41,25],[17,85.5,329,60,4,7.84,25],[18,88.5,337,60,4,8.31,25],[19,92.5,338,60,4,8.66,25],[20,95.5,345,60,4,9.12,25],[21,98.5,346,60,4,9.55,25],[22,102,360,60,4,10.04,25.5],[23,105,368,60,4,10.46,25.5],[24,108.5,368,60,4,10.93,25.5],[25,111.5,376,60,4,11.37,25.5],[26,114.5,378,60,4,11.82,25.5],[27,118,386,60,4,12.25,25.5],[28,120.5,389,60,4,12.72,25.5],[29,123.5,408,60,4,13.16,25.5],[30,126.5,410,60,4,13.62,25.5]],
+  reguler_baru:[[0,1,0,1,0,0,0],[0.03,2.5,18,4.8,0,0.43,5],[0.5,3.5,42,7.2,0,0.66,6.5],[0.75,5.5,50,7.2,0,0.98,8],[1,6.5,60,7.2,0,1.22,8.5],[1.25,7.5,68,7.2,0,1.46,9],[1.5,8,68,7.2,0,1.64,9],[1.75,9,68,7.2,0,1.87,9],[2,10,68,7.2,0,2.08,9],[2.25,13,86,7.2,0,2.37,9.5],[2.5,15,106,7.5,0,2.72,10],[2.75,16,106,7.5,0,2.98,10.5],[3,16.5,114,8,0,3.25,10.5],[4,23,131,8.5,0.12,4.58,12],[5,25.5,146,9.4,0.12,5.63,13],[6,30.5,184,9.8,0.12,6.75,15.5],[7,35.5,206,10.2,0.29,7.62,16.5],[8,40,210,10.2,0.29,8.12,17],[9,44,227,14.3,0.46,8.71,19],[10,49,232,14.3,0.46,9.11,19.5],[11,53.5,237,14.3,0.5,9.52,20],[12,58,238,14.6,0.62,10.11,20.5],[13,63,239,15.8,0.75,10.75,21],[14,67.5,240,17,0.75,11.29,21],[15,72.5,247,19.8,0.88,11.86,21],[16,76.5,248,21.6,1,12.45,21],[17,81,250,22.9,1.12,12.98,21],[18,85,262,24.4,1.12,13.32,21],[19,88.5,264,25.9,1.38,13.9,21],[20,92.5,264,28.1,1.38,14.59,21.5],[21,96,272,30.2,1.62,15.22,21.5],[22,99.5,273,31.9,1.75,15.75,21.5],[23,103,288,34.1,1.75,16.29,22],[24,106.5,304,36.2,1.88,16.99,22.5],[25,109.5,312,38.9,2.12,17.56,22.5],[26,112.5,318,40.6,2.38,18.16,23],[27,115.5,320,41.8,2.5,18.62,23],[28,119,321,43,2.5,19.16,23],[29,122,329,45.2,2.62,19.64,23],[30,125,338,46.6,2.88,20.13,23.5]],
+  reguler_biasa:[[0,1,0,1,0,0,0],[0.03,12.5,28,5.4,0,0.39,10.5],[0.5,14,70,5.4,0,0.64,11],[0.75,15,76,5.4,0,0.7,11],[1,16,81,5.6,0.12,0.9,11],[1.25,18,88,5.8,0.25,1.01,12],[1.5,19.5,98,6,0.25,1.26,12],[1.75,21,101,6,0.25,1.32,12.5],[2,22.5,109,6.2,0.25,1.58,13],[2.25,23.5,116,6.2,0.25,1.7,13],[2.5,25,121,6.5,0.25,1.94,13.5],[2.75,26.5,121,6.5,0.25,2,13.5],[3,27.5,121,6.8,0.25,2.28,14],[4,33.5,144,7.2,0.25,2.96,15.5],[5,38.5,181,7.8,0.25,3.65,18],[6,44.5,194,11.1,0.38,4.23,18.5],[7,48.5,212,12.8,0.5,4.76,19],[8,54,218,14.5,0.5,5.25,19],[9,58,220,17.1,0.62,5.8,19],[10,62.5,228,18.6,0.75,6.24,19],[11,66.5,234,21.2,0.75,6.77,19],[12,71,236,23.4,1,7.22,19],[13,75,237,26.9,1.12,7.85,19],[14,79,238,29,1.38,8.43,19],[15,82.5,240,30.6,1.62,8.89,19],[16,86,254,31.9,1.62,9.43,19],[17,90,267,33.8,1.75,10.07,20.5],[18,93.5,277,35.5,1.88,10.65,22],[19,97,290,35.5,1.88,11.05,22],[20,100.5,292,36.5,1.88,11.61,22.5],[21,103.5,292,38.5,2,12.14,22.5],[22,107.5,296,40.2,2.38,12.71,23],[23,110.5,297,41.4,2.38,13.25,23],[24,114.5,310,43,2.5,13.83,23.5],[25,117.5,312,44.5,2.62,14.39,24],[26,120.5,312,46,2.88,14.96,24],[27,124,314,46.9,2.88,15.43,24],[28,127,315,47.9,3,15.91,24],[29,130,332,49.2,3.12,16.47,24],[30,133,334,50.6,3.25,17.03,24]],
+  reguler_veteran:[[0,1,0,1,0,0,0],[0.03,12,28,5.4,0,0.14,7.5],[0.5,16.5,62,10.5,0.58,0.48,13.5],[0.75,18.5,81,10.5,0.58,0.69,13.5],[1,20,92,10.8,0.58,0.9,13.5],[1.25,23,110,16,0.67,1.03,14],[1.5,25,110,17.8,0.67,1.24,15.5],[1.75,26,120,18.2,0.67,1.44,15.5],[2,27.5,120,18.7,0.67,1.64,15.5],[2.25,30,133,19.2,0.83,1.72,15.5],[2.5,31.5,138,21.5,1.17,1.95,16],[2.75,33,138,21.7,1.33,2.15,16.5],[3,34,138,22.1,1.33,2.35,16.5],[4,42.5,186,22.1,1.33,3.1,19],[5,49.5,198,26.7,1.54,3.8,19],[6,55.5,219,30.2,1.96,4.45,21],[7,62,231,34.6,2.12,5.13,21],[8,68,254,39.9,2.71,5.91,24],[9,74,254,43.3,3,6.6,24],[10,79,270,43.3,3,7.33,24.5],[11,84,272,46.9,3.12,7.99,24.5],[12,88.5,287,50.4,3.5,8.71,25],[13,92.5,306,54.8,3.5,9.39,25],[14,96.5,314,58.2,3.88,10.09,25],[15,101.5,318,58.2,3.88,10.77,25],[16,105.5,328,60,4,11.36,25],[17,110.5,328,60,4,12.04,25.5],[18,115,337,60,4,12.71,25.5],[19,119,338,60,4,13.38,26],[20,123.5,348,60,4,14.05,26],[21,128,350,60,4,14.71,26],[22,132.5,370,60,4,15.4,26],[23,136.5,372,60,4,16.05,26],[24,140.5,375,60,4,16.73,26],[25,144.5,384,60,4,17.39,26],[26,148.5,392,60,4,18.06,26],[27,151.5,395,60,4,18.72,26],[28,155.5,398,60,4,19.39,26],[29,159,420,60,4,20.06,26],[30,162.5,422,60,4,20.65,26]],
+  rajin_baru:[[0,1,0,1,0,0,0],[0.03,3.5,18,5.2,0,0.54,6],[0.333,5.5,48,6.4,0,0.95,8.5],[0.5,7,62,6.4,0,1.33,10],[0.667,9,65,6.4,0,1.75,10],[0.833,10.5,68,6.4,0,2.07,10],[1,11,68,6.4,0,2.39,10],[1.167,12,76,6.4,0,2.71,10],[1.333,13,84,6.4,0,3.01,10.5],[1.5,14,88,6.4,0,3.58,11],[1.667,14.5,88,6.4,0,3.78,11],[1.833,16,88,6.4,0,4.34,11],[2,16.5,88,6.4,0,4.69,11],[2.167,17.5,96,6.4,0,4.95,11],[2.333,18.5,107,6.4,0,5.34,11.5],[2.5,19.5,120,6.4,0,5.67,12],[2.667,20.5,120,6.4,0,5.92,12],[2.833,22,120,6.4,0,6.28,12.5],[3,23,125,6.4,0,6.56,12.5],[4,29,138,6.4,0,8.3,13.5],[5,35.5,177,10.4,0.38,9.7,15.5],[6,42,192,12,0.46,11.37,19],[7,48,218,12.6,0.5,12.5,19.5],[8,53.5,231,14,0.5,13.55,21],[9,59,236,15.1,0.75,14.84,21],[10,64.5,240,16.8,0.88,15.85,21],[11,70,241,18.8,0.88,16.73,21],[12,75,242,21.8,1.12,17.53,21],[13,80,251,24.1,1.25,18.41,21.5],[14,85,252,26.1,1.38,19.23,21.5],[15,89.5,258,27.6,1.62,20.04,22.5],[16,93.5,260,28.8,1.62,20.84,22.5],[17,97.5,266,31,1.62,21.51,23],[18,101.5,268,33.6,1.75,22.34,23],[19,105.5,268,34.9,2,23.24,23],[20,109.5,276,35.6,2,23.92,23],[21,113,276,36.8,2.12,24.77,23],[22,116.5,278,38.4,2.25,25.75,23],[23,120,284,40.1,2.38,26.58,23.5],[24,123.5,286,42,2.5,27.38,23.5],[25,126.5,287,42.8,2.75,28.18,23.5],[26,129.5,294,43.9,2.75,29.13,24],[27,133,296,45.2,2.88,29.84,24],[28,136,296,48.2,3,30.48,24],[29,139,306,49.5,3.12,31.41,24],[30,142,306,50.8,3.12,32.19,24]],
+  rajin_biasa:[[0,1,0,1,0,0,0],[0.03,13,28,4,0,0.4,11],[0.333,14,70,5,0,0.51,11],[0.5,15.5,76,5.2,0,0.59,11],[0.667,17,81,5.4,0,0.79,11.5],[0.833,19,86,5.9,0,1.07,12.5],[1,20,94,5.9,0,1.15,13],[1.167,22,101,5.9,0,1.27,13.5],[1.333,22.5,109,5.9,0,1.36,13.5],[1.5,23.5,110,5.9,0,1.5,13.5],[1.667,25.5,110,6,0,1.67,14],[1.833,26.5,110,7,0,1.88,14],[2,27.5,110,7.4,0,2.12,14],[2.167,28.5,122,7.4,0,2.22,14.5],[2.333,30,122,7.4,0.17,2.34,14.5],[2.5,30.5,138,7.7,0.29,2.48,14.5],[2.667,32,138,8,0.29,2.72,14.5],[2.833,33,138,8.2,0.29,2.98,15],[3,34,138,8.2,0.29,3.13,15],[4,41.5,155,9.1,0.29,3.86,18],[5,48,183,14,0.5,4.72,18.5],[6,54.5,196,16.6,0.88,5.5,18.5],[7,60,216,17.8,0.88,6.46,19],[8,65,218,20,1.12,7.43,19],[9,70,225,21.5,1.12,8.21,19],[10,75,226,24.5,1.25,9.01,19],[11,79,242,26.5,1.5,9.8,20],[12,84,260,29.2,1.62,10.82,22.5],[13,88,261,31,1.62,11.66,23],[14,92,262,33,1.75,12.35,23],[15,96,270,35.6,2,13.29,23],[16,100,278,37.2,2.12,14.06,23],[17,104,279,39.1,2.38,14.99,23],[18,108,294,42.1,2.38,15.91,23.5],[19,111.5,296,44.5,2.62,16.93,23.5],[20,115,302,46.4,2.88,17.75,23.5],[21,118,310,48.1,2.88,18.58,24],[22,121.5,313,50,3.25,19.41,24],[23,124.5,314,51.4,3.38,20.05,24],[24,128,322,52.6,3.5,20.91,24],[25,131,328,53.9,3.62,21.71,24],[26,134,330,54.9,3.75,22.5,24],[27,137,332,55.9,3.75,23.45,24],[28,140,340,56.8,3.88,24.39,24],[29,142.5,348,57.8,3.88,25.25,24],[30,145.5,356,58.8,3.88,26.17,24.5]],
+  rajin_veteran:[[0,1,0,1,0,0,0],[0.03,12,28,5.4,0,0.14,7.5],[0.333,16.5,56,12.8,0.58,0.48,13],[0.5,17.5,80,12.8,0.58,0.52,13],[0.667,19.5,91,12.9,0.58,0.73,13.5],[0.833,21,94,13.2,0.58,0.94,14],[1,22.5,97,13.5,0.58,1.14,14],[1.167,26,109,17,0.71,1.27,16.5],[1.333,27,120,17.1,0.71,1.47,16.5],[1.5,28,120,17.2,0.88,1.52,17.5],[1.667,30,120,17.2,0.88,1.71,17.5],[1.833,31,126,17.7,0.88,1.93,18],[2,33,126,18.1,1,2.13,18.5],[2.167,35.5,138,22.2,1.29,2.24,19],[2.333,38.5,138,22.8,1.29,2.46,19],[2.5,39,138,23.1,1.29,2.49,19],[2.667,40.5,138,23.4,1.29,2.68,19],[2.833,41.5,138,23.5,1.29,2.88,19],[3,43,138,24,1.46,3.08,19],[4,52,160,26.6,1.75,3.91,19],[5,58.5,190,27,1.75,4.72,19],[6,65,214,30.9,2,5.58,21],[7,71,233,34.1,2.25,6.5,21.5],[8,77,261,34.1,2.25,7.46,23.5],[9,81.5,262,37.5,2.38,8.37,24],[10,87,277,40.5,2.62,9.29,24.5],[11,91.5,278,43.6,2.88,10.18,24.5],[12,95.5,296,50.4,3.12,10.94,25],[13,99.5,306,50.5,3.25,11.76,25],[14,103.5,321,54.5,3.5,12.66,25],[15,107.5,326,57.8,3.88,13.56,25],[16,111,327,60,4,14.44,25],[17,115,341,60,4,15.35,25],[18,118.5,342,60,4,16.23,25],[19,122,344,60,4,17.13,25],[20,126,352,60,4,18.02,25],[21,129.5,360,60,4,18.91,25],[22,133,367,60,4,19.8,25],[23,136,382,60,4,20.7,25],[24,139.5,384,60,4,21.49,25],[25,142.5,391,60,4,22.3,25],[26,145.5,393,60,4,23.09,25],[27,148.5,408,60,4,23.99,25],[28,151.5,410,60,4,24.87,25],[29,154.5,424,60,4,25.77,25],[30,157,434,60,4,26.65,25]],
+  hardcore_baru:[[0,1,0,1,0,0,0],[0.03,4,18,6,0,0.67,6],[0.222,6.5,47,6,0,1.23,9],[0.333,8,60,6,0,1.59,9.5],[0.444,9.5,67,6,0,2.03,9.5],[0.556,11,70,6,0,2.51,9.5],[0.667,12.5,78,6,0,3.05,9.5],[0.778,14.5,78,6,0,3.66,9.5],[0.889,15.5,78,6,0,4.19,9.5],[1,16.5,78,6.4,0,4.71,9.5],[1.111,17.5,83,6.4,0,5.28,9.5],[1.222,18.5,86,6.4,0,5.73,10],[1.333,19.5,86,6.4,0,6.18,10],[1.444,20.5,91,6.4,0,6.57,10],[1.556,21,96,6.4,0,7.01,10],[1.667,22,102,6.4,0,7.39,10],[1.778,23,102,6.4,0,7.86,10],[1.889,23.5,102,6.4,0,8.25,10],[2,24,102,6.4,0,8.63,10],[2.111,25,114,6.4,0,8.86,10],[2.222,26,114,6.4,0,9.17,12],[2.333,27,123,6.4,0,9.57,12],[2.444,27.5,124,6.4,0,9.89,12],[2.556,28,124,6.4,0,10.18,12.5],[2.667,29,124,6.4,0.12,10.33,12.5],[2.778,29.5,128,6.4,0.12,10.62,12.5],[2.889,30,130,6.4,0.12,10.84,13],[3,31,130,6.4,0.12,11.18,13.5],[4,37.5,143,7.3,0.25,14.11,14],[5,43.5,180,8.6,0.25,16.18,15],[6,49.5,194,12.1,0.75,17.93,18.5],[7,55,220,12.9,0.75,19.67,19.5],[8,61,224,13.9,0.88,21.1,20],[9,67,243,15.5,1,22.31,21],[10,72.5,248,18.6,1,23.54,21],[11,77.5,250,22.4,1.12,24.74,21],[12,82.5,250,24.6,1.38,25.63,22],[13,87.5,252,26.9,1.62,26.85,22],[14,91.5,252,28.4,1.75,27.89,22],[15,96,260,31.1,2,28.77,22],[16,100,268,32.5,2,30.09,22],[17,104,268,35.6,2.12,31.34,22],[18,108,270,38.1,2.38,32.62,22.5],[19,111,271,40,2.5,33.62,22.5],[20,115,278,41.4,2.62,34.61,23],[21,118.5,279,42.8,2.75,35.66,23],[22,122,286,43.8,2.88,36.59,23],[23,125.5,288,44.9,3,37.5,23],[24,128.5,288,45.9,3,38.66,23],[25,131.5,296,48.5,3.12,39.8,23],[26,134.5,298,51.1,3.38,40.92,23.5],[27,138,304,52.9,3.5,42.11,24],[28,141,306,54.9,3.62,43.23,24],[29,144,308,56.4,3.75,44.32,24],[30,147,314,58.1,3.88,45.33,24]],
+  hardcore_biasa:[[0,1,0,1,0,0,0],[0.03,12,28,6,0,0.38,9.5],[0.222,13,63,6,0,0.5,9.5],[0.333,14,74,6,0,0.57,9.5],[0.444,16,79,6,0.17,0.82,10.5],[0.556,17,79,6,0.17,0.87,10.5],[0.667,18,79,6.2,0.17,1.15,11],[0.778,19,79,6.2,0.17,1.27,11],[0.889,20,82,6.4,0.17,1.41,11],[1,21,82,6.7,0.17,1.65,11],[1.111,22.5,92,6.7,0.17,1.77,11.5],[1.222,23.5,96,6.7,0.17,1.85,11.5],[1.333,24.5,102,6.7,0.17,1.93,11.5],[1.444,24.5,102,7,0.17,2.16,11.5],[1.556,25.5,102,7,0.17,2.23,11.5],[1.667,26.5,102,7.2,0.17,2.46,11.5],[1.778,27,102,7.2,0.17,2.53,11.5],[1.889,28,102,7.4,0.17,2.69,11.5],[2,28,105,7.9,0.17,2.84,11.5],[2.111,30,117,7.9,0.17,2.97,11.5],[2.222,30.5,122,7.9,0.17,3.11,14],[2.333,31,130,7.9,0.17,3.19,14],[2.444,32,130,7.9,0.17,3.43,14],[2.556,32.5,138,7.9,0.17,3.52,14],[2.667,33.5,138,7.9,0.17,3.69,14],[2.778,34,138,7.9,0.17,3.74,14],[2.889,34.5,138,7.9,0.38,3.96,14],[3,35,138,7.9,0.38,4.18,14],[4,42.5,168,10,0.38,5.33,16.5],[5,48.5,185,12.5,0.38,6.34,16.5],[6,54,203,15.1,0.88,7.24,16.5],[7,59.5,216,16.8,0.88,8.21,16.5],[8,64,218,18.9,0.88,9.34,16.5],[9,68.5,226,21.2,1,10.23,16.5],[10,73,242,24.2,1,11.36,18.5],[11,77,248,28,1.25,12.29,21],[12,82,250,30.2,1.38,13.29,21],[13,86,254,32.6,1.75,14.48,21.5],[14,90,260,34.2,1.88,15.59,21.5],[15,93.5,268,34.2,1.88,16.4,21.5],[16,97.5,269,38.5,2.12,17.34,21.5],[17,102,280,40.2,2.25,18.33,23.5],[18,106,292,42.1,2.38,19.29,23.5],[19,110,292,44.4,2.75,20.3,23.5],[20,113.5,294,45.9,2.75,21.25,24],[21,117,296,46.8,2.88,22.2,24],[22,120.5,320,48.6,3.12,23.07,24.5],[23,124,327,50.2,3.25,24.19,24.5],[24,127.5,329,51.2,3.5,25.2,24.5],[25,130.5,330,52.4,3.5,25.99,24.5],[26,133.5,331,53.6,3.5,26.9,24.5],[27,137,338,55,3.62,27.9,24.5],[28,140,346,55,3.62,28.71,24.5],[29,143,349,55,3.62,29.76,24.5],[30,145.5,356,55,3.62,30.59,24.5]],
+  hardcore_veteran:[[0,1,0,1,0,0,0],[0.03,12,28,5.4,0,0.14,7],[0.222,15,56,9.8,0.38,0.3,11.5],[0.333,17,80,10.4,0.5,0.53,12.5],[0.444,18,92,10.4,0.5,0.58,13.5],[0.556,19,92,10.6,0.5,0.78,13.5],[0.667,21,92,10.6,0.5,0.81,13.5],[0.778,22,96,10.8,0.5,1.01,13.5],[0.889,23,96,10.8,0.5,1.06,14],[1,24,96,11,0.5,1.25,14],[1.111,27,109,13.1,0.5,1.36,14],[1.222,28,109,15,0.5,1.41,14],[1.333,29,109,15.2,0.5,1.6,14],[1.444,29.5,109,15.2,0.5,1.63,14],[1.556,30,117,15.6,0.62,1.83,14],[1.667,31,125,15.6,0.62,1.87,14],[1.778,32,125,15.6,0.62,2.08,14],[1.889,32,125,15.6,0.62,2.1,14],[2,33,125,15.6,0.62,2.3,14],[2.111,35,137,15.8,0.75,2.37,14],[2.222,35.5,137,16.2,0.88,2.46,16.5],[2.333,36.5,137,16.4,0.88,2.65,16.5],[2.444,37.5,137,16.6,0.88,2.68,16.5],[2.556,39,137,16.8,0.88,2.88,16.5],[2.667,39,137,17.2,0.88,2.9,16.5],[2.778,40,137,17.4,0.88,3.1,16.5],[2.889,41,137,17.4,0.88,3.13,16.5],[3,42,137,17.5,0.88,3.32,16.5],[4,51.5,187,17.5,0.88,4.4,20.5],[5,59,198,17.5,0.88,5.41,20.5],[6,65.5,213,19.1,1.12,6.38,20.5],[7,72,233,22.9,1.5,7.39,21],[8,77.5,242,26.6,1.75,8.41,22],[9,82.5,258,31.8,2,9.41,22],[10,87,266,35.4,2.38,10.32,22],[11,91.5,282,40.6,2.62,11.33,24],[12,96,283,47.8,3.25,12.25,24.5],[13,101,306,51.5,3.5,13.25,25],[14,105.5,308,55.5,3.62,14.22,25],[15,109.5,319,59.5,4,15.12,25.5],[16,114,326,60,4,16.11,25.5],[17,118.5,329,60,4,16.99,25.5],[18,123,344,60,4,17.98,26],[19,127.5,346,60,4,18.87,26],[20,132.5,354,60,4,19.77,26],[21,136.5,357,60,4,20.73,26],[22,141,372,60,4,21.63,26],[23,145.5,381,60,4,22.61,26],[24,149,384,60,4,23.58,26],[25,153,392,60,4,24.55,26],[26,157,402,60,4,25.53,26],[27,161,404,60,4,26.41,26],[28,164,408,60,4,27.39,26],[29,168,428,60,4,28.37,26],[30,171,430,60,4,29.34,26]],
   },
  XP_TAIL_DAYS:5,                // setelah kurva habis: kecepatan EXP = rata2 5 hari terakhir kurva
  HERO_SHARE:.62,                 // porsi summon untuk banner hero (sisanya banner senjata)
@@ -2671,8 +2690,8 @@ const BOT_CFG={
    {id:'whale',  w:1.4,card:1, renew:1,  rate:.42, packs:[['g3',2],['g4',3],['g5',3],['g6',3]],  banner:[2,5],bp:[['g4',1],['g5',2],['g6',4]]},
    // pengejar puncak: segala cara — main sangat rajin & optimal, selalu kejar rate-up, tidak menabung, tidak pernah berhenti,
    // borong tiap banner & tanggal gajian, isi ulang stamina (speed), Kebangkitan lebih cepat (ASC.tier)
-   {id:'swhale', w:.45,card:1, renew:1,  rate:.75, packs:[['g4',2],['g5',4],['g6',6]],            banner:[5,9],bp:[['g5',2],['g6',6]],pf:['rajin','hardcore'],speed:1.12,opt:.95},
-   {id:'mwhale', w:.15,card:1, renew:1,  rate:1.3, packs:[['g5',2],['g6',8]],                     banner:[10,18],bp:[['g6',1]],pf:['hardcore'],speed:1.25,opt:.985},
+   {id:'swhale', w:.45,card:1, renew:1,  rate:.75, packs:[['g4',2],['g5',4],['g6',6]],            banner:[5,9],bp:[['g5',2],['g6',6]],pf:['rajin','hardcore'],sk:['veteran','veteran','biasa'],speed:1.12,opt:.95},
+   {id:'mwhale', w:.15,card:1, renew:1,  rate:1.3, packs:[['g5',2],['g6',8]],                     banner:[10,18],bp:[['g6',1]],pf:['hardcore'],sk:['veteran'],speed:1.25,opt:.985},
   ],
   firstDay:[.3,4],                 // hari main sebelum pembelian pertama
   payday:{dates:[25,26,27,28,1],mul:2.2}, // tanggal gajian: peluang beli ×mul
@@ -2754,7 +2773,8 @@ const ARENA_CFG={
   {id:'legend',  n:'Legenda', min:1800,c:'#ff7ad0',c2:'#7a1f8a',day:{gems:100,gold:25000},week:{gems:1000,gold:120000,tixH:5,mats:{asc1:30,asc2:15,asc3:2,badge:30}}},
  ],
  // poin bot: target = start + span × (persentil CP)^curve ± jitter; makin lama musim berjalan makin dekat ke target
- bot:{span:1150,curve:1.6,jitter:220,speed:{santai:.35,reguler:.55,rajin:.8,hardcore:1.1}},
+ bot:{span:1150,curve:1.6,jitter:220,speed:{santai:.35,reguler:.55,rajin:.8,hardcore:1.1},
+  sk:{baru:-90,biasa:0,veteran:110}},   // pengalaman: veteran pintar memilih lawan (lebih sering menang), pemula sebaliknya
  // pencarian lawan: 3 kartu (lebih lemah / setara / lebih kuat) dalam rentang poin ini
  match:[[-220,-40],[-40,40],[40,220]],
  matchCp:[[0,.92],[.88,1.12],[1.08,9]],   // rentang CP lawan dibanding CP timmu untuk tiap kartu
@@ -5887,16 +5907,20 @@ function botBase(i){if(BOTS.base[i])return BOTS.base[i];const C=BOT_CFG,r=bRng(b
  let tx=Q[0]*100,tier=SP.tiers[0];for(const t of SP.tiers){if(tx<t.w){tier=t;break}tx-=t.w}
  // pengejar puncak (super/mega whale): gaya main sangat rajin, optimal, selalu kejar rate-up, tidak pernah berhenti
  let chaser2=chaser,opt2=opt;if(tier.pf){const id=tier.pf[bHash(i,41)%tier.pf.length],np=C.profiles.find(p=>p.id===id);if(np&&np!==pf){pf=np;a=pf.a[0]+Q[11]*(pf.a[1]-pf.a[0])}a*=tier.speed||1;quit=Infinity;chaser2=true;opt2=Math.max(opt,tier.opt||opt)}
+ // pengalaman main (pemula / biasa / veteran): aliran acak sendiri; condong ke veteran untuk profil rajin/hardcore
+ const SK=C.SKILL,skw=pf.sk||{baru:.33,biasa:.34,veteran:.33};let sk='biasa';{let y=bRng(bHash(i,51))()*Object.values(skw).reduce((a,v)=>a+v,0);for(const k in skw){if(y<skw[k]){sk=k;break}y-=skw[k]}}
+ if(tier.sk)sk=tier.sk[bHash(i,52)%tier.sk.length];
+ opt2=Math.min(.995,Math.max(.3,opt2+(SK[sk].opt||0)));
  const mood=botEarlyMood(bHash(i,2),chaser);if(mood!=='normal')a*=EM[mood].speed;
  // pemain berbayar & yang hoki lebih betah; yang apes lebih cepat menyerah
- const cm=(tier.id==='f2p'?1:SP.churnMul)*(mood==='normal'?1:EM[mood].churn);
+ const cm=(tier.id==='f2p'?1:SP.churnMul)*(mood==='normal'?1:EM[mood].churn)*(SK[sk].churn||1);
  if(tier.pf)quit=Infinity;else if(quit<Infinity&&cm<1&&Q[1]<1-cm)quit=Infinity;
  else if(cm>1){if(quit<Infinity)quit/=Math.sqrt(cm);else if(Q[2]<(cm-1)*.22)quit=.8+Q[3]*4}
  // masa aktif: [mulai, selesai, kecepatan]. Melambat sebelum berhenti; bisa kembali saat era banner baru
  const segs=[];if(quit===Infinity)segs.push([join,Infinity,a]);
  else{const qT=join+quit*BDAY,fadeAt=join+quit*(1-C.FADE)*BDAY;segs.push([join,fadeAt,a],[fadeAt,qT,a*C.FADE_RATE]);
   const era=C.ERAS.find(e=>e.at>qT);if(era&&r()<C.COMEBACK.p){const s0=era.at+r()*BDAY,len=(C.COMEBACK.days[0]+r()*(C.COMEBACK.days[1]-C.COMEBACK.days[0]))*BDAY;segs.push([s0,s0+len,a*C.COMEBACK.rate])}}
- const B=BOTS.base[i]={i,pf:pf.id,pfo:pf,a,quit,join,chaser:chaser2,chrono,opt:opt2,segs,seed:bHash(i,2),endT:segs[segs.length-1][1],back:segs.length>2,
+ const B=BOTS.base[i]={i,pf:pf.id,pfo:pf,sk,cv:C.CURVES[pf.id+'_'+sk]?pf.id+'_'+sk:pf.id,a,quit,join,chaser:chaser2,chrono,opt:opt2,segs,seed:bHash(i,2),endT:segs[segs.length-1][1],back:segs.length>2,
   tier,mood,saver:!tier.pf&&chaser2&&Q[4]<EM.saver,spend0:join+(SP.firstDay[0]+Q[5]*(SP.firstDay[1]-SP.firstDay[0]))*BDAY,cardP:Q[6]<(tier.card||0),
   bioEvery:LF.bioEvery[0]+Q[7]*(LF.bioEvery[1]-LF.bioEvery[0]),loyal:Q[8]<LF.loyal,rn:null};
  if(Q[9]<LF.rename.p){const t=join+(LF.rename.days[0]+Q[10]*(LF.rename.days[1]-LF.rename.days[0]))*BDAY;if(t<B.endT)B.rn={t:botSnap(B,t),k:Math.floor(Q[11]*LF.rename.pool)}}
@@ -5950,8 +5974,25 @@ function botSaveTimes(b,ts,now){if(!b.saver)return{ts,held:0};const E=BOT_CFG.ER
   hold.push(t);if(hold.length>=BOT_CFG.EMO.saveCap){out.push(...hold.map(()=>t));hold=[]}}
  return{ts:out.filter(t=>t<=now).sort((x,y)=>x-y),held:hold.length+out.filter(t=>t>now).length}}
 // progres (hari bermain efektif) pada waktu t, dan kebalikannya
-function botProg(b,t){let P=0;for(const[s0,s1,r]of b.segs){if(t<=s0)break;P+=r*(Math.min(t,s1)-s0)/BDAY}return P}
-function botProgInv(b,P){let acc=0;for(const[s0,s1,r]of b.segs){const len=(s1-s0)/BDAY*r;if(acc+len>=P)return s0+(P-acc)/r*BDAY;acc+=len}return Infinity}
+// progres linear (masa aktif × kecepatan)
+function botProgLin(b,t){let P=0;for(const[s0,s1,r]of b.segs){if(t<=s0)break;P+=r*(Math.min(t,s1)-s0)/BDAY}return P}
+function botProgInvLin(b,P){let acc=0;for(const[s0,s1,r]of b.segs){const len=(s1-s0)/BDAY*r;if(acc+len>=P)return s0+(P-acc)/r*BDAY;acc+=len}return Infinity}
+/* Progres hanya bertambah saat bot sedang MAIN: jatah progres satu "hari progres" (05:00–05:00 WIB, jam paling sepi)
+   dibagi ke sesi-sesi main hari itu. Saat offline angkanya diam; saat online naik sedikit demi sedikit. */
+const PDAY_H=5;
+const pDay=t=>Math.floor((t+(BOT_CFG.TZ-PDAY_H)*36e5)/BDAY),pDayStart=d=>d*BDAY-(BOT_CFG.TZ-PDAY_H)*36e5;
+const BPLAY=new Map();
+function botPlay(b,d){const k=b.i*100000+d;let o=BPLAY.get(k);if(o)return o;const ds=pDayStart(d),de=ds+BDAY,L=[];
+ for(let w=wibDay(ds);w<=wibDay(de);w++)for(const[s0,s1]of botSessions0(b,w)){const a=Math.max(s0,ds),z=Math.min(s1,de);if(z>a)L.push([a,z])}
+ if(b.join>=ds&&b.join<de)L.push([b.join,Math.min(de,b.join+15*6e4)]);   // sesi pertama: tutorial saat baru bergabung
+ L.sort((x,y)=>x[0]-y[0]);const M=[];for(const s of L){const l=M[M.length-1];if(l&&s[0]<=l[1])l[1]=Math.max(l[1],s[1]);else M.push(s.slice())}
+ o={L:M,tot:M.reduce((a,s)=>a+s[1]-s[0],0)};if(BPLAY.size>80000)BPLAY.clear();BPLAY.set(k,o);return o}
+function botProg(b,t){if(t<=b.join)return 0;const d=pDay(t),ds=pDayStart(d),a=botProgLin(b,Math.max(ds,b.join)),z=botProgLin(b,ds+BDAY);if(z<=a)return a;
+ const S=botPlay(b,d);if(!S.tot)return a;let x=0;for(const[s0,s1]of S.L){if(t<=s0)break;x+=Math.min(t,s1)-s0}return a+(z-a)*x/S.tot}
+// kebalikan: kapan progres P tercapai (selalu di dalam sesi main)
+function botProgInv(b,P){const tl=botProgInvLin(b,P);if(!isFinite(tl))return tl;const d=pDay(tl),ds=pDayStart(d),a=botProgLin(b,Math.max(ds,b.join)),z=botProgLin(b,ds+BDAY);
+ const S=botPlay(b,d);if(z<=a||!S.tot){for(let e=d+1;e<=d+4;e++){const T=botPlay(b,e);if(T.tot)return T.L[0][0]}return tl}
+ let x=(P-a)/(z-a)*S.tot;for(const[s0,s1]of S.L){if(x<=s1-s0)return s0+x;x-=s1-s0}return S.L[S.L.length-1][1]}
 const botActive=(b,t)=>b.segs.some(([s0,s1])=>t>=s0&&t<s1);
 
 /* ---- kurva per gaya main (hasil simulasi) ---- */
@@ -5964,7 +6005,7 @@ function botLv(pf,P){const T=BOT_CFG.CURVES[pf],L=T[T.length-1];if(P<=L[0])retur
  if(BXP[pf]==null){const a=T[T.length-1-BOT_CFG.XP_TAIL_DAYS];let xp=0;for(let l=a[1];l<L[1];l++)xp+=expNeed(l);BXP[pf]=xp/(L[0]-a[0])}
  let lv=L[1],xp=(P-L[0])*BXP[pf];while(lv<999&&xp>=expNeed(lv)){xp-=expNeed(lv);lv++}return lv}
 // waktu bot mencapai level akun L (dari kurva level gaya mainnya)
-function botLvTime(b,L){const T=BOT_CFG.CURVES[b.pf];for(let k=1;k<T.length;k++)if(T[k][1]>=L){const a=T[k-1],c=T[k];return botProgInv(b,a[0]+(c[0]-a[0])*(L-a[1])/Math.max(1e-9,c[1]-a[1]))}return botProgInv(b,T[T.length-1][0])}
+function botLvTime(b,L){const T=BOT_CFG.CURVES[b.cv];for(let k=1;k<T.length;k++)if(T[k][1]>=L){const a=T[k-1],c=T[k];return botProgInv(b,a[0]+(c[0]-a[0])*(L-a[1])/Math.max(1e-9,c[1]-a[1]))}return botProgInv(b,T[T.length-1][0])}
 // progres saat total summon mencapai n
 function botSumInv(pf,n){const T=BOT_CFG.CURVES[pf];if(n<=T[0][2])return 0;for(let k=1;k<T.length;k++)if(T[k][2]>=n){const a=T[k-1],b=T[k];return a[0]+(b[0]-a[0])*(n-a[2])/Math.max(1e-9,b[2]-a[2])}
  const L=T[T.length-1];return L[0]+(n-L[2])/Math.max(1e-9,bTail(pf,2))}
@@ -5980,10 +6021,10 @@ function eraPool(t,isW,up){const k=eraIdx(t),E=BOT_CFG.ERAS[k],av=HEROES.filter(
  return BPOOL[key]=P}
 
 /* ---- gacha tersimulasi sepanjang waktu (peluang asli + banner yang aktif saat itu) ---- */
-function botGacha(b,P,now=Date.now()){const C=BOT_CFG,total=Math.max(0,botCurve(b.pf,2,P)),nH=Math.floor(total*C.HERO_SHARE),nW=Math.floor(total*(1-C.HERO_SHARE));
+function botGacha(b,P,now=Date.now()){const C=BOT_CFG,total=Math.max(0,botCurve(b.cv,2,P)),nH=Math.floor(total*C.HERO_SHARE),nW=Math.floor(total*(1-C.HERO_SHARE));
  const heroes={},weapons={},ev=[];STARTERS().forEach(id=>heroes[id]={lv:1,lb:0,wpn:null});STARTERS().map(id=>basicWeapon(HD[id].wcls)).filter(Boolean).forEach(w=>weapons[w]=newWpn());
  // waktu tiap tarikan: gratis (dari kurva progres) + berbayar (dari top up), lalu diurutkan
- const fT=(k,share)=>Math.max(b.join,botProgInv(b,botSumInv(b.pf,k/share))),tH=[],tW=[];
+ const fT=(k,share)=>Math.max(b.join,botProgInv(b,botSumInv(b.cv,k/share))),tH=[],tW=[];
  for(let k=0;k<nH;k++)tH.push(fT(k,C.HERO_SHARE));for(let k=0;k<nW;k++)tW.push(fT(k,1-C.HERO_SHARE));
  const SP=botSpend(b,now),paid=botPaidPulls(SP.gems);paid.forEach((t,k)=>(bHash(b.i,9000+k)%100<C.SPEND.heroShare*100?tH:tW).push(t));
  const sv=botSaveTimes(b,tH.sort((x,y)=>x-y),now);tW.sort((x,y)=>x-y);
@@ -6001,10 +6042,10 @@ function botBestTeam(ids){const top=ids.map(id=>[id,heroPow(id)]).sort((a,b)=>b[
  const rec=(st,cur)=>{if(cur.length===k){const v=teamCP(cur).total;if(v>bv){bv=v;best=cur.slice()}return}for(let j=st;j<top.length;j++){cur.push(top[j]);rec(j+1,cur);cur.pop()}};rec(0,[]);return best}
 
 /* ---- Kebangkitan bot: anggaran bahan sejak (perkiraan) menembus 5-5, dibelanjakan berurutan ★4 → ★5 → ★6 ---- */
-function botAscend(b,P,opt,core,heroes,weapons,gear,lvF){const A=BOT_CFG.ASC;if(!A)return;
+function botAscend(b,P,opt,core,heroes,weapons,gear,lvF){const C0=BOT_CFG,A=C0.ASC;if(!A)return;
  const pre=teamCP(core.slice(0,4)).total;if(pre<A.minCP)return;
  // perkiraan hari sejak CP melewati minCP (CP kira-kira tumbuh sebanding hari main)
- let B=P*(1-A.minCP/pre)*A.perDay*(A.tier[b.tier.id]||1)*(.55+.45*opt);if(B<=0)return;
+ let B=P*(1-A.minCP/pre)*A.perDay*(A.tier[b.tier.id]||1)*(C0.SKILL[b.sk].asc||1)*(.55+.45*opt);if(B<=0)return;
  const steps=[];for(const s of[4,5,6]){for(const id of core.slice(0,4))steps.push(['h',id,s]);for(const id of core.slice(0,4))if(heroes[id].wpn)steps.push(['w',heroes[id].wpn,s]);
   for(const id of core.slice(0,4))for(const sl of['ar','ac'])if(heroes[id][sl])steps.push(['g',heroes[id][sl],s])}
  for(const[k,key,s]of steps){const c=A.cost[k][s];if(B<c)break;B-=c;
@@ -6014,7 +6055,7 @@ function botAscend(b,P,opt,core,heroes,weapons,gear,lvF){const A=BOT_CFG.ASC;if(
 
 /* ---- keadaan bot pada waktu now ---- */
 // kunci cache: berubah hanya saat progres/level/era/top up/tabungan berubah
-function botKey(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now),lv=botLv(b.pf,P),sp0=botSpend(b,now);return{b,P,lv,key:Math.floor(P*48)+':'+lv+':'+C.ERAS.length+':'+sp0.gems.length+':'+(b.saver?Math.floor(now/36e5):0)}}
+function botKey(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now),lv=botLv(b.cv,P),sp0=botSpend(b,now);return{b,P,lv,key:Math.floor(P*96)+':'+lv+':'+C.ERAS.length+':'+sp0.gems.length+':'+(b.saver?Math.floor(now/36e5):0)}}
 function botState(i,now=Date.now()){const C=BOT_CFG,{b,P,lv,key}=botKey(i,now);const c=BOTS.cache[i];if(c&&c.key===key)return c;
  const G=botGacha(b,P,now),heroes=G.heroes,weapons=G.weapons;
  const F={lv,exp:0,heroes,weapons,gear:{},team:[],mats:{}};const keep=S;S=F;let out;
@@ -6025,7 +6066,7 @@ function botState(i,now=Date.now()){const C=BOT_CFG,{b,P,lv,key}=botKey(i,now);c
   const fav=!b.loyal&&lastLim?lastLim.id:firstH?firstH.id:own[bHash(i,9)%own.length];
   const ids=own.sort((x,y)=>maxLvRaw(y)-maxLvRaw(x)||HD[y].r-HD[x].r||heroes[y].lb-heroes[x].lb||(x<y?-1:1));const core=ids.slice(0,4);if(!core.includes(fav))core.push(fav);
   const lvF={};ids.forEach(id=>{const f=core.includes(id)?opt+r()*(1-opt):C.BENCH_LV[0]+r()*(C.BENCH_LV[1]-C.BENCH_LV[0])*(.6+.4*opt);lvF[id]=f;heroes[id].lv=Math.max(1,Math.min(Math.round(maxLv(id)*f),2+3*lv))});   // awal main: level hero dibatasi emas (Lv1 ±5, Lv3 ±11, Lv8 menyusul batas akun)
-  const wl=Math.round(botCurve(b.pf,3,P)*(.8+.2*opt)),wlb=Math.floor(botCurve(b.pf,4,P)*(opt>.8?1:.75)+.001),used=new Set();
+  const wl=Math.round(botCurve(b.cv,3,P)*(.8+.2*opt)),wlb=Math.floor(botCurve(b.cv,4,P)*(opt>.8?1:.75)+.001),used=new Set();
   for(const id of ids){const cls=HD[id].wcls;const cand=Object.keys(weapons).filter(w=>WD[w].cls===cls&&!used.has(w)).sort((x,y)=>(WD[y].owner===id)-(WD[x].owner===id)||WD[y].r-WD[x].r||weapons[y].ref-weapons[x].ref);
    // pemain kurang optimal kadang lupa memasang senjata terbaik
    const w=cand.length>1&&r()>opt+.15?cand[1]:cand[0];if(!w)continue;used.add(w);heroes[id].wpn=w;const o=weapons[w],isC=core.includes(id);o.lb=Math.min(WPN_LB_MAX,isC?wlb:Math.floor(wlb/2));o.lv=Math.max(1,Math.min(wMaxLv(w),isC?wl:Math.round(wl*.6)))}
@@ -6040,24 +6081,30 @@ function botState(i,now=Date.now()){const C=BOT_CFG,{b,P,lv,key}=botKey(i,now);c
   const n3=G.ev.length,exp3=(G.nH+G.nW)*RATES[3]/100*1.05,z=(n3-exp3)/Math.sqrt(Math.max(1,exp3)),luck=z>1?'hoki':z<-1?'sial':'normal';
   let days=0;for(const[s0,s1]of b.segs){if(now<=s0)break;days+=(Math.min(now,s1)-s0)/BDAY}
   out={i,key,lv,P,heroes,weapons,gear:F.gear,team,fav,pw,cp:teamCP(team).total,ev:G.ev,
-   stats:{sum:G.nH+G.nW,s3:n3,lim3:G.ev.filter(e=>e.lim).length,luck,days:Math.max(1,Math.ceil(days)),hours:Math.max(.1,botCurve(b.pf,5,P)),
+   stats:{sum:G.nH+G.nW,s3:n3,lim3:G.ev.filter(e=>e.lim).length,luck,days:Math.max(1,Math.ceil(days)),hours:Math.max(.1,botCurve(b.cv,5,P)),
     paid:G.paid,held:G.held,pity:G.pity,spent:G.spend.total,vip:G.spend.vip,card:G.spend.card,buys:G.spend.buys.length}};
  }finally{S=keep}
- let st=null;for(const s of SLIST){if(s.rec<=out.cp*1.08)st=s;else break}out.stage=st?st.key:'1-1';
+ let nCP=0;for(const s of SLIST){if(s.rec<=out.cp*1.12)nCP++;else break}
+ const T=C.CURVES[b.cv],Lc=T[T.length-1];let nS=Lc[6]!=null?Math.floor(botCurve(b.cv,6,P)+1e-6):nCP;nS=Math.min(nS,nCP);if(P>Lc[0])nS=Math.max(nS,nCP);
+ out.stage=SLIST[Math.max(0,Math.min(SLIST.length,nS)-1)].key;out.stN=nS;
  const ov=typeof botOv==='function'&&botOv(i);if(ov){if(ov.lv!=null)out.lv=ov.lv;if(ov.cp!=null)out.cp=ov.cp;if(ov.vip!=null)out.stats.vip=ov.vip}
  if(!BOTS.cache[i]&&++BOTS.cacheN>15000){BOTS.cache={};BOTS.cacheN=1}
  return BOTS.cache[i]=out}
 
 /* ---- online / terakhir aktif: sesi harian mengikuti jam ramai WIB ---- */
 const BSES=new Map();
-function botSessions(b,day){const k=b.i*100000+day;if(BSES.has(k))return BSES.get(k);const C=BOT_CFG,pf=b.pfo,r=bRng(bHash(b.i,1000+day)),dow=new Date(day*BDAY).getUTCDay(),wk=dow===0||dow===6;
- let n=pf.sess[0]+Math.floor(r()*(pf.sess[1]-pf.sess[0]+1))+(wk?C.WEEKEND_EXTRA:0);const W=C.HOURS,tot=W.reduce((a,v)=>a+v,0),out=[];
- for(let s=0;s<n;s++){let x=r()*tot,h=0;for(;h<23;h++){if(x<W[h])break;x-=W[h]}h=(h+b.chrono+24)%24;
-  const st=day*BDAY-C.TZ*36e5+(h*60+Math.floor(r()*60))*6e4,len=(pf.len[0]+r()*(pf.len[1]-pf.len[0]))*6e4;if(botActive(b,st))out.push([st,st+len])}
+const BSES0=new Map();
+function botSessions(b,day){const k=b.i*100000+day;if(BSES.has(k))return BSES.get(k);const out=botSessions0(b,day).slice();
  // Bos Dunia: bot yang ikut raid login menjelang naga muncul & bertahan sampai selesai (systems/worldboss.js)
  if(typeof wbAttend==='function')for(const h of WB_CFG.slots){const a=wbAttend(b,wbSlotT(day,h));if(a)out.push([a.arrive,a.off])}
  out.sort((a,c)=>a[0]-c[0]);const M=[];for(const s of out){const L=M[M.length-1];if(L&&s[0]<=L[1])L[1]=Math.max(L[1],s[1]);else M.push(s.slice())}
  if(BSES.size>60000)BSES.clear();BSES.set(k,M);return M}
+function botSessions0(b,day){const k=b.i*100000+day;if(BSES0.has(k))return BSES0.get(k);const C=BOT_CFG,pf=b.pfo,r=bRng(bHash(b.i,1000+day)),dow=new Date(day*BDAY).getUTCDay(),wk=dow===0||dow===6;
+ let n=pf.sess[0]+Math.floor(r()*(pf.sess[1]-pf.sess[0]+1))+(wk?C.WEEKEND_EXTRA:0);const W=C.HOURS,tot=W.reduce((a,v)=>a+v,0),out=[];
+ for(let s=0;s<n;s++){let x=r()*tot,h=0;for(;h<23;h++){if(x<W[h])break;x-=W[h]}h=(h+b.chrono+24)%24;
+  const st=day*BDAY-C.TZ*36e5+(h*60+Math.floor(r()*60))*6e4,len=(pf.len[0]+r()*(pf.len[1]-pf.len[0]))*6e4;if(botActive(b,st))out.push([st,st+len])}
+ out.sort((a,c)=>a[0]-c[0]);const M=[];for(const s of out){const L=M[M.length-1];if(L&&s[0]<=L[1])L[1]=Math.max(L[1],s[1]);else M.push(s.slice())}
+ if(BSES0.size>60000)BSES0.clear();BSES0.set(k,M);return M}
 const wibDay=(t=Date.now())=>Math.floor((t+BOT_CFG.TZ*36e5)/BDAY);
 function botPresence(i,now=Date.now()){const b=botBase(i);if(now<b.join)return{online:false,last:b.join};if(now-b.join<15*6e4)return{online:true,last:now};
  const from=Math.min(now,b.endT),d0=wibDay(from);
@@ -6069,7 +6116,7 @@ function botSnap(b,t){for(let d=wibDay(t);d<=wibDay(t)+3;d++){for(const[s0,s1]of
 /* ---- ringkasan bot (CP, level, VIP, hero) — skala sampai 100rb bot ----
    Bot yang sudah berhenti (endT lewat) tidak berubah lagi → ringkasannya disimpan di localStorage dan tidak dihitung ulang.
    Bot aktif: dari botState (cache penuh dibatasi ±5000 objek). Ganti SUM_VER bila keseimbangan CP berubah. */
-const SUM_VER=1,BSUM={d:{},key:'',dirty:0,at:0};
+const SUM_VER=2,BSUM={d:{},key:'',dirty:0,at:0};
 const bsumKey=()=>BOTS.gen+':'+SUM_VER+':'+BOT_CFG.ERAS.length+':'+HEROES.length+':'+BOT_CFG.epoch;
 function bsumLoad(){const k=bsumKey();if(BSUM.key===k)return;BSUM.key=k;BSUM.d={};for(const q in BSUMA)delete BSUMA[q];try{const o=JSON.parse(localStorage.getItem('aster_botsum')||'null');if(o&&o.k===k){const D=o.d||{};for(const i in D){const x=D[i];BSUM.d[i]=Array.isArray(x)?{cp:x[0],lv:x[1],vip:x[2],top:x[3],st:x[4]}:x}}}catch(e){}}
 function bsumSave(){if(!BSUM.dirty||Date.now()-BSUM.at<3e4)return;BSUM.at=Date.now();BSUM.dirty=0;const d={};for(const i in BSUM.d){const o=BSUM.d[i];d[i]=[o.cp,o.lv,o.vip,o.top,o.st]}
@@ -6078,31 +6125,39 @@ function bsumSave(){if(!BSUM.dirty||Date.now()-BSUM.at<3e4)return;BSUM.at=Date.n
  try{localStorage.setItem('aster_botsum',j)}catch(e){try{localStorage.removeItem('aster_botsum')}catch(e2){}}}
 const botFrozen=(i,now=Date.now())=>{const b=botBase(i);return b.endT<now-6e4};
 const BSUMA={};   // ringkasan bot aktif di memori, berlaku selama kunci botKey sama
-function botSum(i,now=Date.now()){bsumLoad();const fz=botFrozen(i,now);let o=fz?BSUM.d[i]:null;
- if(!o&&!fz){const k=botKey(i,now).key,a=BSUMA[i];if(a&&a.k===k)o=a.o}
+// sync=false: boleh memakai ringkasan lama sebentar; bot itu masuk antrean penyegaran latar (BSQ) -> daftar tetap ringan & angka naik sendiri
+const BSQ=new Set();
+function botSum(i,now=Date.now(),sync=false){bsumLoad();const fz=botFrozen(i,now);let o=fz?BSUM.d[i]:null;
+ if(!o&&!fz){const k=botKey(i,now).key,a=BSUMA[i];if(a&&a.k===k)o=a.o;else if(a&&!sync){o=a.o;BSQ.add(i)}}
  if(!o){const s=botState(i,now);o={cp:s.cp,lv:s.lv,vip:s.stats.vip,top:s.fav||s.team[0],st:s.stage};if(fz){BSUM.d[i]=o;BSUM.dirty++}else BSUMA[i]={k:s.key,o}}
  const ov=typeof botOv==='function'&&botOv(i);if(ov&&(ov.lv!=null||ov.cp!=null||ov.vip!=null))o=Object.assign({},o,ov.lv!=null?{lv:ov.lv}:{},ov.cp!=null?{cp:ov.cp}:{},ov.vip!=null?{vip:ov.vip}:{});return o}
 const botPres=(i,now)=>botFrozen(i,now)?{online:false,last:botBase(i).endT}:botPresence(i,now);
 /* ---- daftar semua bot yang tampil (+ pemain sendiri) ---- */
 const BLM={t:0,n:-1,L:null};
-function botsList(now=Date.now()){const n=botsVisible(now);let L;if(BLM.L&&BLM.n===n&&Math.abs(now-BLM.t)<2e4&&!BOTS.warming){L=BLM.L.map(e=>Object.assign({},e))}else{L=[];for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const s=botSum(i,now),p=botPres(i,now),b=botBase(i);L.push({i,name:botName(i,now),vip:s.vip,lv:s.lv,cp:s.cp,top:s.top,online:p.online,last:p.last,isNew:now-b.join<BDAY,back:b.back&&now>=b.segs[2][0]})}
+function botsList(now=Date.now()){const n=botsVisible(now);let L;if(BLM.L&&BLM.n===n&&Math.abs(now-BLM.t)<6e3&&!BOTS.warming){L=BLM.L.map(e=>Object.assign({},e))}else{L=[];for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const s=botSum(i,now),p=botPres(i,now),b=botBase(i);L.push({i,name:botName(i,now),vip:s.vip,lv:s.lv,cp:s.cp,top:s.top,online:p.online,last:p.last,isNew:now-b.join<BDAY,back:b.back&&now>=b.segs[2][0]})}
  bsumSave();BLM.t=now;BLM.n=n;BLM.L=L.map(e=>Object.assign({},e))}
  if(typeof NET!=='undefined')for(const p of NET.players){if(NET.acct&&p.uid===NET.acct.uid)continue;L.push({i:'h'+p.uid,h:p.uid,name:p.u,vip:p.vip||0,lv:p.lv,cp:p.cp,top:p.top,online:p.on,last:p.last})}
  L.push({me:true,name:S.name,vip:vipOf(S.iap&&S.iap.spent||0),lv:S.lv,cp:teamPow(),top:S.team.find(Boolean),online:true,last:now});return L}
 
 /* ---- hitung state semua bot sedikit demi sedikit (±10 ms per potong) supaya layar tidak membeku saat bot ribuan ---- */
 function botsWarm(cb){if(cb)(BOTS.warmCb=BOTS.warmCb||[]).push(cb);if(BOTS.warming)return;BOTS.warming=true;let i=0;const now=Date.now();
- const step=()=>{const n=botsVisible(now),t0=performance.now();try{while(i<n&&performance.now()-t0<10){botSum(i,now);botPres(i,now);i++}}catch(e){i=n}
+ const step=()=>{const n=botsVisible(now),t0=performance.now();try{while(i<n&&performance.now()-t0<10){botSum(i,now,true);botPres(i,now);i++}}catch(e){i=n}
   if(i<n){setTimeout(step,0);return}bsumSave();BOTS.warming=false;BOTS.warmAt=Date.now();const L=BOTS.warmCb||[];BOTS.warmCb=[];L.forEach(f=>{try{f()}catch(e){}})};
  setTimeout(step,0)}
 const botsWarmOk=()=>!!BOTS.warmAt&&!BOTS.warming;
+// penyegaran realtime: bot yang ringkasannya basi dihitung ulang di latar (potongan ±8 ms), lalu daftar/peringkat yang terbuka ikut diperbarui
+function botsFresh(){if(!BSQ.size||BOTS.warming||BOTS.fresh)return;BOTS.fresh=true;const Q=[...BSQ];BSQ.clear();let k=0,ch=0;
+ const step=()=>{const now=Date.now(),t0=performance.now();try{while(k<Q.length&&performance.now()-t0<8){const i=Q[k++],a=BSUMA[i],o0=a&&a.o,o=botSum(i,now,true);if(!o0||o0.cp!==o.cp||o0.lv!==o.lv)ch++}}catch(e){k=Q.length}
+  if(k<Q.length){setTimeout(step,0);return}BOTS.fresh=false;if(ch){BLM.t=0;if(typeof BOTS.onChange==='function')try{BOTS.onChange()}catch(e){}}};
+ setTimeout(step,0)}
+setInterval(botsFresh,8e3);
 
 /* ================= DUNIA BOT: epoch & generasi (bisa di-reset) =================
    'bots/world' = {epoch, gen}. Reset -> epoch = sekarang, gen+1 (semua bot jadi karakter baru, mulai hari ke-1).
    Disimpan bersama di db supaya semua pemain melihat dunia yang sama; cadangan di localStorage. */
 const BW_KEY='aster_botworld';
 function botsApplyWorld(w){if(!w||!w.epoch)return;if(w.epoch===BOT_CFG.epoch&&(w.gen||0)===BOTS.gen)return;
- BOT_CFG.epoch=w.epoch;BOTS.gen=w.gen||0;BOTS.base={};BOTS.cache={};BOTS.cacheN=0;BSUM.key='';for(const k in BSUMA)delete BSUMA[k];BOTS.seen=0;BOTS.warmAt=0;
+ BOT_CFG.epoch=w.epoch;BOTS.gen=w.gen||0;BOTS.base={};BOTS.cache={};BOTS.cacheN=0;BSUM.key='';for(const k in BSUMA)delete BSUMA[k];BSQ.clear();BSES.clear();BSES0.clear();BPLAY.clear();for(const k in BSPEND)delete BSPEND[k];BSPEND_N=0;BLM.L=null;BOTS.seen=0;BOTS.warmAt=0;
  try{localStorage.setItem(BW_KEY,JSON.stringify({epoch:w.epoch,gen:BOTS.gen}));localStorage.removeItem('aster_ranksnap')}catch(e){}
  if(typeof S!=='undefined'&&S&&S.rankDay&&(S.rankDay.gen||0)!==BOTS.gen){S.rankDay={gen:BOTS.gen}}
  if(typeof rankReset==='function')rankReset();BOTS.onChange&&BOTS.onChange();botsEnsure()}
@@ -6812,7 +6867,7 @@ const AR={board:null,at:0};
 function arBotLast(b,now){let t=-1;for(const[s0,s1]of b.segs){if(now<s0)break;t=Math.min(now,s1)}return t}
 function arBotPts(i,pct,now){const b=botBase(i),C=ARENA_CFG,wk=arWeek(now),ws=arWeekStart(wk),t=arBotLast(b,now);if(t<ws)return null;  // belum aktif di musim ini
  const t10=botLvTime(b,FEAT.arena.lv||10);if(t<t10)return null;   // Arena baru terbuka di Lv 10
- const tgt=w=>{const r=bRng(bHash(i,5000+w));return Math.max(900,C.start+C.bot.span*Math.pow(pct,C.bot.curve)+(r()-.5)*C.bot.jitter)};
+ const tgt=w=>{const r=bRng(bHash(i,5000+w));return Math.max(900,C.start+C.bot.span*Math.pow(pct,C.bot.curve)+(r()-.5)*C.bot.jitter+((C.bot.sk||{})[b.sk]||0))};
  const s0=b.join<ws?C.start+Math.max(0,tgt(wk-1)-C.start)*C.soft:C.start;
  const days=(t-Math.max(ws,b.join,t10))/BDAY,f=1-Math.exp(-Math.max(0,days)*(C.bot.speed[b.pf]||.5)*.9);
  const h=Math.floor(t/36e5),wig=Math.round(Math.sin(h*1.7+i*.37)*10*f);
@@ -7053,7 +7108,7 @@ function chOnline(t){const d=wibDay(t),out=[],seen=new Set(),n=botsVisible(t);
 function chCtx(i,t){const s=botState(i),b=botBase(i),st=s.stats,p=chPersona(i),fav=s.fav||s.team[0]||Object.keys(s.heroes)[0];
  const si=SLIST.findIndex(x=>x.key===s.stage);
  return{i,t,name:botName(i,t),heroId:fav,hero:HD[fav]?HD[fav].name:'Celestine',ids:Object.keys(s.heroes),has:id=>!!s.heroes[id],cp:s.cp,lv:s.lv,stage:s.stage,stageN:si,
-  pity:st.pity||0,held:st.held||0,paid:st.spent>0,card:!!st.card,vip:st.vip||0,luck:st.luck,mood:b.mood,pf:b.pf,days:st.days,
+  pity:st.pity||0,held:st.held||0,paid:st.spent>0,card:!!st.card,vip:st.vip||0,luck:st.luck,mood:b.mood,pf:b.pf,sk:b.sk,days:st.days,
   fading:b.quit<Infinity&&t>=b.segs[1][0]&&t<b.endT,night:wibHour(t)>=23||wibHour(t)<4,newRecent:chWorld().newRecent,newId:chWorld().newId,top:chWorld().top,
   get league(){if(typeof arBotPtsNow!=='function')return'';const v=arBotPtsNow(i);return v==null?'':T(arLg(v).n)},p}}
 
@@ -8820,7 +8875,7 @@ const wcLv3=(i,now)=>botState(i,now).lv>=(FEAT.chat.lv||3);   // aturan sama den
 // data bot: PUBLIK (bisa dilihat semua: profil/peringkat) vs PRIBADI (hanya dia yang tahu)
 function wcDesc(i,now){const c=chCtx(i,now),s=botState(i,now),a=botActivity(i,now),g=s.ev.filter(e=>!e.w&&now-e.t<3*36e5&&e.t<=now).pop();
  return{pub:`Lv ${s.lv}, CP ${fmt(s.cp)}${s.stats.vip?', lencana VIP '+s.stats.vip:''}, tim ${s.team.map(id=>HD[id].name).join('/')}, hero favorit ${c.hero}, tahap terjauh ${c.stage}${c.league?', liga Arena '+c.league:''}${g?`, ${Math.round((now-g.t)/6e4)} menit lalu dapat ★3 ${HD[g.id].name} (muncul di pengumuman)`:''}`,
-  priv:`${a?'SEDANG: '+a.t+'; ':''}gacha lagi ${c.luck==='sial'?'apes':c.luck==='hoki'?'hoki':'biasa'}, pity ${c.pity}, ${c.vip>=4?'sultan':c.paid?'kadang top up'+(c.card?' (kartu bulanan)':''):'f2p'}${c.held?', nabung '+c.held+' tarikan':''}, main ${c.days} hari${c.fading?', mulai bosan':''}`}}
+  priv:`${a?'SEDANG: '+a.t+'; ':''}gacha lagi ${c.luck==='sial'?'apes':c.luck==='hoki'?'hoki':'biasa'}, pity ${c.pity}, ${c.vip>=4?'sultan':c.paid?'kadang top up'+(c.card?' (kartu bulanan)':''):'f2p'}${c.held?', nabung '+c.held+' tarikan':''}, main ${c.days} hari${c.fading?', mulai bosan':''}, ${c.sk==='veteran'?'sudah biasa main gacha sejenis: skip cerita, hafal cara farming (sapu tahap, dungeon, toko emas), suka kasih tips':c.sk==='baru'?(c.days<=7?'pertama kali main game gacha, masih bingung banyak fitur, baca cerita':'awalnya awam gacha, sekarang mulai paham'):'paham dasar game'}`}}
 // data PUBLIK pemain (yang bisa dilihat orang lain di profil) — tidak ada permata, pity, top up, atau aktivitas
 function wcMePub(){const own=Object.keys(S.heroes),s3=own.filter(id=>(S.heroes[id].asc||HD[id].r)>=3).map(id=>HD[id].name),cl=SLIST.filter(x=>S.stages[x.key]).pop(),v=vipOf(S.iap&&S.iap.spent||0);
  return`Lv ${S.lv}, CP ${fmt(teamPow())}, peringkat CP #${chMyRank()}${v?', lencana VIP '+v:''}, tim ${S.team.filter(Boolean).map(id=>HD[id].name).join('/')}, hero ★3: ${s3.join(', ')||'-'}, tahap terjauh ${cl?cl.key:'-'}`}
