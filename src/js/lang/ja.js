@@ -236,3 +236,9 @@ Object.assign(I18N.ja,{"Ada permintaan pertemanan baru": "新しいフレンド�
 Object.assign(I18N.ja,{'Masuk':'入場'});
 
 Object.assign(I18N.ja,{'Server sedang sibuk. Mencoba lagi sebentar lagi...':'サーバーが混雑しています。しばらくして再試行します...'});
+
+// rival abadi
+Object.assign(I18N.ja,{'Rivalmu':'ライバル','hari ke-{n}':'{n}日目','Salip':'抜き合い','di depanmu':'リード','di belakangmu':'ビハインド','RIVAL':'ライバル',
+ 'Rivalmu sejak {t}':'{t}からのライバル','saling salip: kamu {a}, dia {b}':'抜き合い：あなた{a}・相手{b}','Mantan rival':'元ライバル','menyerah':'降参','melesat jauh':'独走','berhenti main':'引退',
+ 'Rival baru: {n} mulai mengejarmu di peringkat!':'新ライバル：{n}がランキングであなたを追い始めた！','Kamu menyalip rivalmu {n}!':'ライバル{n}を抜いた！','{n} menyalipmu lagi!':'{n}に抜き返された！',
+ '{n} menyerah mengejarmu. Kamu menang!':'{n}が追うのを諦めた。あなたの勝ち！','{n} sudah melesat jauh dan berhenti melirikmu.':'{n}は遥か先へ行き、あなたを見なくなった。','Rivalmu {n} sudah lama tidak bermain.':'ライバル{n}はしばらくプレイしていない。'});

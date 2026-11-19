@@ -36,6 +36,7 @@ js/data/weapons.js
 js/data/gear.js
 js/data/bots.js
 js/data/arena.js
+js/data/rival.js
 js/data/ascend.js
 js/data/topup.js
 js/data/chat/style.js
@@ -104,6 +105,7 @@ js/systems/ascend.js
 js/systems/unlock.js
 js/systems/gm.js
 js/systems/worldboss.js
+js/systems/rival.js
 
 # --- UI layar ---
 js/ui/core.js

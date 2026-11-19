@@ -86,6 +86,7 @@ export async function resetBots(env) {
     env.DB.prepare('DELETE FROM dms WHERE frm IN (SELECT uid FROM players WHERE bot IS NOT NULL) OR too IN (SELECT uid FROM players WHERE bot IS NOT NULL)'),
     env.DB.prepare('DELETE FROM players WHERE bot IS NOT NULL'),
     env.DB.prepare('DELETE FROM wchat'),   // riwayat Obrolan Dunia ikut dikosongkan
+    env.DB.prepare('DELETE FROM rvb'),     // usaha rival dari dunia lama
     env.DB.prepare("DELETE FROM kv WHERE k IN ('ai_scene_at','ai_until','stk_at','stk_gap','watch_at')"),
     env.DB.prepare("INSERT INTO kv (k,v) VALUES ('world',?) ON CONFLICT(k) DO UPDATE SET v=excluded.v").bind(JSON.stringify(nw)),
   ]);
@@ -128,6 +129,14 @@ HINDARI (bikin kelihatan palsu/cringe)
 
 PRIVASI (wajib): tiap penulis hanya tahu data PRIBADI dirinya sendiri (SEDANG, pity, permata, top up, tabungan, hoki/apes, berapa hari main). Data pribadi orang lain (termasuk pemain asli) TIDAK diketahui kecuali orang itu sendiri sudah menyebutnya di obrolan. Yang bisa dilihat semua orang hanya: nama, level, CP, peringkat, lencana VIP, tim & hero di profil, tahap terjauh, liga Arena, dan pengumuman ★3.
 FAKTA: semua fakta game harus benar sesuai pengetahuan di bawah; jangan mengarang fitur (guild & guild war BELUM ada). Pakai istilah game ini: ★3 / bintang 3 (bukan SSR/UR), permata, tiket, tahap 3-4; bos hanya di tahap x-5. Tanpa emoji, tanpa tautan, ramah keluarga, tidak menyebut orang nyata/merek/politik, tidak pernah mengaku AI/bot. Hanya penulis dari daftar yang boleh bicara. Balas HANYA JSON.`;
+// rival abadi: momen persaingan antara bot rival {r} dan pemain {p} (dikirim game saat si rival sedang online)
+const RV_EVS = {
+  new: '{r} baru sadar di peringkat ada {p} yang CP-nya kejar-kejaran dengan dia beberapa hari ini. {r} nyeletuk soal itu: setengah bercanda, sok cuek, atau ngajak saingan sehat. Jangan pakai kata "rival" secara kaku.',
+  passed: '{p} baru saja MENYALIP CP {r} di peringkat. {r} kesal tapi wajar (bukan marah beneran): bilang mau farming/sapu stamina malam ini, "jangan senang dulu", atau ngeles soal gacha.',
+  back: '{r} berhasil menyalip {p} LAGI di peringkat setelah farming. {r} pamer tipis atau nyindir santai ke {p}.',
+  giveup: '{r} mengaku kalah cepat dari {p} (selisih sudah jauh). Nada legowo/bercanda, bilang mau santai dulu atau ganti target.',
+  bored: '{r} sekarang sudah jauh di atas {p}. {r} nyeletuk ringan, misalnya sudah ngejar pemain lain yang lebih atas.',
+};
 // momen Bos Dunia yang dikirim game (b.wb) → satu adegan obrolan khusus per momen per raid
 const WB_EVS = { pre: 'Bos Dunia {b} akan muncul beberapa menit lagi (sudah diumumkan di game). Orang siap-siap, ngajak ikut, nanya elemen lemahnya, nyiapin tim.', start: 'Bos Dunia {b} BARU SAJA muncul dan semua lagi nyerbu. Ramai: saling semangatin, ada yang tim-nya tumbang & nunggu bangkit 10 detik, bahas peringkat damage di samping layar.', half: 'Bos Dunia {b} sisa sekitar {p}% HP dan masuk fase ganas (serangan makin sakit, sisik keras kecuali elemen unggul). Agak panik, ngeluh mati terus, saran elemen singkat.', low: 'Bos Dunia {b} tinggal {p}% HP! "dikit lagi", ngejar pukulan terakhir, rebutan peringkat.', kill: 'Bos Dunia {b} BARU SAJA TUMBANG. Lega & senang, pamer peringkat/damage atau ngeluh telat masuk, nunggu hadiah di kotak surat.', escape: 'Bos Dunia {b} KABUR karena waktu habis (sisa {p}% HP). Kesal, saling nyalahin dikit, janji ikut jadwal berikutnya.' };
 const TOPIK = ['kalah di bos tahap', 'tiket dungeon habis', 'drop perlengkapan dari dungeon', 'arena: kalah sama tim yang lebih kuat / naik liga', 'stamina habis', 'banner sekarang worth atau skip', 'hero mana yang bagus buat tahap sekarang', 'elemen lawan di tahap tertentu', 'naikin senjata pakai bijih', 'misi harian', 'event login', 'ngantuk / baru bangun', 'baru pulang kerja / kuliah', 'hujan / macet', 'lagi makan', 'nanya tim orang', 'pamer CP / dapat ★3', 'kebangkitan ★4 mahal bahannya', 'sinyal jelek / lag', 'sepi amat chat', 'auto battle sambil ngerjain hal lain', 'nanya level berapa', 'bingung pilih hero buat dinaikin'];
@@ -140,7 +149,7 @@ function overused(rows, n = 6) {
 }
 async function aiChat(env, b, u) {
   if (!(await aiOnline(env))) return { ok: false, e: 'off' };
-  const kind = b.kind === 'reply' ? 'reply' : 'tick', t = now(); let wbEv = null;
+  const kind = b.kind === 'reply' ? 'reply' : 'tick', t = now(); let wbEv = null, rvEv = null;
   // penulis: hanya akun bot sungguhan, nama dari server
   const C = (Array.isArray(b.cands) ? b.cands : []).slice(0, 6).filter(c => /^\d{8}$/.test(c.uid)).map(c => ({ uid: c.uid, pub: clip(c.pub, 320), priv: clip(c.priv, 300), style: clip(c.style, 320), lower: !!c.lower, fav: clip(c.fav, 16) }));
   if (C.length < 1) return { ok: false, e: 'cands' };
@@ -165,7 +174,9 @@ async function aiChat(env, b, u) {
     const gap = (t - wat < 6e4 ? 95e3 + (at % 50) * 1e3 : 9 * 6e4) * night;
     const W = b.wb && typeof b.wb === 'object' && /^\d{4}-\d\d-\d\dT\d\d$/.test(String(b.wb.k)) && WB_EVS[b.wb.ev] ? b.wb : null;
     if (W && cands.length >= 1) { const kk = `wbev:${W.k}:${W.ev}`; if (!(await kvGet(env, kk))) { await kvSet(env, kk, t); wbEv = W } }
-    if (!wbEv && !(cands.length >= 2 && t - at >= gap && t > until - 8e3)) {
+    const V = !wbEv && u && b.rv && typeof b.rv === 'object' && RV_EVS[b.rv.ev] && /^[\w:.-]{1,40}$/.test(String(b.rv.k)) ? b.rv : null, rc = V && cands.find(c => c.uid === String(V.who));
+    if (rc) { const kk = `rvev:${u.uid}:${V.k}`; if (!(await kvGet(env, kk)) && +(await kvGet(env, 'rvat:' + u.uid) || 0) < t - 2 * 36e5) { await kvSet(env, kk, t); await kvSet(env, 'rvat:' + u.uid, t); rvEv = { ...V, name: rc.name } } }
+    if (!wbEv && !rvEv && !(cands.length >= 2 && t - at >= gap && t > until - 8e3)) {
       // bot gabut kirim stiker (tanpa AI)
       if (t - stkAt < (stkGap || 12e4) || t < until) return { ok: false, skip: 1, next: Math.max(2e4, (stkGap || 12e4) - (t - stkAt)) };
       await kvSet(env, 'stk_at', t); await kvSet(env, 'stk_gap', Math.round((240 + rnd01() * 480) * 1000 * night));
@@ -210,6 +221,10 @@ ${lines.join('\n') || '(sepi)'}
     user += `\nPESAN BARU #${num.get(humanMsg.id) || '?'} dari PEMAIN ${clip(P?.name || u.uname, 16)}: "${clip(showTxt(humanMsg.txt), 120)}"${humanMsg.re ? ` — membalas ${target ? '#' + num.get(target.id) : `pesan lama ${quoted ? quoted.name + ': "' + clip(showTxt(quoted.txt), 80) + '"' : ''}`}` : ''}
 Tulis ${nRep} pesan balasan dari paling banyak ${nWho} penulis yang paling wajar menanggapi${tName ? ` (${tName} yang dibalas sebaiknya menjawab bila ada di daftar)` : ''}. Pertanyaan dijawab benar & singkat dengan gaya masing-masing; sapaan cukup dibalas pendek ("halo", "yo", "malam") oleh satu orang; candaan/stiker cukup "wkwk" atau stiker, atau tidak usah. Boleh tanpa menyebut nama pemain. Yang lain boleh tetap lanjut obrolannya sendiri. Isi "re" hanya bila menanggapi pesan yang bukan pesan terakhir. delay = detik mengetik 3-15.
 JSON: {"out":[{"who":"nama","text":"...","re":null,"stk":"","delay":5}]}`;
+  } else if (rvEv) {
+    user += `\nKEJADIAN SEKARANG (persaingan pribadi): ${RV_EVS[rvEv.ev].replaceAll('{r}', rvEv.name).replaceAll('{p}', clip(P?.name || u.uname, 16))}
+Tulis 1-4 pesan: ${rvEv.name} menulis 1-2 pesan duluan (boleh menyebut ${clip(P?.name || u.uname, 16)} atau tidak), lalu 0-2 penulis lain boleh ikut nimbrung singkat (ngompor-ngomporin, ketawa). Wajar, pendek, seperti obrolan game sungguhan. delay = detik 2-15.
+JSON: {"out":[{"who":"nama","text":"...","re":null,"stk":"","delay":4}]}`;
   } else if (wbEv) {
     user += `\nKEJADIAN SEKARANG DI GAME: ${WB_EVS[wbEv.ev].replace('{b}', clip(String(wbEv.boss || 'Naga'), 20)).replace('{p}', Math.max(0, Math.min(100, +wbEv.p || 0)))}
 Tulis 3-6 pesan dari 2-4 penulis yang bereaksi ke kejadian itu secara alami (bukan pengumuman resmi), pendek-pendek, sebagian saling sahut. delay = detik 2-15.
@@ -238,7 +253,7 @@ JSON: {"out":[{"who":"nama","text":"...","re":null,"stk":"","delay":6}]}`;
   }
   if (st.length) await env.DB.batch(st.slice(0, 16));
   if (kind === 'tick') await kvSet(env, 'ai_until', Math.round(tt));
-  return { ok: true, n: st.length, until: Math.round(tt) };
+  return { ok: true, n: st.length, until: Math.round(tt), rv: !!rvEv };
 }
 
 /* ---------------- sesi ---------------- */
@@ -343,7 +358,22 @@ export async function gameRoute(req, env, url, json) {
     const from = Math.max(0, +url.searchParams.get('from') || 0);
     const { results } = await env.DB.prepare('SELECT bot,uid,uname FROM players WHERE bot IS NOT NULL AND bot>=? ORDER BY bot LIMIT 12000').bind(from).all();
     const ov = (await env.DB.prepare('SELECT bot,ov FROM players WHERE bot IS NOT NULL AND ov IS NOT NULL').all()).results;
-    return json({ ok: true, epoch: w.epoch, gen: w.gen, from, bots: results.map(r => [r.uid, r.uname]), ov: Object.fromEntries(ov.map(r => [r.bot, pj(r.ov, {})])) });
+    const rvq = (await env.DB.prepare('SELECT bot,t0,t1,dp FROM rvb WHERE gen=? ORDER BY bot,t0 LIMIT 4000').bind(w.gen).all()).results, rv = {};
+    for (const r of rvq) (rv[r.bot] = rv[r.bot] || []).push([r.t0, r.t1, r.dp]);
+    return json({ ok: true, epoch: w.epoch, gen: w.gen, from, bots: results.map(r => [r.uid, r.uname]), ov: Object.fromEntries(ov.map(r => [r.bot, pj(r.ov, {})])), rv });
+  }
+  // ---- rival abadi: bot rival berusaha lebih keras (farming ekstra) di sesi main berikutnya; dibatasi supaya wajar ----
+  if (p === '/api/rv/boost') {
+    const [u, e] = await me(); if (e) return e;
+    const w = await getWorld(env), bot = Math.floor(+b.bot), t0 = Math.round(+b.t0), t1 = Math.round(+b.t1), dp = +b.dp, t = now();
+    if (+b.gen !== w.gen || !(bot >= 0) || !(dp > 0 && dp <= .8) || !(t0 > t - 36e5 && t0 < t + 30 * 36e5) || !(t1 - t0 >= 5 * 6e4 && t1 - t0 <= 3 * 36e5)) return json({ ok: false, e: 'bad' });
+    const bt = await env.DB.prepare('SELECT 1 FROM players WHERE bot=?').bind(bot).first(); if (!bt) return json({ ok: false, e: 'bot' });
+    const last = await env.DB.prepare('SELECT MAX(ts) m FROM rvb WHERE gen=? AND bot=? AND uid=?').bind(w.gen, bot, u.uid).first();
+    if (last && last.m && t - last.m < 18 * 36e5) return json({ ok: false, e: 'soon' });
+    const day = await env.DB.prepare('SELECT COALESCE(SUM(dp),0) s FROM rvb WHERE gen=? AND bot=? AND t0>?').bind(w.gen, bot, t0 - 864e5).first();
+    if (day.s + dp > 1.2) return json({ ok: false, e: 'cap' });
+    await env.DB.prepare('INSERT INTO rvb (gen,bot,t0,t1,dp,uid,ts) VALUES (?,?,?,?,?,?,?)').bind(w.gen, bot, t0, t1, dp, u.uid, t).run();
+    return json({ ok: true });
   }
   if (p === '/api/players') {
     const { results } = await env.DB.prepare('SELECT uid,uname,bot,lv,cp,prof,ov,last FROM players WHERE bot IS NULL AND ban=0 AND gm=0 AND last>? ORDER BY cp DESC LIMIT 500').bind(now() - 45 * DAY).all();

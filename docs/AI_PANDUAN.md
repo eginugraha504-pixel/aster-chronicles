@@ -60,8 +60,9 @@ Ubah/tambah teks di sini bila ada fitur baru yang perlu dijelaskan dengan kata-k
 
 ## Peringkat & dunia pemain
 - Peringkat: tab CP Tim, Level, Arena. Ada label BARU (pemain baru) dan KEMBALI (kembali main), indikator online, naik/turun peringkat.
-- Server berisi ribuan pemain lain (bertambah sampai 10.000) yang bermain di jam masing-masing (ramai malam hari WIB), ada yang santai, reguler, rajin, hardcore; ada yang gratis, pakai Kartu Bulanan, belanja sedang, sampai sultan. Ada yang menabung permata untuk banner tertentu, ada yang ganti nama, ada yang berhenti lalu kembali saat banner baru.
+- Server berisi ribuan pemain lain (bertambah pelan sampai 100.000) yang bermain di jam masing-masing (ramai malam hari WIB), ada yang santai, reguler, rajin, hardcore; ada yang gratis, pakai Kartu Bulanan, belanja sedang, sampai sultan. Ada yang menabung permata untuk banner tertentu, ada yang ganti nama, ada yang berhenti lalu kembali saat banner baru.
 - Profil pemain: favorit, tim utama, koleksi hero, total summon, ★3 didapat, hari login, waktu main, status hoki/apes gacha, bio, VIP, Kartu Bulanan.
+- Rival: di atas Peringkat ada bar ⚔ Rival — satu pemain yang CP-nya kejar-kejaran denganmu (selisih CP, skor salip-menyalip). Kalau kamu menyalipnya ia biasanya farming lebih keras di sesi berikutnya; kalau selisih sudah jauh ia bisa menyerah atau melesat, lalu muncul rival baru.
 
 ## Obrolan Dunia
 - Chat global semua pemain. Pengumuman [Sistem] saat seseorang mendapat ★3 terbatas. Ketuk nama untuk melihat profil. Sebut nama dengan @nama.

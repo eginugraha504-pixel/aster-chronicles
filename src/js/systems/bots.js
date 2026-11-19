@@ -191,9 +191,10 @@ function botAscend(b,P,opt,core,heroes,weapons,gear,lvF){const C0=BOT_CFG,A=C0.A
 
 /* ---- keadaan bot pada waktu now ---- */
 // kunci cache: berubah hanya saat progres/level/era/top up/tabungan berubah
-function botKey(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now),lv=botLv(b.cv,P),sp0=botSpend(b,now);return{b,P,lv,key:Math.floor(P*96)+':'+lv+':'+C.ERAS.length+':'+sp0.gems.length+':'+(b.saver?Math.floor(now/36e5):0)}}
-function botState(i,now=Date.now()){const C=BOT_CFG,{b,P,lv,key}=botKey(i,now);const c=BOTS.cache[i];if(c&&c.key===key)return c;
- const G=botGacha(b,P,now),heroes=G.heroes,weapons=G.weapons;
+// Pe = progres + usaha ekstra rival (systems/rival.js botBoost); gacha tetap memakai P (usaha tidak menambah tarikan)
+function botKey(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now),E=typeof botBoost==='function'?botBoost(i,now):0,Pe=P+E,lv=botLv(b.cv,Pe),sp0=botSpend(b,now);return{b,P,Pe,lv,key:Math.floor(Pe*96)+':'+lv+':'+C.ERAS.length+':'+sp0.gems.length+':'+(b.saver?Math.floor(now/36e5):0)}}
+function botState(i,now=Date.now()){const C=BOT_CFG,{b,P:P0,Pe:P,lv,key}=botKey(i,now);const c=BOTS.cache[i];if(c&&c.key===key)return c;
+ const G=botGacha(b,P0,now),heroes=G.heroes,weapons=G.weapons;
  const F={lv,exp:0,heroes,weapons,gear:{},team:[],mats:{}};const keep=S;S=F;let out;
  try{const r=bRng(b.seed^0x1234567),opt=b.opt;
   // hero favorit: ★3 pertama yang didapat, kalau belum ada pilih hero acak miliknya

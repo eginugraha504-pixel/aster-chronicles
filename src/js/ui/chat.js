@@ -46,7 +46,7 @@ const wcLv3=(i,now)=>botState(i,now).lv>=(FEAT.chat.lv||3);   // aturan sama den
 // data bot: PUBLIK (bisa dilihat semua: profil/peringkat) vs PRIBADI (hanya dia yang tahu)
 function wcDesc(i,now){const c=chCtx(i,now),s=botState(i,now),a=botActivity(i,now),g=s.ev.filter(e=>!e.w&&now-e.t<3*36e5&&e.t<=now).pop();
  return{pub:`Lv ${s.lv}, CP ${fmt(s.cp)}${s.stats.vip?', lencana VIP '+s.stats.vip:''}, tim ${s.team.map(id=>HD[id].name).join('/')}, hero favorit ${c.hero}, tahap terjauh ${c.stage}${c.league?', liga Arena '+c.league:''}${g?`, ${Math.round((now-g.t)/6e4)} menit lalu dapat ★3 ${HD[g.id].name} (muncul di pengumuman)`:''}`,
-  priv:`${a?'SEDANG: '+a.t+'; ':''}gacha lagi ${c.luck==='sial'?'apes':c.luck==='hoki'?'hoki':'biasa'}, pity ${c.pity}, ${c.vip>=4?'sultan':c.paid?'kadang top up'+(c.card?' (kartu bulanan)':''):'f2p'}${c.held?', nabung '+c.held+' tarikan':''}, main ${c.days} hari${c.fading?', mulai bosan':''}, ${c.sk==='veteran'?'sudah biasa main gacha sejenis: skip cerita, hafal cara farming (sapu tahap, dungeon, toko emas), suka kasih tips':c.sk==='baru'?(c.days<=7?'pertama kali main game gacha, masih bingung banyak fitur, baca cerita':'awalnya awam gacha, sekarang mulai paham'):'paham dasar game'}`}}
+  priv:`${a?'SEDANG: '+a.t+'; ':''}gacha lagi ${c.luck==='sial'?'apes':c.luck==='hoki'?'hoki':'biasa'}, pity ${c.pity}, ${c.vip>=4?'sultan':c.paid?'kadang top up'+(c.card?' (kartu bulanan)':''):'f2p'}${c.held?', nabung '+c.held+' tarikan':''}, main ${c.days} hari${c.fading?', mulai bosan':''}, ${c.sk==='veteran'?'sudah biasa main gacha sejenis: skip cerita, hafal cara farming (sapu tahap, dungeon, toko emas), suka kasih tips':c.sk==='baru'?(c.days<=7?'pertama kali main game gacha, masih bingung banyak fitur, baca cerita':'awalnya awam gacha, sekarang mulai paham'):'paham dasar game'}${typeof rvIs==='function'&&rvIs(i)&&loggedIn()&&bHash(i,now/36e5|0)%3===0?`, diam-diam bersaing CP dengan ${NET.acct.u} di peringkat (selisih ${fmt(Math.abs(s.cp-teamPow()))}, ${s.cp>teamPow()?'dia di depan':'dia di belakang'}; jarang dibahas)`:''}`}}
 // data PUBLIK pemain (yang bisa dilihat orang lain di profil) — tidak ada permata, pity, top up, atau aktivitas
 function wcMePub(){const own=Object.keys(S.heroes),s3=own.filter(id=>(S.heroes[id].asc||HD[id].r)>=3).map(id=>HD[id].name),cl=SLIST.filter(x=>S.stages[x.key]).pop(),v=vipOf(S.iap&&S.iap.spent||0);
  return`Lv ${S.lv}, CP ${fmt(teamPow())}, peringkat CP #${chMyRank()}${v?', lencana VIP '+v:''}, tim ${S.team.filter(Boolean).map(id=>HD[id].name).join('/')}, hero ★3: ${s3.join(', ')||'-'}, tahap terjauh ${cl?cl.key:'-'}`}
@@ -56,13 +56,14 @@ function wcAiBody(kind,reTo){const now=Date.now();
  const ment=loggedIn()?on.filter(i=>{const L=WC.list[WC.list.length-1];return L&&wcMine(L)&&L.txt.toLowerCase().includes(botName(i).toLowerCase())}):[];
  const recent=[...new Set(WC.list.filter(m=>now-m.ts<15*6e4).map(wcBot).filter(i=>i>=0&&on.includes(i)))].slice(-2);
  const r=bRng(now>>>0),pool=talk.map(i=>[i,(chPersona(i).chat+.2)*r()]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
- const idx=[...new Set([...tgt,...ment,...recent,...pool])].slice(0,5);
+ const rv=kind==='tick'&&typeof rvChatPending==='function'?rvChatPending(now,on):null;
+ const idx=[...new Set([...(rv?[rv.i]:[]),...tgt,...ment,...recent,...pool])].slice(0,5);
  const cands=idx.map(i=>{const D=wcDesc(i,now),s=botState(i,now);return{uid:botUid(i),pub:D.pub,priv:D.priv,style:wcStyle(i),lower:wcPersona(i).lower,fav:s.fav||''}});
  const humans=NET.players.filter(p=>p.on&&!(NET.acct&&p.uid===NET.acct.uid)).map(p=>`${p.u} (Lv ${p.lv})`).join(', ');
- return{tok:netTok(),kind,watch:chatOpen&&!!$('#chList'),online:wcOnline(),world:chWorldTxt(now),humans,cands,player:loggedIn()?{name:NET.acct.u,pub:wcMePub()}:null,n:chatOpen?'2-5':'2-4',wb:kind==='tick'&&typeof WB!=='undefined'&&WB.ev?WB.ev:null}}
+ return{tok:netTok(),kind,watch:chatOpen&&!!$('#chList'),online:wcOnline(),world:chWorldTxt(now),humans,cands,player:loggedIn()?{name:NET.acct.u,pub:wcMePub()}:null,n:chatOpen?'2-5':'2-4',wb:kind==='tick'&&typeof WB!=='undefined'&&WB.ev?WB.ev:null,rv:rv?{ev:rv.ev,who:botUid(rv.i),k:rv.k}:null}}
 async function wcAi(kind,reTo){if(!NET.ai||WC.aiBusy||!botsWarmOk()||document.hidden)return;WC.aiBusy=true;
  try{chatInit();const b=wcAiBody(kind,reTo);if(!b.cands.length){WC.aiNext=Date.now()+6e4;return}const o=await api('/api/wc/ai',b);
-  if(kind==='tick'&&b.wb&&WB.ev===b.wb)WB.ev=null;if(kind==='tick')WC.aiNext=Date.now()+Math.min(9e4,Math.max(3e4,o.next||0))+Math.random()*1e4;if(o.ok)setTimeout(wcFetch,2500)}catch(e){WC.aiNext=Date.now()+6e4}finally{WC.aiBusy=false}}
+  if(kind==='tick'&&b.wb&&WB.ev===b.wb)WB.ev=null;if(b.rv&&o.rv)rvChatDone(b.rv.k);if(kind==='tick')WC.aiNext=Date.now()+Math.min(9e4,Math.max(3e4,o.next||0))+Math.random()*1e4;if(o.ok)setTimeout(wcFetch,2500)}catch(e){WC.aiNext=Date.now()+6e4}finally{WC.aiBusy=false}}
 const wcMine=m=>loggedIn()&&m.uid===NET.acct.uid;
 const chAt=m=>!wcMine(m)&&loggedIn()&&m.txt.toLowerCase().includes('@'+NET.acct.u.toLowerCase());
 const stkImg=k=>typeof STICKER_SRC!=='undefined'&&STICKER_SRC[k]?`<img class="chstk" src="${STICKER_SRC[k]}" alt="">`:'';

@@ -126,6 +126,8 @@ function arDefTick(now=Date.now()){const A=arState(),C=ARENA_CFG;if(!A.reg||!bot
  // balas dendam: bot yang kalah dari seranganmu datang lagi saat online berikutnya
  for(const e of A.log){if(e.k!=='atk'||!e.win||e.rvx||e.i>=botsVisible(now))continue;const t=arRevengeAt(e);
   if(t==null||now-e.t>3*864e5){e.rvx=1;continue}if(t<=now){e.rvx=1;if(t>A.lastDef-6e4)evs.push([t,0,e.i])}}
+ // rival abadi: menyerang sekali di sesi pertamanya tiap hari (systems/rival.js)
+ if(typeof rvArenaEvents==='function')for(const v of rvArenaEvents(A.lastDef,now))if(arBotOnline(v[2],v[0])&&!evs.some(x=>x[2]===v[2]&&Math.abs(x[0]-v[0])<36e5))evs.push(v);
  evs.sort((x,y)=>x[0]-y[0]);
  A.lastDef=now;const list=evs.filter(v=>v[2]!=null).concat(evs.filter(v=>v[2]==null).slice(-C.defMax)).sort((x,y)=>x[0]-y[0]);if(!list.length){save();return 0}
  const Bd=arBoard(now),def=arUnits(null,A.def);let n=0;
