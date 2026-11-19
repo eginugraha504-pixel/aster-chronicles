@@ -3368,8 +3368,10 @@ const WB_CFG={
  n:19, hit:.36,  // hit: satu pukulan bos ≈ 36% HP rata-rata hero (sebelum fase)
                        // kekuatan dasar bos ≈ tahap ke-19 (def tetap untuk semua → damage sebanding kekuatan)
  // keseimbangan: DPS rata-rata tim dengan CP tertentu di pertarungan bos (sudah termasuk waktu mati & bangkit).
- // dikalibrasi lewat simulasi mesin pertarungan (tools: test/wbcal) → dipakai juga untuk damage bot.
- dps:{k:.034,a:1.04},
+ // dikalibrasi ulang 19 Nov 2026 lewat simulasi mesin pertarungan SATU RAID PENUH (8 menit, keempat fase; t/wbcal3.py):
+ // tim tumbang ±tiap 25–30 dtk. Kalibrasi lama (3 menit pertama tanpa fase) membuat bot ±2× terlalu kuat.
+ // Cek nyata: tim Egi CP 17,4rb (dengan penyembuh) ±580/dtk di simulasi, 383/dtk di raid 16.00 → rumus: ±390/dtk.
+ dps:{k:.0027,a:1.217},
  attend:{base:.42,core:.3},  // peluang bot ikut raid (ditambah gaya main 'core' & jam ramai)
 };
 // lima wujud naga, bergilir per jadwal. tint: warna kali (multiply) di atas sprite naga abu-abu; null = apa adanya
@@ -7839,7 +7841,7 @@ function wbAttend(b,t0){const C=WB_CFG;if(t0<C.from||t0+C.dur<b.join||!botActive
 function wbBotUnit(i,b,a,t0,boss){const s=botState(i,t0),cp=s.cp,team=s.team.filter(id=>HD[id]),r=bRng(bHash(i,Math.floor(t0/6e4)+77));
  const atk=team.length?team.reduce((x,id)=>x+elMult(HD[id].el,boss.el),0)/team.length:1,def=team.length?team.reduce((x,id)=>x+elMult(boss.el,HD[id].el),0)/team.length:1;
  const sk=b.sk==='veteran'?1.05:b.sk==='baru'?.93:1,q=Math.pow(atk,1.4)*(.9+.2*r())*sk;
- const L=Math.max(15,Math.min(75,30*Math.pow(cp/1e4,.5)*(.8+.4*r())/def)),D=WB_CFG.respawn+1+r()*4,dps=wbDps(cp)*q;
+ const L=Math.max(10,Math.min(45,17*Math.pow(cp/1e4,.15)*(.8+.4*r())/def)),D=WB_CFG.respawn+1+r()*4,dps=wbDps(cp)*q;
  return Object.assign({i,cp,dps,L,D,dA:dps*(L+D)/L,el:atk},a)}
 function wbRaid(t0){if(WB.cache.has(t0))return WB.cache.get(t0);const C=WB_CFG,n=botsVisible(t0+C.dur),P=[],boss=wbBoss(t0);
  for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const b=botBase(i),a=wbAttend(b,t0);if(!a)continue;P.push(wbBotUnit(i,b,a,t0,boss))}

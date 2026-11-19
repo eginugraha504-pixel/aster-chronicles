@@ -43,7 +43,7 @@ function wbAttend(b,t0){const C=WB_CFG;if(t0<C.from||t0+C.dur<b.join||!botActive
 function wbBotUnit(i,b,a,t0,boss){const s=botState(i,t0),cp=s.cp,team=s.team.filter(id=>HD[id]),r=bRng(bHash(i,Math.floor(t0/6e4)+77));
  const atk=team.length?team.reduce((x,id)=>x+elMult(HD[id].el,boss.el),0)/team.length:1,def=team.length?team.reduce((x,id)=>x+elMult(boss.el,HD[id].el),0)/team.length:1;
  const sk=b.sk==='veteran'?1.05:b.sk==='baru'?.93:1,q=Math.pow(atk,1.4)*(.9+.2*r())*sk;
- const L=Math.max(15,Math.min(75,30*Math.pow(cp/1e4,.5)*(.8+.4*r())/def)),D=WB_CFG.respawn+1+r()*4,dps=wbDps(cp)*q;
+ const L=Math.max(10,Math.min(45,17*Math.pow(cp/1e4,.15)*(.8+.4*r())/def)),D=WB_CFG.respawn+1+r()*4,dps=wbDps(cp)*q;
  return Object.assign({i,cp,dps,L,D,dA:dps*(L+D)/L,el:atk},a)}
 function wbRaid(t0){if(WB.cache.has(t0))return WB.cache.get(t0);const C=WB_CFG,n=botsVisible(t0+C.dur),P=[],boss=wbBoss(t0);
  for(let i=0;i<n;i++){if(typeof botHidden==='function'&&botHidden(i))continue;const b=botBase(i),a=wbAttend(b,t0);if(!a)continue;P.push(wbBotUnit(i,b,a,t0,boss))}
