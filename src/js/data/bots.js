@@ -93,9 +93,9 @@ const BOT_CFG={
  SPEND:{
   tiers:[
    {id:'f2p',    w:75},
-   {id:'card',   w:17,card:1,  renew:.8, rate:.035,first:[.15,2.5],packs:[['g1',6],['g2',3]],                    banner:[0,1],bp:[['g1',3],['g2',2]]},
-   {id:'dolphin',w:6, card:.85,renew:.9, rate:.16, first:[.05,1.5],packs:[['g1',2],['g2',5],['g3',4],['g4',1]],  banner:[1,2],bp:[['g2',2],['g3',4],['g4',2]]},
-   {id:'whale',  w:1.4,card:1, renew:1,  rate:.42, first:[.01,.4],packs:[['g3',2],['g4',3],['g5',3],['g6',3]],  banner:[2,5],bp:[['g4',1],['g5',2],['g6',4]],burn:.33},
+   {id:'card',   w:17,card:1,  renew:.8, rate:.035,first:[.02,1.2],packs:[['g1',6],['g2',3]],                    banner:[0,1],bp:[['g1',3],['g2',2]]},
+   {id:'dolphin',w:6, card:.85,renew:.9, rate:.16, first:[.01,.8],packs:[['g1',2],['g2',5],['g3',4],['g4',1]],  banner:[1,2],bp:[['g2',2],['g3',4],['g4',2]]},
+   {id:'whale',  w:1.4,card:1, renew:1,  rate:.42, first:[.005,.25],packs:[['g3',2],['g4',3],['g5',3],['g6',3]],  banner:[2,5],bp:[['g4',1],['g5',2],['g6',4]],burn:.33},
    // pengejar puncak: segala cara — main sangat rajin & optimal, selalu kejar rate-up, tidak menabung, tidak pernah berhenti,
    // borong tiap banner & tanggal gajian, Kebangkitan lebih cepat (ASC.tier).
    // whale/swhale/mwhale punya kurva sendiri (CURVES profil_pengalaman_tier) dari simulasi yang MEMBAKAR PERMATA:

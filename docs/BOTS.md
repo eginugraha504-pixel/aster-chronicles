@@ -83,7 +83,7 @@ Terpisah dari profil (seberapa sering login) dan tier (seberapa banyak belanja).
 - `BOT_CFG.SPEND` + `BOT_TIERS`: Kartu Bulanan, paket harian acak (×2,2 di tanggal gajian), borong saat banner baru, battle pass. Permata berbayar → tarikan tambahan (`botPaidPulls`). Total belanja → VIP 1–7.
 - **Whale / super whale / mega whale membakar permata**: kurva mereka berasal dari simulasi dengan top up harian ±3rb/7rb/15rb permata, **isi ulang stamina 3/5/5× sehari, reset dungeon 2/5/5× per jenis**. Porsi permata yang terbakar (`burn` .33/.55/.28) tidak dihitung sebagai tarikan.
 - Super & mega whale: selalu rajin/hardcore, tidak pernah berhenti, selalu kejar rate-up; pengalaman veteran (swhale kadang biasa).
-- **Pembelian pertama** (`spend0`): bawaan 0,3–4 hari setelah bergabung (`SPEND.firstDay`), per tier `first`: Kartu Bulanan 0,15–2,5 hari, dolphin 0,05–1,5, whale 0,01–0,4, super whale ≤0,2, mega whale ≤0,06 hari (langsung di sesi pertama). Dunia yang baru di-reset tetap punya pembeli sejak jam-jam pertama.
+- **Pembelian pertama** (`spend0`): bawaan 0,3–4 hari setelah bergabung (`SPEND.firstDay`), per tier `first`: Kartu Bulanan 0,02–1,2 hari, dolphin 0,01–0,8, whale 0,005–0,25, super whale ≤0,2, mega whale ≤0,06 hari (langsung di sesi pertama). Dunia yang baru di-reset tetap punya pembeli sejak jam-jam pertama.
 - Penjualan dilaporkan ke bank Telegram (`botsale.js`) → saldo HUN2 STUDIO. Laporan dikirim oleh game yang sedang terbuka (tiap menit, setelah bot selesai dihitung). Notifikasi Telegram `/notif` hanya untuk pembelian ≥ Rp799rb.
 
 ## 7. Hidup sosial

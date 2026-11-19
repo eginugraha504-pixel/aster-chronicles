@@ -5,6 +5,7 @@
 const _D=Date;let OFF=0;
 class FD extends _D{constructor(...a){if(a.length)super(...a);else super(_D.now()+OFF)}static now(){return _D.now()+OFF}}
 window.Date=FD;
+try{TOPUP_CFG.api=null}catch(e){}   // simulator tidak boleh melapor penjualan bot ke bank
 window.setTimeout=(f,ms)=>0;window.requestAnimationFrame=()=>0;
 const SIM=window.SIM={log:[],ms:{},play:0,battles:0,wins:0,losses:0,sweeps:0,summons:0,day:0,sessions:0,storyT:0,wbN:0,arN:0,
  counts:{story:0,dg:0,replay:0,sweep:0},seen:{},failed:{},skill:'biasa',len:[8,22],hrs:[8,13,18,22],seed:1,
