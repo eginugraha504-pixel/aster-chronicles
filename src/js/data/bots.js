@@ -93,17 +93,17 @@ const BOT_CFG={
  SPEND:{
   tiers:[
    {id:'f2p',    w:75},
-   {id:'card',   w:17,card:1,  renew:.8, rate:.035,packs:[['g1',6],['g2',3]],                    banner:[0,1],bp:[['g1',3],['g2',2]]},
-   {id:'dolphin',w:6, card:.85,renew:.9, rate:.16, packs:[['g1',2],['g2',5],['g3',4],['g4',1]],  banner:[1,2],bp:[['g2',2],['g3',4],['g4',2]]},
-   {id:'whale',  w:1.4,card:1, renew:1,  rate:.42, packs:[['g3',2],['g4',3],['g5',3],['g6',3]],  banner:[2,5],bp:[['g4',1],['g5',2],['g6',4]],burn:.33},
+   {id:'card',   w:17,card:1,  renew:.8, rate:.035,first:[.15,2.5],packs:[['g1',6],['g2',3]],                    banner:[0,1],bp:[['g1',3],['g2',2]]},
+   {id:'dolphin',w:6, card:.85,renew:.9, rate:.16, first:[.05,1.5],packs:[['g1',2],['g2',5],['g3',4],['g4',1]],  banner:[1,2],bp:[['g2',2],['g3',4],['g4',2]]},
+   {id:'whale',  w:1.4,card:1, renew:1,  rate:.42, first:[.01,.4],packs:[['g3',2],['g4',3],['g5',3],['g6',3]],  banner:[2,5],bp:[['g4',1],['g5',2],['g6',4]],burn:.33},
    // pengejar puncak: segala cara — main sangat rajin & optimal, selalu kejar rate-up, tidak menabung, tidak pernah berhenti,
    // borong tiap banner & tanggal gajian, Kebangkitan lebih cepat (ASC.tier).
    // whale/swhale/mwhale punya kurva sendiri (CURVES profil_pengalaman_tier) dari simulasi yang MEMBAKAR PERMATA:
    // isi ulang stamina 3/5/5× sehari & reset dungeon 2/5/5× per jenis. burn = porsi permata top up yang habis untuk itu (tidak jadi tarikan).
-   {id:'swhale', w:.45,card:1, renew:1,  rate:.75, packs:[['g4',2],['g5',4],['g6',6]],            banner:[5,9],bp:[['g5',2],['g6',6]],pf:['rajin','hardcore'],sk:['veteran','veteran','biasa'],speed:1,opt:.95,burn:.55},
-   {id:'mwhale', w:.15,card:1, renew:1,  rate:1.3, packs:[['g5',2],['g6',8]],                     banner:[10,18],bp:[['g6',1]],pf:['hardcore'],sk:['veteran'],speed:1,opt:.985,burn:.28},
+   {id:'swhale', w:.45,card:1, renew:1,  rate:.75, first:[.005,.2],packs:[['g4',2],['g5',4],['g6',6]],            banner:[5,9],bp:[['g5',2],['g6',6]],pf:['rajin','hardcore'],sk:['veteran','veteran','biasa'],speed:1,opt:.95,burn:.55},
+   {id:'mwhale', w:.15,card:1, renew:1,  rate:1.3, first:[0,.06],packs:[['g5',2],['g6',8]],                     banner:[10,18],bp:[['g6',1]],pf:['hardcore'],sk:['veteran'],speed:1,opt:.985,burn:.28},
   ],
-  firstDay:[.3,4],                 // hari main sebelum pembelian pertama
+  firstDay:[.3,4],                 // hari sebelum pembelian pertama (bawaan); tiap tier bisa punya `first` sendiri: whale langsung beli di hari pertama
   payday:{dates:[25,26,27,28,1],mul:2.2}, // tanggal gajian: peluang beli ×mul
   churnMul:.55,                    // pemain yang top up lebih jarang berhenti
   heroShare:.7,                    // porsi tarikan berbayar ke banner hero
