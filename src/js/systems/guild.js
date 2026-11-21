@@ -258,6 +258,15 @@ function gVirt(g,info,from,to){const out=[],now=Date.now(),wbN=t=>{try{const c=w
   else if(e.ty==='k'){o.n=nm(e.a);L=GCH.kick}else if(e.ty==='lvup'){o.lv=e.x;o.nx=Math.min(10,+e.x+1);L=GCH.lvup;n=2}else if(e.ty==='L'){o.n=nm(e.a);L=GCH.lead;n=2}
   else if(e.ty==='vote'){o.n=nm(e.a);L=GCH.vote;n=3}else if(e.ty==='coup'){o.n=nm(e.a);L=GCH.coup;n=2}else if(e.ty==='coupno'){L=GCH.coupno}else if(e.ty==='found'){const fi=botIdxOf(e.a);if(fi>=0){out.push({uid:e.a,u:botName(fi),txt:pk(GCH.found),ts:e.ts+6e4,v:1})}continue}
   if(!L)continue;for(let q=0;q<n;q++){const t=e.ts+(30+R()*240+q*70)*1e3;if(t>now)break;const x=onAt(t,R,ex)||(q===0?bots[Math.floor(R()*bots.length)]:null);if(!x)continue;out.push({uid:x.m.uid,u:botName(x.i),txt:fill(pk(L),o),ts:Math.round(t),v:1})}}
+ // raid Bos Dunia antar guild: rekan guild menyemangati saat raid & membahas peringkat guild sesudahnya
+ if(typeof wbGBoard==='function'&&typeof WB_CFG!=='undefined'){const d=wibDay(now),pk=(R,L)=>L[Math.floor(R()*L.length)];
+  for(const dd of[d-1,d])for(const hh of WB_CFG.slots){const t0=wbSlotT(dd,hh);if(t0<WB_CFG.from||t0>Math.min(now,to)||wbEnd(t0)+20*6e4<from)continue;
+   try{const R=bRng(bHash(g.id,Math.floor(t0/6e4)+41)),bn=T(wbBoss(t0).n),near=(gb,me)=>{const o=gb.L[me.rank===1?1:me.rank-2];return o?o.name:'guild lain'};
+    const tl=t0+(100+R()*200)*1e3;if(tl>=from&&tl<=Math.min(to,now)&&R()<.75){const gb=wbGBoard(t0,tl),me=gb.L.find(x=>x.gid===g.id);if(me){const x=onAt(tl,R);if(x)out.push({uid:x.m.uid,u:botName(x.i),txt:fill(pk(R,GCH.wblive),{b:bn,r:me.rank,g:near(gb,me)}),ts:Math.round(tl),v:1})}}
+    const st=wbState(t0,now),te0=st.dead?st.killT:wbEnd(t0);if(!st.dead&&now<wbEnd(t0))continue;
+    const gb=wbGBoard(t0,now),me=gb.L.find(x=>x.gid===g.id);if(!me)continue;const mvp=me.mem.slice().sort((a,b)=>b.dmg-a.dmg)[0];
+    const L=me.rank===1?GCH.wb1:me.rank<=3?GCH.wb3:me.rank<=10?GCH.wb10:GCH.wblow,o={b:bn,r:me.rank,n:mvp?mvp.name:'semua',g:near(gb,me)};
+    for(let q=0;q<(me.rank<=3?2:1);q++){const t=te0+(40+R()*150+q*80)*1e3;if(t<from||t>Math.min(to,now))continue;const x=onAt(t,R);if(x)out.push({uid:x.m.uid,u:botName(x.i),txt:fill(pk(R,q===0&&!st.dead?GCH.wbesc:L),o),ts:Math.round(t),v:1})}}catch(e){}}}
  // pemain (aku) masuk 10 besar CP server → sesekali dibanggakan rekan guild
  const fr=S.fame&&S.fame.rk;if(fr&&fr<=10&&loggedIn()&&g.M.some(m=>m.uid===NET.acct.uid))for(let h=Math.floor(from/(3*36e5));h*3*36e5<=to;h++){const R=bRng(bHash(g.id,h*11+7));if(R()>.3)continue;const t=h*3*36e5+Math.floor(R()*3*36e5);if(t<from||t>to)continue;const x=onAt(t,R,NET.acct.uid);if(x)out.push({uid:x.m.uid,u:botName(x.i),txt:fill(GCH.fame[Math.floor(R()*GCH.fame.length)],{n:S.name,k:fr<=1?'#1':fr<=3?'top 3':'top 10'}),ts:t,v:1})}
  return out.filter(m=>m.ts<=now)}

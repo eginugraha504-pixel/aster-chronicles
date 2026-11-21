@@ -68,14 +68,17 @@ function watchRaidListHTML(x){if(WT.loading||!botsWarmOk())return`<p class="wvlo
  <div id="wtRaidBody">${watchRaidBodyHTML()}</div>`}
 function watchRaidBodyHTML(){if(WT.raid==null)return`<p class="wvload">${T('Pilih raid di atas untuk melihat papan damage.')}</p>`;
  if(WT.rload||!WT.rb||WT.rb.t0!==WT.raid)return`<p class="wvload">${T('Menghitung papan raid...')}</p>`;
- const {t0,b}=WT.rb,st=b.st,now=Date.now(),live=now<wbEnd(t0),boss=wbBoss(t0),pct=Math.round(st.p*1000)/10;
+ const {t0,b,gb}=WT.rb,st=b.st,now=Date.now(),live=now<wbEnd(t0),boss=wbBoss(t0),pct=Math.round(st.p*1000)/10;
+ const gv=WT.rv||'g',pc=v=>(Math.round(v*1000)/10).toString().replace('.',',');
  const head=st.killT!=null&&now>=st.killT?T('Tumbang dalam {t}',{t:wtMS(st.killT-t0)}):live?T('Sisa waktu {t}',{t:wtMS(wbEnd(t0)-now)}):T('Kabur — HP tersisa {p}%',{p:pct});
  return`<div class="wvboss"><div><b>${esc(T(boss.n))}</b><small>${wtWhen(t0)} · ${fmt(b.L.length)} ${T('peserta')}</small></div><span>${head}</span></div>
  <div class="wvhp"><i style="width:${Math.max(0,Math.min(100,st.p*100))}%"></i><em>${fmt(Math.round(st.left))} / ${fmt(st.hp)}</em></div>
- <div class="wvlist">${b.L.slice(0,100).map((e,k)=>wtRow({name:e.name,h:e.uid,online:live&&!e.dn,top:e.bot!=null&&typeof botSum==='function'?botSum(e.bot).top:null},k,`<b>${fmt(e.dmg)}</b><small>CP ${fmt(e.cp)}</small>`,live?(e.dn?T('Bangkit {n} dtk',{n:e.dn}):T('Bertarung')):T('{p}% damage',{p:(Math.round(e.dmg/Math.max(1,st.hp)*1000)/10).toString().replace('.',',')}))).join('')||`<p class="wvload">${T('Belum ada peserta.')}</p>`}</div>`}
+ <div class="mtabs gsub"><button class="btn sm ${gv==='g'?'':'blue'}" data-act="wtRaidV" data-arg="g">${T('Guild')} (${gb?gb.L.length:0})</button><button class="btn sm ${gv==='i'?'':'blue'}" data-act="wtRaidV" data-arg="i">${T('Individu')} (${b.L.length})</button></div>
+ ${gv==='g'&&gb?`<div class="wvlist">${gb.L.concat(gb.solo.n?[gb.solo]:[]).map((g,k)=>{const top=g.mem.slice().sort((x,y)=>y.dmg-x.dmg)[0];return`<div class="rkrow wvrow"><span class="rkn${g.gid&&k<3?' m'+(k+1):''}">${g.gid?g.rank:'–'}</span><span class="rkav">${g.gid&&typeof gIc==='function'?gIc(g,30):''}</span><span class="rknm"><b>${esc(g.name)}</b><small>${T('{n} penyerang',{n:g.n})}${top?' · MVP '+esc(top.name):''}</small></span><span class="rkv"><b>${fmt(g.dmg)}</b><small>${T('{p}% damage',{p:pc(g.dmg/Math.max(1,st.hp))})}</small></span></div>`}).join('')||`<p class="wvload">${T('Belum ada peserta.')}</p>`}</div>`:
+ `<div class="wvlist">${b.L.slice(0,100).map((e,k)=>wtRow({name:e.name,h:e.uid,online:live&&!e.dn,top:e.bot!=null&&typeof botSum==='function'?botSum(e.bot).top:null},k,`<b>${fmt(e.dmg)}</b><small>CP ${fmt(e.cp)}</small>`,live?(e.dn?T('Bangkit {n} dtk',{n:e.dn}):T('Bertarung')):T('{p}% damage',{p:pc(e.dmg/Math.max(1,st.hp))}))).join('')||`<p class="wvload">${T('Belum ada peserta.')}</p>`}</div>`}`}
 async function watchRaidOpen(t0){t0=+t0;WT.raid=t0;WT.rload=true;const R=$('#wtRaidBody');if(R)R.innerHTML=watchRaidBodyHTML();document.querySelectorAll('.wvraid').forEach(e=>e.classList.toggle('on',+e.dataset.arg===t0));
  await wbPull(t0,true);await sleep(30);if(WT.raid!==t0)return;
- try{WT.rb={t0,b:wbBoard(t0,Date.now()),at:Date.now()}}catch(e){WT.rb=null;console.error(e)}WT.rload=false;watchRender()}
+ try{WT.rb={t0,b:wbBoard(t0,Date.now()),gb:wbGBoard(t0,Date.now()),at:Date.now()}}catch(e){WT.rb=null;console.error(e)}WT.rload=false;watchRender()}
 
 /* ---------- peringkat guild server ini ---------- */
 function watchGuildHTML(x){if(WT.loading||!botsWarmOk()||typeof gReady!=='function'||!gReady())return`<p class="wvload">${T('Memuat guild {s}...',{s:'S'+x.id+' · '+esc(x.name)})}</p>`;
@@ -104,7 +107,7 @@ async function watchTick(){if(!document.getElementById('watch')||!watchMode())re
  if(document.hidden)return;
  if(WT.sv==='all'){await watchSrvList();watchRender();return}
  if(WT.loading)return;
- if(WT.tab==='wb'){if(WT.raid!=null&&Date.now()<wbEnd(WT.raid)+6e4){await wbPull(WT.raid,true);try{WT.rb={t0:WT.raid,b:wbBoard(WT.raid,Date.now()),at:Date.now()}}catch(e){}watchRender()}return}
+ if(WT.tab==='wb'){if(WT.raid!=null&&Date.now()<wbEnd(WT.raid)+6e4){await wbPull(WT.raid,true);try{WT.rb={t0:WT.raid,b:wbBoard(WT.raid,Date.now()),gb:wbGBoard(WT.raid,Date.now()),at:Date.now()}}catch(e){}watchRender()}return}
  netPlayers();if(Date.now()-(NET.worldAt||0)>6e4)netWorld();watchTopSave(WT.sv);watchRender()}
 
 Object.assign(ACT,{
@@ -112,6 +115,7 @@ Object.assign(ACT,{
  wtTab:k=>{sfx('tab');WT.tab=k;WT.n=100;watchRender()},
  wtMore:()=>{WT.n+=100;watchRender()},
  wtRaid:t0=>{sfx('tap');watchRaidOpen(+t0)},
+ wtRaidV:v=>{sfx('tap');WT.rv=v;const R=$('#wtRaidBody');if(R)R.innerHTML=watchRaidBodyHTML()},
  wtMark:()=>{WT.mark=!WT.mark;sfx('tab');watchRender()},
  wtGBy:k=>{gRankBy=k;sfx('tab');watchRender()},
  wtOut:()=>confirmBox(T('Keluar dari akun penonton?'),()=>{watchClose();netLogout()},T('Keluar')),

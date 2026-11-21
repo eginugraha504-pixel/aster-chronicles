@@ -100,3 +100,18 @@
 .amb b{white-space:nowrap}
 .wbpn{padding:10px;margin-bottom:8px}.wbpn .wbphs,.wbpn .wbrules{margin-bottom:0}.wbpn .wbrw{background:rgba(0,0,0,.05)}
 .wbsr .wbdn{font-style:normal;font-size:9px;color:#ff9a8a;margin-right:3px;opacity:.9}
+/* raid antar guild (22 Nov 2026) */
+.wbr.wbg .gemb{flex:none;border-radius:4px}
+.wbr.wbg b small{display:block;font-weight:600;font-size:10px;color:var(--mut);line-height:1.1}
+.wbr.wbg.solo{opacity:.8;background:rgba(0,0,0,.025)}
+.wbr small{font-family:var(--fh);font-size:10.5px;color:var(--mut)}
+.wbgl{display:flex;flex-direction:column;gap:3px;max-height:62vh;overflow:auto}
+.wbgd summary{list-style:none;cursor:pointer}.wbgd summary::-webkit-details-marker{display:none}
+.wbgd[open] summary .wbr{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.wbgd>.wblist{margin:0 0 4px 14px;padding-left:6px;border-left:2px solid rgba(200,140,20,.35)}
+.wbsec,.sec.wbgs{margin-top:8px}
+.wblist.wbend{margin:6px 0}
+.wbsr.you{background:rgba(60,120,200,.7);margin-top:3px}
+.wbsr.me b,.wbr.me b{display:block;font-size:inherit;-webkit-text-stroke:0;color:inherit}
+.wbres .wbsum{margin-top:30px}.wbres .wbsum div{min-width:0;max-width:34%}.wbres .wbsum small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wbres .wbr{text-align:left}

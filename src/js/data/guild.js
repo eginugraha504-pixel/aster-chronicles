@@ -93,5 +93,12 @@ const GCH={
  coup:['ketua baru! {n} menang voting','wah beneran kudeta berhasil','selamat {n}, semoga guild makin aktif','sedih ketua lama diganti'],
  coupno:['mosi gagal, ketua tetap','udah udah, damai lagi ya','yaudah ketua tetap, lanjut main'],
  found:['guild baru, ayo rame in','halo semua, guild baru nih, ajak temen ya','gas kita bikin guild ini top'],
- fame:['{n} makin gila CP nya','guild kita punya {k} server nih, {n}','{n} gendong guild wkwk','bangga ada {n} di sini','{n} bagi tips dong','pantes guild kita naik, ada {n}']
+ fame:['{n} makin gila CP nya','guild kita punya {k} server nih, {n}','{n} gendong guild wkwk','bangga ada {n} di sini','{n} bagi tips dong','pantes guild kita naik, ada {n}'],
+ // raid Bos Dunia antar guild ({b} bos, {r} peringkat guild, {n} MVP guild, {g} guild lawan terdekat)
+ wblive:['serbu {b}! guild kita #{r} sekarang','ayo yg on ikut raid, kita #{r}','{g} ngejar terus nih, gas!','damage damage! jangan kalah sama {g}','yg belum ikut raid buruan, lagi #{r}','{b} keras banget fase ini'],
+ wb1:['JUARA 1 raid {b}!! mantap semua','#1 raid lagi, guild kita emang beda','gg semua, #1! makasih {n} damage gede','raid {b} kita juara, hadiahnya cek surat'],
+ wb3:['#{r} di raid {b}, lumayan','dikit lagi #1, next raid gas','gg semua, #{r}. {n} paling gede damagenya','podium! #{r} raid {b}'],
+ wb10:['#{r} raid tadi, next harus naik','masih kalah sama {g}, perkuat tim dulu','gg, #{r}. yg elemen unggul bawa ya next raid','raid {b} #{r}, makasih yg udah ikut'],
+ wblow:['raid tadi kita kurang orang','next raid ajak yg lain ikut ya','gapapa, yang penting dapet peti','harus lebih banyak yg ikut raid nih'],
+ wbesc:['yah {b} kabur','{b} kabur, hadiah kepotong deh','next raid harus lebih cepet']
 };

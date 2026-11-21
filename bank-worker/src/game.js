@@ -294,7 +294,7 @@ const RV_EVS = {
 // elemen naga → fakta keunggulan (supaya obrolan tidak salah kasih saran)
 const WB_EL = { api: 'api. Unggul melawannya: hero AIR (damage ×1,3). Hero TANAH lemah (×0,75)', air: 'air. Unggul melawannya: hero TANAH (×1,3). Hero API lemah (×0,75)', tanah: 'tanah. Unggul melawannya: hero API (×1,3). Hero AIR lemah (×0,75)', cahaya: 'cahaya. Unggul melawannya: hero GELAP (×1,3); cahaya vs cahaya biasa', gelap: 'gelap. Unggul melawannya: hero CAHAYA (×1,3); gelap vs gelap biasa' };
 // momen Bos Dunia yang dikirim game (b.wb) → satu adegan obrolan khusus per momen per raid
-const WB_EVS = { pre: 'Bos Dunia {b} akan muncul beberapa menit lagi (sudah diumumkan di game). Orang siap-siap, ngajak ikut, nanya elemen lemahnya, nyiapin tim.', start: 'Bos Dunia {b} BARU SAJA muncul dan semua lagi nyerbu. Ramai: saling semangatin, ada yang tim-nya tumbang & nunggu bangkit 10 detik, bahas peringkat damage di samping layar.', half: 'Bos Dunia {b} sisa sekitar {p}% HP dan masuk fase ganas (serangan makin sakit, sisik keras kecuali elemen unggul). Agak panik, ngeluh mati terus, saran elemen singkat.', low: 'Bos Dunia {b} tinggal {p}% HP! "dikit lagi", ngejar pukulan terakhir, rebutan peringkat.', kill: 'Bos Dunia {b} BARU SAJA TUMBANG. Lega & senang, pamer peringkat/damage atau ngeluh telat masuk, nunggu hadiah di kotak surat.', escape: 'Bos Dunia {b} KABUR karena waktu habis (sisa {p}% HP). Kesal, saling nyalahin dikit, janji ikut jadwal berikutnya.' };
+const WB_EVS = { pre: 'Bos Dunia {b} akan muncul beberapa menit lagi (sudah diumumkan di game). Orang siap-siap, ngajak ikut, nanya elemen lemahnya, nyiapin tim.', start: 'Bos Dunia {b} BARU SAJA muncul dan semua lagi nyerbu. Ramai: saling semangatin, ada yang tim-nya tumbang & nunggu bangkit 10 detik, bahas peringkat GUILD di samping layar (raid sekarang antar guild: damage anggota dijumlah per guild), ngajak anggota guild ikut.', half: 'Bos Dunia {b} sisa sekitar {p}% HP dan masuk fase ganas (serangan makin sakit, sisik keras kecuali elemen unggul). Agak panik, ngeluh mati terus, saran elemen singkat.', low: 'Bos Dunia {b} tinggal {p}% HP! "dikit lagi", ngejar pukulan terakhir, guild-guild rebutan peringkat.', kill: 'Bos Dunia {b} BARU SAJA TUMBANG. Lega & senang, pamer peringkat guild-nya / damage sendiri atau ngeluh guild-nya kalah / telat masuk, nunggu hadiah di kotak surat.', escape: 'Bos Dunia {b} KABUR karena waktu habis (sisa {p}% HP). Kesal, saling nyalahin dikit, janji ikut jadwal berikutnya.' };
 const TOPIK = ['kalah di bos tahap', 'tiket dungeon habis', 'drop perlengkapan dari dungeon', 'arena: kalah sama tim yang lebih kuat / naik liga', 'stamina habis', 'banner sekarang worth atau skip', 'hero mana yang bagus buat tahap sekarang', 'elemen lawan di tahap tertentu', 'naikin senjata pakai bijih', 'misi harian', 'event login', 'ngantuk / baru bangun', 'baru pulang kerja / kuliah', 'hujan / macet', 'lagi makan', 'nanya tim orang', 'pamer CP / dapat ★3', 'kebangkitan ★4 mahal bahannya', 'sinyal jelek / lag', 'sepi amat chat', 'auto battle sambil ngerjain hal lain', 'nanya level berapa', 'bingung pilih hero buat dinaikin'];
 // kata/frasa yang sudah terlalu sering muncul (biar tidak mengulang)
 const STOPW = new Set('yg gk ga gak aja aj aku gw gue lu lo kamu dia itu ini di ke dan atau yang ya iya udh udah sudah juga jg lagi lg buat bisa ada tapi tp klo kalo kalau sama sm mau nih tuh sih dong deh kok jadi jd biar baru masih belum blm dulu dl bgt banget'.split(' '));
@@ -788,16 +788,18 @@ export async function gameRoute(req, env, url, json) {
     const SV = await srvGet(env, uu ? uu.srv : +url.searchParams.get('srv') || 1), slot = (SV ? SV.id : 1) + ':' + slot0;   // raid per server
     const t0 = Date.parse(slot0 + ':00:00Z') - 7 * 36e5, t = now();
     const out = async () => {
-      const { results } = await env.DB.prepare('SELECT w.uid,w.name,w.dmg,w.cp FROM wbdmg w JOIN players p ON p.uid=w.uid WHERE w.slot=? AND p.ban=0 AND p.gm=0 ORDER BY w.dmg DESC LIMIT 100').bind(slot).all();
+      const { results } = await env.DB.prepare('SELECT w.uid,w.name,w.dmg,w.cp,w.j,w.c0 FROM wbdmg w JOIN players p ON p.uid=w.uid WHERE w.slot=? AND p.ban=0 AND p.gm=0 ORDER BY w.dmg DESC LIMIT 100').bind(slot).all();
       const lh = await kvGet(env, 'wblh:' + slot);
-      return json({ ok: true, rows: results.map(r => ({ uid: r.uid, u: r.name, dmg: r.dmg, cp: r.cp })), lh: lh ? pj(lh, null) : null });
+      return json({ ok: true, rows: results.map(r => ({ uid: r.uid, u: r.name, dmg: r.dmg, cp: r.cp, j: r.j || 0, c0: r.c0 || r.cp })), lh: lh ? pj(lh, null) : null });
     };
     if (req.method === 'GET') return out();
     const u = uu;
     if (t < t0 || t > t0 + 12 * 6e4) return fail('closed');
     if (b.lh) { const k = 'wblh:' + slot; if (!(await kvGet(env, k))) await kvSet(env, k, JSON.stringify({ uid: u.uid, u: u.uname, t })); return out() }
     const dmg = Math.max(0, Math.min(1e13, Math.round(+b.dmg || 0))), cp = Math.max(0, Math.min(1e10, Math.round(+b.cp || 0)));
-    await env.DB.prepare('INSERT INTO wbdmg (slot,uid,name,dmg,cp,ts) VALUES (?,?,?,?,?,?) ON CONFLICT(slot,uid) DO UPDATE SET dmg=MAX(dmg,excluded.dmg), cp=excluded.cp, name=excluded.name, ts=excluded.ts').bind(slot, u.uid, u.uname, dmg, cp, t).run();
+    // j = waktu bergabung (dibatasi ke jendela raid), c0 = CP saat bergabung (tertinggi) → HP naga sama di semua perangkat
+    const j = Math.max(t0, Math.min(t, Math.round(+b.j || t))), c0 = Math.max(0, Math.min(1e10, Math.round(+b.c || cp)));
+    await env.DB.prepare('INSERT INTO wbdmg (slot,uid,name,dmg,cp,ts,j,c0) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(slot,uid) DO UPDATE SET dmg=MAX(dmg,excluded.dmg), cp=excluded.cp, name=excluded.name, ts=excluded.ts, j=MIN(j,excluded.j), c0=MAX(c0,excluded.c0)').bind(slot, u.uid, u.uname, dmg, cp, t, j, c0).run();
     if (Math.random() < .02) await env.DB.prepare('DELETE FROM wbdmg WHERE ts < ?').bind(t - 9 * 864e5).run();
     return out();
   }

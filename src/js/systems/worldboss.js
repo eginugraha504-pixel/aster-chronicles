@@ -47,10 +47,20 @@ function wbBotUnit(i,b,a,t0,boss){const s=botState(i,t0),cp=s.cp,team=s.team.fil
  return Object.assign({i,cp,dps,L,D,dA:dps*(L+D)/L,el:atk},a)}
 function wbRaid(t0){const ck=t0+'|'+botsSig();if(WB.cache.has(ck))return WB.cache.get(ck);const C=WB_CFG,P=[],boss=wbBoss(t0);
  for(const i of botsIds(t0+C.dur)){if(typeof botHidden==='function'&&botHidden(i))continue;const b=botBase(i),a=wbAttend(b,t0);if(!a)continue;P.push(wbBotUnit(i,b,a,t0,boss))}
+ /* HP (22 Nov 2026, raid antar guild): total damage SEMUA penyerang yang diperkirakan (bot + pemain asli aktif di server,
+    lihat wbHp) × k. Ikut membesar saat CP semua pemain naik (sampai jutaan) → tetap seimbang.
+    k (sebelumnya 68% tumbang di menit 6–9): ±25% naga kabur, ±45% tumbang di menit 9–10, sisanya menit 8–9. */
  const r=bRng(bHash(Math.floor(t0/6e4),977)),full=P.reduce((s,p)=>s+wbBotDmgAt(p,p.fl),0),x=r();
- const k=x<.12?1.08+r()*.17:x<.32?.92+r()*.08:.62+r()*.28;
- const R={t0,boss:wbBoss(t0),P,hp:Math.max(4e5,Math.round(full*k/1000)*1000)};
+ const k=x<.25?1.02+r()*.12:x<.7?.9+r()*.1:.8+r()*.1;
+ const R={t0,boss:wbBoss(t0),P,full,k};
  if(WB.cache.size>40)WB.cache.clear();WB.cache.set(ck,R);return R}
+/* HP naga = (damage seluruh bot yang hadir + perkiraan damage pemain asli yang SUDAH bergabung) × k.
+   Pemain asli: DPS dari CP tim saat bergabung (wbDps, sama dengan bot) × sisa waktu raid sejak bergabung × WB_CFG.realF.
+   Data bergabung (j, c0) dari server → HP sama di semua perangkat. Pemain kuat bergabung = naga ikut menguat,
+   jadi naga tidak gampang tumbang walau CP pemain sudah jutaan, dan persaingan antar guild tetap adil. */
+function wbRealExp(t0){const end=wbEnd(t0),f=WB_CFG.realF,x=(c,j)=>wbDps(c)*Math.max(0,end-Math.max(t0,j||t0))/1000*f;let s=0;
+ for(const r of wbRealOthers(t0))s+=x(r.c0||r.cp||0,r.j);const L=S&&S.wb&&S.wb.log[t0];if(L&&L.j)s+=x(L.c||teamPow(),L.j);return s}
+const wbHp=R=>R.hpX||Math.max(4e5,Math.round((R.full+wbRealExp(R.t0))*R.k/1000)*1000);
 // damage bot sampai waktu t: hidup L detik (menyerang), tumbang D detik (bangkit), berulang
 function wbBotDmgAt(p,t){const e=(Math.min(t,p.fl)-p.fj)/1000;if(e<=0)return 0;const C=p.L+p.D,n=Math.floor(e/C);return p.dA*(n*p.L+Math.min(e-n*C,p.L))}
 // sedang menunggu bangkit? → sisa detik (0 = sedang bertarung)
@@ -61,54 +71,72 @@ function wbRealOthers(t0){const s=WB.srv[t0];if(!s)return[];const me=typeof logg
 const wbMine=t0=>((S.wb&&S.wb.log[t0])||{}).dmg||0;
 function wbMineLive(t0){let d=wbMine(t0);if(B&&B.st.wb&&B.wbT0===t0)d+=wbBattleDmg()-B.wbBase;return Math.round(d)}
 // waktu bos tumbang (null = belum / kabur): damage pemain asli dianggap sudah masuk
-function wbKillT(R,real){const end=wbEnd(R.t0),need=R.hp-real;if(need<=0)return R.t0;if(wbBotsDmg(R,end)<need)return null;
+function wbKillT(R,real){const end=wbEnd(R.t0),need=wbHp(R)-real;if(need<=0)return R.t0;if(wbBotsDmg(R,end)<need)return null;
  let lo=R.t0,hi=end;for(let k=0;k<40;k++){const m=(lo+hi)/2;if(wbBotsDmg(R,m)>=need)hi=m;else lo=m}return hi}
 // keadaan raid saat ini: hp tersisa, fase, tumbang?
 function wbState(t0,now=Date.now()){const R=wbRaid(t0),real=wbRealOthers(t0).reduce((s,r)=>s+r.dmg,0)+wbMineLive(t0);
- const kt=wbKillT(R,real),tt=Math.min(now,wbEnd(t0),kt??Infinity),bot=wbBotsDmg(R,tt),left=Math.max(0,R.hp-bot-real),p=left/R.hp;
- const ph=WB_CFG.ph.filter(x=>p<=x).length;return{R,hp:R.hp,left,p,ph,dead:kt!=null&&now>=kt,killT:kt,escaped:now>=wbEnd(t0)&&(kt==null||kt>now),tt}}
+ const kt=wbKillT(R,real),tt=Math.min(now,wbEnd(t0),kt??Infinity),bot=wbBotsDmg(R,tt),hp=wbHp(R),left=Math.max(0,hp-bot-real),p=left/hp;
+ const ph=WB_CFG.ph.filter(x=>p<=x).length;return{R,hp,left,p,ph,dead:kt!=null&&now>=kt,killT:kt,escaped:now>=wbEnd(t0)&&(kt==null||kt>now),tt}}
 // papan peringkat damage
 function wbBoard(t0,now=Date.now()){const st=wbState(t0,now),L=[];
  for(const p of st.R.P){const d=wbBotDmgAt(p,st.tt);if(d>0||now>=p.arrive)L.push({bot:p.i,name:botName(p.i,now),dmg:Math.round(d),cp:p.cp,dn:st.dead?0:wbBotDown(p,now)})}
  for(const r of wbRealOthers(t0))L.push({uid:r.uid,name:r.u,dmg:r.dmg,cp:r.cp});
  const md=wbMineLive(t0);if(md>0||(B&&B.st.wb))L.push({me:1,name:S.name,dmg:md,cp:teamPow()});
  L.sort((a,b)=>b.dmg-a.dmg);L.forEach((e,k)=>e.rank=k+1);return{st,L,me:L.find(e=>e.me)}}
+/* ---------- papan GUILD (raid antar guild, 22 Nov 2026) ----------
+   Damage semua anggota dijumlah per guild. Yang masuk guild SETELAH raid tidak dihitung untuk guild itu.
+   Pemain / bot tanpa guild dikumpulkan di "Tanpa Guild" (tidak ikut peringkat, hadiah partisipasi). */
+function wbGuildOf(uid,t0){if(typeof gReady!=='function'||!gReady()||!uid)return null;const m=GS.mem.get(String(uid));if(!m||m.joined>wbEnd(t0))return null;return GS.G.get(m.gid)||null}
+function wbUidOf(e){return e.bot!=null?botUid(e.bot):e.me?(typeof loggedIn==='function'&&loggedIn()?NET.acct.uid:null):e.uid}
+function wbGBoard(t0,now=Date.now()){const b=wbBoard(t0,now),M=new Map(),solo={gid:0,name:T('Tanpa Guild'),dmg:0,n:0,mem:[]};
+ for(const e of b.L){const g=wbGuildOf(wbUidOf(e),t0);let x=solo;if(g){x=M.get(g.id);if(!x)M.set(g.id,x={gid:g.id,name:g.name,emb:g.emb,dmg:0,n:0,mem:[]})}x.dmg+=e.dmg;x.n++;x.mem.push(e);if(e.me)x.me=1}
+ const mg0=typeof gMine==='function'?gMine():null;if(mg0&&M.has(mg0.id))M.get(mg0.id).me=1;   // guild-ku disorot walau aku belum menyerang
+ const L=[...M.values()].sort((a,b)=>b.dmg-a.dmg);L.forEach((g,k)=>g.rank=k+1);
+ return{st:b.st,L,solo,me:b.me?(L.find(g=>g.me)||solo):null,mg:L.find(g=>g.me)||null,b,my:b.me}}
 
 /* ---------- server ---------- */
 async function wbPull(t0,force){const now=Date.now();if(!force&&now-WB.sync<4500)return;WB.sync=now;
  try{const o=await api('/api/wb?slot='+wbKey(t0)+'&srv='+netSrv());if(o&&o.ok)WB.srv[t0]={rows:o.rows||[],lh:o.lh||null,ts:now}}catch(e){}}
 async function wbPush(t0,force){const now=Date.now();if(!loggedIn()||(!force&&now-WB.post<WB_CFG.report))return;WB.post=now;const d=wbMineLive(t0);if(!d)return;
- try{await api('/api/wb',{tok:netTok(),slot:wbKey(t0),dmg:d,cp:teamPow()})}catch(e){}}
+ const L=S.wb&&S.wb.log[t0]||{};try{await api('/api/wb',{tok:netTok(),slot:wbKey(t0),dmg:d,cp:teamPow(),j:L.j,c:L.c})}catch(e){}}
 async function wbClaimLast(t0){if(!loggedIn())return false;try{const o=await api('/api/wb',{tok:netTok(),slot:wbKey(t0),lh:1});return!!(o&&o.lh&&String(o.lh.uid)===String(NET.acct.uid))}catch(e){return false}}
 
 /* ---------- hadiah ---------- */
-function wbRwObj(o,half){const r={},m={};for(const k in o){let v=o[k];if(half)v=Math.max(1,Math.floor(v/2));if(k==='gems'||k==='gold')r[k]=(r[k]||0)+v;else m[k]=(m[k]||0)+v}if(Object.keys(m).length)r.mats=m;return r}
+function wbRwObj(o,half){const r={},m={};for(const k in o){let v=o[k];if(half)v=Math.max(1,Math.floor(v*.6));if(k==='gems'||k==='gold')r[k]=(r[k]||0)+v;else m[k]=(m[k]||0)+v}if(Object.keys(m).length)r.mats=m;return r}
 function wbAdd(a,b){const r=Object.assign({},a);for(const k in b){if(k==='mats'){r.mats=Object.assign({},r.mats||{});for(const q in b.mats)r.mats[q]=(r.mats[q]||0)+b.mats[q]}else r[k]=(r[k]||0)+b[k]}return r}
 const wbAvgPct=n=>100/Math.max(1,n);   // bagian rata-rata seorang penyerang (persen HP)
 function wbContrib(pct,n){return WB_RW.contrib.find(x=>pct>=x.k*wbAvgPct(n))||null}
 function wbRewardOf(rank,pct,escaped,last,n){const half=!!escaped;let rw=wbRwObj(WB_RW.rank.find(x=>rank<=x.to).rw,half);
  const c=wbContrib(pct,n);if(c)rw=wbAdd(rw,wbRwObj(c.rw,half));if(last)rw=wbAdd(rw,wbRwObj(WB_RW.last,false));return rw}
+// hasilku di papan guild: peringkat guild, bagian damage di guild, hadiah
+function wbMyRes(gb,last){const b=gb.b,me=b.me;if(!me)return null;const G=gb.me,ing=!!(G&&G.gid),gr=ing?G.rank:Infinity,n=ing?G.n:b.L.length;
+ const pct=ing?me.dmg/Math.max(1,G.dmg)*100:me.dmg/Math.max(1,b.st.hp)*100,esc=!b.st.dead&&Date.now()>=wbEnd(b.st.R.t0);
+ return{me,G,ing,gr,n,pct,esc,cb:wbContrib(pct,n),rw:me.dmg?wbRewardOf(gr,pct,esc,!!last,n):null,ng:gb.L.length}}
 let WB_SETTLING=false;
 async function wbSettle(){if(WB_SETTLING||!S.wb)return;const now=Date.now();WB_SETTLING=true;
  try{for(const k of Object.keys(S.wb.log)){const t0=+k,L=S.wb.log[k];if(L.settled)continue;const st=wbState(t0,now);
    if(!(st.dead||now>=wbEnd(t0)))continue;if(now<Math.min(wbEnd(t0),st.killT??Infinity)+5000)continue;   // tunggu laporan terakhir pemain lain
-   if(loggedIn())await wbPull(t0,true);const b=wbBoard(t0,Math.max(now,wbEnd(t0))),me=b.me;L.settled=1;if(!me||!me.dmg){save();continue}
-   const pct=me.dmg/b.st.hp*100,esc=!b.st.dead,rw=wbRewardOf(me.rank,pct,esc,!!L.lh,b.L.length),cb=wbContrib(pct,b.L.length),bn=b.st.R.boss.n;L.rank=me.rank;L.pct=pct;L.esc=esc;
-   if(me.rank===1&&!esc)S.wb.title={n:T('Penakluk {b}',{b:T(bn)}),until:now+6*36e5};
+   if(loggedIn()){await wbPull(t0,true);if(typeof gLoad==='function')await gLoad();if(typeof gReady==='function'&&!gReady()&&now<wbEnd(t0)+30*6e4)continue}const gb=wbGBoard(t0,Math.max(now,wbEnd(t0))),b=gb.b,me=b.me;L.settled=1;if(!me||!me.dmg){save();continue}
+   // hadiah per GUILD: peringkat guild-mu; peti kontribusi = bagian damage-mu di guild (tanpa guild: dibanding semua penyerang)
+   const X=wbMyRes(gb,L.lh),G=X.G,ing=X.ing,gr=X.gr,pct=X.pct,esc=!b.st.dead,rw=X.rw,cb=X.cb,bn=b.st.R.boss.n;L.rank=ing?gr:null;L.g=ing?G.name:null;L.pct=pct;L.esc=esc;
+   if(gr===1&&!esc)S.wb.title={n:T('Penakluk {b}',{b:T(bn)}),until:now+6*36e5};
    const wk=wbWeek(t0);if(!S.wb.wk||S.wb.wk.id!==wk)S.wb.wk={id:wk,pts:0,prev:S.wb.wk||null};S.wb.wk.pts+=me.dmg;
    sendMail({id:'wb_'+wbKey(t0),from:T('Penjaga Kota'),title:esc?T('{b} kabur · Hasil Bos Dunia',{b:T(bn)}):T('{b} tumbang · Hasil Bos Dunia',{b:T(bn)}),
-    body:T('Kamu peringkat #{r} dari {n} penyerang dengan {d} damage ({p}% HP bos).',{r:me.rank,n:b.L.length,d:fmt(me.dmg),p:pct.toFixed(2)})+(cb?' '+T('Peti {c}!',{c:T(cb.n)}):'')+(L.lh?' '+T('Pukulan terakhir milikmu!'):'')+(esc?' '+T('Bos berhasil kabur, hadiah dipotong setengah.'):''),rw});
+    body:(ing?T('Guild {g} peringkat #{r} dari {n} guild. Damage-mu {d} ({p}% dari damage guild).',{g:G.name,r:gr,n:gb.L.length,d:fmt(me.dmg),p:pct.toFixed(1)}):T('Kamu belum punya guild: hadiah partisipasi. Damage-mu {d}. Gabung guild untuk ikut peringkat raid!',{d:fmt(me.dmg)}))+(cb?' '+T('Peti {c}!',{c:T(cb.n)}):'')+(L.lh?' '+T('Pukulan terakhir milikmu!'):'')+(esc?' '+T('Bos berhasil kabur, hadiah dikurangi.'):''),rw});
    save()}
   wbWeekSettle()}finally{WB_SETTLING=false}}
 // Poin Pemburu bot dalam satu minggu (raid yang sudah selesai)
 function wbWeekSlots(wk,now=Date.now()){const out=[],d0=wk*7-3;for(let d=d0;d<d0+7;d++)for(const h of WB_CFG.slots){const t0=wbSlotT(d,h);if(t0>=WB_CFG.from&&wbEnd(t0)<=now)out.push(t0)}return out}
-function wbWeekBoard(wk,now=Date.now()){const pts=new Map();for(const t0 of wbWeekSlots(wk,now)){const R=wbRaid(t0),kt=wbKillT(R,0),tt=Math.min(wbEnd(t0),kt??Infinity);for(const p of R.P){const d=wbBotDmgAt(p,tt);if(d>0)pts.set(p.i,(pts.get(p.i)||0)+d)}}
- const L=[...pts].map(([i,d])=>({bot:i,name:botName(i,now),pts:Math.round(d)}));const my=S.wb&&S.wb.wk&&S.wb.wk.id===wk?S.wb.wk.pts:0;if(my)L.push({me:1,name:S.name,pts:Math.round(my)});
- L.sort((a,b)=>b.pts-a.pts);L.forEach((e,k)=>e.rank=k+1);return{L,me:L.find(e=>e.me)}}
+// Poin Pemburu mingguan per GUILD: damage anggota (bot) di semua raid minggu itu + damage-mu masuk ke guild-mu
+function wbWeekBoard(wk,now=Date.now()){const pts=new Map(),G=new Map();for(const t0 of wbWeekSlots(wk,now)){const R=wbRaid(t0),kt=wbKillT(R,0),tt=Math.min(wbEnd(t0),kt??Infinity);for(const p of R.P){const d=wbBotDmgAt(p,tt);if(d>0)pts.set(p.i,(pts.get(p.i)||0)+d)}}
+ const add=(g,d,me)=>{let x=G.get(g.id);if(!x)G.set(g.id,x={gid:g.id,name:g.name,emb:g.emb,pts:0,n:0});x.pts+=d;x.n++;if(me)x.me=1};
+ for(const[i,d]of pts){const g=wbGuildOf(botUid(i),Infinity);if(g)add(g,d)}
+ const my=S.wb&&S.wb.wk&&S.wb.wk.id===wk?S.wb.wk.pts:0,mg=typeof gMine==='function'?gMine():null;if(my&&mg)add(mg,my,1);else if(mg&&G.has(mg.id))G.get(mg.id).me=1;
+ const L=[...G.values()].map(x=>Object.assign(x,{pts:Math.round(x.pts)})).sort((a,b)=>b.pts-a.pts);L.forEach((e,k)=>e.rank=k+1);return{L,me:L.find(e=>e.me),my:Math.round(my)}}
 function wbWeekSettle(){const w=S.wb.wk,now=Date.now(),cur=wbWeek(now);if(!w)return;
  const old=w.id<cur?w:(w.prev&&w.prev.id<cur?w.prev:null);if(!old||old.done||!old.pts)return;old.done=1;
  const b=wbWeekBoard(old.id,(old.id+1)*7*BDAY),me=b.me;if(!me){save();return}const t=WB_RW.week.find(x=>me.rank<=x.to);
- if(t)sendMail({id:'wbw_'+old.id,from:T('Penjaga Kota'),title:T('Hadiah Mingguan Pemburu Naga'),body:T('Minggu lalu kamu mengumpulkan {p} Poin Pemburu dan menutup minggu di peringkat #{r}.',{p:fmt(me.pts),r:me.rank}),rw:wbRwObj(t.rw)});
+ if(t)sendMail({id:'wbw_'+old.id,from:T('Penjaga Kota'),title:T('Hadiah Mingguan Pemburu Naga'),body:T('Minggu lalu kamu menyumbang {p} Poin Pemburu untuk guild {g}, yang menutup minggu di peringkat #{r}.',{p:fmt(old.pts),g:me.name,r:me.rank}),rw:wbRwObj(t.rw)});
  if(w.id<cur)S.wb.wk={id:cur,pts:0,prev:old};save()}
 
 /* ---------- pertarungan ---------- */
@@ -116,7 +144,7 @@ const wbBattleDmg=()=>B&&B.st.wb?B.units.filter(u=>u.side==='hero').reduce((s,u)
 function wbStart(){const c=wbCur();if(c.st!=='live')return toast(c.st==='pre'?T('Naga belum muncul. Tunggu sebentar!'):T('Bos Dunia sedang tidak muncul.'),1);
  if(!wbOpen())return toast(T('Bos Dunia terbuka di Lv {n}.',{n:WB_CFG.lv}),1);const ids=S.team.filter(Boolean);if(!ids.length)return toast(T('Tim kosong! Pilih hero dulu.'),1);
  const t0=c.t0,st0=wbState(t0);if(st0.dead)return toast(T('Naga sudah tumbang!'),1);
- if(!S.wb)S.wb={log:{}};if(!S.wb.log[t0])S.wb.log[t0]={dmg:0,boss:wbBoss(t0).id};save();closeModal();lobby=null;
+ if(!S.wb)S.wb={log:{}};if(!S.wb.log[t0])S.wb.log[t0]={dmg:0,boss:wbBoss(t0).id};const LG=S.wb.log[t0];if(!LG.j)LG.j=Date.now();LG.c=Math.max(LG.c||0,teamPow());save();closeModal();lobby=null;
  const boss=wbBoss(t0),st={key:'wb',wb:true,name:T(boss.n),bg:'storm',art:'storm',waves:[[]],n:WB_CFG.n,cost:0};
  B={st,wave:0,time:0,units:[],proj:[],fx:[],texts:[],pend:[],state:'enter',enterT:1,auto:S.auto,speed:1,paused:false,shake:0,flash:0,flashC:'#fff',g:$('#bc').getContext('2d'),nextT:0,limit:Infinity,wbT0:t0,wbPh:st0.ph,wbDown:0,wbFt:0,wbRank:null,wbBase:0};
  const ord=ids.slice().sort((a,b)=>ROLE[HD[b].role].melee-ROLE[HD[a].role].melee);

@@ -19,7 +19,8 @@ const WB_CFG={
  // tim tumbang ±tiap 25–30 dtk. Kalibrasi lama (3 menit pertama tanpa fase) membuat bot ±2× terlalu kuat.
  // Cek nyata: tim Egi CP 17,4rb (dengan penyembuh) ±580/dtk di simulasi, 383/dtk di raid 16.00 → rumus: ±390/dtk.
  dps:{k:.0027,a:1.217},
- attend:{base:.42,core:.3},  // peluang bot ikut raid (ditambah gaya main 'core' & jam ramai)
+ attend:{base:.42,core:.3},
+ realF:.9,                   // HP naga untuk pemain asli: perkiraan damage (DPS dari CP × sisa waktu) × realF  // peluang bot ikut raid (ditambah gaya main 'core' & jam ramai)
 };
 // lima wujud naga, bergilir per jadwal. tint: warna kali (multiply) di atas sprite naga abu-abu; null = apa adanya
 const WB_BOSS=[
