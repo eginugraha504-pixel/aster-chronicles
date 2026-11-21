@@ -45,7 +45,7 @@ const saveBody=()=>{const o=Object.assign({},S);delete o.acct;return o};
 
 /* ---------------- sinkron simpanan ---------------- */
 function netMarkDirty(){if(loggedIn())NET.dirty=true}
-async function netPush(force,keep){if(!loggedIn()||NET.pushing||(!NET.dirty&&!force)||NET.pend)return;NET.pushing=true;NET.dirty=false;NET.pushAt=Date.now();
+async function netPush(force,keep){if(!loggedIn()||NET.acct.watch||NET.pushing||(!NET.dirty&&!force)||NET.pend)return;NET.pushing=true;NET.dirty=false;NET.pushAt=Date.now();
  try{const o=await api('/api/save',{tok:netTok(),base:NET.acct.sv,save:saveBody(),prof:netProf()},{keep});
   if(o.ok){NET.acct.sv=o.sv;acctSave()}else if(o.conflict){if(o.save)netAdopt(o.save,o.sv);else{NET.acct.sv=o.sv;acctSave();NET.dirty=true}}else NET.dirty=true}
  finally{NET.pushing=false}}
@@ -61,16 +61,18 @@ function netSessionLost(){if(!loggedIn())return;netClearLocal();setTimeout(()=>{
 // keluar: data lokal dibersihkan (data aman di server)
 function netClearLocal(){NET.acct=null;acctSave();NET.dirty=false;NET.pend=null;NET.friends={friends:[],inc:[],out:[]};NET.fr=NET.dm=0;
  try{localStorage.removeItem(SAVE_KEY)}catch(e){}const lg=S&&S.lang;newGame();if(lg)S.lang=lg;S.uid=''}
-async function netLogout(){if(loggedIn()){await netPush(true);await api('/api/acc/logout',{tok:netTok()})}netClearLocal();backToLogin()}
+async function netLogout(){if(loggedIn()){if(!NET.acct.watch)await netPush(true);await api('/api/acc/logout',{tok:netTok()})}netClearLocal();backToLogin()}
 
 /* ---------------- daftar / masuk ---------------- */
-const ERR_TXT={uname:'Username harus 3–12 huruf atau angka, tanpa spasi.',pw:'Password minimal 6 karakter.',taken:'Username sudah dipakai.',cred:'Username atau password salah.',
+const ERR_TXT={srvsoon:'Server ini belum dibuka.',srvlist:'Server ini belum dirilis.',srvgone:'Server lamamu sudah ditutup.',srvnone:'Belum ada server yang dibuka. Coba lagi nanti.',srv:'Server tidak ditemukan. Pilih server lain.',srvfull:'Server penuh. Pilih server lain.',srvstay:'Akun terikat ke servernya.',watch:'Akun penonton hanya bisa melihat.',uname:'Username harus 3–12 huruf atau angka, tanpa spasi.',pw:'Password minimal 6 karakter.',taken:'Username sudah dipakai.',cred:'Username atau password salah.',
  botacc:'Akun ini tidak bisa dipakai masuk.',ban:'Akun ini diblokir oleh admin.',slow:'Terlalu banyak percobaan. Coba lagi 10 menit lagi.',net:'Tidak bisa terhubung ke server. Periksa internet.',empty:'Isi username dan password.',server:'Server sedang bermasalah. Coba lagi.'};
 const netErr=e=>T(ERR_TXT[e]||'Terjadi kesalahan.');
 async function netRegister(u,p,keep,srv){const body={u,p,srv:srv||netSrv()};if(keep){S.name=u;S.named=true;body.save=saveBody();body.prof=netProf()}
  const o=await api('/api/acc/register',body);if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv,srv:o.srv||body.srv||1};acctSave();netWorld(true);
  if(!keep){const lg=S.lang;newGame();S.lang=lg}S.name=o.u;S.named=true;S.uid=o.uid;save();NET.dirty=true;netPush(true);return o}
-async function netLogin(u,p){const o=await api('/api/acc/login',{u,p});if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv,gm:o.gm?1:0,srv:o.srv||1};acctSave();netWorld(true);
+async function netLogin(u,p,srv){const o=await api('/api/acc/login',srv?{u,p,srv}:{u,p});if(!o.ok)return o;NET.ban=false;
+ if(o.watch){NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:0,gm:0,watch:1,srv:0};acctSave();const lg=S.lang;newGame();S.lang=lg;S.name=o.u;S.named=true;S.uid=o.uid;return o}   // penonton: tidak ada data simpanan
+ NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv,gm:o.gm?1:0,srv:o.srv||1};acctSave();netWorld(true);
  const lg=S.lang;if(o.save&&o.save.heroes){S=Object.assign(defState(),o.save);S.se=SAVE_SE;try{migrate()}catch(e){}}else{newGame();S.lang=lg}
  S.name=o.u;S.named=true;S.uid=o.uid;lsPut(SAVE_KEY,JSON.stringify(S));if(!o.save)NET.dirty=true;return o}
 
@@ -139,6 +141,9 @@ async function netBotSnap(){if(!loggedIn()||!botsWarmOk()||Date.now()-NET.snapAt
 /* ---------------- ping & loop ---------------- */
 async function netPing(){if(!loggedIn())return;NET.pingAt=Date.now();const o=await api('/api/ping',{tok:netTok()});if(!o.ok)return;
  if(o.u&&o.u!==NET.acct.u){NET.acct.u=o.u;acctSave()}
+ if(o.watch||NET.acct.watch)return;
+ // server belum buka / dihapus (bukan GM): kembali ke layar judul + pemberitahuan
+ if(o.srvst&&o.srvst!=='open'&&!o.gm){if(!NET.kick&&!document.getElementById('login').classList.contains('on')){NET.kick=1;setTimeout(()=>{try{backToLogin()}catch(e){}setTimeout(()=>{NET.kick=0;try{srvDeny(o.srvst,{id:o.srv,name:o.svn,at:o.sva})}catch(e){}},1800)},50)}return}
  if((o.gm?1:0)!==(NET.acct.gm?1:0)){NET.acct.gm=o.gm?1:0;acctSave();try{toast(o.gm?T('Akun ini sekarang GM. Buka Pengaturan › Panel GM.'):T('Status GM dicabut.'));if(typeof render==='function'&&!B)render()}catch(e){}}
  if(o.sv!==NET.acct.sv&&!NET.pushing)await netPull();
  // server digabung GM: akun pindah server -> rival & lawan Arena lama tidak berlaku
@@ -150,7 +155,7 @@ function refreshBadges(){try{const b=document.getElementById('frBadge');if(b){co
 let netLoopOn=false;
 function netStart(){if(netLoopOn)return;netLoopOn=true;netWorldCache();netWorld();
  setInterval(()=>{const L=document.getElementById('login');if(NET.pend&&!(typeof B!=='undefined'&&B)&&!(typeof SP!=='undefined'&&SP))netAdopt(NET.pend.save,NET.pend.sv);
-  if(!loggedIn()||(L&&L.classList.contains('on')))return;const now=Date.now();
+  if(!loggedIn()||NET.acct.watch||(L&&L.classList.contains('on')))return;const now=Date.now();
   if(NET.dirty&&now-NET.pushAt>12e3)netPush();
   if(now-NET.pingAt>30e3)netPing();
   if(now-NET.frAt>90e3)netFriends().then(()=>netBotFriends());

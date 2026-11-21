@@ -77,7 +77,7 @@ function dmBotRel(i){const L=[];if(typeof rvIs==='function'&&rvIs(i))L.push('CP 
 function dmBotBody(i,uid,kind,at){const D=wcDesc(i,Date.now());
  return{tok:netTok(),uid,kind,at:Math.round(at),p:dmBotP(i),rel:dmBotRel(i),cand:{pub:D.pub,priv:D.priv,style:wcStyle(i),lower:wcPersona(i).lower},player:{name:NET.acct.u,pub:wcMePub()}}}
 function dmBotKick(){DMB.kick=true;setTimeout(dmBotTick,2500)}
-async function dmBotTick(){if(!loggedIn()||DMB.busy||!botsWarmOk()||!BOTS.uids||document.hidden)return;const now=Date.now();if(!DMB.kick&&now-DMB.at<45e3)return;
+async function dmBotTick(){if(!loggedIn()||(typeof watchMode==='function'&&watchMode())||DMB.busy||!botsWarmOk()||!BOTS.uids||document.hidden)return;const now=Date.now();if(!DMB.kick&&now-DMB.at<45e3)return;
  DMB.at=now;DMB.kick=false;DMB.busy=true;
  try{const o=await api('/api/dm/pending',{tok:netTok()});
   for(const x of(o.ok&&o.list)||[]){const i=botIdxOf(x.uid);if(i<0||!botIn(i,now)||botHidden(i)||(DMB.cool[x.uid]||0)>now)continue;

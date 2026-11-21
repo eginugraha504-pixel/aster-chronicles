@@ -20,6 +20,7 @@ css/social.css
 css/smelt.css
 css/ascend.css
 css/boot.css
+css/watch.css
 css/studio.css
 css/skin.css
 css/ui2.css
@@ -136,6 +137,7 @@ js/ui/smelt.js
 js/ui/ascend.js
 js/ui/splash.js
 js/ui/boot.js
+js/ui/watch.js
 js/ui/story.js
 js/ui/tutorial.js
 js/ui/gm.js

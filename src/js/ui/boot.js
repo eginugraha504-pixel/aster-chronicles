@@ -83,7 +83,7 @@ function openLogin(){cancelAnimationFrame(loginRAF);if(typeof bgmPlay==='functio
  <div class="lgver"><span>v${GAME_VER} · UID ${S.uid.replace(/(\d{4})(\d{4})/,'$1 $2')}</span><span>© HUN2 STUDIO</span></div>`;
  L.classList.add('on');L.classList.toggle('again',lgOpened);lgOpened=true;if(KA)return;const cv=document.getElementById('lgbg'),g=cv.getContext('2d');g.imageSmoothingEnabled=false;
  const t0=performance.now();const step=n=>{if(cv!==document.getElementById('lgbg'))return;drawHomeScene(g,(n-t0)/1000);loginRAF=requestAnimationFrame(step)};loginRAF=requestAnimationFrame(step)}
-function loginTapHTML(){return`<button class="lgtap" data-act="lgStart">${loggedIn()||S.named?`<span class="lgwel"><i>Lv${S.lv||1}</i><small>${T('Selamat datang kembali,')}</small><b>${esc(loggedIn()?NET.acct.u:S.name)}</b>${loggedIn()?'':`<em>${T('Tamu')}</em>`}<small class="lgsrv">${esc(NET.srvName?`S${netSrv()} · ${NET.srvName}`:'S'+netSrv())}</small></span>`:''}<span class="lgcta"><span>${T('KETUK UNTUK MULAI')}</span></span></button>`}
+function loginTapHTML(){const W=typeof watchMode==='function'&&watchMode();return`<button class="lgtap" data-act="lgStart">${loggedIn()||S.named?`<span class="lgwel">${W?`<i>👁</i>`:`<i>Lv${S.lv||1}</i>`}<small>${T('Selamat datang kembali,')}</small><b>${esc(loggedIn()?NET.acct.u:S.name)}</b>${loggedIn()?'':`<em>${T('Tamu')}</em>`}<small class="lgsrv">${W?T('Penonton · semua server'):esc(NET.srvName?`S${netSrv()} · ${NET.srvName}`:'S'+netSrv())}</small></span>`:''}<span class="lgcta"><span>${T('KETUK UNTUK MULAI')}</span></span></button>`}
 function loginNameHTML(){setTimeout(srvPickLoad,0);return`<div class="lgcard"><button class="lgx" data-act="lgBack" aria-label="✕">✕</button><h3>${T('Masuk sebagai Tamu')}</h3><p>${T('Data petualanganmu disimpan di perangkat ini.')}</p>
  <label for="lgName">${T('Nama Kapten')}</label><input class="nm" id="lgName" maxlength="12" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" value="${S.name&&S.name!=='Kapten'?esc(S.name):''}" placeholder="${T('3–12 huruf atau angka')}">
  <small class="lgrule" id="lgRule">${T('Hanya huruf dan angka, tanpa spasi atau simbol.')}</small>
@@ -91,16 +91,49 @@ function loginNameHTML(){setTimeout(srvPickLoad,0);return`<div class="lgcard"><b
  <div class="mrow"><button class="btn gray" data-act="lgDice">🎲 ${T('Acak')}</button><button class="btn" data-act="lgGo">${T('Mulai Petualangan')}</button></div></div>`}
 /* ---------- pilih server (daftar akun baru / tamu). Akun terikat ke satu server, tanpa pindah. ---------- */
 const SRVL={list:null,at:0,sel:null};
-async function srvLoad(){if(SRVL.list&&Date.now()-SRVL.at<6e4)return SRVL.list;const o=await api('/api/servers');if(o&&o.ok){SRVL.list=o.list;SRVL.at=Date.now()}return SRVL.list||[]}
+async function srvLoad(force){if(!force&&SRVL.list&&Date.now()-SRVL.at<6e4)return SRVL.list;const o=await api('/api/servers');SRVL.ok=!!(o&&o.ok);if(SRVL.ok){SRVL.list=o.list;SRVL.at=Date.now()}return SRVL.list||[]}
 function srvOpenAt(t){const d=new Date(t),p=n=>String(n).padStart(2,'0'),hm=p(d.getHours())+':'+p(d.getMinutes());return t-Date.now()<864e5?hm:p(d.getDate())+'/'+p(d.getMonth()+1)+' '+hm}
 // server yang dijadwalkan rilis (pra-registrasi): sudah bisa dipilih, dunia mulai ramai saat jam buka
-function srvState(x){const age=(Date.now()-x.opened)/864e5;return x.opened>Date.now()?['soon',T('SEGERA')]:x.full?['full',T('PENUH')]:age<3?['new',T('BARU')]:x.n/x.cap>.7?['busy',T('RAMAI')]:['ok',T('LANCAR')]}
-function srvDefault(L){const ok=(L||[]).filter(x=>!x.full);return ok.length?ok.reduce((a,b)=>b.opened>a.opened||(b.opened===a.opened&&b.n<a.n)?b:a).id:null}
-function srvPickHTML(){const L=SRVL.list;if(!L)return`<div class="srvpick"><small>${T('Memuat daftar server...')}</small></div>`;if(SRVL.sel==null||!L.some(x=>x.id===SRVL.sel&&!x.full))SRVL.sel=srvDefault(L);
- return`<label>${T('Server')}</label><div class="srvpick">${L.map(x=>{const[st,lb]=srvState(x);return`<button class="srvb ${st}${x.id===SRVL.sel?' on':''}" data-act="srvSel" data-arg="${x.id}"${x.full?' disabled':''}><b>S${x.id} · ${esc(x.name)}</b><small>${x.opened>Date.now()?T('Buka {t}',{t:srvOpenAt(x.opened)})+' · ':''}${fmt(x.n)}/${fmt(x.cap)}</small><i>${lb}</i></button>`}).join('')}</div>
+// st (server): 'list' = baru terdaftar (BELUM RILIS, tidak bisa dipilih), 'soon' = terjadwal (pra-registrasi akun; masuk game baru saat jam buka), 'open'
+const srvOpen=x=>!!x&&x.st!=='list'&&!(x.opened>Date.now());
+function srvState(x){const age=(Date.now()-x.opened)/864e5;return x.st==='list'?['list',T('BELUM RILIS')]:x.opened>Date.now()?['soon',T('SEGERA')]:x.full?['full',T('PENUH')]:age<3?['new',T('BARU')]:x.n/x.cap>.7?['busy',T('RAMAI')]:['ok',T('LANCAR')]}
+function srvDefault(L){const ok=(L||[]).filter(x=>!x.full&&x.st!=='list'),op=ok.filter(srvOpen),P=op.length?op:ok;return P.length?P.reduce((a,b)=>b.opened>a.opened||(b.opened===a.opened&&b.n<a.n)?b:a).id:null}
+function srvPickHTML(){const L=SRVL.list;if(!L)return`<div class="srvpick"><small>${T('Memuat daftar server...')}</small></div>`;if(SRVL.sel==null||!L.some(x=>x.id===SRVL.sel&&!x.full&&x.st!=='list'))SRVL.sel=srvDefault(L);
+ if(!L.length)return`<label>${T('Server')}</label><div class="srvpick"><small>${T('Belum ada server yang dibuka. Coba lagi nanti.')}</small></div>`;
+ return`<label>${T('Server')}</label><div class="srvpick">${L.map(x=>{const[st,lb]=srvState(x);return`<button class="srvb s-${st}${x.id===SRVL.sel?' on':''}" data-act="srvSel" data-arg="${x.id}"${x.full?' disabled':''}><b>S${x.id} · ${esc(x.name)}</b><small>${x.st==='list'?T('Belum rilis'):(x.opened>Date.now()?T('Buka {t}',{t:srvOpenAt(x.opened)})+' · ':'')+fmt(x.n)+'/'+fmt(x.cap)}</small><i>${lb}</i></button>`}).join('')}</div>
  <small class="lgrule">${T('Akun terikat ke server pilihanmu dan tidak bisa pindah.')}</small>`}
 function srvPickLoad(){srvLoad().then(()=>{document.querySelectorAll('.srvwrap').forEach(e=>e.innerHTML=srvPickHTML())})}
 const srvNameOf=id=>{const x=(SRVL.list||[]).find(y=>y.id===+id);return x?`S${x.id} · ${x.name}`:'S'+id};
+/* ---------- gerbang server: masuk game hanya ke server yang sudah buka ----------
+   st 'soon' = terjadwal (jam buka), 'list' = baru terdaftar, 'gone' = server dihapus / belum ada server → pilih server lain. GM boleh lewat. */
+function srvWhenTxt(t){const d=new Date(t),p=n=>String(n).padStart(2,'0'),days=[T('Minggu'),T('Senin'),T('Selasa'),T('Rabu'),T('Kamis'),T('Jumat'),T('Sabtu')],m=Math.round((t-Date.now())/6e4);
+ return`${days[d.getDay()]} ${p(d.getDate())}/${p(d.getMonth()+1)} ${p(d.getHours())}:${p(d.getMinutes())}`+(m>0?` (${m<60?T('{n} menit lagi',{n:m}):m<1440?T('{h} jam {m} menit lagi',{h:Math.floor(m/60),m:m%60}):T('{n} hari lagi',{n:Math.ceil(m/1440)})})`:'')}
+function srvDeny(st,sv){sv=sv||{};sfx('deny');const nm=sv.id?`<b>S${sv.id}${sv.name?' · '+esc(sv.name):''}</b>`:'';
+ const [ic,h,p]=st==='soon'?['⏰',T('Server Belum Dibuka'),T('Server {s} belum dibuka. Server ini dibuka {t} — datang lagi saat itu ya!',{s:nm,t:'<b>'+srvWhenTxt(sv.at)+'</b>'})]
+  :st==='list'?['📋',T('Server Belum Dirilis'),T('Server {s} baru masuk daftar dan belum dirilis. Tunggu pengumuman rilisnya!',{s:nm})]
+  :['🌙',T('Server Ditutup'),sv.id?T('Server {s} sudah ditutup. Ketuk layar untuk memilih server baru — progresmu tetap aman.',{s:nm}):T('Belum ada server yang dibuka. Coba lagi nanti.')];
+ modal(`<div class="srvdeny"><div class="sdic">${ic}</div><h3>${h}</h3><p>${p}</p></div><div class="mrow"><button class="btn" data-act="closeModal">OK</button></div>`)}
+// server lama sudah dihapus: pilih server baru yang sudah buka (akun: /api/acc/srv, tamu: simpan lokal). Rival & lawan Arena lama tidak berlaku.
+async function srvGonePick(ok){const L=(await srvLoad(true)).filter(x=>srvOpen(x)&&!x.full);if(!L.length){srvDeny('gone',{});return}
+ SRVL.list=L;SRVL.sel=srvDefault(L);srvGonePick.ok=ok;sfx('open');
+ modal(`<h3>${T('Pilih Server Baru')}</h3><p class="sub" style="text-align:center">${T('Server lamamu sudah ditutup. Progresmu tetap aman — pilih server baru untuk melanjutkan.')}</p><div class="srvwrap">${srvPickHTML()}</div><div class="mrow"><button class="btn" data-act="srvGoneGo">${T('Lanjutkan')}</button></div>`)}
+async function srvGoneGo(){const id=SRVL.sel;if(!id)return;
+ if(loggedIn()){const o=await api('/api/acc/srv',{tok:netTok(),srv:id});if(!o.ok){toast(netErr(o.e),1);return}NET.acct.srv=o.srv;acctSave()}
+ else{try{localStorage.setItem(SRV_KEY,String(id))}catch(e){}}
+ try{if(S.rv)S.rv={};if(S.arena){S.arena.opps=[];S.arena.log=[]}save()}catch(e){}
+ closeModal();netWorld(true);const f=srvGonePick.ok;srvGonePick.ok=null;f&&f()}
+async function srvGate(ok){if(srvGate.busy)return;srvGate.busy=1;try{
+ if(loggedIn()){const o=await api('/api/ping',{tok:netTok()});
+  if(!o||!o.ok){if(o&&(o.e==='auth'||o.e==='ban'))return;ok();return}   // offline: main seperti biasa
+  if(o.watch){NET.acct.watch=1;acctSave();watchOpen();return}
+  if(NET.acct.watch){NET.acct.watch=0;acctSave()}
+  if(o.gm||!o.srvst||o.srvst==='open'){if(o.gm&&o.srvst&&o.srvst!=='open')toast(T('(GM) Server ini belum dibuka untuk pemain.'));ok();return}
+  if(o.srvst==='gone'){srvGonePick(ok);return}
+  srvDeny(o.srvst,{id:o.srv,name:o.svn,at:o.sva});return}
+ const L=await srvLoad(true);if(!SRVL.ok){ok();return}
+ const x=L.find(y=>y.id===netSrv());if(srvOpen(x)){ok();return}
+ if(!x){srvGonePick(ok);return}
+ srvDeny(x.st==='list'?'list':'soon',{id:x.id,name:x.name,at:x.opened})}finally{srvGate.busy=0}}
 // kartu Masuk / Daftar (akun server). mode 'link' = dari Pengaturan: daftarkan progres tamu saat ini
 let auTab='in';
 function authHTML(link){const reg=auTab==='up'||link;if(reg)setTimeout(srvPickLoad,0);return`<div class="lgcard au">${link?'':'<button class="lgx" data-act="lgBack" aria-label="✕">✕</button>'}<h3>${link?T('Daftarkan Akun'):reg?T('Buat Akun'):T('Masuk Akun')}</h3>
@@ -111,15 +144,24 @@ function authHTML(link){const reg=auTab==='up'||link;if(reg)setTimeout(srvPickLo
  <small class="lgrule" id="auErr">${reg?T('Username juga menjadi nama Kapten-mu. Simpan password baik-baik — tidak bisa dipulihkan lewat email.'):T('Masuk untuk memuat progres akunmu di perangkat mana pun.')}</small>
  <div class="mrow"><button class="btn" id="auGo" data-act="auGo" data-arg="${link?'link':''}">${reg?T('Daftar & Mulai'):T('Masuk Akun')}</button></div>
  ${link?'':`<button class="auguest" data-act="lgGuest">${T('Main sebagai Tamu')} ›</button>`}</div>`}
-async function authGo(link){const u=($('#auU').value||'').trim(),p=$('#auP').value||'',reg=auTab==='up'||link,er=$('#auErr'),bt=$('#auGo');
+async function authGo(link){const u=($('#auU').value||'').trim(),p=$('#auP').value||'',reg=auTab==='up'||link,er=$('#auErr'),bt=$('#auGo'),pick=!reg&&$('#auPick')?SRVL.sel:null;
  const bad=m=>{er.className='lgrule bad';er.textContent=m;sfx('deny')};
  if(!NAME_OK.test(u))return bad(netErr('uname'));if(p.length<6)return bad(netErr('pw'));if(reg&&p!==$('#auP2').value)return bad(T('Password tidak sama.'));
  bt.disabled=true;const old=bt.textContent;bt.textContent=T('Menghubungkan...');er.className='lgrule';er.textContent='';
  if(reg&&!SRVL.sel)return bad(T('Pilih server dulu.'));
- const o=reg?await netRegister(u,p,!!link,SRVL.sel):await netLogin(u,p);bt.disabled=false;bt.textContent=old;
- if(!o.ok)return bad(netErr(o.e));
+ const o=reg?await netRegister(u,p,!!link,SRVL.sel):await netLogin(u,p,pick);bt.disabled=false;bt.textContent=old;
+ if(!o.ok){bad(netErr(o.e));
+  if(o.e==='srvsoon'||o.e==='srvlist')srvDeny(o.e==='srvsoon'?'soon':'list',o.sv);
+  else if(o.e==='srvgone'){SRVL.list=o.list||[];SRVL.sel=srvDefault(SRVL.list);let w=$('#auPick');if(!w){w=document.createElement('div');w.id='auPick';w.className='srvwrap';er.after(w)}
+   w.innerHTML=SRVL.list.length?srvPickHTML():'';er.textContent=SRVL.list.length?T('Server lamamu sudah ditutup. Pilih server baru, lalu tekan Masuk lagi — progresmu tetap aman.'):T('Belum ada server yang dibuka. Coba lagi nanti.')}
+  return}
+ if(o.watch){sfx('claim');toast(T('Masuk sebagai penonton, {n}.',{n:o.u}));watchOpen();return}
  sfx('claim');document.activeElement&&document.activeElement.blur&&document.activeElement.blur();
  if(link){closeModal();toast(T('Akun {n} terdaftar! Progresmu kini tersimpan di server.',{n:o.u}));try{refreshScreen()}catch(e){}return}
+ if(o.pre){toast(T('Akun {n} berhasil dibuat!',{n:o.u}));lgMode='tap';const P=$('#lgPanel');if(P){P.classList.remove('card');P.innerHTML=loginTapHTML()}
+  modal(`<div class="srvdeny"><div class="sdic">🎟</div><h3>${T('Pra-registrasi Berhasil')}</h3><p>${T('Akun {n} terdaftar di {s}. Server dibuka {t} — masuk lagi saat itu ya!',{n:'<b>'+esc(o.u)+'</b>',s:'<b>S'+o.pre.id+' · '+esc(o.pre.name)+'</b>',t:'<b>'+srvWhenTxt(o.pre.at)+'</b>'})}</p></div><div class="mrow"><button class="btn" data-act="closeModal">OK</button></div>`);return}
+ if(o.moved)toast(T('Akun pindah ke {s}. Selamat datang di dunia baru!',{s:srvNameOf(o.srv)}));
+ if(!reg&&o.srvst&&o.srvst!=='open'&&o.gm)toast(T('(GM) Server ini belum dibuka untuk pemain.'));
  toast(reg?T('Akun {n} berhasil dibuat!',{n:o.u}):T('Selamat datang kembali, {n}!',{n:o.u}));enterGame()}
 // layar transisi: latar key art buram + ilustrasi hero acak + tips + bar terisi (senada dengan loading)
 function transEl(msg,flash){const tr=document.createElement('div');tr.className='trans';const KA=hasBgArt('key'),id=pickArtHero();
@@ -145,7 +187,7 @@ async function backToLogin(){if(document.getElementById('login').classList.conta
  tab='home';lgMode='tap';lgOpened=false;openLogin();if(typeof tutSync==='function')tutSync();await sleep(200);tr.classList.remove('on');setTimeout(()=>tr.remove(),500)}
 function lgValidate(v){return NAME_OK.test(v)}
 Object.assign(ACT,{
- lgStart:()=>{if(entering||lgMode!=='tap')return;if(loggedIn()||S.named){enterGame();return}sfx('open');lgMode='auth';auTab='in';const P=$('#lgPanel');P.classList.add('card');P.innerHTML=authHTML()},
+ lgStart:()=>{if(entering||lgMode!=='tap')return;if(loggedIn()||S.named){srvGate(()=>enterGame());return}sfx('open');lgMode='auth';auTab='in';const P=$('#lgPanel');P.classList.add('card');P.innerHTML=authHTML()},
  lgGuest:()=>{sfx('open');lgMode='name';const P=$('#lgPanel');P.classList.add('card');P.innerHTML=loginNameHTML();setTimeout(()=>{const i=$('#lgName');i&&i.focus()},80)},
  auTab:k=>{auTab=k;sfx('tab');const u=$('#auU')&&$('#auU').value;const P=$('#modal .lgcard.au')?$('#modal .mbox'):$('#lgPanel');if($('#modal .lgcard.au'))return;P.innerHTML=authHTML();if(u)$('#auU').value=u},
  auEye:()=>{const i=$('#auP');if(i)i.type=i.type==='password'?'text':'password'},
@@ -153,12 +195,15 @@ Object.assign(ACT,{
  accLink:()=>{auTab='up';modal(`<button class="btn red mclose" data-act="closeModal">✕</button>${authHTML(true)}`);$('#modal .mbox').classList.add('aubox')},
  accLogout:()=>confirmBox(T('Keluar dari akun {n}? Progres sudah tersimpan di server dan bisa dimuat lagi dengan masuk.',{n:esc(NET.acct?NET.acct.u:'')}),()=>netLogout(),T('Keluar')),
  lgDice:()=>{const i=$('#lgName');if(i){let v='';for(let k=0;k<20&&!NAME_OK.test(v);k++)v=botLocalName(Math.floor(Math.random()*1e6)).replace(/\d+$/,'').slice(0,12);i.value=v;sfx('tap');i.dispatchEvent(new Event('input',{bubbles:true}))}},
- lgGo:()=>{if(entering)return;const v=($('#lgName').value||'').trim();if(!lgValidate(v)){const r=$('#lgRule');r.classList.add('bad');r.textContent=T('Nama harus 3–12 huruf atau angka, tanpa spasi atau simbol.');sfx('deny');return}
+ srvGoneGo:()=>srvGoneGo(),
+ lgGo:async()=>{if(entering)return;const v=($('#lgName').value||'').trim();if(!lgValidate(v)){const r=$('#lgRule');r.classList.add('bad');r.textContent=T('Nama harus 3–12 huruf atau angka, tanpa spasi atau simbol.');sfx('deny');return}
   if(BOTS.names.some(n=>n.toLowerCase()===v.toLowerCase())){toast(T('Nama itu sudah dipakai petualang lain!'),1);return}
+  const sx=(SRVL.list||[]).find(x=>x.id===SRVL.sel);if(SRVL.list&&!SRVL.list.length){srvDeny('gone',{});return}if(SRVL.list&&!sx){toast(T('Pilih server dulu.'),1);return}
+  if(sx&&!srvOpen(sx)){srvDeny(sx.st==='list'?'list':'soon',{id:sx.id,name:sx.name,at:sx.opened});return}
   if(!S.uid||S.uid.length!==8)S.uid=String(10000000+Math.floor(Math.random()*89999999));
   if(SRVL.sel){try{localStorage.setItem(SRV_KEY,String(SRVL.sel))}catch(e){}netWorld(true)}
   S.name=v;S.named=true;save();const i=$('#lgName');i&&i.blur();enterGame()},
- srvSel:id=>{SRVL.sel=+id;sfx('tab');document.querySelectorAll('.srvwrap').forEach(e=>e.innerHTML=srvPickHTML())},
+ srvSel:id=>{const x=(SRVL.list||[]).find(y=>y.id===+id);if(x&&x.st==='list'){sfx('deny');toast(T('S{n} · {m} belum dirilis. Tunggu pengumuman rilisnya!',{n:x.id,m:x.name}),1);return}SRVL.sel=+id;sfx('tab');document.querySelectorAll('.srvwrap').forEach(e=>e.innerHTML=srvPickHTML())},
  lgBack:()=>{if(lgMode==='name'&&!loggedIn()){lgMode='auth';const P=$('#lgPanel');P.innerHTML=authHTML();sfx('close');return}lgMode='tap';sfx('close');const P=$('#lgPanel');P.classList.remove('card');P.innerHTML=loginTapHTML();P.querySelectorAll('.lgwel,.lgcta').forEach(e=>e.style.animationDelay='0s')},
  lgNews:()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Pengumuman')}</h3><div class="news">${NEWS.map(n=>`<div class="nwi"><b>${T(n.t)}</b><p>${T(n.d)}</p></div>`).join('')}</div><p class="sub" style="text-align:center">v${GAME_VER}</p>`),
  lgLang:()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Bahasa')}</h3><div class="mrow" style="flex-direction:column">${[['id','Bahasa Indonesia'],['en','English'],['ja','日本語']].map(([k,n])=>`<button class="btn ${S.lang===k?'':'blue'}" data-act="lgSetLang" data-arg="${k}">${n}</button>`).join('')}</div>`),

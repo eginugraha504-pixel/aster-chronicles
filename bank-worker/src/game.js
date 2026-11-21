@@ -92,19 +92,24 @@ const newWorld = (g, e, h, o, wp) => { const w = { g, e, cap: BOTCFG.SRV.cap, v:
 const WH_DEF = BOTCFG.WHALE.def;
 const whaleGet = async env => { const v = parseFloat(await kvGet(env, 'whale')); return Number.isFinite(v) ? Math.min(100, Math.max(0, v)) : WH_DEF };
 const whNow = w => { const H = w && w.wh; return H && H.length ? +H[H.length - 1][1] : WH_DEF };   // persen untuk pendatang berikutnya
-const srvWhale = s => whNow(s.W[0]);
+const srvWhale = s => s.W.length ? whNow(s.W[0]) : (s.wp != null ? +s.wp : WH_DEF);   // server belum rilis: persen disimpan di kolom wp
+/* status server: 'list' = terdaftar saja (belum rilis), 'soon' = rilis terjadwal (pra-registrasi), 'open' = buka, 'gone' = tidak ada (dihapus / reset semua).
+   Masuk game hanya bisa ke server 'open' (GM boleh lewat untuk uji). */
+const srvSt = (s, t = now()) => !s ? 'gone' : !s.W.length || !s.opened ? 'list' : s.opened > t ? 'soon' : 'open';
 const pctS = v => String(Math.round(v * 100) / 100).replace('.', ',') + '%';
 async function serversAll(env) {
   let rows = (await env.DB.prepare('SELECT * FROM servers ORDER BY id').all()).results;
-  if (!rows.length) {   // pertama kali: 4 server dibuka bersamaan (hari 1). Dunia bot lama dibuang.
+  if (!rows.length && !(await kvGet(env, 'srv_init'))) {   // pertama kali: 4 server dibuka bersamaan (hari 1). Dunia bot lama dibuang. Setelah dikelola pemilik (hapus / reset semua) tidak dibuat otomatis lagi.
     const t = now(), st = [env.DB.prepare('DELETE FROM friends WHERE a IN (SELECT uid FROM players WHERE bot IS NOT NULL) OR b IN (SELECT uid FROM players WHERE bot IS NOT NULL)'),
       env.DB.prepare('DELETE FROM dms WHERE frm IN (SELECT uid FROM players WHERE bot IS NOT NULL) OR too IN (SELECT uid FROM players WHERE bot IS NOT NULL)'),
       env.DB.prepare('DELETE FROM players WHERE bot IS NOT NULL'), env.DB.prepare('DELETE FROM wchat'), env.DB.prepare('DELETE FROM rvb'), env.DB.prepare('DELETE FROM ann'), env.DB.prepare('UPDATE players SET srv=1')];
     const h = await hypeGet(env), wp = await whaleGet(env);
     for (let id = 1; id <= 4; id++) { const g = await nextGen(env); st.push(env.DB.prepare('INSERT OR IGNORE INTO servers (id,name,opened,merged,worlds) VALUES (?,?,?,NULL,?)').bind(id, SRV_NAMES[id - 1], t, JSON.stringify([newWorld(g, t, h, id - 1, wp)]))) }
-    await env.DB.batch(st); rows = (await env.DB.prepare('SELECT * FROM servers ORDER BY id').all()).results;
+    await env.DB.batch(st); await kvSet(env, 'srv_init', 1); rows = (await env.DB.prepare('SELECT * FROM servers ORDER BY id').all()).results;
   }
-  const opens = rows.map(r => r.opened).sort((a, b) => a - b);
+  // jam buka server lain memperlambat pertumbuhan server lama (pemain baru memilih server baru). Server yang sudah dihapus tetap dihitung
+  // (kv srv_gone_opens) supaya riwayat server lain tidak berubah mundur.
+  const opens = rows.map(r => r.opened).filter(o => o > 0).concat(pj(await kvGet(env, 'srv_gone_opens'), []) || []).sort((a, b) => a - b);
   return rows.map(r => { const W = pj(r.worlds, []).map(w => ({ ...w, newer: opens.filter(o => o > w.e + 36e5) })); return { ...r, W } });
 }
 async function srvGet(env, id, all) { all = all || await serversAll(env); let s = all.find(x => x.id === +id); for (let k = 0; s && s.merged && k < 20; k++)s = all.find(x => x.id === s.merged); return s || null }
@@ -143,7 +148,7 @@ const dropWorlds = (env, gens) => { const q = gens.map(() => '?').join(','), sub
 const srvKv = id => ['ai_scene_at', 'ai_until', 'stk_at', 'stk_gap', 'watch_at'].map(k => k + ':' + id);
 // reset satu server: dunia bot baru (hari 1), obrolan server dikosongkan. Pemain asli tetap.
 export async function resetServer(env, id) {
-  const s = await srvGet(env, id); if (!s) return null; const g = await nextGen(env), t = now(), h = await hypeGet(env);
+  const s = await srvGet(env, id); if (!s) return null; if (srvSt(s) === 'list') return { id: s.id, list: 1 }; const g = await nextGen(env), t = now(), h = await hypeGet(env);
   await env.DB.batch([...dropWorlds(env, s.W.map(w => w.g)), env.DB.prepare('DELETE FROM wchat WHERE srv=?').bind(s.id), env.DB.prepare('DELETE FROM ann WHERE srv=?').bind(s.id),
     env.DB.prepare(`DELETE FROM kv WHERE k IN (${srvKv(s.id).map(() => '?').join(',')})`).bind(...srvKv(s.id)),
     env.DB.prepare('UPDATE servers SET worlds=? WHERE id=?').bind(JSON.stringify([newWorld(g, t, h, undefined, srvWhale(s))]), s.id)]);
@@ -153,7 +158,57 @@ export async function openServer(env, name) {
   const all = await serversAll(env), id = Math.max(0, ...all.map(s => s.id)) + 1, g = await nextGen(env), t = now(), h = await hypeGet(env);
   const nm = clean(name, 16) || SRV_NAMES[(id - 1) % SRV_NAMES.length];
   await env.DB.prepare('INSERT INTO servers (id,name,opened,merged,worlds) VALUES (?,?,?,NULL,?)').bind(id, nm, t, JSON.stringify([newWorld(g, t, h, undefined, await whaleGet(env))])).run();
+  await kvSet(env, 'srv_init', 1);
   return { id, name: nm, h };
+}
+/* ---------- kelola server dari Telegram (/server tambah | rilis | tunda | nama | hapus | reset semua) ----------
+   tambah = server baru TERDAFTAR saja (tampil di daftar "BELUM RILIS", belum bisa dimasuki) → rilis sekarang / terjadwal (pra-registrasi, "Buka 20:00").
+   hapus  = server + dunia botnya + obrolan/pengumuman/raid-nya hilang. Akun pemain asli TIDAK dihapus: saat masuk lagi mereka memilih server lain yang sudah buka.
+   reset semua = tanpa server sama sekali (tidak dibuat otomatis lagi); semua akun bot ikut dihapus. Id server baru mulai lagi dari 1. */
+export async function addServer(env, name) {
+  const all = await serversAll(env), id = Math.max(0, ...all.map(s => s.id)) + 1, nm = clean(name, 16) || SRV_NAMES[(id - 1) % SRV_NAMES.length];
+  await env.DB.prepare('INSERT INTO servers (id,name,opened,merged,worlds,wp) VALUES (?,?,0,NULL,?,?)').bind(id, nm, '[]', await whaleGet(env)).run();
+  await kvSet(env, 'srv_init', 1);
+  return { id, name: nm };
+}
+export async function releaseServer(env, id, ts) {
+  const all = await serversAll(env), s = all.find(x => x.id === +id && !x.merged); if (!s) return { ok: false, e: 'none' };
+  if (srvSt(s) === 'open') return { ok: false, e: 'open', id: s.id, name: s.name };
+  const t = Math.max(now(), +ts || 0), h = await hypeGet(env), wp = srvWhale(s), st = s.W.length ? dropWorlds(env, s.W.map(w => w.g)) : [];   // jadwal lama dibuang (belum ada bot yang bergabung)
+  st.push(env.DB.prepare('UPDATE servers SET worlds=?, opened=?, wp=? WHERE id=?').bind(JSON.stringify([newWorld(await nextGen(env), t, h, undefined, wp)]), t, wp, s.id));
+  await env.DB.batch(st);
+  return { ok: true, id: s.id, name: s.name, ts: t, h, now: t <= now() + 6e4 };
+}
+// rilis terjadwal dibatalkan → kembali terdaftar saja
+export async function unreleaseServer(env, id) {
+  const all = await serversAll(env), s = all.find(x => x.id === +id && !x.merged); if (!s) return { ok: false, e: 'none' };
+  if (srvSt(s) !== 'soon') return { ok: false, e: srvSt(s), id: s.id, name: s.name };
+  const wp = srvWhale(s);
+  await env.DB.batch([...dropWorlds(env, s.W.map(w => w.g)), env.DB.prepare("UPDATE servers SET worlds='[]', opened=0, wp=? WHERE id=?").bind(wp, s.id)]);
+  return { ok: true, id: s.id, name: s.name };
+}
+const srvClean = (env, id) => { const ks = srvKv(id); return [env.DB.prepare('DELETE FROM wchat WHERE srv=?').bind(id), env.DB.prepare('DELETE FROM ann WHERE srv=?').bind(id),
+  env.DB.prepare(`DELETE FROM kv WHERE k IN (${ks.map(() => '?').join(',')})`).bind(...ks), env.DB.prepare('DELETE FROM wbdmg WHERE slot LIKE ?').bind(id + ':%'), env.DB.prepare('DELETE FROM kv WHERE k LIKE ?').bind('wblh:' + id + ':%')] };
+const realOn = async (env, id) => (await env.DB.prepare('SELECT COUNT(*) n FROM players WHERE bot IS NULL AND watch=0 AND srv=?').bind(id).first()).n;
+export async function deleteServer(env, id) {
+  const all = await serversAll(env), s = all.find(x => x.id === +id); if (!s || s.merged) return null;
+  const ids = [s.id]; for (let k = 0; k < ids.length && k < 50; k++) for (const x of all) if (x.merged === ids[k] && !ids.includes(x.id)) ids.push(x.id);   // server yang dulu digabung ke sini ikut hilang
+  const st = s.W.length ? dropWorlds(env, s.W.map(w => w.g)) : [];
+  for (const i of ids) st.push(...srvClean(env, i));
+  st.push(env.DB.prepare(`DELETE FROM servers WHERE id IN (${ids.map(() => '?').join(',')})`).bind(...ids));
+  await env.DB.batch(st); await kvSet(env, 'srv_init', 1);
+  const go = all.filter(x => ids.includes(x.id) && x.opened > 0 && x.opened <= now()).map(x => x.opened);
+  if (go.length) await kvSet(env, 'srv_gone_opens', JSON.stringify((pj(await kvGet(env, 'srv_gone_opens'), []) || []).concat(go).slice(-200)));
+  return { id: s.id, name: s.name, real: await realOn(env, s.id), left: all.filter(x => !x.merged && x.id !== s.id).length };
+}
+export async function resetAllServers(env) {
+  const ids = (await env.DB.prepare('SELECT id FROM servers').all()).results.map(r => r.id), bots = 'SELECT uid FROM players WHERE bot IS NOT NULL';
+  const st = [env.DB.prepare(`DELETE FROM friends WHERE a IN (${bots}) OR b IN (${bots})`), env.DB.prepare(`DELETE FROM dms WHERE frm IN (${bots}) OR too IN (${bots})`),
+    env.DB.prepare('DELETE FROM players WHERE bot IS NOT NULL'), env.DB.prepare('DELETE FROM wchat'), env.DB.prepare('DELETE FROM rvb'), env.DB.prepare('DELETE FROM ann'),
+    env.DB.prepare('DELETE FROM wbdmg'), env.DB.prepare("DELETE FROM kv WHERE k LIKE 'wblh:%'"), env.DB.prepare('DELETE FROM servers')];
+  for (const id of ids) { const ks = srvKv(id); st.push(env.DB.prepare(`DELETE FROM kv WHERE k IN (${ks.map(() => '?').join(',')})`).bind(...ks)) }
+  await env.DB.batch(st); await kvSet(env, 'srv_init', 1); await kvSet(env, 'srv_gone_opens', null);
+  return { n: ids.length, real: (await env.DB.prepare('SELECT COUNT(*) n FROM players WHERE bot IS NULL AND watch=0').first()).n };
 }
 /* RILIS SERENTAK: semua server aktif dibuka ulang bersamaan pada waktu ts (sekarang atau terjadwal) — dunia bot baru (hari 1)
    dengan hype saat ini; server ditambah sampai n bila kurang. Semua akun bot, pertemanan & pesan dengan bot, Obrolan Dunia, usaha rival dihapus.
@@ -184,9 +239,9 @@ async function mergeServer(env, a, b) {
 // ringkasan server untuk layar pilih server
 async function srvList(env) {
   const all = await serversAll(env), t = now(), real = Object.fromEntries((await env.DB.prepare('SELECT srv, COUNT(*) n FROM players WHERE bot IS NULL GROUP BY srv').all()).results.map(r => [r.srv, r.n]));
-  return all.filter(s => !s.merged).map(s => { const bots = s.W.reduce((a, w) => a + botsJoinedW(w, t), 0), cap = s.W.reduce((a, w) => a + w.cap, 0), n = bots + (real[s.id] || 0);
-    const d1 = bots - s.W.reduce((a, w) => a + botsJoinedW(w, t - 36e5), 0), d24 = bots - s.W.reduce((a, w) => a + botsJoinedW(w, t - DAY), 0);
-    return { id: s.id, name: s.name, opened: s.opened, n, cap, full: n >= cap, merged: s.W.length > 1, h: s.W[0].v === 2 ? s.W[0].h : 0, d1, d24 } });
+  return all.filter(s => !s.merged).map(s => { const bots = s.W.reduce((a, w) => a + botsJoinedW(w, t), 0), cap = s.W.length ? s.W.reduce((a, w) => a + w.cap, 0) : BOTCFG.SRV.cap, n = bots + (real[s.id] || 0);
+    const d1 = bots - s.W.reduce((a, w) => a + botsJoinedW(w, t - 36e5), 0), d24 = bots - s.W.reduce((a, w) => a + botsJoinedW(w, t - DAY), 0), W0 = s.W[0];
+    return { id: s.id, name: s.name, opened: s.opened, st: srvSt(s, t), n, cap, full: n >= cap, merged: s.W.length > 1, h: W0 && W0.v === 2 ? W0.h : 0, d1, d24 } });
 }
 
 /* ---------------- Mode AI Obrolan Dunia (Claude Haiku 5.5) — nyala/mati lewat Telegram (/ai on|off) ----------------
@@ -248,7 +303,7 @@ function overused(rows, n = 6) {
 async function aiChat(env, b, u) {
   if (!(await aiOnline(env))) return { ok: false, e: 'off' };
   const kind = b.kind === 'reply' ? 'reply' : 'tick', t = now(); let wbEv = null, rvEv = null, anEv = null;
-  const SV = await srvGet(env, u ? u.srv : +b.srv || 1); if (!SV) return { ok: false, e: 'srv' };
+  const SV = await srvGet(env, u ? u.srv : +b.srv || 1); if (!SV || srvSt(SV) !== 'open') return { ok: false, e: 'srv' };
   const sid = SV.id, G = SV.W.map(w => w.g), K = k => k + ':' + sid;   // semua kunci & obrolan per server
   // penulis: hanya akun bot sungguhan, nama dari server
   const C = (Array.isArray(b.cands) ? b.cands : []).slice(0, 6).filter(c => /^\d{8}$/.test(c.uid)).map(c => ({ uid: c.uid, pub: clip(c.pub, 320), priv: clip(c.priv, 300), style: clip(c.style, 320), lower: !!c.lower, fav: clip(c.fav, 16) }));
@@ -422,7 +477,7 @@ async function annTop(env, sid) {
 }
 async function annPost(env, b) {
   const t = now(), u = b.tok ? await auth(env, b) : null; if (u && u.ban) return { ok: false, e: 'ban' };
-  const sv = await srvGet(env, u ? u.srv : +b.srv || 1); if (!sv) return { ok: false, e: 'srv' };
+  const sv = await srvGet(env, u ? u.srv : +b.srv || 1); if (!sv || srvSt(sv) !== 'open') return { ok: false, e: 'srv' };
   const sid = sv.id, L = (Array.isArray(b.list) ? b.list : []).slice(0, 8), out = [];
   if ((await env.DB.prepare('SELECT COUNT(*) n FROM ann WHERE srv=? AND ts>?').bind(sid, t - 10 * 6e4).first()).n > 40) return { ok: true, add: 0, full: 1 };   // pelindung banjir
   for (const x of L) {
@@ -513,15 +568,18 @@ export async function gameRoute(req, env, url, json) {
     if (pw.length < 6 || pw.length > 64) return fail('pw');
     if (BOTCFG.heroNames.includes(u.toLowerCase())) return fail('taken');
     if (await env.DB.prepare('SELECT 1 FROM players WHERE uname=? COLLATE NOCASE').bind(u).first()) return fail('taken');
-    const SL = await srvList(env), sv0 = SL.find(x => x.id === +b.srv) || (b.srv == null ? SL.filter(x => !x.full).pop() : null);
-    if (!sv0) return fail('srv'); if (sv0.full) return fail('srvfull');
+    const SL = await srvList(env), sv0 = SL.find(x => x.id === +b.srv) || (b.srv == null ? SL.filter(x => !x.full && x.st === 'open').pop() : null);
+    if (!sv0) return fail(SL.some(x => x.st !== 'list') ? 'srv' : 'srvnone');
+    if (sv0.st === 'list') return json({ ok: false, e: 'srvlist', sv: { id: sv0.id, name: sv0.name, at: 0 } }, 403);   // baru terdaftar: belum bisa dipilih
+    if (sv0.full) return fail('srvfull');
     const salt = hex(rnd(12)), ph = await pwHash(pw, salt);
     let uid = newUid();
     for (let k = 0; k < 5 && await env.DB.prepare('SELECT 1 FROM players WHERE uid=?').bind(uid).first(); k++) uid = newUid();
     const sv = b.save ? 1 : 0, save = b.save ? JSON.stringify(b.save).slice(0, 400000) : null;
     try { await env.DB.prepare('INSERT INTO players (uid,uname,ph,salt,created,last,sv,save,lv,cp,prof,srv) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)').bind(uid, u, 'p2$' + ph, salt, now(), now(), sv, save, +b.prof?.lv || 1, +b.prof?.cp || 0, b.prof ? JSON.stringify(b.prof).slice(0, 20000) : null, sv0.id).run() }
     catch (e) { return fail('taken') }
-    return json({ ok: true, tok: await newSession(env, uid), uid, u, sv, srv: sv0.id });
+    // server terjadwal (pra-registrasi): akun dibuat, tapi baru bisa masuk saat jam buka
+    return json({ ok: true, tok: await newSession(env, uid), uid, u, sv, srv: sv0.id, ...(sv0.st === 'soon' ? { pre: { id: sv0.id, name: sv0.name, at: sv0.opened } } : {}) });
   }
   if (p === '/api/acc/login') {
     const u = String(b.u || '').trim(), pw = String(b.p || '');
@@ -532,8 +590,16 @@ export async function gameRoute(req, env, url, json) {
     if (r.bot != null) return fail('botacc', 403);
     if ((r.ph || '').slice(3) !== await pwHash(pw, r.salt)) { await failCount(env, u.toLowerCase(), true); return fail('cred', 401) }
     if (r.ban) return fail('ban', 403);
-    const S0 = await srvGet(env, r.srv);
-    return json({ ok: true, tok: await newSession(env, r.uid), uid: r.uid, u: r.uname, sv: r.sv, save: pj(r.save), gm: r.gm ? 1 : 0, srv: S0 ? S0.id : r.srv });
+    if (r.watch) return json({ ok: true, tok: await newSession(env, r.uid), uid: r.uid, u: r.uname, sv: 0, save: null, gm: 0, watch: 1, srv: 0 });   // akun penonton: dashboard saja
+    let S0 = await srvGet(env, r.srv), st = srvSt(S0), moved = 0;
+    if (st !== 'open' && !r.gm) {
+      if (st !== 'gone') return json({ ok: false, e: st === 'soon' ? 'srvsoon' : 'srvlist', sv: { id: S0.id, name: S0.name, at: st === 'soon' ? S0.opened : 0 } }, 403);
+      // servernya sudah dihapus: pilih server lain yang sudah buka (b.srv), lalu akun pindah ke sana
+      const L = (await srvList(env)).filter(x => x.st === 'open' && !x.full), to = b.srv != null && L.find(x => x.id === +b.srv);
+      if (!to) return json({ ok: false, e: 'srvgone', old: r.srv, list: L }, 409);
+      await env.DB.prepare('UPDATE players SET srv=? WHERE uid=?').bind(to.id, r.uid).run(); S0 = await srvGet(env, to.id); st = 'open'; moved = 1;
+    }
+    return json({ ok: true, tok: await newSession(env, r.uid), uid: r.uid, u: r.uname, sv: r.sv, save: pj(r.save), gm: r.gm ? 1 : 0, srv: S0 ? S0.id : r.srv, srvst: st, ...(moved ? { moved: 1 } : {}) });
   }
   if (p === '/api/acc/logout') { if (b.tok) await env.DB.prepare('DELETE FROM sessions WHERE tok=?').bind(await sha(String(b.tok))).run(); return json({ ok: true }) }
   if (p === '/api/acc/pw') {
@@ -547,7 +613,7 @@ export async function gameRoute(req, env, url, json) {
 
   // ---- simpanan cloud ----
   if (p === '/api/save') {
-    const [u, f] = await me(); if (f) return f;
+    const [u, f] = await me(); if (f) return f; if (u.watch) return fail('watch', 403);
     if (+b.base !== u.sv) return json({ ok: false, conflict: 1, sv: u.sv, save: pj(u.save) });
     const s = JSON.stringify(b.save || null); if (s.length > 400000) return fail('big');
     const pr = b.prof || {}, sv = u.sv + 1;
@@ -557,6 +623,13 @@ export async function gameRoute(req, env, url, json) {
   }
   if (p === '/api/load') { const [u, f] = await me(); if (f) return f; return json({ ok: true, sv: u.sv, save: pj(u.save), u: u.uname, gm: u.gm ? 1 : 0, srv: u.srv }) }
   if (p === '/api/servers') return json({ ok: true, list: await srvList(env), t: now() });
+  if (p === '/api/acc/srv') {   // akun yang servernya sudah dihapus memilih server baru (hanya saat itu; akun tetap terikat ke satu server)
+    const [u, f] = await me(); if (f) return f; if (u.watch) return fail('watch', 403);
+    if (srvSt(await srvGet(env, u.srv)) !== 'gone') return fail('srvstay');
+    const to = (await srvList(env)).find(x => x.id === +b.srv && x.st === 'open' && !x.full); if (!to) return fail('srv');
+    await env.DB.prepare('UPDATE players SET srv=? WHERE uid=?').bind(to.id, u.uid).run();
+    return json({ ok: true, srv: to.id, name: to.name });
+  }
   if (p === '/api/srv/merge') {   // khusus akun GM: gabung server a ke b
     const [u, f] = await me(); if (f) return f; if (!u.gm) return fail('gm', 403);
     return json(await mergeServer(env, b.from, b.to));
@@ -565,7 +638,8 @@ export async function gameRoute(req, env, url, json) {
     const [u, f] = await me(); if (f) return f;
     const SV = await srvGet(env, u.srv);
     const [c, wc, ai] = await Promise.all([counts(env, u.uid), env.DB.prepare('SELECT COALESCE(MAX(ts),0) m FROM wchat WHERE srv=? AND ts<=?').bind(SV ? SV.id : u.srv, now()).first(), aiOnline(env), env.DB.prepare('UPDATE players SET last=? WHERE uid=?').bind(now(), u.uid).run()]);
-    return json({ ok: true, sv: u.sv, u: u.uname, gm: u.gm ? 1 : 0, ...c, wc: wc.m, ai, srv: SV ? SV.id : u.srv, wsig: SV ? SV.W.map(w => w.g).join(',') : '', t: now() });
+    const st = srvSt(SV);   // server belum buka / dihapus → game kembali ke layar judul (kecuali GM & penonton)
+    return json({ ok: true, sv: u.sv, u: u.uname, gm: u.gm ? 1 : 0, ...(u.watch ? { watch: 1 } : {}), ...c, wc: wc.m, ai, srv: SV ? SV.id : u.srv, wsig: SV ? SV.W.map(w => w.g).join(',') : '', srvst: st, ...(SV ? { svn: SV.name, sva: SV.opened } : {}), t: now() });
   }
 
   // ---- dunia & pemain ----
@@ -760,7 +834,7 @@ const ago = ms => { if (!ms) return 'belum pernah'; const m = Math.floor((now() 
 // kolom yang bisa diubah lewat tombol
 const H_FIELDS = { gems: 'Permata', gold: 'Emas', lv: 'Level', stam: 'Stamina', tixH: 'Tiket Hero', tixW: 'Tiket Senjata', uname: 'Username', pw: 'Password' };
 const B_FIELDS = { uname: 'Username', lv: 'Level', cp: 'CP', vip: 'VIP' };
-const ADMIN_HELP = `🛠 <b>Admin Aster Chronicles</b>\n\n• /akun &lt;UID|username&gt; — lihat & ubah akun (pemain atau bot)\n• /cari &lt;teks&gt; — cari username\n• /pemain — daftar pemain asli\n• /set &lt;UID|username&gt; &lt;kolom&gt; &lt;nilai&gt; — ubah apa saja\n   pemain: kolom di data simpanan, mis. <code>gems</code>, <code>heroes.nami.lv</code>, <code>mats.crys</code>\n   bot: <code>lv</code>, <code>cp</code>, <code>vip</code>, <code>uname</code>\n   nilai <code>hapus</code> = menghapus kolom\n• /data &lt;UID|username&gt; — file JSON data simpanan\n• /gm &lt;UID|username&gt; — jadikan/cabut GM (akun testing tanpa batas); /gm saja = daftar GM\n• /server — daftar server · /server buka [nama] — buka server baru · /resetbot &lt;id&gt; — reset bot satu server\n• /hype [1-10] — tingkat hype: makin tinggi makin banyak pemain yang langsung main saat server dibuka\n• /rilis — rilis serentak: semua server dibuka bersamaan (sekarang atau terjadwal), dunia bot mulai dari hari 1\n• /whale — persen whaler (pembelanja besar) per server, mis. <code>/whale 1 10</code> atau <code>/whale semua 5</code>\n• /ai on|off — Mode AI Obrolan Dunia (Claude Haiku 5.5)\n\nKetik UID (8 angka) atau username saja juga bisa.`;
+const ADMIN_HELP = `🛠 <b>Admin Aster Chronicles</b>\n\n• /akun &lt;UID|username&gt; — lihat & ubah akun (pemain atau bot)\n• /cari &lt;teks&gt; — cari username\n• /pemain — daftar pemain asli\n• /set &lt;UID|username&gt; &lt;kolom&gt; &lt;nilai&gt; — ubah apa saja\n   pemain: kolom di data simpanan, mis. <code>gems</code>, <code>heroes.nami.lv</code>, <code>mats.crys</code>\n   bot: <code>lv</code>, <code>cp</code>, <code>vip</code>, <code>uname</code>\n   nilai <code>hapus</code> = menghapus kolom\n• /data &lt;UID|username&gt; — file JSON data simpanan\n• /gm &lt;UID|username&gt; — jadikan/cabut GM (akun testing tanpa batas); /gm saja = daftar GM\n• /server — daftar & kelola server: tambah (belum rilis) · rilis (sekarang/terjadwal) · tunda · nama · hapus · reset semua · /resetbot &lt;id&gt; — reset bot satu server\n• /penonton — akun penonton (dashboard peringkat semua server & raid, hanya lihat)\n• /hype [1-10] — tingkat hype: makin tinggi makin banyak pemain yang langsung main saat server dibuka\n• /rilis — rilis serentak: semua server dibuka bersamaan (sekarang atau terjadwal), dunia bot mulai dari hari 1\n• /whale — persen whaler (pembelanja besar) per server, mis. <code>/whale 1 10</code> atau <code>/whale semua 5</code>\n• /ai on|off — Mode AI Obrolan Dunia (Claude Haiku 5.5)\n\nKetik UID (8 angka) atau username saja juga bisa.`;
 
 function setPath(o, path, v) {
   const ks = path.split('.').filter(Boolean); if (!ks.length) return false;
@@ -855,6 +929,7 @@ function whReal(w, t) {
 }
 async function whaleSet(env, s, pct) {
   const t = now(), W = pj(s.worlds, []);
+  if (!W.length) return env.DB.prepare('UPDATE servers SET wp=? WHERE id=?').bind(pct, s.id).run();   // belum rilis: dipakai saat dirilis
   for (const w of W) {
     if (w.e > t) { w.wh = [[w.e, pct]]; continue }                         // belum buka: berlaku sejak buka
     const H = w.wh || []; if (Math.abs((H.length ? +H[H.length - 1][1] : WH_DEF) - pct) < 1e-9) continue;
@@ -871,7 +946,7 @@ async function whaleCard(env, chat, send, note) {
    ⏰ belum buka` : '') });
   const rows = all.map(s => [{ text: `S${s.id} ${s.name} · ${pctS(srvWhale(s))}`, callback_data: 'wh:s:' + s.id }]);
   rows.push([{ text: '🌍 Semua server', callback_data: 'wh:s:0' }]);
-  return send(env, chat, `${note ? note + '\n\n' : ''}🐋 <b>Persen Whaler per Server</b>\nWhaler = whale + super whale + mega whale (pembelanja besar). Bawaan ${pctS(WH_DEF)}; sisanya F2P / kartu bulanan / dolphin dengan perbandingan tetap.\n` +
+  return send(env, chat, `${note ? note + '\n\n' : ''}🐋 <b>Persen Whaler per Server</b>\nWhaler = whale + super whale + mega whale (pembelanja besar). Bawaan ${pctS(WH_DEF)}; sisanya F2P / low spender / kartu bulanan / mid spender / dolphin dengan perbandingan tetap.\n` +
     `Berlaku untuk pemain yang <b>bergabung setelah diubah</b> — pemain lama tidak berubah (riwayat belanja & CP-nya tetap). Server yang belum buka: berlaku sejak buka.\n\n` + L.join('\n') +
     `\n\nDunia baru (/server buka): ${pctS(def)}. Saat /rilis atau reset bot, tiap server membawa persennya sendiri.\nKetik juga: <code>/whale 1 10</code> (S1 jadi 10%) atau <code>/whale semua 5</code>.`, { inline_keyboard: rows });
 }
@@ -955,7 +1030,7 @@ const wibHM = ts => new Date(ts + BOTCFG.TZ * 36e5).toISOString().slice(11, 16);
 const relTime = ts => { const m = Math.round((ts - now()) / 6e4); return m < 60 ? m + ' menit lagi' : m < 1440 ? Math.floor(m / 60) + ' jam ' + (m % 60) + ' menit lagi' : Math.floor(m / 1440) + ' hari lagi' };
 async function rilisCard(env, chat, send) {
   const h = await hypeGet(env), A = (await serversAll(env)).filter(s => !s.merged), act = A.length, E = hypeEst(h), wd = await whaleGet(env);
-  const opts = [...new Set([act, 4, 6, 8, 10, 12, 16])].filter(v => v >= act && v <= 16).sort((a, b) => a - b).slice(0, 4);
+  const opts = [...new Set([act, 1, 2, 4, 6, 8, 10, 12, 16])].filter(v => v >= Math.max(1, act) && v <= 16).sort((a, b) => a - b).slice(0, 4);
   return send(env, chat, `🚀 <b>Rilis Serentak</b>\nSemua server dibuka bersamaan dan dunia bot mulai dari hari 1. Pemain asli tetap (akun & servernya); semua akun bot, pertemanan/pesan dengan bot, dan Obrolan Dunia dihapus.\n\n` +
     `🔥 Hype: <b>${h} · ${HYPE_N(h)}</b> (ubah: /hype)\n🌍 Server aktif sekarang: ${act}\nPerkiraan per server: ±${fmt(E[0])} pemain di jam pertama, ±${fmt(E[2])} di hari pertama.\n` +
     `🐋 Whaler: ${A.map(s => `S${s.id} ${pctS(srvWhale(s))}`).join(' · ')}${opts.some(v => v > act) ? ` · server baru ${pctS(wd)}` : ''} (ubah: /whale)\n\nPilih jumlah server:`,
@@ -980,6 +1055,87 @@ async function rilisGo(env, chat, send, n, ts) {
   return send(env, chat, t <= now() + 6e4
     ? `🎉 <b>RILIS SERENTAK!</b> ${o.n} server dibuka bersamaan (hari 1)${o.added.length ? `, termasuk server baru ${o.added.map(x => 'S' + x.id + ' ' + esc(x.name)).join(', ')}` : ''}.\n🔥 Hype ${o.h} · ${HYPE_N(o.h)} — pemain mulai berdatangan sekarang, tiap server dengan iramanya sendiri.\nGame memuat dunia baru dalam ±30 detik. Pantau pertambahannya di /server.`
     : `⏰ <b>Rilis serentak dijadwalkan</b> ${when(t)} (${relTime(t)}).\n${o.n} server sudah tampil di daftar sebagai pra-registrasi ("Buka ${wibHM(t)}")${o.added.length ? `, termasuk server baru ${o.added.map(x => 'S' + x.id + ' ' + esc(x.name)).join(', ')}` : ''}. Dunia bot sudah dikosongkan; pemain berdatangan tepat saat jam buka.\n🔥 Hype ${o.h} · ${HYPE_N(o.h)}.`);
+}
+const SRV_ST = { list: '📋 BELUM RILIS', soon: '⏰ terjadwal', open: '🟢 buka' };
+async function srvCard(env, chat, send, note) {
+  const L = await srvList(env), all = await serversAll(env);
+  const wpOf = id => { const s = all.find(y => y.id === id); return s ? ' · 🐋' + pctS(srvWhale(s)) : '' };
+  const rows = [];
+  for (const x of L) rows.push(x.st === 'open' ? [{ text: `♻️ Reset bot S${x.id}`, callback_data: `rbot:${x.id}` }, { text: `🗑 Hapus S${x.id}`, callback_data: `sdel:${x.id}` }]
+    : [{ text: `🚀 Rilis S${x.id}`, callback_data: `srl:${x.id}` }, { text: `🗑 Hapus S${x.id}`, callback_data: `sdel:${x.id}` }]);
+  return send(env, chat, `${note ? note + '\n\n' : ''}🌍 <b>Server</b> · hype sekarang ${await hypeGet(env)} (/hype)
+
+` + (L.length ? L.map(x => `<b>S${x.id} · ${esc(x.name)}</b> — ${SRV_ST[x.st] || x.st}${x.st === 'list' ? '' : ` · ${fmt(x.n)}/${fmt(x.cap)} pemain`}${x.full ? ' · PENUH' : ''}${x.merged ? ' · gabungan' : ''}${x.h ? ' · 🔥' + x.h : ''}${wpOf(x.id)}
+   ` +
+      (x.st === 'list' ? 'belum bisa dimasuki · rilis: /server rilis ' + x.id : x.st === 'soon' ? `⏰ buka ${when(x.opened)} (${relTime(x.opened)}) · pra-registrasi` : `+${fmt(x.d1)} sejam terakhir · +${fmt(x.d24)} 24 jam · buka ${when(x.opened)}`)).join('\n') : '<i>Belum ada server.</i> Pemain tidak bisa masuk sampai ada server yang buka.') +
+    (all.some(s => s.merged) ? `
+
+Digabung: ${all.filter(s => s.merged).map(s => `S${s.id}→S${s.merged}`).join(', ')}` : '') +
+    `
+
+• /server tambah [nama] — daftarkan server baru (BELUM RILIS)
+• /server rilis &lt;id&gt; [sekarang|20:00] — rilis server terdaftar
+• /server tunda &lt;id&gt; — batalkan rilis terjadwal
+• /server buka [nama] — buka server baru langsung (hari 1)
+• /server nama &lt;id&gt; &lt;nama&gt; — ganti nama
+• /server hapus &lt;id&gt; — hapus server
+• /server reset semua — hapus SEMUA server (tanpa server)
+• /rilis — rilis serentak semua server
+• /resetbot &lt;id&gt; — reset dunia bot satu server
+• /hype · /whale · /penonton
+• Gabung server: lewat Panel GM di game.`,
+    rows.length ? { inline_keyboard: rows.slice(0, 40) } : undefined);
+}
+function srvRilisKb(id) {
+  const T = [19, 20, 21].map(hh => nextWib(hh, 0)), lab = ts => (new Date(ts + BOTCFG.TZ * 36e5).getUTCDate() !== new Date(now() + BOTCFG.TZ * 36e5).getUTCDate() ? 'besok ' : '') + wibHM(ts);
+  return { inline_keyboard: [[{ text: '⚡ Rilis sekarang', callback_data: `srl:${id}:0` }], T.map(ts => ({ text: lab(ts), callback_data: `srl:${id}:${ts}` })), [{ text: 'Nanti saja', callback_data: 'sdel:no' }]] };
+}
+async function srvRilisAsk(env, chat, send, id) {
+  const x = (await srvList(env)).find(y => y.id === +id); if (!x) return send(env, chat, 'Server tidak ditemukan.');
+  if (x.st === 'open') return send(env, chat, `S${x.id} · ${esc(x.name)} sudah buka. Mulai ulang dunianya: /resetbot ${x.id}`);
+  return send(env, chat, `🚀 <b>Rilis S${x.id} · ${esc(x.name)}</b>${x.st === 'soon' ? ` (sekarang dijadwalkan ${when(x.opened)})` : ''}
+Terjadwal = tampil sebagai pra-registrasi ("Buka 20:00"): pemain sudah bisa membuat akun, tapi baru bisa masuk tepat jam buka.
+Atau ketik: <code>/server rilis ${x.id} 20:30</code>`, srvRilisKb(x.id));
+}
+async function srvRilisGo(env, chat, send, id, ts) {
+  const o = await releaseServer(env, id, ts);
+  if (!o.ok) return send(env, chat, o.e === 'open' ? `S${o.id} · ${esc(o.name)} sudah buka.` : 'Server tidak ditemukan.');
+  if (o.now) await ensureBots(env);
+  return send(env, chat, o.now ? `🎉 <b>S${o.id} · ${esc(o.name)} DIRILIS!</b> Hari 1 · 🔥 hype ${o.h} · ${HYPE_N(o.h)} — pemain mulai berdatangan sekarang. Pantau di /server.`
+    : `⏰ <b>S${o.id} · ${esc(o.name)} dijadwalkan rilis ${when(o.ts)}</b> (${relTime(o.ts)}).
+Sekarang tampil sebagai pra-registrasi; yang mencoba masuk sebelum jam buka mendapat pemberitahuan penolakan. Batal: <code>/server tunda ${o.id}</code>`);
+}
+/* ---------- akun penonton: dashboard papan peringkat semua server + raid bos (hanya lihat) ---------- */
+async function watchCmd(env, chat, send, uname, pw, del) {
+  if (!uname) {
+    const L = (await env.DB.prepare('SELECT uid,uname,last FROM players WHERE watch=1 ORDER BY created').all()).results;
+    return send(env, chat, `👁 <b>Akun Penonton</b>
+Masuk di game seperti biasa → langsung ke dashboard: papan peringkat CP / Level / Arena semua server + papan raid Bos Dunia (sedang berlangsung & yang sudah selesai). Hanya melihat — tidak bisa bermain, tidak tampil di papan mana pun.
+
+` +
+      (L.length ? L.map(r => `• <b>${esc(r.uname)}</b> <code>${r.uid}</code> · terakhir ${when(r.last)}`).join('\n') : '<i>Belum ada.</i>') +
+      `
+
+• <code>/penonton nama</code> — buat akun (password dibuat acak)
+• <code>/penonton nama password</code> — buat akun / ganti password
+• <code>/penonton hapus nama</code>`);
+  }
+  const r = await env.DB.prepare('SELECT * FROM players WHERE uname=? COLLATE NOCASE').bind(uname).first();
+  if (del) {
+    if (!r || !r.watch) return send(env, chat, 'Akun penonton tidak ditemukan.');
+    await env.DB.batch([env.DB.prepare('DELETE FROM sessions WHERE uid=?').bind(r.uid), env.DB.prepare('DELETE FROM players WHERE uid=? AND watch=1').bind(r.uid)]);
+    return send(env, chat, `🗑 Akun penonton <b>${esc(r.uname)}</b> dihapus.`);
+  }
+  if (r && !r.watch) return send(env, chat, `Username <b>${esc(r.uname)}</b> sudah dipakai ${r.bot != null ? 'bot' : 'pemain'}. Pilih nama lain.`);
+  if (!r && BOTCFG.heroNames.includes(uname.toLowerCase())) return send(env, chat, 'Nama itu nama hero. Pilih nama lain.');
+  const pass = pw || Array.from(rnd(10), x => 'abcdefghjkmnpqrstuvwxyz23456789'[x % 31]).join(''), salt = hex(rnd(12)), ph = 'p2$' + await pwHash(pass, salt);
+  if (r) await env.DB.batch([env.DB.prepare('UPDATE players SET ph=?, salt=? WHERE uid=?').bind(ph, salt, r.uid), env.DB.prepare('DELETE FROM sessions WHERE uid=?').bind(r.uid)]);
+  else await env.DB.prepare('INSERT INTO players (uid,uname,ph,salt,created,last,sv,save,lv,cp,prof,srv,watch) VALUES (?,?,?,?,?,?,0,NULL,1,0,NULL,0,1)').bind(newUid(), uname, ph, salt, now(), now()).run();
+  return send(env, chat, `👁 <b>Akun penonton ${r ? 'diperbarui' : 'dibuat'}</b>
+Username: <code>${esc(r ? r.uname : uname)}</code>
+Password: <code>${esc(pass)}</code>
+
+Buka game → Mulai → Masuk Akun. Isinya hanya dashboard peringkat semua server & raid Bos Dunia.${pw ? '' : '\nHapus pesan ini setelah dicatat.'}`);
 }
 export async function adminMessage(env, chat, t, low, send) {
   const flow = await kvGet(env, 'flow');
@@ -1046,21 +1202,46 @@ export async function adminMessage(env, chat, t, low, send) {
     await send(env, chat, on ? `🛡 <b>${esc(r.uname)}</b> sekarang <b>GM</b>. Panel GM muncul di game dalam ±30 detik (Menu › Pengaturan › Panel GM).` : `🛡 Status GM <b>${esc(r.uname)}</b> dicabut.`);
     return true;
   }
-  if (/^\/(resetbot|server)(?:@\w+)?$/i.test(t)) {
-    const L = await srvList(env), all = await serversAll(env);
-    const wpOf = id => { const s = all.find(y => y.id === id); return s ? ' · 🐋' + pctS(srvWhale(s)) : '' };
-    await send(env, chat, `🌍 <b>Server</b> · hype sekarang ${await hypeGet(env)} (/hype)\n\n` + L.map(x => `<b>S${x.id} · ${esc(x.name)}</b> — ${fmt(x.n)}/${fmt(x.cap)} pemain${x.full ? ' · PENUH' : ''}${x.merged ? ' · gabungan' : ''}${x.h ? ' · 🔥' + x.h : ''}${wpOf(x.id)}\n   ` +
-      (x.opened > now() ? `⏰ buka ${when(x.opened)} (${relTime(x.opened)})` : `+${fmt(x.d1)} sejam terakhir · +${fmt(x.d24)} 24 jam · buka ${when(x.opened)}`)).join('\n') +
-      (all.some(s => s.merged) ? `\n\nDigabung: ${all.filter(s => s.merged).map(s => `S${s.id}→S${s.merged}`).join(', ')}` : '') +
-      `\n\n• /rilis — rilis serentak semua server (sekarang/terjadwal)\n• /hype — tingkat hype untuk dunia baru\n• /whale — persen whaler per server\n• /server buka [nama] — buka server baru (hari 1, maks ${fmt(BOTCFG.SRV.cap)} pemain)\n• /resetbot &lt;id&gt; — reset dunia bot satu server\n• Gabung server: lewat Panel GM di game.`,
-      { inline_keyboard: L.map(x => [{ text: `♻️ Reset bot S${x.id}`, callback_data: `rbot:${x.id}` }]) });
-    return true;
-  }
+  if (/^\/(resetbot|server)(?:@\w+)?$/i.test(t)) { await srvCard(env, chat, send); return true }
   if ((m = t.match(/^\/server(?:@\w+)?\s+buka(?:\s+(.+))?$/i))) {
     const o = await openServer(env, m[1] || ''); await ensureBots(env);
-    await send(env, chat, `🎉 <b>Server baru dibuka: S${o.id} · ${esc(o.name)}</b> · 🔥 hype ${o.h} · ${HYPE_N(o.h)}\nMulai hari 1, bot berdatangan dari 0 sampai ${fmt(BOTCFG.SRV.cap)} (±${fmt(hypeEst(o.h)[2])} di hari pertama). Server lama sekarang tumbuh lebih pelan karena pemain baru lebih memilih server baru.`);
+    await send(env, chat, `🎉 <b>Server baru dibuka: S${o.id} · ${esc(o.name)}</b> · 🔥 hype ${o.h} · ${HYPE_N(o.h)}\nMulai hari 1, bot berdatangan dari 0 sampai ${fmt(BOTCFG.SRV.cap)} (±${fmt(hypeEst(o.h)[2])} di hari pertama). Server lama sekarang tumbuh lebih pelan karena pemain baru lebih memilih server baru.\n\nMau didaftarkan dulu tanpa langsung buka? Pakai <code>/server tambah nama</code>.`);
     return true;
   }
+  if ((m = t.match(/^\/server(?:@\w+)?\s+(?:tambah|add)(?:\s+(.+))?$/i))) {
+    const o = await addServer(env, m[1] || '');
+    await send(env, chat, `📋 <b>Server terdaftar: S${o.id} · ${esc(o.name)}</b>\nTampil di daftar server sebagai <b>BELUM RILIS</b>: pemain belum bisa membuat akun di sini, dan yang mencoba masuk mendapat pemberitahuan penolakan.\n\nRilis kapan?`, srvRilisKb(o.id));
+    return true;
+  }
+  if ((m = t.match(/^\/server(?:@\w+)?\s+(?:rilis|release)\s+s?(\d+)(?:\s+(sekarang|\d{1,2}[:.]\d{2}))?$/i))) {
+    if (!m[2]) { await srvRilisAsk(env, chat, send, +m[1]); return true }
+    const ts = /sekarang/i.test(m[2]) ? 0 : nextWib(+m[2].split(/[:.]/)[0] % 24, +m[2].split(/[:.]/)[1] % 60);
+    await srvRilisGo(env, chat, send, +m[1], ts); return true;
+  }
+  if ((m = t.match(/^\/server(?:@\w+)?\s+(?:tunda|batal)\s+s?(\d+)$/i))) {
+    const o = await unreleaseServer(env, +m[1]);
+    await send(env, chat, o.ok ? `⏸ <b>Rilis S${o.id} · ${esc(o.name)} dibatalkan</b> — kembali terdaftar saja (BELUM RILIS). Rilis lagi: <code>/server rilis ${o.id}</code>` : o.e === 'none' ? 'Server tidak ditemukan.' : o.e === 'open' ? `S${o.id} sudah buka, tidak bisa ditunda. Mulai ulang dunianya: /resetbot ${o.id}` : `S${o.id} memang belum dijadwalkan rilis.`);
+    return true;
+  }
+  if ((m = t.match(/^\/server(?:@\w+)?\s+nama\s+s?(\d+)\s+(.+)$/i))) {
+    const nm = clean(m[2], 16), x = (await serversAll(env)).find(y => y.id === +m[1] && !y.merged); if (!x || !nm) { await send(env, chat, x ? 'Nama tidak boleh kosong.' : 'Server tidak ditemukan.'); return true }
+    await env.DB.prepare('UPDATE servers SET name=? WHERE id=?').bind(nm, x.id).run();
+    await send(env, chat, `✏️ S${x.id} sekarang bernama <b>${esc(nm)}</b> (dulu ${esc(x.name)}).`); return true;
+  }
+  if ((m = t.match(/^\/server(?:@\w+)?\s+(?:hapus|delete)\s+s?(\d+)$/i))) {
+    const x = (await serversAll(env)).find(y => y.id === +m[1] && !y.merged); if (!x) { await send(env, chat, 'Server tidak ditemukan.'); return true }
+    const real = await realOn(env, x.id), bots = x.W.reduce((a, w) => a + botsJoinedW(w, now()), 0);
+    await send(env, chat, `🗑 <b>Hapus server S${x.id} · ${esc(x.name)}?</b>\n\n• Server hilang dari daftar\n• ${fmt(bots)} akun bot + pertemanan/pesan dengan bot, Obrolan Dunia, pengumuman & raid server ini DIHAPUS\n• ${fmt(real)} akun pemain asli TIDAK dihapus — saat masuk lagi mereka diminta memilih server lain yang sudah buka (progres tetap)\n\nTidak bisa dibatalkan.`,
+      { inline_keyboard: [[{ text: '🗑 Ya, hapus S' + x.id, callback_data: 'sdel:yes:' + x.id }, { text: 'Batal', callback_data: 'sdel:no' }]] });
+    return true;
+  }
+  if (/^\/server(?:@\w+)?\s+reset\s+(?:semua|all)$/i.test(t)) {
+    const all = (await serversAll(env)).filter(s => !s.merged), real = (await env.DB.prepare('SELECT COUNT(*) n FROM players WHERE bot IS NULL AND watch=0').first()).n;
+    await send(env, chat, `🧨 <b>Reset SEMUA server?</b>\n\n• ${all.length} server dihapus (${all.map(s => 'S' + s.id).join(', ') || '-'}) → tanpa server sama sekali, tidak dibuat otomatis lagi\n• Semua akun bot, Obrolan Dunia, pengumuman, raid & usaha rival dihapus\n• ${fmt(real)} akun pemain asli TIDAK dihapus — mereka tidak bisa masuk sampai ada server yang buka\n• Server baru mulai lagi dari S1 (<code>/server tambah nama</code>); pemain yang dulu di S1 otomatis ikut S1 yang baru, dst.\n\nTidak bisa dibatalkan.`,
+      { inline_keyboard: [[{ text: '🧨 Ya, reset semua', callback_data: 'sall:yes' }, { text: 'Batal', callback_data: 'sdel:no' }]] });
+    return true;
+  }
+  if ((m = t.match(/^\/penonton(?:@\w+)?(?:\s+(hapus\s+)?([A-Za-z0-9]{3,12}))?(?:\s+(\S{6,64}))?$/i))) { await watchCmd(env, chat, send, m[2], m[3], !!m[1]); return true }
   if ((m = t.match(/^\/hype(?:@\w+)?(?:\s+(\d+))?$/i))) {
     if (m[1]) { const v = +m[1]; if (!(v >= 1 && v <= 10)) { await send(env, chat, 'Tingkat hype 1 sampai 10, mis. <code>/hype 7</code>'); return true } await kvSet(env, 'hype', v); await hypeCard(env, chat, send, `✅ Hype diatur ke <b>${v} · ${HYPE_N(v)}</b>.`); return true }
     await hypeCard(env, chat, send); return true;
@@ -1123,6 +1304,18 @@ export async function adminCallback(env, chat, d, send) {
   if ((m = d.match(/^rbot:(\d+)$/))) { await adminMessage(env, chat, '/resetbot ' + m[1], '/resetbot ' + m[1], send); return true }
   if ((m = d.match(/^rbot:yes:(\d+)$/))) { const o = await resetServer(env, +m[1]); await send(env, chat, o ? `♻️ <b>Dunia bot S${o.id} di-reset</b> (dunia ${o.gen}).\nObrolan Dunia server ini dikosongkan. Game di server ini memuat dunia baru dalam ±30 detik.` : 'Server tidak ditemukan.'); return true }
   if (d === 'rbot:no') { await send(env, chat, 'Dibatalkan.'); return true }
+  if (d === 'srv') { await srvCard(env, chat, send); return true }
+  if ((m = d.match(/^srl:(\d+)$/))) { await srvRilisAsk(env, chat, send, +m[1]); return true }
+  if ((m = d.match(/^srl:(\d+):(\d+)$/))) { await srvRilisGo(env, chat, send, +m[1], +m[2]); return true }
+  if ((m = d.match(/^sdel:(\d+)$/))) { await adminMessage(env, chat, '/server hapus ' + m[1], '', send); return true }
+  if ((m = d.match(/^sdel:yes:(\d+)$/))) { const o = await deleteServer(env, +m[1]);
+    await send(env, chat, o ? `🗑 <b>S${o.id} · ${esc(o.name)} dihapus.</b>${o.real ? ` ${fmt(o.real)} pemain asli akan memilih server lain saat masuk.` : ''}${o.left ? '' : '\n\nSekarang tidak ada server sama sekali. Tambah: <code>/server tambah nama</code>'}` : 'Server tidak ditemukan.'); return true }
+  if (d === 'sdel:no') { await send(env, chat, 'Dibatalkan.'); return true }
+  if (d === 'sall:yes') { const o = await resetAllServers(env);
+    await send(env, chat, `🧨 <b>Semua server di-reset.</b> ${o.n} server dihapus — sekarang tanpa server.
+${fmt(o.real)} akun pemain asli tetap ada, menunggu server dibuka.
+
+Lanjut: <code>/server tambah nama</code> (daftar dulu) lalu rilis, atau <code>/rilis</code> untuk rilis serentak beberapa server baru.`); return true }
   if (d === 'hype') { await hypeCard(env, chat, send); return true }
   if ((m = d.match(/^hype:(\d+)$/))) { const v = Math.min(10, Math.max(1, +m[1])); await kvSet(env, 'hype', v); await hypeCard(env, chat, send, `✅ Hype diatur ke <b>${v} · ${HYPE_N(v)}</b>.`); return true }
   if (d === 'whale') { await whaleCard(env, chat, send); return true }

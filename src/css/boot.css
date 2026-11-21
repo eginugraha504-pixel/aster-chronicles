@@ -150,7 +150,10 @@
 .srvb{flex:1 1 calc(50% - 6px);display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:6px 8px;border-radius:10px;border:2px solid #c9b48a;background:#fff8ea;color:#4a3420;text-align:left;position:relative;font-family:inherit}
 .srvb b{font-size:12.5px}.srvb small{font-size:10.5px;opacity:.75}
 .srvb i{position:absolute;right:6px;top:6px;font-style:normal;font-size:9px;font-weight:900;padding:1px 5px;border-radius:6px;background:#8a7a5a;color:#fff}
-.srvb.soon i{background:#8a4ae0}.srvb.new i{background:#2fa84f}.srvb.busy i{background:#e08a1e}.srvb.full i{background:#9a3a30}.srvb.ok i{background:#3a8ae0}
+.srvb.s-list{opacity:.6;filter:grayscale(.5)}.srvb.s-list i{background:#6a6a6a}.srvb.s-soon i{background:#8a4ae0}.srvb.s-new i{background:#2fa84f}.srvb.s-busy i{background:#e08a1e}.srvb.s-full i{background:#9a3a30}.srvb.s-ok i{background:#3a8ae0}
 .srvb.on{border-color:#e0a020;background:#fff0c4;box-shadow:0 0 0 2px #ffd36a inset}
 .srvb:disabled{opacity:.5}
 .lgwel .lgsrv{display:block;font-size:11px;opacity:.85;margin-top:2px}
+
+/* pemberitahuan penolakan server (belum buka / belum rilis / ditutup) */
+.srvdeny{text-align:center;padding:4px 6px 2px}.srvdeny .sdic{font-size:42px;line-height:1;margin:2px 0 8px}.srvdeny h3{margin:0 0 8px}.srvdeny p{font-size:13.5px;line-height:1.5;margin:0}

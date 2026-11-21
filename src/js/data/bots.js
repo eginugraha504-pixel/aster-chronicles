@@ -119,10 +119,15 @@ const BOT_CFG={
  // packs = paket acak [id,bobot]; banner = jumlah paket saat banner baru [min,maks]; bp = paket saat banner baru
  SPEND:{
   whales:['whale','swhale','mwhale'],   // "whaler" untuk persen per server (Telegram /whale); bawaan = jumlah bobot ketiganya (2%)
+  // Jenjang belanja dari bawah ke atas (21 Nov 2026): f2p → spender kecil (low) → kartu bulanan (card) → spender normal (mid)
+  // → spender besar (dolphin) → whale / super / mega. Tier menengah memakai kurva campuran F2P↔whale (blend) supaya
+  // papan peringkat bersambung halus dari F2P sampai sultan (tidak ada jurang).
   tiers:[
-   {id:'f2p',    w:75},
-   {id:'card',   w:17,card:1,  renew:.8, rate:.035,first:[.02,1.2],packs:[['g1',6],['g2',3]],                    banner:[0,1],bp:[['g1',3],['g2',2]]},
-   {id:'dolphin',w:6, card:.85,renew:.9, rate:.16, first:[.01,.8],packs:[['g1',2],['g2',5],['g3',4],['g4',1]],  banner:[1,2],bp:[['g2',2],['g3',4],['g4',2]]},
+   {id:'f2p',    w:54},
+   {id:'low',    w:16,card:.12,renew:.5, rate:.012,first:[.1,3],  packs:[['g1',8],['g2',1]],                        banner:[0,1],bp:[['g1',1]]},
+   {id:'card',   w:13,card:1,  renew:.8, rate:.035,first:[.02,1.2],packs:[['g1',6],['g2',3]],                    banner:[0,1],bp:[['g1',3],['g2',2]]},
+   {id:'mid',    w:10,card:.95,renew:.9,rate:.08, first:[.02,1],  packs:[['g1',3],['g2',5],['g3',2]],              banner:[0,2],bp:[['g2',4],['g3',2]]},
+   {id:'dolphin',w:5,card:.85,renew:.9,rate:.16, first:[.01,.8],packs:[['g1',2],['g2',5],['g3',4],['g4',1]],  banner:[1,2],bp:[['g2',2],['g3',4],['g4',2]]},
    {id:'whale',  w:1.4,card:1, renew:1,  rate:.42, first:[.005,.25],packs:[['g3',2],['g4',3],['g5',3],['g6',3]],  banner:[2,5],bp:[['g4',1],['g5',2],['g6',4]],burn:.33},
    // pengejar puncak: segala cara — main sangat rajin & optimal, selalu kejar rate-up, tidak menabung, tidak pernah berhenti,
    // borong tiap banner & tanggal gajian, Kebangkitan lebih cepat (ASC.tier).
@@ -133,8 +138,10 @@ const BOT_CFG={
   ],
   // PAKET (TOPUP_CFG.bundles): peluang membeli per tier. Kunci = id paket; 'lv' = penawaran naik level (tiap level yang punya penawaran);
   // 'once' & penawaran sekali, mingguan/bulanan dicoba tiap periode. Isi paket ikut: permata + tiket → tarikan, bahan Kebangkitan → anggaran Kebangkitan bot.
-  bun:{card:{b1:.75,b2:.25,gf:.35,wk1:.25,lv:.12},
-       dolphin:{b1:.95,b2:.7,b3:.1,gf:.7,wk1:.5,wk2:.2,lv:.4},
+  bun:{low:{b1:.85,wk1:.05,lv:.03},
+       card:{b1:.75,b2:.25,gf:.35,wk1:.25,lv:.12},
+       mid:{b1:1,b2:.6,b3:.1,gf:.5,wk1:.5,wk2:.15,lv:.3},
+       dolphin:{b1:1,b2:.9,b3:.45,gf:.8,wk1:.7,wk2:.35,mo1:.15,lv:.55},
        // sultan (whale ke atas) memborong SEMUA paket — waktunya tetap alami (sesi masing-masing, gaya belanja masing-masing)
        whale:{b1:1,b2:1,b3:1,gf:1,wk1:1,wk2:1,mo1:1,lv:1},
        swhale:{b1:1,b2:1,b3:1,gf:1,wk1:1,wk2:1,mo1:1,lv:1},
@@ -144,7 +151,9 @@ const BOT_CFG={
   //   kolektor: mengejar koleksi lengkap — sebagian bahan Kebangkitan dipakai hero cadangan (spread), Lencana ditukar hero yang belum punya
   //   setia: satu hero kesayangan selalu di tim, dibangkitkan paling dulu, jadi avatar · meta: tim terkuat & rata
   //   banner: borong besar tiap banner baru, belanja harian jarang · gajian: belanja menumpuk di tanggal gajian
-  WSTYLE:{tiers:['dolphin','whale','swhale','mwhale'],
+  // kurva tier menengah = F2P + f × (whale − F2P) per kolom (level, tahap, jam main...): isi ulang stamina & Tambah Batas sesekali
+  blend:{low:.08,card:.15,mid:.32,dolphin:.55},
+  WSTYLE:{tiers:['mid','dolphin','whale','swhale','mwhale'],
    list:[{id:'kolektor',w:24,daily:1,banner:1.2,spread:.3},{id:'setia',w:20,daily:1,banner:.8,fav:1},{id:'meta',w:22,daily:1,banner:1},
          {id:'banner',w:20,daily:.45,banner:2.2},{id:'gajian',w:14,daily:.7,banner:1,payday:4}],
    wallet:[.65,1.6]},                 // kekuatan dompet acak per sultan (pengali paket harian & borongan)
@@ -171,7 +180,8 @@ const BOT_CFG={
  // Kebangkitan bot (★4–★6): bahan mulai terkumpul sejak CP tim (sebelum kebangkitan) pertama kali ≥ minCP (≈ 5-5 tamat: rek 29.000 / 1,12).
  // Titik mulai itu dicari sekali per bot & disimpan (systems/bots.js botAscStart). Anggaran bahan per hari main
  // dalam 'setara Kristal' (asc2 ≈ 3, asc3 ≈ 30 kristal), dikali tier belanja & ketelitian main. Urutan: semua ★4 dulu (hero → senjata → perlengkapan), lalu ★5, lalu ★6.
- ASC:{minCP:26000,perDay:28,tier:{f2p:1,card:1.15,dolphin:1.3,whale:1.6,swhale:2.4,mwhale:3.6},
+ // ramp = bahan Kebangkitan dari paket dipakai bertahap selama sekian hari main (emas & level hero ikut membatasi) — CP naik mulus, bukan melompat
+ ASC:{minCP:26000,perDay:28,ramp:1.2,tier:{f2p:1,low:1.05,card:1.15,mid:1.25,dolphin:1.4,whale:1.6,swhale:2.4,mwhale:3.6},
   cost:{h:{4:60,5:220,6:1200},w:{4:40,5:155,6:810},g:{4:30,5:114,6:570}}},
  // nama: dibuat Claude (integrasi sample) lalu disimpan bersama di db; hanya huruf & angka
  // bio/status profil: dibuat Claude, bertag supaya cocok dengan keadaan bot

@@ -106,7 +106,7 @@ function wcReSet(m){wcReTo=m;const b=$('#chRe');if(!b)return;b.classList.toggle(
 /* ---- strip di beranda ---- */
 function chatStripHTML(){const L=WC.list.slice(-2),n=WC.list.filter(m=>m.ts>WC.seen&&!wcMine(m)).length;
  return`<img class="ix" src="${ICON.chat}"><span class="chsl">${L.length?L.map(m=>`<span><b>${esc(m.u)}:</b> ${esc(wcShow(m.txt))}</span>`).join(''):`<span>${T('Obrolan Dunia')}</span>`}</span>${n?`<i class="dot n">${n>99?'99+':n}</i>`:''}`}
-function chatTick(){const now=Date.now(),L=document.getElementById('login');if(L&&L.classList.contains('on'))return;
+function chatTick(){const now=Date.now(),L=document.getElementById('login');if(L&&L.classList.contains('on')||(typeof watchMode==='function'&&watchMode()))return;
  if(NET.ai&&now>WC.aiNext&&!WC.aiBusy){if(!WC.aiNext)WC.aiNext=now+5e3+Math.random()*1e4;else wcAi('tick')}
  if(chatOpen&&$('#chList')){if(now-WC.at>4000)wcFetch().then(()=>chatRefresh());}
  else{chatOpen=false;if(now-WC.at>(NET.ai?2e4:3e4)||(NET.wc>WC.since&&now-WC.at>5e3))wcFetch().then(()=>{const m=WC.list.filter(x=>x.ts>WC.seen&&chAt(x)).pop();if(m&&m.id>(WC.atSeen||0)){WC.atSeen=m.id;toast(T('{n} menyebutmu di obrolan',{n:m.u}))}})}

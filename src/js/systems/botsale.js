@@ -14,7 +14,7 @@ function botSales(from,to){const L=[];
   for(let k=sp.buys.length-1;k>=0;k--){const o=sp.buys[k];if(o.t<=from)break;if(o.t>to)continue;
    const w=bW(i);L.push({k:`${w.e}-${w.g}-${bLi(i)}-${Math.floor(o.t)}-${o.id}`,n:botName(i,o.t),sku:o.id,p:o.price,t:Math.floor(o.t)})}}
  return L.sort((a,b)=>a.t-b.t)}
-async function botSaleReport(){const api=TOPUP_CFG.api;if(typeof NET!=='undefined'&&NET.downUntil>Date.now())return;
+async function botSaleReport(){if((typeof watchMode==='function'&&watchMode()))return;const api=TOPUP_CFG.api;if(typeof NET!=='undefined'&&NET.downUntil>Date.now())return;
  // hanya dunia bot ASLI dari server (bukan dunia cadangan lokal / halaman uji / simulator) yang boleh melapor ke bank
  if(typeof NET==='undefined'||!NET.worldOk||!NET.wsig||NET.wsig!==(BOTS.W||[]).map(w=>w.g).join(','))return;if(!api||BSALE.busy||!botsWarmOk()||!BOTS.names.length||BOTS.names.length<botsVisible())return;
  const now=Date.now();let at=BSALE.at;if(!at){try{at=+localStorage.getItem(BSALE.KEY)||0}catch(e){}}

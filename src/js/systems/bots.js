@@ -73,7 +73,7 @@ function botIn(j,now=Date.now()){j=+j;const w=bW(j);if(!w||!(j>=0))return false;
 /* ---- persen whaler per server (diatur pemilik lewat Telegram /whale) ----
    Riwayat dunia w.wh = [[waktu, persen], ...]: berlaku untuk bot yang BERGABUNG setelah waktu itu — bot lama tidak berubah
    (riwayat belanja & CP-nya tetap). Whaler = whale + super whale + mega whale (perbandingan di antara mereka tetap),
-   sisanya F2P / kartu bulanan / dolphin dengan perbandingan tetap. Tanpa riwayat = campuran bawaan (SPEND.tiers). */
+   sisanya F2P / low / kartu bulanan / mid / dolphin dengan perbandingan tetap. Tanpa riwayat = campuran bawaan (SPEND.tiers). */
 function botWhalePct(w,t){const H=w&&w.wh;if(!H||!H.length)return null;let p=null;for(const x of H){if(x[0]<=t)p=+x[1];else break}return p}
 const BTW={};
 function botTierW(w,t){const p=botWhalePct(w,t);if(p==null||!isFinite(p))return null;if(BTW[p])return BTW[p];const T=BOT_CFG.SPEND.tiers,ids=BOT_CFG.SPEND.whales,isW=x=>ids.includes(x.id);
@@ -193,6 +193,11 @@ const botActive=(b,t)=>b.segs.some(([s0,s1])=>t>=s0&&t<s1);
 
 /* ---- kurva per gaya main (hasil simulasi) ---- */
 const BCOL={};
+// kurva tier pembelanja menengah (SPEND.blend) = campuran kurva F2P & whale dengan profil+pengalaman yang sama
+(function botBlendCurves(){const C=BOT_CFG.CURVES,B=BOT_CFG.SPEND.blend||{};
+ const at=(W,P,c)=>{if(P<=W[0][0])return W[0][c];for(let j=1;j<W.length;j++)if(W[j][0]>=P){const a=W[j-1],b=W[j],u=(P-a[0])/((b[0]-a[0])||1);return a[c]+(b[c]-a[c])*u}return W[W.length-1][c]};
+ for(const k of Object.keys(C)){if(k.split('_').length!==2)continue;const W=C[k+'_whale'],F=C[k];if(!W)continue;
+  for(const t in B){const key=k+'_'+t;if(C[key])continue;const f=B[t];C[key]=F.map(r=>r.map((v,c)=>c===0?v:Math.round((v+f*(at(W,r[0],c)-v))*100)/100))}}})();
 function bCol(pf,c){const k=pf+c;if(BCOL[k])return BCOL[k];return BCOL[k]=BOT_CFG.CURVES[pf].map(r=>[r[0],r[c]])}
 function bTail(pf,c){const T=BOT_CFG.CURVES[pf],n=T.length-1,a=T[n-BOT_CFG.XP_TAIL_DAYS],b=T[n];return(b[c]-a[c])/(b[0]-a[0])}
 function botCurve(pf,c,P){const T=BOT_CFG.CURVES[pf],L=T[T.length-1];if(P<=L[0])return bInterp(bCol(pf,c),P);return c===2||c===5?L[c]+bTail(pf,c)*(P-L[0]):L[c]}
@@ -355,7 +360,8 @@ function botState(i,now=Date.now()){const C=BOT_CFG,{b,P:P0,Pe:P,lv,key}=botKey(
   const firstH=G.ev.find(e=>!e.w),lastLim=G.ev.filter(e=>!e.w&&e.lim).pop(),own=Object.keys(heroes);
   // sultan setia: hero kesayangan (selera) begitu dimiliki — selalu di tim & dibangkitkan dulu
   const fav=b.ws&&b.ws.fav&&heroes[b.love]?b.love:!b.loyal&&lastLim?lastLim.id:firstH?firstH.id:own[bHash(i,9)%own.length];
-  const bx=G.spend.buys.reduce((a,o)=>a+(o.asc||0),0);
+  // bahan Kebangkitan dari paket: dipakai bertahap (ASC.ramp hari main sejak dibeli), sebagian langsung
+  const RP=C.ASC.ramp||0,bx=G.spend.buys.reduce((a,o)=>a+(o.asc?o.asc*(RP?Math.min(1,.2+.8*Math.max(0,P-botProg(b,o.t))/RP):1):0),0);
   let pu=botAscGet(i),R=botFit(b,i,F,P,lv,opt,fav,true,pu,bx);
   // baru menembus minCP: cari kapan mulainya (sekali per bot, disimpan), lalu susun ulang dengan bahan yang sudah terkumpul
   if(pu==null&&teamCP(R.team).total>=C.ASC.minCP){pu=botAscStart(b,i,G,now);if(pu<P){G=botGacha(b,P0,now);heroes=G.heroes;weapons=G.weapons;F.heroes=heroes;F.weapons=weapons;F.gear={};R=botFit(b,i,F,P,lv,opt,fav,true,pu,bx)}}
@@ -405,7 +411,7 @@ function botSnap(b,t){for(let d=wibDay(t);d<=wibDay(t)+3;d++){for(const[s0,s1]of
 /* ---- ringkasan bot (CP, level, VIP, hero) — skala sampai 100rb bot ----
    Bot yang sudah berhenti (endT lewat) tidak berubah lagi → ringkasannya disimpan di localStorage dan tidak dihitung ulang.
    Bot aktif: dari botState (cache penuh dibatasi ±5000 objek). Ganti SUM_VER bila keseimbangan CP berubah. */
-const SUM_VER=10,BSUM={d:{},key:'',dirty:0,at:0};
+const SUM_VER=11,BSUM={d:{},key:'',dirty:0,at:0};
 const bsumKey=()=>botsSig()+':'+SUM_VER+':'+BOT_CFG.ERAS.length+':'+HEROES.length;
 function bsumLoad(){const k=bsumKey();if(BSUM.key===k)return;BSUM.key=k;BSUM.d={};for(const q in BSUMA)delete BSUMA[q];try{const o=JSON.parse(localStorage.getItem('aster_botsum')||'null');if(o&&o.k===k){const D=o.d||{};for(const i in D){const x=D[i];BSUM.d[i]=Array.isArray(x)?{cp:x[0],lv:x[1],vip:x[2],top:x[3],st:x[4],nh:x[5],ms:x[6]}:x}
   const A=o.a||{};for(const i in A){const x=A[i];BSUMA[i]={k:x[0],o:{cp:x[1],lv:x[2],vip:x[3],top:x[4],st:x[5],nh:x[6],ms:x[7]}}}}}catch(e){}}

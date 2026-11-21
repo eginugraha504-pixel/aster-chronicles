@@ -1787,10 +1787,68 @@ button.frrow{cursor:pointer}
 .srvb{flex:1 1 calc(50% - 6px);display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:6px 8px;border-radius:10px;border:2px solid #c9b48a;background:#fff8ea;color:#4a3420;text-align:left;position:relative;font-family:inherit}
 .srvb b{font-size:12.5px}.srvb small{font-size:10.5px;opacity:.75}
 .srvb i{position:absolute;right:6px;top:6px;font-style:normal;font-size:9px;font-weight:900;padding:1px 5px;border-radius:6px;background:#8a7a5a;color:#fff}
-.srvb.soon i{background:#8a4ae0}.srvb.new i{background:#2fa84f}.srvb.busy i{background:#e08a1e}.srvb.full i{background:#9a3a30}.srvb.ok i{background:#3a8ae0}
+.srvb.s-list{opacity:.6;filter:grayscale(.5)}.srvb.s-list i{background:#6a6a6a}.srvb.s-soon i{background:#8a4ae0}.srvb.s-new i{background:#2fa84f}.srvb.s-busy i{background:#e08a1e}.srvb.s-full i{background:#9a3a30}.srvb.s-ok i{background:#3a8ae0}
 .srvb.on{border-color:#e0a020;background:#fff0c4;box-shadow:0 0 0 2px #ffd36a inset}
 .srvb:disabled{opacity:.5}
 .lgwel .lgsrv{display:block;font-size:11px;opacity:.85;margin-top:2px}
+
+/* pemberitahuan penolakan server (belum buka / belum rilis / ditutup) */
+.srvdeny{text-align:center;padding:4px 6px 2px}.srvdeny .sdic{font-size:42px;line-height:1;margin:2px 0 8px}.srvdeny h3{margin:0 0 8px}.srvdeny p{font-size:13.5px;line-height:1.5;margin:0}
+
+/* ==== css/watch.css ==== */
+/* ==== Dashboard Penonton (ui/watch.js) — layar penuh, di atas layar judul (35), di bawah modal (40) & toast ==== */
+#watch{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:36;display:none;flex-direction:column;overflow:hidden;
+ font-family:var(--fb);background:linear-gradient(180deg,#2a1a3e 0%,#1a1230 40%,#120c22 100%);color:#fff}
+#watch.on{display:flex}
+.wvtop{display:flex;align-items:center;gap:6px;padding:calc(10px + env(safe-area-inset-top)) 12px 8px;background:linear-gradient(180deg,#c98a4a,#9a5a2a);border-bottom:3px solid var(--ink)}
+.wvtop>div{flex:1;min-width:0;display:flex;flex-direction:column}
+.wvtop b{font-family:var(--fh);font-size:18px;-webkit-text-stroke:3px var(--ink);paint-order:stroke;color:#fff}
+.wvtop small{font-size:11px;font-weight:800;color:#ffe8c0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wvbtn{font:inherit;font-size:12px;font-weight:900;padding:6px 10px;border-radius:10px;border:2.5px solid var(--ink);background:#fff8e6;color:var(--txt);cursor:pointer}
+.wvbtn.on{background:#ffd36a}
+.wvsrv{display:flex;gap:6px;overflow-x:auto;padding:8px 10px;background:rgba(0,0,0,.25);scrollbar-width:none;flex:none}
+.wvsrv::-webkit-scrollbar{display:none}
+.wvsrv button{flex:none;font:inherit;font-weight:900;font-size:13px;color:#fff;padding:5px 10px;border-radius:12px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;line-height:1.1;cursor:pointer}
+.wvsrv button small{font-size:9.5px;font-weight:800;opacity:.75}
+.wvsrv button.on{background:#ffd36a;color:var(--txt);border-color:var(--ink)}
+.wvsrv button.s-list,.wvsrv button.s-soon{opacity:.6}
+.wvtab{display:flex;gap:4px;padding:8px 10px 0;flex:none}
+.wvtab button{flex:1;font:inherit;font-family:var(--fh);font-size:13px;padding:7px 2px;border-radius:11px;border:2.5px solid var(--ink);background:#7a5a3a;color:#ffe8c0;cursor:pointer}
+.wvtab button.on{background:linear-gradient(180deg,#ffe08a,#ffc83d);color:var(--txt)}
+#wtMain{flex:1;overflow-y:auto;padding:10px 10px calc(16px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+#wtMain .rkinfo{color:#d8c8f0}#wtMain .rkinfo b{color:#fff}
+.wvlist{display:flex;flex-direction:column;gap:5px}
+.wvrow{cursor:default;color:var(--txt)}.wvrow:active{transform:none}
+.wvreal{background:#2fa84f!important}
+.wvload{text-align:center;padding:34px 10px;color:#d8c8f0;font-weight:800;font-size:13px}
+.wvst{font-style:normal;font-size:9.5px;font-weight:900;padding:1px 6px;border-radius:7px;background:#3a8ae0;color:#fff;white-space:nowrap}
+.wvst.s-list{background:#6a6a6a}.wvst.s-soon{background:#8a4ae0}.wvst.s-open{background:#2fa84f}
+.wvst.live{background:#e8483b;animation:wvblink 1.2s infinite}.wvst.ok{background:#2fa84f}.wvst.run{background:#9a3a30}.wvst.done{background:#5a5a7a}
+@keyframes wvblink{50%{opacity:.55}}
+/* ringkasan semua server */
+.wvall{display:flex;flex-direction:column;gap:8px}
+.wvcard{font:inherit;text-align:left;width:100%;padding:10px 12px;border-radius:14px;border:2.5px solid var(--ink);background:#fff8e6;color:var(--txt);display:flex;flex-direction:column;gap:3px;cursor:pointer}
+.wvcard.s-list,.wvcard.s-soon{background:#e8e0d0}
+.wvch{display:flex;align-items:center;justify-content:space-between;gap:6px}.wvch b{font-family:var(--fh);font-size:16px}
+.wvcard small{font-size:11.5px;font-weight:800;color:var(--mut)}
+.wvmut{opacity:.8}
+.wvtop3{display:flex;flex-direction:column;gap:1px;margin-top:3px}
+.wvtop3 span{font-size:12.5px;font-weight:800;display:flex;gap:6px;align-items:baseline}
+.wvtop3 i{font-style:normal;font-family:var(--fh);color:#c98a1a;width:22px}.wvtop3 em{font-style:normal;margin-left:auto;font-family:var(--fh);color:#c0601a}
+/* raid */
+.wvnext{font-size:12.5px;font-weight:800;color:#ffe8c0;margin:0 2px 8px}
+.wvraids{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}.wvraids::-webkit-scrollbar{display:none}
+.wvraid{flex:none;font:inherit;width:120px;text-align:left;padding:7px 9px;border-radius:12px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;display:flex;flex-direction:column;gap:3px;cursor:pointer}
+.wvraid b{font-size:12.5px}.wvraid small{font-size:10.5px;opacity:.8}.wvraid .wvst{align-self:flex-start}
+.wvraid.on{background:#ffd36a;color:var(--txt);border-color:var(--ink)}
+.wvboss{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 2px 6px}
+.wvboss>div{display:flex;flex-direction:column}.wvboss b{font-family:var(--fh);font-size:17px}.wvboss small{font-size:11px;color:#d8c8f0;font-weight:800}
+.wvboss span{font-size:12px;font-weight:900;color:#ffd36a;text-align:right}
+.wvhp{position:relative;height:16px;border-radius:9px;background:#3a2030;border:2px solid var(--ink);overflow:hidden;margin:0 2px 10px}
+.wvhp i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#e8483b,#ff8a5a)}
+.wvhp em{position:absolute;inset:0;text-align:center;font-style:normal;font-size:10.5px;font-weight:900;line-height:12px;color:#fff;text-shadow:0 1px 0 #000}
+#watch .srvdeny{color:#fff;padding-top:40px}
+#watch .mrow{margin-top:10px}
 
 /* ==== css/studio.css ==== */
 /* =====================================================================
@@ -2846,10 +2904,15 @@ const BOT_CFG={
  // packs = paket acak [id,bobot]; banner = jumlah paket saat banner baru [min,maks]; bp = paket saat banner baru
  SPEND:{
   whales:['whale','swhale','mwhale'],   // "whaler" untuk persen per server (Telegram /whale); bawaan = jumlah bobot ketiganya (2%)
+  // Jenjang belanja dari bawah ke atas (21 Nov 2026): f2p → spender kecil (low) → kartu bulanan (card) → spender normal (mid)
+  // → spender besar (dolphin) → whale / super / mega. Tier menengah memakai kurva campuran F2P↔whale (blend) supaya
+  // papan peringkat bersambung halus dari F2P sampai sultan (tidak ada jurang).
   tiers:[
-   {id:'f2p',    w:75},
-   {id:'card',   w:17,card:1,  renew:.8, rate:.035,first:[.02,1.2],packs:[['g1',6],['g2',3]],                    banner:[0,1],bp:[['g1',3],['g2',2]]},
-   {id:'dolphin',w:6, card:.85,renew:.9, rate:.16, first:[.01,.8],packs:[['g1',2],['g2',5],['g3',4],['g4',1]],  banner:[1,2],bp:[['g2',2],['g3',4],['g4',2]]},
+   {id:'f2p',    w:54},
+   {id:'low',    w:16,card:.12,renew:.5, rate:.012,first:[.1,3],  packs:[['g1',8],['g2',1]],                        banner:[0,1],bp:[['g1',1]]},
+   {id:'card',   w:13,card:1,  renew:.8, rate:.035,first:[.02,1.2],packs:[['g1',6],['g2',3]],                    banner:[0,1],bp:[['g1',3],['g2',2]]},
+   {id:'mid',    w:10,card:.95,renew:.9,rate:.08, first:[.02,1],  packs:[['g1',3],['g2',5],['g3',2]],              banner:[0,2],bp:[['g2',4],['g3',2]]},
+   {id:'dolphin',w:5,card:.85,renew:.9,rate:.16, first:[.01,.8],packs:[['g1',2],['g2',5],['g3',4],['g4',1]],  banner:[1,2],bp:[['g2',2],['g3',4],['g4',2]]},
    {id:'whale',  w:1.4,card:1, renew:1,  rate:.42, first:[.005,.25],packs:[['g3',2],['g4',3],['g5',3],['g6',3]],  banner:[2,5],bp:[['g4',1],['g5',2],['g6',4]],burn:.33},
    // pengejar puncak: segala cara — main sangat rajin & optimal, selalu kejar rate-up, tidak menabung, tidak pernah berhenti,
    // borong tiap banner & tanggal gajian, Kebangkitan lebih cepat (ASC.tier).
@@ -2860,8 +2923,10 @@ const BOT_CFG={
   ],
   // PAKET (TOPUP_CFG.bundles): peluang membeli per tier. Kunci = id paket; 'lv' = penawaran naik level (tiap level yang punya penawaran);
   // 'once' & penawaran sekali, mingguan/bulanan dicoba tiap periode. Isi paket ikut: permata + tiket → tarikan, bahan Kebangkitan → anggaran Kebangkitan bot.
-  bun:{card:{b1:.75,b2:.25,gf:.35,wk1:.25,lv:.12},
-       dolphin:{b1:.95,b2:.7,b3:.1,gf:.7,wk1:.5,wk2:.2,lv:.4},
+  bun:{low:{b1:.85,wk1:.05,lv:.03},
+       card:{b1:.75,b2:.25,gf:.35,wk1:.25,lv:.12},
+       mid:{b1:1,b2:.6,b3:.1,gf:.5,wk1:.5,wk2:.15,lv:.3},
+       dolphin:{b1:1,b2:.9,b3:.45,gf:.8,wk1:.7,wk2:.35,mo1:.15,lv:.55},
        // sultan (whale ke atas) memborong SEMUA paket — waktunya tetap alami (sesi masing-masing, gaya belanja masing-masing)
        whale:{b1:1,b2:1,b3:1,gf:1,wk1:1,wk2:1,mo1:1,lv:1},
        swhale:{b1:1,b2:1,b3:1,gf:1,wk1:1,wk2:1,mo1:1,lv:1},
@@ -2871,7 +2936,9 @@ const BOT_CFG={
   //   kolektor: mengejar koleksi lengkap — sebagian bahan Kebangkitan dipakai hero cadangan (spread), Lencana ditukar hero yang belum punya
   //   setia: satu hero kesayangan selalu di tim, dibangkitkan paling dulu, jadi avatar · meta: tim terkuat & rata
   //   banner: borong besar tiap banner baru, belanja harian jarang · gajian: belanja menumpuk di tanggal gajian
-  WSTYLE:{tiers:['dolphin','whale','swhale','mwhale'],
+  // kurva tier menengah = F2P + f × (whale − F2P) per kolom (level, tahap, jam main...): isi ulang stamina & Tambah Batas sesekali
+  blend:{low:.08,card:.15,mid:.32,dolphin:.55},
+  WSTYLE:{tiers:['mid','dolphin','whale','swhale','mwhale'],
    list:[{id:'kolektor',w:24,daily:1,banner:1.2,spread:.3},{id:'setia',w:20,daily:1,banner:.8,fav:1},{id:'meta',w:22,daily:1,banner:1},
          {id:'banner',w:20,daily:.45,banner:2.2},{id:'gajian',w:14,daily:.7,banner:1,payday:4}],
    wallet:[.65,1.6]},                 // kekuatan dompet acak per sultan (pengali paket harian & borongan)
@@ -2898,7 +2965,8 @@ const BOT_CFG={
  // Kebangkitan bot (★4–★6): bahan mulai terkumpul sejak CP tim (sebelum kebangkitan) pertama kali ≥ minCP (≈ 5-5 tamat: rek 29.000 / 1,12).
  // Titik mulai itu dicari sekali per bot & disimpan (systems/bots.js botAscStart). Anggaran bahan per hari main
  // dalam 'setara Kristal' (asc2 ≈ 3, asc3 ≈ 30 kristal), dikali tier belanja & ketelitian main. Urutan: semua ★4 dulu (hero → senjata → perlengkapan), lalu ★5, lalu ★6.
- ASC:{minCP:26000,perDay:28,tier:{f2p:1,card:1.15,dolphin:1.3,whale:1.6,swhale:2.4,mwhale:3.6},
+ // ramp = bahan Kebangkitan dari paket dipakai bertahap selama sekian hari main (emas & level hero ikut membatasi) — CP naik mulus, bukan melompat
+ ASC:{minCP:26000,perDay:28,ramp:1.2,tier:{f2p:1,low:1.05,card:1.15,mid:1.25,dolphin:1.4,whale:1.6,swhale:2.4,mwhale:3.6},
   cost:{h:{4:60,5:220,6:1200},w:{4:40,5:155,6:810},g:{4:30,5:114,6:570}}},
  // nama: dibuat Claude (integrasi sample) lalu disimpan bersama di db; hanya huruf & angka
  // bio/status profil: dibuat Claude, bertag supaya cocok dengan keadaan bot
@@ -2994,7 +3062,7 @@ const RIVAL_CFG={
  nextGap:[4,20],          // jam jeda sampai rival baru muncul
  // usaha ekstra saat kamu menyalipnya: tambahan progres (hari efektif) yang terwujud selama sesi main berikutnya.
  // F2P hanya bisa farming lebih lama; pembelanja ikut isi ulang stamina. Maksimal sekali per 20 jam per rival (server juga membatasi).
- boost:{tier:{f2p:.3,card:.38,dolphin:.5,whale:.62,swhale:.7,mwhale:.75},sk:{baru:.75,biasa:1,veteran:1.15},max:.8,gap:20*36e5,lead:5*6e4},
+ boost:{tier:{f2p:.3,low:.33,card:.38,mid:.44,dolphin:.5,whale:.62,swhale:.7,mwhale:.75},sk:{baru:.75,biasa:1,veteran:1.15},max:.8,gap:20*36e5,lead:5*6e4},
  chat:{new:.75,passed:.9,back:.8,giveup:.85,bored:.5},   // peluang momen itu dibahas di Obrolan Dunia (saat si rival online)
  chatTtl:12*36e5,         // momen yang belum sempat dibahas kedaluwarsa setelah 12 jam
  arena:true,              // rival menyerang Tim Bertahan Arena-mu sekali di sesi pertamanya tiap hari
@@ -4385,6 +4453,8 @@ Object.assign(I18N.en,{'Rivalmu':'Your rival','hari ke-{n}':'day {n}','Salip':'O
  'Kekuatan Tim':'Team Power','Kebangkitan':'Awakening',
  'Selamat! {n} masuk 10 besar Peringkat CP server!':'Congrats! {n} entered the server\'s CP Top 10!',
  'Batas ulang hari ini':'Replays left today','Reset tengah malam':'Resets at midnight','Tambah Batas':'Add Replays','habis hari ini':'used up today','Batas ulang tahap ini masih ada.':'You still have replays left for this stage.','Batas reset tahap ini hari ini habis. Kembali besok!':'No more resets for this stage today. Come back tomorrow!','Batas ulang tahap ini hari ini habis.':'No replays left for this stage today.','Batas ulang hari ini tinggal {n}×.':'Only {n} replays left today.','Batas ulang {s} hari ini habis dan batas reset sudah tercapai. Kembali besok!':'Replays for {s} are used up and the reset limit is reached. Come back tomorrow!','Batas ulang {s} hari ini habis ({n}×). Tambah {n}× lagi dengan {b}?':'Replays for {s} are used up today ({n}×). Add {n} more for {b}?','Reset tahap ini hari ini: {n}/{m}':'Stage resets today: {n}/{m}','Batas ulang {s} bertambah {n}×!':'{s} replays +{n}!','sisa {n}':'{n} left','Batas Ulang Tahap':'Stage Replay Limit','Tahap cerita yang sudah dimenangkan kini bisa dimainkan ulang atau disapu 5× per hari (tahap bos 3×). Habis? Tambah lagi dengan permata, atau tunggu reset tengah malam.':'Cleared story stages can now be replayed or swept 5× per day (boss stages 3×). Used up? Add more with gems, or wait for the midnight reset.'});
+// kelola server (belum rilis / terjadwal / ditutup) & dashboard penonton — 21 Nov 2026
+Object.assign(I18N.en,{"(GM) Server ini belum dibuka untuk pemain.": "(GM) This server isn't open to players yet.", "24 jam": "24h", "ASLI": "REAL", "Akun penonton hanya bisa melihat.": "Spectator accounts can only watch.", "Akun pindah ke {s}. Selamat datang di dunia baru!": "Account moved to {s}. Welcome to a new world!", "Akun terikat ke server pilihanmu dan tidak bisa pindah.": "Your account is bound to the server you pick and can't move.", "Akun terikat ke servernya.": "Accounts are bound to their server.", "Akun {n} terdaftar di {s}. Server dibuka {t} — masuk lagi saat itu ya!": "Account {n} is registered on {s}. The server opens {t} — come back then!", "Asli": "Real", "BELUM RILIS": "NOT RELEASED", "BERLANGSUNG": "LIVE", "BUKA": "OPEN", "Bangkit {n} dtk": "Reviving {n}s", "Baru terdaftar — belum dirilis.": "Newly listed — not released yet.", "Belum ada peserta.": "No participants yet.", "Belum ada raid di server ini.": "No raids on this server yet.", "Belum ada server yang dibuka. Coba lagi nanti.": "No server is open yet. Try again later.", "Belum ada server.": "No servers yet.", "Belum rilis": "Not released", "Bertarung": "Fighting", "Buka {t}": "Opens {t}", "Dashboard Penonton": "Spectator Dashboard", "Dibuka {t}": "Opens {t}", "Dibuka {t}. Papan peringkat muncul setelah server buka.": "Opens {t}. Rankings appear once the server opens.", "Gagal memuat server. Coba lagi.": "Couldn't load the server. Try again.", "Jum": "Fri", "Jumat": "Friday", "KABUR": "ESCAPED", "Kabur — HP tersisa {p}%": "Escaped — {p}% HP left", "Kam": "Thu", "Kamis": "Thursday", "Keluar dari akun penonton?": "Log out of the spectator account?", "Ketuk untuk melihat papan peringkat": "Tap to view rankings", "LANCAR": "SMOOTH", "Lanjutkan": "Continue", "Masuk sebagai penonton, {n}.": "Logged in as spectator, {n}.", "Memuat daftar server...": "Loading server list...", "Memuat dunia {s}...": "Loading {s}...", "Menghitung papan peringkat {s}...": "Calculating {s} rankings...", "Menghitung papan raid...": "Calculating raid board...", "Min": "Sun", "Minggu": "Sunday", "PENUH": "FULL", "Penonton · semua server": "Spectator · all servers", "Pilih Server Baru": "Choose a New Server", "Pilih raid di atas untuk melihat papan damage.": "Pick a raid above to see its damage board.", "Pilih server dulu.": "Choose a server first.", "Pra-registrasi Berhasil": "Pre-registration Complete", "RAMAI": "BUSY", "Rab": "Wed", "Rabu": "Wednesday", "Raid berikutnya": "Next raid", "SEGERA": "SOON", "SELESAI": "ENDED", "Sab": "Sat", "Sabtu": "Saturday", "Sel": "Tue", "Selasa": "Tuesday", "Semua Server": "All Servers", "Sen": "Mon", "Senin": "Monday", "Server": "Server", "Server Belum Dibuka": "Server Not Open Yet", "Server Belum Dirilis": "Server Not Released", "Server Ditutup": "Server Closed", "Server ini baru terdaftar dan belum dirilis.": "This server is newly listed and not released yet.", "Server ini belum dibuka.": "This server isn't open yet.", "Server ini belum dirilis.": "This server hasn't been released.", "Server lamamu sudah ditutup.": "Your old server has been closed.", "Server lamamu sudah ditutup. Pilih server baru, lalu tekan Masuk lagi — progresmu tetap aman.": "Your old server has been closed. Choose a new server, then tap Log In again — your progress is safe.", "Server lamamu sudah ditutup. Progresmu tetap aman — pilih server baru untuk melanjutkan.": "Your old server has been closed. Your progress is safe — choose a new server to continue.", "Server penuh. Pilih server lain.": "Server is full. Choose another one.", "Server tidak ditemukan. Pilih server lain.": "Server not found. Choose another one.", "Server {s} baru masuk daftar dan belum dirilis. Tunggu pengumuman rilisnya!": "Server {s} was just listed and isn't released yet. Stay tuned for the release!", "Server {s} belum dibuka. Server ini dibuka {t} — datang lagi saat itu ya!": "Server {s} isn't open yet. It opens {t} — come back then!", "Server {s} sudah ditutup. Ketuk layar untuk memilih server baru — progresmu tetap aman.": "Server {s} has been closed. Tap the screen to choose a new server — your progress is safe.", "Sisa waktu {t}": "{t} left", "S{n} · {m} belum dirilis. Tunggu pengumuman rilisnya!": "S{n} · {m} isn't released yet. Stay tuned!", "TUMBANG {t}": "DOWN {t}", "Tampilkan {n} berikutnya": "Show next {n}", "Tandai pemain asli": "Mark real players", "Tumbang dalam {t}": "Defeated in {t}", "gabungan": "merged", "hanya melihat": "watch only", "pra-registrasi": "pre-registration", "{h} jam {m} menit": "{h}h {m}m", "{h} jam {m} menit lagi": "in {h}h {m}m", "{n} hari lagi": "in {n} days", "{n} menit": "{n} min", "{n} menit lagi": "in {n} min", "{p}% damage": "{p}% damage", "{t} lagi": "in {t}"});
 
 /* ==== js/lang/ja.js ==== */
 /* =====================================================================
@@ -4638,6 +4708,8 @@ Object.assign(I18N.ja,{'Rivalmu':'ライバル','hari ke-{n}':'{n}日目','Salip
  'Kekuatan Tim':'チーム戦力','Kebangkitan':'覚醒',
  'Selamat! {n} masuk 10 besar Peringkat CP server!':'おめでとう！{n}がサーバーCPランキングTOP10入り！',
  'Batas ulang hari ini':'本日の再挑戦','Reset tengah malam':'0時にリセット','Tambah Batas':'回数を追加','habis hari ini':'本日分は終了','Batas ulang tahap ini masih ada.':'このステージはまだ再挑戦できます。','Batas reset tahap ini hari ini habis. Kembali besok!':'本日このステージのリセット上限に達しました。また明日！','Batas ulang tahap ini hari ini habis.':'本日このステージの再挑戦回数は終了しました。','Batas ulang hari ini tinggal {n}×.':'本日の再挑戦はあと{n}回です。','Batas ulang {s} hari ini habis dan batas reset sudah tercapai. Kembali besok!':'{s}の本日の再挑戦とリセットは上限に達しました。また明日！','Batas ulang {s} hari ini habis ({n}×). Tambah {n}× lagi dengan {b}?':'{s}の本日の再挑戦（{n}回）を使い切りました。{b}で{n}回追加しますか？','Reset tahap ini hari ini: {n}/{m}':'本日のリセット：{n}/{m}','Batas ulang {s} bertambah {n}×!':'{s}の再挑戦回数+{n}！','sisa {n}':'残り{n}','Batas Ulang Tahap':'ステージ再挑戦の上限','Tahap cerita yang sudah dimenangkan kini bisa dimainkan ulang atau disapu 5× per hari (tahap bos 3×). Habis? Tambah lagi dengan permata, atau tunggu reset tengah malam.':'クリア済みのストーリーステージは1日5回（ボスステージは3回）まで再挑戦・スイープできます。使い切ったらジェムで追加するか、0時のリセットを待ちましょう。'});
+// kelola server (belum rilis / terjadwal / ditutup) & dashboard penonton — 21 Nov 2026
+Object.assign(I18N.ja,{"(GM) Server ini belum dibuka untuk pemain.": "（GM）このサーバーはまだプレイヤーに公開されていません。", "24 jam": "24時間", "ASLI": "本物", "Akun penonton hanya bisa melihat.": "観戦アカウントは閲覧のみです。", "Akun pindah ke {s}. Selamat datang di dunia baru!": "アカウントを{s}へ移動しました。新しい世界へようこそ！", "Akun terikat ke server pilihanmu dan tidak bisa pindah.": "アカウントは選んだサーバーに固定され、移動できません。", "Akun terikat ke servernya.": "アカウントはサーバーに固定されています。", "Akun {n} terdaftar di {s}. Server dibuka {t} — masuk lagi saat itu ya!": "アカウント{n}を{s}に登録しました。サーバーは{t}にオープンします。その時にまた来てね！", "Asli": "本物", "BELUM RILIS": "未公開", "BERLANGSUNG": "開催中", "BUKA": "オープン", "Bangkit {n} dtk": "復活まで{n}秒", "Baru terdaftar — belum dirilis.": "登録済み — まだ公開されていません。", "Belum ada peserta.": "まだ参加者がいません。", "Belum ada raid di server ini.": "このサーバーではまだレイドがありません。", "Belum ada server yang dibuka. Coba lagi nanti.": "まだ開いているサーバーがありません。後でもう一度お試しください。", "Belum ada server.": "サーバーがまだありません。", "Belum rilis": "未公開", "Bertarung": "戦闘中", "Buka {t}": "{t}オープン", "Dashboard Penonton": "観戦ダッシュボード", "Dibuka {t}": "{t}オープン", "Dibuka {t}. Papan peringkat muncul setelah server buka.": "{t}オープン。ランキングはオープン後に表示されます。", "Gagal memuat server. Coba lagi.": "サーバーを読み込めませんでした。もう一度お試しください。", "Jum": "金", "Jumat": "金曜日", "KABUR": "逃走", "Kabur — HP tersisa {p}%": "逃走 — 残りHP {p}%", "Kam": "木", "Kamis": "木曜日", "Keluar dari akun penonton?": "観戦アカウントからログアウトしますか？", "Ketuk untuk melihat papan peringkat": "タップしてランキングを見る", "LANCAR": "快適", "Lanjutkan": "続ける", "Masuk sebagai penonton, {n}.": "観戦者としてログインしました、{n}。", "Memuat daftar server...": "サーバー一覧を読み込み中...", "Memuat dunia {s}...": "{s}を読み込み中...", "Menghitung papan peringkat {s}...": "{s}のランキングを計算中...", "Menghitung papan raid...": "レイドボードを計算中...", "Min": "日", "Minggu": "日曜日", "PENUH": "満員", "Penonton · semua server": "観戦 · 全サーバー", "Pilih Server Baru": "新しいサーバーを選択", "Pilih raid di atas untuk melihat papan damage.": "上のレイドを選ぶとダメージランキングが見られます。", "Pilih server dulu.": "先にサーバーを選んでください。", "Pra-registrasi Berhasil": "事前登録完了", "RAMAI": "混雑", "Rab": "水", "Rabu": "水曜日", "Raid berikutnya": "次のレイド", "SEGERA": "近日", "SELESAI": "終了", "Sab": "土", "Sabtu": "土曜日", "Sel": "火", "Selasa": "火曜日", "Semua Server": "全サーバー", "Sen": "月", "Senin": "月曜日", "Server": "サーバー", "Server Belum Dibuka": "サーバー未オープン", "Server Belum Dirilis": "サーバー未公開", "Server Ditutup": "サーバー閉鎖", "Server ini baru terdaftar dan belum dirilis.": "このサーバーは登録されたばかりで、まだ公開されていません。", "Server ini belum dibuka.": "このサーバーはまだオープンしていません。", "Server ini belum dirilis.": "このサーバーはまだ公開されていません。", "Server lamamu sudah ditutup.": "以前のサーバーは閉鎖されました。", "Server lamamu sudah ditutup. Pilih server baru, lalu tekan Masuk lagi — progresmu tetap aman.": "以前のサーバーは閉鎖されました。新しいサーバーを選んでもう一度ログインしてください — 進行状況は安全です。", "Server lamamu sudah ditutup. Progresmu tetap aman — pilih server baru untuk melanjutkan.": "以前のサーバーは閉鎖されました。進行状況は安全です — 新しいサーバーを選んで続けましょう。", "Server penuh. Pilih server lain.": "サーバーが満員です。別のサーバーを選んでください。", "Server tidak ditemukan. Pilih server lain.": "サーバーが見つかりません。別のサーバーを選んでください。", "Server {s} baru masuk daftar dan belum dirilis. Tunggu pengumuman rilisnya!": "サーバー{s}は登録されたばかりで、まだ公開されていません。公開のお知らせをお待ちください！", "Server {s} belum dibuka. Server ini dibuka {t} — datang lagi saat itu ya!": "サーバー{s}はまだオープンしていません。{t}にオープンします — その時にまた来てね！", "Server {s} sudah ditutup. Ketuk layar untuk memilih server baru — progresmu tetap aman.": "サーバー{s}は閉鎖されました。画面をタップして新しいサーバーを選んでください — 進行状況は安全です。", "Sisa waktu {t}": "残り{t}", "S{n} · {m} belum dirilis. Tunggu pengumuman rilisnya!": "S{n} · {m}はまだ公開されていません。お楽しみに！", "TUMBANG {t}": "撃破 {t}", "Tampilkan {n} berikutnya": "次の{n}件を表示", "Tandai pemain asli": "本物のプレイヤーを表示", "Tumbang dalam {t}": "{t}で撃破", "gabungan": "統合", "hanya melihat": "閲覧のみ", "pra-registrasi": "事前登録", "{h} jam {m} menit": "{h}時間{m}分", "{h} jam {m} menit lagi": "あと{h}時間{m}分", "{n} hari lagi": "あと{n}日", "{n} menit": "{n}分", "{n} menit lagi": "あと{n}分", "{p}% damage": "ダメージ{p}%", "{t} lagi": "あと{t}"});
 
 /* ==== js/art/icons.js ==== */
 /* =====================================================================
@@ -6253,7 +6325,7 @@ function botIn(j,now=Date.now()){j=+j;const w=bW(j);if(!w||!(j>=0))return false;
 /* ---- persen whaler per server (diatur pemilik lewat Telegram /whale) ----
    Riwayat dunia w.wh = [[waktu, persen], ...]: berlaku untuk bot yang BERGABUNG setelah waktu itu — bot lama tidak berubah
    (riwayat belanja & CP-nya tetap). Whaler = whale + super whale + mega whale (perbandingan di antara mereka tetap),
-   sisanya F2P / kartu bulanan / dolphin dengan perbandingan tetap. Tanpa riwayat = campuran bawaan (SPEND.tiers). */
+   sisanya F2P / low / kartu bulanan / mid / dolphin dengan perbandingan tetap. Tanpa riwayat = campuran bawaan (SPEND.tiers). */
 function botWhalePct(w,t){const H=w&&w.wh;if(!H||!H.length)return null;let p=null;for(const x of H){if(x[0]<=t)p=+x[1];else break}return p}
 const BTW={};
 function botTierW(w,t){const p=botWhalePct(w,t);if(p==null||!isFinite(p))return null;if(BTW[p])return BTW[p];const T=BOT_CFG.SPEND.tiers,ids=BOT_CFG.SPEND.whales,isW=x=>ids.includes(x.id);
@@ -6373,6 +6445,11 @@ const botActive=(b,t)=>b.segs.some(([s0,s1])=>t>=s0&&t<s1);
 
 /* ---- kurva per gaya main (hasil simulasi) ---- */
 const BCOL={};
+// kurva tier pembelanja menengah (SPEND.blend) = campuran kurva F2P & whale dengan profil+pengalaman yang sama
+(function botBlendCurves(){const C=BOT_CFG.CURVES,B=BOT_CFG.SPEND.blend||{};
+ const at=(W,P,c)=>{if(P<=W[0][0])return W[0][c];for(let j=1;j<W.length;j++)if(W[j][0]>=P){const a=W[j-1],b=W[j],u=(P-a[0])/((b[0]-a[0])||1);return a[c]+(b[c]-a[c])*u}return W[W.length-1][c]};
+ for(const k of Object.keys(C)){if(k.split('_').length!==2)continue;const W=C[k+'_whale'],F=C[k];if(!W)continue;
+  for(const t in B){const key=k+'_'+t;if(C[key])continue;const f=B[t];C[key]=F.map(r=>r.map((v,c)=>c===0?v:Math.round((v+f*(at(W,r[0],c)-v))*100)/100))}}})();
 function bCol(pf,c){const k=pf+c;if(BCOL[k])return BCOL[k];return BCOL[k]=BOT_CFG.CURVES[pf].map(r=>[r[0],r[c]])}
 function bTail(pf,c){const T=BOT_CFG.CURVES[pf],n=T.length-1,a=T[n-BOT_CFG.XP_TAIL_DAYS],b=T[n];return(b[c]-a[c])/(b[0]-a[0])}
 function botCurve(pf,c,P){const T=BOT_CFG.CURVES[pf],L=T[T.length-1];if(P<=L[0])return bInterp(bCol(pf,c),P);return c===2||c===5?L[c]+bTail(pf,c)*(P-L[0]):L[c]}
@@ -6535,7 +6612,8 @@ function botState(i,now=Date.now()){const C=BOT_CFG,{b,P:P0,Pe:P,lv,key}=botKey(
   const firstH=G.ev.find(e=>!e.w),lastLim=G.ev.filter(e=>!e.w&&e.lim).pop(),own=Object.keys(heroes);
   // sultan setia: hero kesayangan (selera) begitu dimiliki — selalu di tim & dibangkitkan dulu
   const fav=b.ws&&b.ws.fav&&heroes[b.love]?b.love:!b.loyal&&lastLim?lastLim.id:firstH?firstH.id:own[bHash(i,9)%own.length];
-  const bx=G.spend.buys.reduce((a,o)=>a+(o.asc||0),0);
+  // bahan Kebangkitan dari paket: dipakai bertahap (ASC.ramp hari main sejak dibeli), sebagian langsung
+  const RP=C.ASC.ramp||0,bx=G.spend.buys.reduce((a,o)=>a+(o.asc?o.asc*(RP?Math.min(1,.2+.8*Math.max(0,P-botProg(b,o.t))/RP):1):0),0);
   let pu=botAscGet(i),R=botFit(b,i,F,P,lv,opt,fav,true,pu,bx);
   // baru menembus minCP: cari kapan mulainya (sekali per bot, disimpan), lalu susun ulang dengan bahan yang sudah terkumpul
   if(pu==null&&teamCP(R.team).total>=C.ASC.minCP){pu=botAscStart(b,i,G,now);if(pu<P){G=botGacha(b,P0,now);heroes=G.heroes;weapons=G.weapons;F.heroes=heroes;F.weapons=weapons;F.gear={};R=botFit(b,i,F,P,lv,opt,fav,true,pu,bx)}}
@@ -6585,7 +6663,7 @@ function botSnap(b,t){for(let d=wibDay(t);d<=wibDay(t)+3;d++){for(const[s0,s1]of
 /* ---- ringkasan bot (CP, level, VIP, hero) — skala sampai 100rb bot ----
    Bot yang sudah berhenti (endT lewat) tidak berubah lagi → ringkasannya disimpan di localStorage dan tidak dihitung ulang.
    Bot aktif: dari botState (cache penuh dibatasi ±5000 objek). Ganti SUM_VER bila keseimbangan CP berubah. */
-const SUM_VER=10,BSUM={d:{},key:'',dirty:0,at:0};
+const SUM_VER=11,BSUM={d:{},key:'',dirty:0,at:0};
 const bsumKey=()=>botsSig()+':'+SUM_VER+':'+BOT_CFG.ERAS.length+':'+HEROES.length;
 function bsumLoad(){const k=bsumKey();if(BSUM.key===k)return;BSUM.key=k;BSUM.d={};for(const q in BSUMA)delete BSUMA[q];try{const o=JSON.parse(localStorage.getItem('aster_botsum')||'null');if(o&&o.k===k){const D=o.d||{};for(const i in D){const x=D[i];BSUM.d[i]=Array.isArray(x)?{cp:x[0],lv:x[1],vip:x[2],top:x[3],st:x[4],nh:x[5],ms:x[6]}:x}
   const A=o.a||{};for(const i in A){const x=A[i];BSUMA[i]={k:x[0],o:{cp:x[1],lv:x[2],vip:x[3],top:x[4],st:x[5],nh:x[6],ms:x[7]}}}}}catch(e){}}
@@ -7946,7 +8024,7 @@ function botSales(from,to){const L=[];
   for(let k=sp.buys.length-1;k>=0;k--){const o=sp.buys[k];if(o.t<=from)break;if(o.t>to)continue;
    const w=bW(i);L.push({k:`${w.e}-${w.g}-${bLi(i)}-${Math.floor(o.t)}-${o.id}`,n:botName(i,o.t),sku:o.id,p:o.price,t:Math.floor(o.t)})}}
  return L.sort((a,b)=>a.t-b.t)}
-async function botSaleReport(){const api=TOPUP_CFG.api;if(typeof NET!=='undefined'&&NET.downUntil>Date.now())return;
+async function botSaleReport(){if((typeof watchMode==='function'&&watchMode()))return;const api=TOPUP_CFG.api;if(typeof NET!=='undefined'&&NET.downUntil>Date.now())return;
  // hanya dunia bot ASLI dari server (bukan dunia cadangan lokal / halaman uji / simulator) yang boleh melapor ke bank
  if(typeof NET==='undefined'||!NET.worldOk||!NET.wsig||NET.wsig!==(BOTS.W||[]).map(w=>w.g).join(','))return;if(!api||BSALE.busy||!botsWarmOk()||!BOTS.names.length||BOTS.names.length<botsVisible())return;
  const now=Date.now();let at=BSALE.at;if(!at){try{at=+localStorage.getItem(BSALE.KEY)||0}catch(e){}}
@@ -8005,7 +8083,7 @@ const saveBody=()=>{const o=Object.assign({},S);delete o.acct;return o};
 
 /* ---------------- sinkron simpanan ---------------- */
 function netMarkDirty(){if(loggedIn())NET.dirty=true}
-async function netPush(force,keep){if(!loggedIn()||NET.pushing||(!NET.dirty&&!force)||NET.pend)return;NET.pushing=true;NET.dirty=false;NET.pushAt=Date.now();
+async function netPush(force,keep){if(!loggedIn()||NET.acct.watch||NET.pushing||(!NET.dirty&&!force)||NET.pend)return;NET.pushing=true;NET.dirty=false;NET.pushAt=Date.now();
  try{const o=await api('/api/save',{tok:netTok(),base:NET.acct.sv,save:saveBody(),prof:netProf()},{keep});
   if(o.ok){NET.acct.sv=o.sv;acctSave()}else if(o.conflict){if(o.save)netAdopt(o.save,o.sv);else{NET.acct.sv=o.sv;acctSave();NET.dirty=true}}else NET.dirty=true}
  finally{NET.pushing=false}}
@@ -8021,16 +8099,18 @@ function netSessionLost(){if(!loggedIn())return;netClearLocal();setTimeout(()=>{
 // keluar: data lokal dibersihkan (data aman di server)
 function netClearLocal(){NET.acct=null;acctSave();NET.dirty=false;NET.pend=null;NET.friends={friends:[],inc:[],out:[]};NET.fr=NET.dm=0;
  try{localStorage.removeItem(SAVE_KEY)}catch(e){}const lg=S&&S.lang;newGame();if(lg)S.lang=lg;S.uid=''}
-async function netLogout(){if(loggedIn()){await netPush(true);await api('/api/acc/logout',{tok:netTok()})}netClearLocal();backToLogin()}
+async function netLogout(){if(loggedIn()){if(!NET.acct.watch)await netPush(true);await api('/api/acc/logout',{tok:netTok()})}netClearLocal();backToLogin()}
 
 /* ---------------- daftar / masuk ---------------- */
-const ERR_TXT={uname:'Username harus 3–12 huruf atau angka, tanpa spasi.',pw:'Password minimal 6 karakter.',taken:'Username sudah dipakai.',cred:'Username atau password salah.',
+const ERR_TXT={srvsoon:'Server ini belum dibuka.',srvlist:'Server ini belum dirilis.',srvgone:'Server lamamu sudah ditutup.',srvnone:'Belum ada server yang dibuka. Coba lagi nanti.',srv:'Server tidak ditemukan. Pilih server lain.',srvfull:'Server penuh. Pilih server lain.',srvstay:'Akun terikat ke servernya.',watch:'Akun penonton hanya bisa melihat.',uname:'Username harus 3–12 huruf atau angka, tanpa spasi.',pw:'Password minimal 6 karakter.',taken:'Username sudah dipakai.',cred:'Username atau password salah.',
  botacc:'Akun ini tidak bisa dipakai masuk.',ban:'Akun ini diblokir oleh admin.',slow:'Terlalu banyak percobaan. Coba lagi 10 menit lagi.',net:'Tidak bisa terhubung ke server. Periksa internet.',empty:'Isi username dan password.',server:'Server sedang bermasalah. Coba lagi.'};
 const netErr=e=>T(ERR_TXT[e]||'Terjadi kesalahan.');
 async function netRegister(u,p,keep,srv){const body={u,p,srv:srv||netSrv()};if(keep){S.name=u;S.named=true;body.save=saveBody();body.prof=netProf()}
  const o=await api('/api/acc/register',body);if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv,srv:o.srv||body.srv||1};acctSave();netWorld(true);
  if(!keep){const lg=S.lang;newGame();S.lang=lg}S.name=o.u;S.named=true;S.uid=o.uid;save();NET.dirty=true;netPush(true);return o}
-async function netLogin(u,p){const o=await api('/api/acc/login',{u,p});if(!o.ok)return o;NET.ban=false;NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv,gm:o.gm?1:0,srv:o.srv||1};acctSave();netWorld(true);
+async function netLogin(u,p,srv){const o=await api('/api/acc/login',srv?{u,p,srv}:{u,p});if(!o.ok)return o;NET.ban=false;
+ if(o.watch){NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:0,gm:0,watch:1,srv:0};acctSave();const lg=S.lang;newGame();S.lang=lg;S.name=o.u;S.named=true;S.uid=o.uid;return o}   // penonton: tidak ada data simpanan
+ NET.acct={uid:o.uid,u:o.u,tok:o.tok,sv:o.sv,gm:o.gm?1:0,srv:o.srv||1};acctSave();netWorld(true);
  const lg=S.lang;if(o.save&&o.save.heroes){S=Object.assign(defState(),o.save);S.se=SAVE_SE;try{migrate()}catch(e){}}else{newGame();S.lang=lg}
  S.name=o.u;S.named=true;S.uid=o.uid;lsPut(SAVE_KEY,JSON.stringify(S));if(!o.save)NET.dirty=true;return o}
 
@@ -8099,6 +8179,9 @@ async function netBotSnap(){if(!loggedIn()||!botsWarmOk()||Date.now()-NET.snapAt
 /* ---------------- ping & loop ---------------- */
 async function netPing(){if(!loggedIn())return;NET.pingAt=Date.now();const o=await api('/api/ping',{tok:netTok()});if(!o.ok)return;
  if(o.u&&o.u!==NET.acct.u){NET.acct.u=o.u;acctSave()}
+ if(o.watch||NET.acct.watch)return;
+ // server belum buka / dihapus (bukan GM): kembali ke layar judul + pemberitahuan
+ if(o.srvst&&o.srvst!=='open'&&!o.gm){if(!NET.kick&&!document.getElementById('login').classList.contains('on')){NET.kick=1;setTimeout(()=>{try{backToLogin()}catch(e){}setTimeout(()=>{NET.kick=0;try{srvDeny(o.srvst,{id:o.srv,name:o.svn,at:o.sva})}catch(e){}},1800)},50)}return}
  if((o.gm?1:0)!==(NET.acct.gm?1:0)){NET.acct.gm=o.gm?1:0;acctSave();try{toast(o.gm?T('Akun ini sekarang GM. Buka Pengaturan › Panel GM.'):T('Status GM dicabut.'));if(typeof render==='function'&&!B)render()}catch(e){}}
  if(o.sv!==NET.acct.sv&&!NET.pushing)await netPull();
  // server digabung GM: akun pindah server -> rival & lawan Arena lama tidak berlaku
@@ -8110,7 +8193,7 @@ function refreshBadges(){try{const b=document.getElementById('frBadge');if(b){co
 let netLoopOn=false;
 function netStart(){if(netLoopOn)return;netLoopOn=true;netWorldCache();netWorld();
  setInterval(()=>{const L=document.getElementById('login');if(NET.pend&&!(typeof B!=='undefined'&&B)&&!(typeof SP!=='undefined'&&SP))netAdopt(NET.pend.save,NET.pend.sv);
-  if(!loggedIn()||(L&&L.classList.contains('on')))return;const now=Date.now();
+  if(!loggedIn()||NET.acct.watch||(L&&L.classList.contains('on')))return;const now=Date.now();
   if(NET.dirty&&now-NET.pushAt>12e3)netPush();
   if(now-NET.pingAt>30e3)netPing();
   if(now-NET.frAt>90e3)netFriends().then(()=>netBotFriends());
@@ -8496,7 +8579,7 @@ function rvEnd(why,now){const R=rvS(),i=R.i,C=RIVAL_CFG;if(i==null)return;
  else if(why==='gone')toast('⚔ '+T('Rivalmu {n} sudah lama tidak bermain.',{n:nm}));
  save();BOTS.onChange&&BOTS.onChange()}
 // ---- detak utama (tiap 20 detik) ----
-function rvTick(now=Date.now()){if(!S||!S.welcomed||!BOTS.warmAt||!BOTS.ready||!BOTS.W||!BOTS.W.length)return;const C=RIVAL_CFG,R=rvS();
+function rvTick(now=Date.now()){if(!S||(typeof watchMode==='function'&&watchMode())||!S.welcomed||!BOTS.warmAt||!BOTS.ready||!BOTS.W||!BOTS.W.length)return;const C=RIVAL_CFG,R=rvS();
  rvLog(now);
  if(R.gen!==botsSig()){if(R.i!=null)R.hist=[];R.i=null;R.gen=botsSig();R.boosts=[];R.chat=[];R.cool={};R.next=0}   // dunia bot di-reset / server digabung
  if(S.lv<C.minLv)return;if(!R.first){R.first=now;save();return}if(now-R.first<C.firstAfter)return;
@@ -8662,7 +8745,7 @@ function annMvpCheck(now){if(typeof wbCur!=='function'||!wbOpen())return;const c
  annPost([Object.assign({ty:'mvp',wk:k,dmg:Math.round(top.dmg),k:st.dead?1:0,b:wbBoss(c.t0).n},top.me?{}:{uid})])}
 
 /* ---------- jalankan (tiap 15 dtk; berhenti saat aplikasi di latar) ---------- */
-function annTick(){if(document.hidden||!S||!S.named||!BOTS.ready||!botsWarmOk())return;const now=Date.now();
+function annTick(){if(document.hidden||(typeof watchMode==='function'&&watchMode())||!S||!S.named||!BOTS.ready||!botsWarmOk())return;const now=Date.now();
  try{annScan()}catch(e){ANN.scan.busy=false}try{annReport()}catch(e){}
  if(now-ANN.chkAt>3e4){ANN.chkAt=now;const ar=now-ANN.arAt>6e4;if(ar)ANN.arAt=now;try{annTopCheck(now,ar)}catch(e){}}
  if(now-ANN.recAt>9e4){ANN.recAt=now;try{annRecCheck(now)}catch(e){}}
@@ -9819,7 +9902,7 @@ function wcReSet(m){wcReTo=m;const b=$('#chRe');if(!b)return;b.classList.toggle(
 /* ---- strip di beranda ---- */
 function chatStripHTML(){const L=WC.list.slice(-2),n=WC.list.filter(m=>m.ts>WC.seen&&!wcMine(m)).length;
  return`<img class="ix" src="${ICON.chat}"><span class="chsl">${L.length?L.map(m=>`<span><b>${esc(m.u)}:</b> ${esc(wcShow(m.txt))}</span>`).join(''):`<span>${T('Obrolan Dunia')}</span>`}</span>${n?`<i class="dot n">${n>99?'99+':n}</i>`:''}`}
-function chatTick(){const now=Date.now(),L=document.getElementById('login');if(L&&L.classList.contains('on'))return;
+function chatTick(){const now=Date.now(),L=document.getElementById('login');if(L&&L.classList.contains('on')||(typeof watchMode==='function'&&watchMode()))return;
  if(NET.ai&&now>WC.aiNext&&!WC.aiBusy){if(!WC.aiNext)WC.aiNext=now+5e3+Math.random()*1e4;else wcAi('tick')}
  if(chatOpen&&$('#chList')){if(now-WC.at>4000)wcFetch().then(()=>chatRefresh());}
  else{chatOpen=false;if(now-WC.at>(NET.ai?2e4:3e4)||(NET.wc>WC.since&&now-WC.at>5e3))wcFetch().then(()=>{const m=WC.list.filter(x=>x.ts>WC.seen&&chAt(x)).pop();if(m&&m.id>(WC.atSeen||0)){WC.atSeen=m.id;toast(T('{n} menyebutmu di obrolan',{n:m.u}))}})}
@@ -9972,7 +10055,7 @@ function dmBotRel(i){const L=[];if(typeof rvIs==='function'&&rvIs(i))L.push('CP 
 function dmBotBody(i,uid,kind,at){const D=wcDesc(i,Date.now());
  return{tok:netTok(),uid,kind,at:Math.round(at),p:dmBotP(i),rel:dmBotRel(i),cand:{pub:D.pub,priv:D.priv,style:wcStyle(i),lower:wcPersona(i).lower},player:{name:NET.acct.u,pub:wcMePub()}}}
 function dmBotKick(){DMB.kick=true;setTimeout(dmBotTick,2500)}
-async function dmBotTick(){if(!loggedIn()||DMB.busy||!botsWarmOk()||!BOTS.uids||document.hidden)return;const now=Date.now();if(!DMB.kick&&now-DMB.at<45e3)return;
+async function dmBotTick(){if(!loggedIn()||(typeof watchMode==='function'&&watchMode())||DMB.busy||!botsWarmOk()||!BOTS.uids||document.hidden)return;const now=Date.now();if(!DMB.kick&&now-DMB.at<45e3)return;
  DMB.at=now;DMB.kick=false;DMB.busy=true;
  try{const o=await api('/api/dm/pending',{tok:netTok()});
   for(const x of(o.ok&&o.list)||[]){const i=botIdxOf(x.uid);if(i<0||!botIn(i,now)||botHidden(i)||(DMB.cool[x.uid]||0)>now)continue;
@@ -10219,7 +10302,7 @@ function openLogin(){cancelAnimationFrame(loginRAF);if(typeof bgmPlay==='functio
  <div class="lgver"><span>v${GAME_VER} · UID ${S.uid.replace(/(\d{4})(\d{4})/,'$1 $2')}</span><span>© HUN2 STUDIO</span></div>`;
  L.classList.add('on');L.classList.toggle('again',lgOpened);lgOpened=true;if(KA)return;const cv=document.getElementById('lgbg'),g=cv.getContext('2d');g.imageSmoothingEnabled=false;
  const t0=performance.now();const step=n=>{if(cv!==document.getElementById('lgbg'))return;drawHomeScene(g,(n-t0)/1000);loginRAF=requestAnimationFrame(step)};loginRAF=requestAnimationFrame(step)}
-function loginTapHTML(){return`<button class="lgtap" data-act="lgStart">${loggedIn()||S.named?`<span class="lgwel"><i>Lv${S.lv||1}</i><small>${T('Selamat datang kembali,')}</small><b>${esc(loggedIn()?NET.acct.u:S.name)}</b>${loggedIn()?'':`<em>${T('Tamu')}</em>`}<small class="lgsrv">${esc(NET.srvName?`S${netSrv()} · ${NET.srvName}`:'S'+netSrv())}</small></span>`:''}<span class="lgcta"><span>${T('KETUK UNTUK MULAI')}</span></span></button>`}
+function loginTapHTML(){const W=typeof watchMode==='function'&&watchMode();return`<button class="lgtap" data-act="lgStart">${loggedIn()||S.named?`<span class="lgwel">${W?`<i>👁</i>`:`<i>Lv${S.lv||1}</i>`}<small>${T('Selamat datang kembali,')}</small><b>${esc(loggedIn()?NET.acct.u:S.name)}</b>${loggedIn()?'':`<em>${T('Tamu')}</em>`}<small class="lgsrv">${W?T('Penonton · semua server'):esc(NET.srvName?`S${netSrv()} · ${NET.srvName}`:'S'+netSrv())}</small></span>`:''}<span class="lgcta"><span>${T('KETUK UNTUK MULAI')}</span></span></button>`}
 function loginNameHTML(){setTimeout(srvPickLoad,0);return`<div class="lgcard"><button class="lgx" data-act="lgBack" aria-label="✕">✕</button><h3>${T('Masuk sebagai Tamu')}</h3><p>${T('Data petualanganmu disimpan di perangkat ini.')}</p>
  <label for="lgName">${T('Nama Kapten')}</label><input class="nm" id="lgName" maxlength="12" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" value="${S.name&&S.name!=='Kapten'?esc(S.name):''}" placeholder="${T('3–12 huruf atau angka')}">
  <small class="lgrule" id="lgRule">${T('Hanya huruf dan angka, tanpa spasi atau simbol.')}</small>
@@ -10227,16 +10310,49 @@ function loginNameHTML(){setTimeout(srvPickLoad,0);return`<div class="lgcard"><b
  <div class="mrow"><button class="btn gray" data-act="lgDice">🎲 ${T('Acak')}</button><button class="btn" data-act="lgGo">${T('Mulai Petualangan')}</button></div></div>`}
 /* ---------- pilih server (daftar akun baru / tamu). Akun terikat ke satu server, tanpa pindah. ---------- */
 const SRVL={list:null,at:0,sel:null};
-async function srvLoad(){if(SRVL.list&&Date.now()-SRVL.at<6e4)return SRVL.list;const o=await api('/api/servers');if(o&&o.ok){SRVL.list=o.list;SRVL.at=Date.now()}return SRVL.list||[]}
+async function srvLoad(force){if(!force&&SRVL.list&&Date.now()-SRVL.at<6e4)return SRVL.list;const o=await api('/api/servers');SRVL.ok=!!(o&&o.ok);if(SRVL.ok){SRVL.list=o.list;SRVL.at=Date.now()}return SRVL.list||[]}
 function srvOpenAt(t){const d=new Date(t),p=n=>String(n).padStart(2,'0'),hm=p(d.getHours())+':'+p(d.getMinutes());return t-Date.now()<864e5?hm:p(d.getDate())+'/'+p(d.getMonth()+1)+' '+hm}
 // server yang dijadwalkan rilis (pra-registrasi): sudah bisa dipilih, dunia mulai ramai saat jam buka
-function srvState(x){const age=(Date.now()-x.opened)/864e5;return x.opened>Date.now()?['soon',T('SEGERA')]:x.full?['full',T('PENUH')]:age<3?['new',T('BARU')]:x.n/x.cap>.7?['busy',T('RAMAI')]:['ok',T('LANCAR')]}
-function srvDefault(L){const ok=(L||[]).filter(x=>!x.full);return ok.length?ok.reduce((a,b)=>b.opened>a.opened||(b.opened===a.opened&&b.n<a.n)?b:a).id:null}
-function srvPickHTML(){const L=SRVL.list;if(!L)return`<div class="srvpick"><small>${T('Memuat daftar server...')}</small></div>`;if(SRVL.sel==null||!L.some(x=>x.id===SRVL.sel&&!x.full))SRVL.sel=srvDefault(L);
- return`<label>${T('Server')}</label><div class="srvpick">${L.map(x=>{const[st,lb]=srvState(x);return`<button class="srvb ${st}${x.id===SRVL.sel?' on':''}" data-act="srvSel" data-arg="${x.id}"${x.full?' disabled':''}><b>S${x.id} · ${esc(x.name)}</b><small>${x.opened>Date.now()?T('Buka {t}',{t:srvOpenAt(x.opened)})+' · ':''}${fmt(x.n)}/${fmt(x.cap)}</small><i>${lb}</i></button>`}).join('')}</div>
+// st (server): 'list' = baru terdaftar (BELUM RILIS, tidak bisa dipilih), 'soon' = terjadwal (pra-registrasi akun; masuk game baru saat jam buka), 'open'
+const srvOpen=x=>!!x&&x.st!=='list'&&!(x.opened>Date.now());
+function srvState(x){const age=(Date.now()-x.opened)/864e5;return x.st==='list'?['list',T('BELUM RILIS')]:x.opened>Date.now()?['soon',T('SEGERA')]:x.full?['full',T('PENUH')]:age<3?['new',T('BARU')]:x.n/x.cap>.7?['busy',T('RAMAI')]:['ok',T('LANCAR')]}
+function srvDefault(L){const ok=(L||[]).filter(x=>!x.full&&x.st!=='list'),op=ok.filter(srvOpen),P=op.length?op:ok;return P.length?P.reduce((a,b)=>b.opened>a.opened||(b.opened===a.opened&&b.n<a.n)?b:a).id:null}
+function srvPickHTML(){const L=SRVL.list;if(!L)return`<div class="srvpick"><small>${T('Memuat daftar server...')}</small></div>`;if(SRVL.sel==null||!L.some(x=>x.id===SRVL.sel&&!x.full&&x.st!=='list'))SRVL.sel=srvDefault(L);
+ if(!L.length)return`<label>${T('Server')}</label><div class="srvpick"><small>${T('Belum ada server yang dibuka. Coba lagi nanti.')}</small></div>`;
+ return`<label>${T('Server')}</label><div class="srvpick">${L.map(x=>{const[st,lb]=srvState(x);return`<button class="srvb s-${st}${x.id===SRVL.sel?' on':''}" data-act="srvSel" data-arg="${x.id}"${x.full?' disabled':''}><b>S${x.id} · ${esc(x.name)}</b><small>${x.st==='list'?T('Belum rilis'):(x.opened>Date.now()?T('Buka {t}',{t:srvOpenAt(x.opened)})+' · ':'')+fmt(x.n)+'/'+fmt(x.cap)}</small><i>${lb}</i></button>`}).join('')}</div>
  <small class="lgrule">${T('Akun terikat ke server pilihanmu dan tidak bisa pindah.')}</small>`}
 function srvPickLoad(){srvLoad().then(()=>{document.querySelectorAll('.srvwrap').forEach(e=>e.innerHTML=srvPickHTML())})}
 const srvNameOf=id=>{const x=(SRVL.list||[]).find(y=>y.id===+id);return x?`S${x.id} · ${x.name}`:'S'+id};
+/* ---------- gerbang server: masuk game hanya ke server yang sudah buka ----------
+   st 'soon' = terjadwal (jam buka), 'list' = baru terdaftar, 'gone' = server dihapus / belum ada server → pilih server lain. GM boleh lewat. */
+function srvWhenTxt(t){const d=new Date(t),p=n=>String(n).padStart(2,'0'),days=[T('Minggu'),T('Senin'),T('Selasa'),T('Rabu'),T('Kamis'),T('Jumat'),T('Sabtu')],m=Math.round((t-Date.now())/6e4);
+ return`${days[d.getDay()]} ${p(d.getDate())}/${p(d.getMonth()+1)} ${p(d.getHours())}:${p(d.getMinutes())}`+(m>0?` (${m<60?T('{n} menit lagi',{n:m}):m<1440?T('{h} jam {m} menit lagi',{h:Math.floor(m/60),m:m%60}):T('{n} hari lagi',{n:Math.ceil(m/1440)})})`:'')}
+function srvDeny(st,sv){sv=sv||{};sfx('deny');const nm=sv.id?`<b>S${sv.id}${sv.name?' · '+esc(sv.name):''}</b>`:'';
+ const [ic,h,p]=st==='soon'?['⏰',T('Server Belum Dibuka'),T('Server {s} belum dibuka. Server ini dibuka {t} — datang lagi saat itu ya!',{s:nm,t:'<b>'+srvWhenTxt(sv.at)+'</b>'})]
+  :st==='list'?['📋',T('Server Belum Dirilis'),T('Server {s} baru masuk daftar dan belum dirilis. Tunggu pengumuman rilisnya!',{s:nm})]
+  :['🌙',T('Server Ditutup'),sv.id?T('Server {s} sudah ditutup. Ketuk layar untuk memilih server baru — progresmu tetap aman.',{s:nm}):T('Belum ada server yang dibuka. Coba lagi nanti.')];
+ modal(`<div class="srvdeny"><div class="sdic">${ic}</div><h3>${h}</h3><p>${p}</p></div><div class="mrow"><button class="btn" data-act="closeModal">OK</button></div>`)}
+// server lama sudah dihapus: pilih server baru yang sudah buka (akun: /api/acc/srv, tamu: simpan lokal). Rival & lawan Arena lama tidak berlaku.
+async function srvGonePick(ok){const L=(await srvLoad(true)).filter(x=>srvOpen(x)&&!x.full);if(!L.length){srvDeny('gone',{});return}
+ SRVL.list=L;SRVL.sel=srvDefault(L);srvGonePick.ok=ok;sfx('open');
+ modal(`<h3>${T('Pilih Server Baru')}</h3><p class="sub" style="text-align:center">${T('Server lamamu sudah ditutup. Progresmu tetap aman — pilih server baru untuk melanjutkan.')}</p><div class="srvwrap">${srvPickHTML()}</div><div class="mrow"><button class="btn" data-act="srvGoneGo">${T('Lanjutkan')}</button></div>`)}
+async function srvGoneGo(){const id=SRVL.sel;if(!id)return;
+ if(loggedIn()){const o=await api('/api/acc/srv',{tok:netTok(),srv:id});if(!o.ok){toast(netErr(o.e),1);return}NET.acct.srv=o.srv;acctSave()}
+ else{try{localStorage.setItem(SRV_KEY,String(id))}catch(e){}}
+ try{if(S.rv)S.rv={};if(S.arena){S.arena.opps=[];S.arena.log=[]}save()}catch(e){}
+ closeModal();netWorld(true);const f=srvGonePick.ok;srvGonePick.ok=null;f&&f()}
+async function srvGate(ok){if(srvGate.busy)return;srvGate.busy=1;try{
+ if(loggedIn()){const o=await api('/api/ping',{tok:netTok()});
+  if(!o||!o.ok){if(o&&(o.e==='auth'||o.e==='ban'))return;ok();return}   // offline: main seperti biasa
+  if(o.watch){NET.acct.watch=1;acctSave();watchOpen();return}
+  if(NET.acct.watch){NET.acct.watch=0;acctSave()}
+  if(o.gm||!o.srvst||o.srvst==='open'){if(o.gm&&o.srvst&&o.srvst!=='open')toast(T('(GM) Server ini belum dibuka untuk pemain.'));ok();return}
+  if(o.srvst==='gone'){srvGonePick(ok);return}
+  srvDeny(o.srvst,{id:o.srv,name:o.svn,at:o.sva});return}
+ const L=await srvLoad(true);if(!SRVL.ok){ok();return}
+ const x=L.find(y=>y.id===netSrv());if(srvOpen(x)){ok();return}
+ if(!x){srvGonePick(ok);return}
+ srvDeny(x.st==='list'?'list':'soon',{id:x.id,name:x.name,at:x.opened})}finally{srvGate.busy=0}}
 // kartu Masuk / Daftar (akun server). mode 'link' = dari Pengaturan: daftarkan progres tamu saat ini
 let auTab='in';
 function authHTML(link){const reg=auTab==='up'||link;if(reg)setTimeout(srvPickLoad,0);return`<div class="lgcard au">${link?'':'<button class="lgx" data-act="lgBack" aria-label="✕">✕</button>'}<h3>${link?T('Daftarkan Akun'):reg?T('Buat Akun'):T('Masuk Akun')}</h3>
@@ -10247,15 +10363,24 @@ function authHTML(link){const reg=auTab==='up'||link;if(reg)setTimeout(srvPickLo
  <small class="lgrule" id="auErr">${reg?T('Username juga menjadi nama Kapten-mu. Simpan password baik-baik — tidak bisa dipulihkan lewat email.'):T('Masuk untuk memuat progres akunmu di perangkat mana pun.')}</small>
  <div class="mrow"><button class="btn" id="auGo" data-act="auGo" data-arg="${link?'link':''}">${reg?T('Daftar & Mulai'):T('Masuk Akun')}</button></div>
  ${link?'':`<button class="auguest" data-act="lgGuest">${T('Main sebagai Tamu')} ›</button>`}</div>`}
-async function authGo(link){const u=($('#auU').value||'').trim(),p=$('#auP').value||'',reg=auTab==='up'||link,er=$('#auErr'),bt=$('#auGo');
+async function authGo(link){const u=($('#auU').value||'').trim(),p=$('#auP').value||'',reg=auTab==='up'||link,er=$('#auErr'),bt=$('#auGo'),pick=!reg&&$('#auPick')?SRVL.sel:null;
  const bad=m=>{er.className='lgrule bad';er.textContent=m;sfx('deny')};
  if(!NAME_OK.test(u))return bad(netErr('uname'));if(p.length<6)return bad(netErr('pw'));if(reg&&p!==$('#auP2').value)return bad(T('Password tidak sama.'));
  bt.disabled=true;const old=bt.textContent;bt.textContent=T('Menghubungkan...');er.className='lgrule';er.textContent='';
  if(reg&&!SRVL.sel)return bad(T('Pilih server dulu.'));
- const o=reg?await netRegister(u,p,!!link,SRVL.sel):await netLogin(u,p);bt.disabled=false;bt.textContent=old;
- if(!o.ok)return bad(netErr(o.e));
+ const o=reg?await netRegister(u,p,!!link,SRVL.sel):await netLogin(u,p,pick);bt.disabled=false;bt.textContent=old;
+ if(!o.ok){bad(netErr(o.e));
+  if(o.e==='srvsoon'||o.e==='srvlist')srvDeny(o.e==='srvsoon'?'soon':'list',o.sv);
+  else if(o.e==='srvgone'){SRVL.list=o.list||[];SRVL.sel=srvDefault(SRVL.list);let w=$('#auPick');if(!w){w=document.createElement('div');w.id='auPick';w.className='srvwrap';er.after(w)}
+   w.innerHTML=SRVL.list.length?srvPickHTML():'';er.textContent=SRVL.list.length?T('Server lamamu sudah ditutup. Pilih server baru, lalu tekan Masuk lagi — progresmu tetap aman.'):T('Belum ada server yang dibuka. Coba lagi nanti.')}
+  return}
+ if(o.watch){sfx('claim');toast(T('Masuk sebagai penonton, {n}.',{n:o.u}));watchOpen();return}
  sfx('claim');document.activeElement&&document.activeElement.blur&&document.activeElement.blur();
  if(link){closeModal();toast(T('Akun {n} terdaftar! Progresmu kini tersimpan di server.',{n:o.u}));try{refreshScreen()}catch(e){}return}
+ if(o.pre){toast(T('Akun {n} berhasil dibuat!',{n:o.u}));lgMode='tap';const P=$('#lgPanel');if(P){P.classList.remove('card');P.innerHTML=loginTapHTML()}
+  modal(`<div class="srvdeny"><div class="sdic">🎟</div><h3>${T('Pra-registrasi Berhasil')}</h3><p>${T('Akun {n} terdaftar di {s}. Server dibuka {t} — masuk lagi saat itu ya!',{n:'<b>'+esc(o.u)+'</b>',s:'<b>S'+o.pre.id+' · '+esc(o.pre.name)+'</b>',t:'<b>'+srvWhenTxt(o.pre.at)+'</b>'})}</p></div><div class="mrow"><button class="btn" data-act="closeModal">OK</button></div>`);return}
+ if(o.moved)toast(T('Akun pindah ke {s}. Selamat datang di dunia baru!',{s:srvNameOf(o.srv)}));
+ if(!reg&&o.srvst&&o.srvst!=='open'&&o.gm)toast(T('(GM) Server ini belum dibuka untuk pemain.'));
  toast(reg?T('Akun {n} berhasil dibuat!',{n:o.u}):T('Selamat datang kembali, {n}!',{n:o.u}));enterGame()}
 // layar transisi: latar key art buram + ilustrasi hero acak + tips + bar terisi (senada dengan loading)
 function transEl(msg,flash){const tr=document.createElement('div');tr.className='trans';const KA=hasBgArt('key'),id=pickArtHero();
@@ -10281,7 +10406,7 @@ async function backToLogin(){if(document.getElementById('login').classList.conta
  tab='home';lgMode='tap';lgOpened=false;openLogin();if(typeof tutSync==='function')tutSync();await sleep(200);tr.classList.remove('on');setTimeout(()=>tr.remove(),500)}
 function lgValidate(v){return NAME_OK.test(v)}
 Object.assign(ACT,{
- lgStart:()=>{if(entering||lgMode!=='tap')return;if(loggedIn()||S.named){enterGame();return}sfx('open');lgMode='auth';auTab='in';const P=$('#lgPanel');P.classList.add('card');P.innerHTML=authHTML()},
+ lgStart:()=>{if(entering||lgMode!=='tap')return;if(loggedIn()||S.named){srvGate(()=>enterGame());return}sfx('open');lgMode='auth';auTab='in';const P=$('#lgPanel');P.classList.add('card');P.innerHTML=authHTML()},
  lgGuest:()=>{sfx('open');lgMode='name';const P=$('#lgPanel');P.classList.add('card');P.innerHTML=loginNameHTML();setTimeout(()=>{const i=$('#lgName');i&&i.focus()},80)},
  auTab:k=>{auTab=k;sfx('tab');const u=$('#auU')&&$('#auU').value;const P=$('#modal .lgcard.au')?$('#modal .mbox'):$('#lgPanel');if($('#modal .lgcard.au'))return;P.innerHTML=authHTML();if(u)$('#auU').value=u},
  auEye:()=>{const i=$('#auP');if(i)i.type=i.type==='password'?'text':'password'},
@@ -10289,12 +10414,15 @@ Object.assign(ACT,{
  accLink:()=>{auTab='up';modal(`<button class="btn red mclose" data-act="closeModal">✕</button>${authHTML(true)}`);$('#modal .mbox').classList.add('aubox')},
  accLogout:()=>confirmBox(T('Keluar dari akun {n}? Progres sudah tersimpan di server dan bisa dimuat lagi dengan masuk.',{n:esc(NET.acct?NET.acct.u:'')}),()=>netLogout(),T('Keluar')),
  lgDice:()=>{const i=$('#lgName');if(i){let v='';for(let k=0;k<20&&!NAME_OK.test(v);k++)v=botLocalName(Math.floor(Math.random()*1e6)).replace(/\d+$/,'').slice(0,12);i.value=v;sfx('tap');i.dispatchEvent(new Event('input',{bubbles:true}))}},
- lgGo:()=>{if(entering)return;const v=($('#lgName').value||'').trim();if(!lgValidate(v)){const r=$('#lgRule');r.classList.add('bad');r.textContent=T('Nama harus 3–12 huruf atau angka, tanpa spasi atau simbol.');sfx('deny');return}
+ srvGoneGo:()=>srvGoneGo(),
+ lgGo:async()=>{if(entering)return;const v=($('#lgName').value||'').trim();if(!lgValidate(v)){const r=$('#lgRule');r.classList.add('bad');r.textContent=T('Nama harus 3–12 huruf atau angka, tanpa spasi atau simbol.');sfx('deny');return}
   if(BOTS.names.some(n=>n.toLowerCase()===v.toLowerCase())){toast(T('Nama itu sudah dipakai petualang lain!'),1);return}
+  const sx=(SRVL.list||[]).find(x=>x.id===SRVL.sel);if(SRVL.list&&!SRVL.list.length){srvDeny('gone',{});return}if(SRVL.list&&!sx){toast(T('Pilih server dulu.'),1);return}
+  if(sx&&!srvOpen(sx)){srvDeny(sx.st==='list'?'list':'soon',{id:sx.id,name:sx.name,at:sx.opened});return}
   if(!S.uid||S.uid.length!==8)S.uid=String(10000000+Math.floor(Math.random()*89999999));
   if(SRVL.sel){try{localStorage.setItem(SRV_KEY,String(SRVL.sel))}catch(e){}netWorld(true)}
   S.name=v;S.named=true;save();const i=$('#lgName');i&&i.blur();enterGame()},
- srvSel:id=>{SRVL.sel=+id;sfx('tab');document.querySelectorAll('.srvwrap').forEach(e=>e.innerHTML=srvPickHTML())},
+ srvSel:id=>{const x=(SRVL.list||[]).find(y=>y.id===+id);if(x&&x.st==='list'){sfx('deny');toast(T('S{n} · {m} belum dirilis. Tunggu pengumuman rilisnya!',{n:x.id,m:x.name}),1);return}SRVL.sel=+id;sfx('tab');document.querySelectorAll('.srvwrap').forEach(e=>e.innerHTML=srvPickHTML())},
  lgBack:()=>{if(lgMode==='name'&&!loggedIn()){lgMode='auth';const P=$('#lgPanel');P.innerHTML=authHTML();sfx('close');return}lgMode='tap';sfx('close');const P=$('#lgPanel');P.classList.remove('card');P.innerHTML=loginTapHTML();P.querySelectorAll('.lgwel,.lgcta').forEach(e=>e.style.animationDelay='0s')},
  lgNews:()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Pengumuman')}</h3><div class="news">${NEWS.map(n=>`<div class="nwi"><b>${T(n.t)}</b><p>${T(n.d)}</p></div>`).join('')}</div><p class="sub" style="text-align:center">v${GAME_VER}</p>`),
  lgLang:()=>modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Bahasa')}</h3><div class="mrow" style="flex-direction:column">${[['id','Bahasa Indonesia'],['en','English'],['ja','日本語']].map(([k,n])=>`<button class="btn ${S.lang===k?'':'blue'}" data-act="lgSetLang" data-arg="${k}">${n}</button>`).join('')}</div>`),
@@ -10308,6 +10436,121 @@ Object.assign(ACT,{
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='lgName'){const v=e.target.value,r=$('#lgRule');if(!r)return;const ok=!v||lgValidate(v);r.classList.toggle('bad',!ok);r.classList.toggle('good',!!v&&ok);r.textContent=!v?T('Hanya huruf dan angka, tanpa spasi atau simbol.'):ok?T('Nama tersedia!'):T('Nama harus 3–12 huruf atau angka, tanpa spasi atau simbol.')}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='lgName'){e.preventDefault();ACT.lgGo()}
  if(e.key==='Enter'&&e.target&&/^auP2?$|^auU$/.test(e.target.id)){e.preventDefault();const b=$('#auGo');b&&!b.disabled&&b.click()}});
+
+/* ==== js/ui/watch.js ==== */
+/* =====================================================================
+   PENONTON — akun khusus (dibuat pemilik lewat Telegram /penonton): dashboard papan peringkat
+   SEMUA server + papan raid Bos Dunia (yang sedang berlangsung & yang sudah selesai). Hanya melihat:
+   tidak memuat data simpanan, tidak bermain, tidak tampil di papan mana pun.
+   - Server yang sedang dilihat = NET.acct.srv → netWorld / netPlayers / wbPull memuat server itu,
+     dunia bot dihitung persis sama seperti di game pemain server tersebut.
+   - Server belum rilis / terjadwal: hanya kartu status (belum ada pemain).
+   ===================================================================== */
+const WT={sv:'all',tab:'cp',list:[],at:0,n:100,loading:false,mark:false,top:{},raid:null,rb:null,rload:false,timer:0,sig:''};
+const watchMode=()=>!!(typeof NET!=='undefined'&&NET.acct&&NET.acct.tok&&NET.acct.watch);
+const WT_TABS=[['cp','CP Tim'],['lv','Level'],['ar','Arena'],['wb','Raid Bos']];
+
+async function watchOpen(){
+ const L=document.getElementById('login');try{cancelAnimationFrame(loginRAF)}catch(e){}
+ const tr=typeof transEl==='function'?transEl('Membuka dashboard penonton...'):null;if(tr){await sleep(40);tr.classList.add('on');await sleep(900)}
+ L.classList.remove('on','enter','again');L.innerHTML='';lgMode='tap';lgOpened=false;try{closeModal()}catch(e){}
+ let el=document.getElementById('watch');if(!el){el=document.createElement('div');el.id='watch';document.body.appendChild(el)}el.classList.add('on');
+ WT.sv='all';WT.tab='cp';WT.raid=null;WT.rb=null;watchRender();
+ if(tr){tr.classList.remove('on');setTimeout(()=>tr.remove(),500)}
+ await watchSrvList(true);watchRender();
+ clearInterval(WT.timer);WT.timer=setInterval(watchTick,1e4)}
+function watchClose(){clearInterval(WT.timer);WT.timer=0;const el=document.getElementById('watch');if(el){el.classList.remove('on');el.innerHTML=''}}
+async function watchSrvList(force){if(!force&&Date.now()-WT.at<6e4)return;const o=await api('/api/servers');if(o&&o.ok){WT.list=o.list||[];WT.at=Date.now()}}
+const wtSrv=id=>WT.list.find(x=>x.id===+id);
+const wtSt=x=>!x?'gone':x.st==='list'?'list':x.opened>Date.now()?'soon':'open';
+const wtBadge=x=>{const s=wtSt(x);return`<i class="wvst s-${s}">${s==='list'?T('BELUM RILIS'):s==='soon'?T('SEGERA'):x.full?T('PENUH'):T('BUKA')}</i>`};
+const wtDay=x=>Math.floor((Date.now()-x.opened)/864e5)+1;
+
+// pindah server yang dilihat: muat dunia bot + pemain asli server itu, lalu hitung ringkasan semua bot
+async function watchPick(id){if(id!=='all')id=+id;if(WT.sv===id&&!WT.loading){watchRender();return}WT.sv=id;WT.n=100;WT.raid=null;WT.rb=null;
+ if(id==='all'){WT.loading=false;watchRender();return}
+ const x=wtSrv(id);if(wtSt(x)!=='open'){WT.loading=false;watchRender();return}
+ NET.acct.srv=id;acctSave();NET.players=[];NET.plAt=0;WB.srv={};WB.cache.clear();if(typeof AR!=='undefined')AR.board=null;
+ WT.loading=true;watchRender();
+ const ok=await netWorld(true);if(WT.sv!==id)return;
+ if(!ok||!BOTS.W||!BOTS.W.length){WT.loading=false;watchRender();toast(T('Gagal memuat server. Coba lagi.'),1);return}
+ if(typeof BLM!=='undefined')BLM.L=null;await netPlayers(true);if(WT.sv!==id)return;
+ botsWarm(()=>{if(WT.sv!==id)return;WT.loading=false;WT.sig=botsSig();watchTopSave(id);watchRender()})}
+function watchTopSave(id){try{const L=botsList().filter(e=>!e.me).sort((a,b)=>b.cp-a.cp);WT.top[id]={at:Date.now(),n:L.length,on:L.filter(e=>e.online).length,cp:L.slice(0,3).map(e=>({name:e.name,cp:e.cp,lv:e.lv,top:e.top}))}}catch(e){}}
+
+/* ---------- papan CP / Level / Arena ---------- */
+function watchBoard(){const now=Date.now();if(WT.tab==='ar'){if(typeof AR!=='undefined'&&WT.sig!==botsSig())AR.board=null;return arBoard(now).filter(e=>!e.me).slice().sort((a,b)=>b.pts-a.pts||b.cp-a.cp)}
+ const L=botsList(now).filter(e=>!e.me);return L.sort(WT.tab==='cp'?(a,b)=>b.cp-a.cp||b.lv-a.lv:(a,b)=>b.lv-a.lv||b.cp-a.cp)}
+function wtRow(e,k,val,sub){const md=k<3?` m${k+1}`:'';return`<div class="rkrow wvrow"><span class="rkn${md}">${k+1}</span><span class="rkav">${e.top?`<img class="px" src="${portrait(e.top)}">`:''}${e.online?'<i class="on"></i>':''}</span>
+ <span class="rknm"><b>${e.vip?`<i class="vip v${Math.min(7,e.vip)}">VIP${e.vip}</i>`:''}${esc(e.name)}${WT.mark&&e.h?` <em class="wvreal">${T('ASLI')}</em>`:''}</b><small>${sub!=null?sub:e.online?T('Online'):T('Aktif {t}',{t:agoMs(Date.now()-e.last)})}</small></span>
+ <span class="rkv">${val}</span></div>`}
+function wtVal(e){return WT.tab==='ar'?`<b>${lgIc(e.pts,14)} ${fmt(e.pts)}</b><small>CP ${fmt(e.cp)}</small>`:WT.tab==='cp'?`<b>${fmt(e.cp)}</b><small>Lv ${e.lv}</small>`:`<b>Lv ${e.lv}</b><small>CP ${fmt(e.cp)}</small>`}
+function watchBoardHTML(x){if(WT.loading||!botsWarmOk())return`<p class="wvload">${T('Menghitung papan peringkat {s}...',{s:'S'+x.id+' · '+esc(x.name)})}</p>`;
+ const L=watchBoard(),on=L.filter(e=>e.online).length;
+ return`<div class="rkinfo"><span><em class="rksrv">S${x.id} · ${esc(x.name)}</em> <b>${fmt(L.length)}</b> ${WT.tab==='ar'?T('peserta'):T('pemain')}</span><span><i class="on"></i><b>${fmt(on)}</b> ${T('online')}</span></div>
+ <div class="wvlist">${L.slice(0,WT.n).map((e,k)=>wtRow(e,k,wtVal(e))).join('')||`<p class="wvload">${T('Belum ada peserta.')}</p>`}</div>
+ ${L.length>WT.n?`<div class="mrow"><button class="btn blue" data-act="wtMore">${T('Tampilkan {n} berikutnya',{n:Math.min(100,L.length-WT.n)})}</button></div>`:''}`}
+
+/* ---------- raid Bos Dunia: yang sedang berlangsung & yang sudah selesai (2 hari terakhir) + berikutnya ---------- */
+function watchRaidSlots(x,now=Date.now()){const C=WB_CFG,d=wibDay(now),out=[];let next=null;
+ for(let dd=d-2;dd<=d+1;dd++)for(const h of C.slots){const t0=wbSlotT(dd,h);if(t0<C.from||wbEnd(t0)<x.opened)continue;if(t0<=now)out.push(t0);else if(next==null||t0<next)next=t0}
+ return{done:out.sort((a,b)=>b-a),next}}
+const wtWhen=t=>{const d=new Date(t),p=n=>String(n).padStart(2,'0'),days=[T('Min'),T('Sen'),T('Sel'),T('Rab'),T('Kam'),T('Jum'),T('Sab')];return`${days[d.getDay()]} ${p(d.getDate())}/${p(d.getMonth()+1)} ${p(d.getHours())}:${p(d.getMinutes())}`};
+const wtLeft=ms=>{const m=Math.max(1,Math.round(ms/6e4));return m>=60?T('{h} jam {m} menit',{h:Math.floor(m/60),m:m%60}):T('{n} menit',{n:m})};
+const wtMS=ms=>{const s=Math.max(0,Math.round(ms/1e3));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+function watchRaidListHTML(x){if(WT.loading||!botsWarmOk())return`<p class="wvload">${T('Memuat dunia {s}...',{s:'S'+x.id+' · '+esc(x.name)})}</p>`;
+ const now=Date.now(),R=watchRaidSlots(x,now);
+ const item=t0=>{const live=now<wbEnd(t0),b=wbBoss(t0),c=WT.rb&&WT.rb.t0===t0?WT.rb.b.st:null;
+  const st=live?`<i class="wvst live">● ${T('BERLANGSUNG')}</i>`:c?(c.killT!=null?`<i class="wvst ok">${T('TUMBANG {t}',{t:wtMS(c.killT-t0)})}</i>`:`<i class="wvst run">${T('KABUR')}</i>`):`<i class="wvst done">${T('SELESAI')}</i>`;
+  return`<button class="wvraid${WT.raid===t0?' on':''}" data-act="wtRaid" data-arg="${t0}"><b>${esc(T(b.n))}</b><small>${wtWhen(t0)}</small>${st}</button>`};
+ return`${R.next?`<div class="wvnext">⏰ ${T('Raid berikutnya')}: <b>${esc(T(wbBoss(R.next).n))}</b> · ${wtWhen(R.next)} (${T('{t} lagi',{t:wtLeft(R.next-now)})})</div>`:''}
+ <div class="wvraids">${R.done.map(item).join('')||`<p class="wvload">${T('Belum ada raid di server ini.')}</p>`}</div>
+ <div id="wtRaidBody">${watchRaidBodyHTML()}</div>`}
+function watchRaidBodyHTML(){if(WT.raid==null)return`<p class="wvload">${T('Pilih raid di atas untuk melihat papan damage.')}</p>`;
+ if(WT.rload||!WT.rb||WT.rb.t0!==WT.raid)return`<p class="wvload">${T('Menghitung papan raid...')}</p>`;
+ const {t0,b}=WT.rb,st=b.st,now=Date.now(),live=now<wbEnd(t0),boss=wbBoss(t0),pct=Math.round(st.p*1000)/10;
+ const head=st.killT!=null&&now>=st.killT?T('Tumbang dalam {t}',{t:wtMS(st.killT-t0)}):live?T('Sisa waktu {t}',{t:wtMS(wbEnd(t0)-now)}):T('Kabur — HP tersisa {p}%',{p:pct});
+ return`<div class="wvboss"><div><b>${esc(T(boss.n))}</b><small>${wtWhen(t0)} · ${fmt(b.L.length)} ${T('peserta')}</small></div><span>${head}</span></div>
+ <div class="wvhp"><i style="width:${Math.max(0,Math.min(100,st.p*100))}%"></i><em>${fmt(Math.round(st.left))} / ${fmt(st.hp)}</em></div>
+ <div class="wvlist">${b.L.slice(0,100).map((e,k)=>wtRow({name:e.name,h:e.uid,online:live&&!e.dn,top:e.bot!=null&&typeof botSum==='function'?botSum(e.bot).top:null},k,`<b>${fmt(e.dmg)}</b><small>CP ${fmt(e.cp)}</small>`,live?(e.dn?T('Bangkit {n} dtk',{n:e.dn}):T('Bertarung')):T('{p}% damage',{p:(Math.round(e.dmg/Math.max(1,st.hp)*1000)/10).toString().replace('.',',')}))).join('')||`<p class="wvload">${T('Belum ada peserta.')}</p>`}</div>`}
+async function watchRaidOpen(t0){t0=+t0;WT.raid=t0;WT.rload=true;const R=$('#wtRaidBody');if(R)R.innerHTML=watchRaidBodyHTML();document.querySelectorAll('.wvraid').forEach(e=>e.classList.toggle('on',+e.dataset.arg===t0));
+ await wbPull(t0,true);await sleep(30);if(WT.raid!==t0)return;
+ try{WT.rb={t0,b:wbBoard(t0,Date.now()),at:Date.now()}}catch(e){WT.rb=null;console.error(e)}WT.rload=false;watchRender()}
+
+/* ---------- ringkasan semua server ---------- */
+function watchAllHTML(){if(!WT.list.length)return`<p class="wvload">${WT.at?T('Belum ada server.'):T('Memuat daftar server...')}</p>`;
+ return`<div class="wvall">${WT.list.map(x=>{const s=wtSt(x),tp=WT.top[x.id];
+  return`<button class="wvcard s-${s}" data-act="wtSrv" data-arg="${x.id}"><div class="wvch"><b>S${x.id} · ${esc(x.name)}</b>${wtBadge(x)}</div>
+  ${s==='list'?`<small>${T('Baru terdaftar — belum dirilis.')}</small>`:s==='soon'?`<small>${T('Dibuka {t}',{t:wtWhen(x.opened)})} · ${T('pra-registrasi')}</small>`
+  :`<small>${fmt(x.n)}/${fmt(x.cap)} ${T('pemain')} · +${fmt(x.d24)} ${T('24 jam')} · ${T('hari ke-{n}',{n:wtDay(x)})}${x.merged?' · '+T('gabungan'):''}</small>
+   ${tp?`<div class="wvtop3">${tp.cp.map((e,k)=>`<span><i>#${k+1}</i>${esc(e.name)} <em>${fmt(e.cp)}</em></span>`).join('')}</div>`:`<small class="wvmut">${T('Ketuk untuk melihat papan peringkat')}</small>`}`}</button>`}).join('')}</div>`}
+
+function watchRender(){const el=document.getElementById('watch');if(!el||!el.classList.contains('on'))return;const x=WT.sv==='all'?null:wtSrv(WT.sv),sc=$('#wtMain'),top=sc?sc.scrollTop:0;
+ const s=x?wtSt(x):'';
+ el.innerHTML=`<header class="wvtop"><div><b>👁 ${T('Dashboard Penonton')}</b><small>${esc(NET.acct?NET.acct.u:'')} · ${T('hanya melihat')}</small></div>
+  <button class="wvbtn${WT.mark?' on':''}" data-act="wtMark" title="${T('Tandai pemain asli')}">👤 ${T('Asli')}</button><button class="wvbtn" data-act="wtOut">${T('Keluar')}</button></header>
+ <nav class="wvsrv"><button class="${WT.sv==='all'?'on':''}" data-act="wtSrv" data-arg="all">${T('Semua Server')}</button>${WT.list.map(y=>`<button class="${WT.sv===y.id?'on':''} s-${wtSt(y)}" data-act="wtSrv" data-arg="${y.id}">S${y.id}<small>${esc(y.name)}</small></button>`).join('')}</nav>
+ ${x&&s==='open'?`<nav class="wvtab">${WT_TABS.map(([k,l])=>`<button class="${WT.tab===k?'on':''}" data-act="wtTab" data-arg="${k}">${T(l)}</button>`).join('')}</nav>`:''}
+ <main id="wtMain">${!x?watchAllHTML():s!=='open'?`<div class="srvdeny"><div class="sdic">${s==='soon'?'⏰':'📋'}</div><h3>S${x.id} · ${esc(x.name)}</h3><p>${s==='soon'?T('Dibuka {t}. Papan peringkat muncul setelah server buka.',{t:'<b>'+wtWhen(x.opened)+'</b>'}):T('Server ini baru terdaftar dan belum dirilis.')}</p></div>`
+  :WT.tab==='wb'?watchRaidListHTML(x):watchBoardHTML(x)}</main>`;
+ const m=$('#wtMain');if(m&&top)m.scrollTop=top}
+
+// segarkan berkala: daftar server (ringkasan), papan (online/CP berubah), raid yang sedang berlangsung
+async function watchTick(){if(!document.getElementById('watch')||!watchMode())return watchClose();
+ if(document.hidden)return;
+ if(WT.sv==='all'){await watchSrvList();watchRender();return}
+ if(WT.loading)return;
+ if(WT.tab==='wb'){if(WT.raid!=null&&Date.now()<wbEnd(WT.raid)+6e4){await wbPull(WT.raid,true);try{WT.rb={t0:WT.raid,b:wbBoard(WT.raid,Date.now()),at:Date.now()}}catch(e){}watchRender()}return}
+ netPlayers();if(Date.now()-(NET.worldAt||0)>6e4)netWorld();watchTopSave(WT.sv);watchRender()}
+
+Object.assign(ACT,{
+ wtSrv:id=>{sfx('tab');watchPick(id==='all'?'all':+id)},
+ wtTab:k=>{sfx('tab');WT.tab=k;WT.n=100;watchRender()},
+ wtMore:()=>{WT.n+=100;watchRender()},
+ wtRaid:t0=>{sfx('tap');watchRaidOpen(+t0)},
+ wtMark:()=>{WT.mark=!WT.mark;sfx('tab');watchRender()},
+ wtOut:()=>confirmBox(T('Keluar dari akun penonton?'),()=>{watchClose();netLogout()},T('Keluar')),
+});
 
 /* ==== js/ui/story.js ==== */
 /* =====================================================================
@@ -10660,7 +10903,7 @@ function wbEndUI(win){const t0=B.wbT0,b=wbBoard(t0),me=b.me,st=b.st,bs=wbBoss(t0
 
 /* ---------- detak 1 detik: sinkron server, beranda, BGM, hadiah, obrolan ---------- */
 let WB_LAST_MODE=null,WB_EV={};
-function wbTick(){if(!S||!S.named)return;const now=Date.now();if(!wbOpen())return;const c=wbCur(now),mode=wbMode(now);
+function wbTick(){if(!S||!S.named||(typeof watchMode==='function'&&watchMode()))return;const now=Date.now();if(!wbOpen())return;const c=wbCur(now),mode=wbMode(now);
  if(c.st==='live'||c.st==='after'){const watching=(B&&B.st.wb)||(tab==='adv'&&advTab==='wb');
   if(watching||now-WB.sync>25000)wbPull(c.t0,watching);if(B&&B.st.wb){wbPush(c.t0);if(now%1000<1000)wbSideRender()}}
  // beranda: pil, latar & BGM

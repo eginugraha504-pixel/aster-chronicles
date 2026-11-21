@@ -129,7 +129,7 @@ function annMvpCheck(now){if(typeof wbCur!=='function'||!wbOpen())return;const c
  annPost([Object.assign({ty:'mvp',wk:k,dmg:Math.round(top.dmg),k:st.dead?1:0,b:wbBoss(c.t0).n},top.me?{}:{uid})])}
 
 /* ---------- jalankan (tiap 15 dtk; berhenti saat aplikasi di latar) ---------- */
-function annTick(){if(document.hidden||!S||!S.named||!BOTS.ready||!botsWarmOk())return;const now=Date.now();
+function annTick(){if(document.hidden||(typeof watchMode==='function'&&watchMode())||!S||!S.named||!BOTS.ready||!botsWarmOk())return;const now=Date.now();
  try{annScan()}catch(e){ANN.scan.busy=false}try{annReport()}catch(e){}
  if(now-ANN.chkAt>3e4){ANN.chkAt=now;const ar=now-ANN.arAt>6e4;if(ar)ANN.arAt=now;try{annTopCheck(now,ar)}catch(e){}}
  if(now-ANN.recAt>9e4){ANN.recAt=now;try{annRecCheck(now)}catch(e){}}

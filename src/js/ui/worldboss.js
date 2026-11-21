@@ -97,7 +97,7 @@ function wbEndUI(win){const t0=B.wbT0,b=wbBoard(t0),me=b.me,st=b.st,bs=wbBoss(t0
 
 /* ---------- detak 1 detik: sinkron server, beranda, BGM, hadiah, obrolan ---------- */
 let WB_LAST_MODE=null,WB_EV={};
-function wbTick(){if(!S||!S.named)return;const now=Date.now();if(!wbOpen())return;const c=wbCur(now),mode=wbMode(now);
+function wbTick(){if(!S||!S.named||(typeof watchMode==='function'&&watchMode()))return;const now=Date.now();if(!wbOpen())return;const c=wbCur(now),mode=wbMode(now);
  if(c.st==='live'||c.st==='after'){const watching=(B&&B.st.wb)||(tab==='adv'&&advTab==='wb');
   if(watching||now-WB.sync>25000)wbPull(c.t0,watching);if(B&&B.st.wb){wbPush(c.t0);if(now%1000<1000)wbSideRender()}}
  // beranda: pil, latar & BGM

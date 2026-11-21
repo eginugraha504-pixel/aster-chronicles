@@ -55,7 +55,7 @@ function rvEnd(why,now){const R=rvS(),i=R.i,C=RIVAL_CFG;if(i==null)return;
  else if(why==='gone')toast('⚔ '+T('Rivalmu {n} sudah lama tidak bermain.',{n:nm}));
  save();BOTS.onChange&&BOTS.onChange()}
 // ---- detak utama (tiap 20 detik) ----
-function rvTick(now=Date.now()){if(!S||!S.welcomed||!BOTS.warmAt||!BOTS.ready||!BOTS.W||!BOTS.W.length)return;const C=RIVAL_CFG,R=rvS();
+function rvTick(now=Date.now()){if(!S||(typeof watchMode==='function'&&watchMode())||!S.welcomed||!BOTS.warmAt||!BOTS.ready||!BOTS.W||!BOTS.W.length)return;const C=RIVAL_CFG,R=rvS();
  rvLog(now);
  if(R.gen!==botsSig()){if(R.i!=null)R.hist=[];R.i=null;R.gen=botsSig();R.boosts=[];R.chat=[];R.cool={};R.next=0}   // dunia bot di-reset / server digabung
  if(S.lv<C.minLv)return;if(!R.first){R.first=now;save();return}if(now-R.first<C.firstAfter)return;

@@ -19,7 +19,7 @@ const RIVAL_CFG={
  nextGap:[4,20],          // jam jeda sampai rival baru muncul
  // usaha ekstra saat kamu menyalipnya: tambahan progres (hari efektif) yang terwujud selama sesi main berikutnya.
  // F2P hanya bisa farming lebih lama; pembelanja ikut isi ulang stamina. Maksimal sekali per 20 jam per rival (server juga membatasi).
- boost:{tier:{f2p:.3,card:.38,dolphin:.5,whale:.62,swhale:.7,mwhale:.75},sk:{baru:.75,biasa:1,veteran:1.15},max:.8,gap:20*36e5,lead:5*6e4},
+ boost:{tier:{f2p:.3,low:.33,card:.38,mid:.44,dolphin:.5,whale:.62,swhale:.7,mwhale:.75},sk:{baru:.75,biasa:1,veteran:1.15},max:.8,gap:20*36e5,lead:5*6e4},
  chat:{new:.75,passed:.9,back:.8,giveup:.85,bored:.5},   // peluang momen itu dibahas di Obrolan Dunia (saat si rival online)
  chatTtl:12*36e5,         // momen yang belum sempat dibahas kedaluwarsa setelah 12 jam
  arena:true,              // rival menyerang Tim Bertahan Arena-mu sekali di sesi pertamanya tiap hari

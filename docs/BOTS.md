@@ -37,7 +37,7 @@ Rincian per fitur yang lebih lama ada di `docs/SISTEM.md`; dokumen ini merangkum
 
 ## 2b. Server (19 Nov 2026)
 
-- Seperti game pada umumnya: **4 server dibuka bersamaan** (S1 Aster, S2 Lumina, S3 Bara, S4 Samudra), server baru dibuka manual lewat Telegram `/server buka [nama]`. Tiap server maks **10.000 pemain** (bot + asli; sejak 21 Nov 2026, sebelumnya 2.000 — dunia lama tetap menyimpan cap-nya sendiri sampai /rilis); penuh → tidak bisa dipilih saat daftar.
+- Seperti game pada umumnya: **4 server dibuka bersamaan** (S1 Aster, S2 Lumina, S3 Bara, S4 Samudra), server baru dibuka manual lewat Telegram `/server buka [nama]`, atau didaftarkan dulu (`/server tambah`, BELUM RILIS) lalu dirilis sekarang/terjadwal (`/server rilis`). `/server hapus <id>` & `/server reset semua` (tanpa server) — lihat SISTEM.md §Server. Tiap server maks **10.000 pemain** (bot + asli; sejak 21 Nov 2026, sebelumnya 2.000 — dunia lama tetap menyimpan cap-nya sendiri sampai /rilis); penuh → tidak bisa dipilih saat daftar.
 - **Akun terikat ke satu server** (dipilih saat daftar; tamu memilih di kartu Tamu, disimpan `aster_srv`), tanpa pindah. Akun lama → S1.
 - Tabel `servers` (migrasi 0010): `worlds` = daftar dunia bot `[{g,e,cap}]`. Dunia pertama milik server itu; **gabung server** (hanya akun GM, Panel GM › Gabung Server, `/api/srv/merge`) menambahkan dunia server asal ke belakang server tujuan, memindahkan pemain asli & obrolannya, dan server asal hilang dari daftar.
 - Di game: `BOTS.W` = dunia-dunia server ini; **id bot j = slot × CAPX (10.000) + indeks lokal**. Server yang tidak pernah digabung: j = indeks lama. Seed bot memakai indeks lokal + gen dunianya (`bHash`), jadi bot hasil gabungan tetap orang yang sama (level, CP, gacha). Semua loop memakai `botsIds(now)`, cek keberadaan `botIn(j)`; data server (teman, pesan, pencarian) dipetakan lewat `botJ(bw, bot)`.
@@ -60,10 +60,11 @@ Setiap bot punya sifat tetap, diambil dari aliran acak masing-masing:
 - **Waktu bergabung** `botJoin(j)`: per dunia server (lihat §2b). Setelah hari pertama, jam bergabung ditekuk ke jam ramai WIB (`botJoinWarp` + `HOURS`).
 - **Profil login** (`profiles`): santai 40% / reguler 35% / rajin 20% / hardcore 5% → jumlah & panjang sesi per hari, laju `a`, `opt` (kerapian build).
 - **Pengalaman main** (`SKILL`, `pf.sk`): baru / biasa / veteran, condong ke veteran untuk profil rajin/hardcore. Lihat §5.
-- **Tier belanja** (`BOT_TIERS`): f2p, low, mid, dolphin, whale (1,4%), swhale (0,45%), mwhale (0,15%). Lihat §6.
+- **Tier belanja** (`BOT_TIERS`): f2p 54%, low 16%, card 13%, mid 10%, dolphin 5%, whale (1,4%), swhale (0,45%), mwhale (0,15%) — persen whaler diganti per server (`/whale`), sisanya dibagi dengan perbandingan tetap. Lihat §6.
 - **Emosi gacha awal** (`botEarlyMood`): 60 tarikan pertama menentukan hoki/sial → betah/cepat berhenti.
 - **Pengejar banner / penabung**, **hero favorit**, **churn** (kapan berhenti), **comeback** (kembali saat era baru), **ganti nama/bio**.
 - Kurva yang dipakai: `b.cv` = `profil_pengalaman_tier` bila ada (whale ke atas), selain itu `profil_pengalaman`; `b.cvS` = kurva F2P untuk jumlah tarikan gratis.
+- **Kurva campuran (21 Nov 2026, `botBlendCurves`)**: tier di antara F2P dan whale tidak disimulasikan sendiri; kurvanya dibuat saat muat = F2P + f × (whale − F2P) per kolom pada P yang sama, `SPEND.blend` = low 0,08 · card 0,15 · mid 0,32 · dolphin 0,55. Jadi tiap tier punya `profil_pengalaman_tier` sendiri.
 
 ## 4. Hidup: sesi, progres, keadaan
 
@@ -105,6 +106,14 @@ Terpisah dari profil (seberapa sering login) dan tier (seberapa banyak belanja).
 
 ## 6. Belanja (tier)
 
+- **Spender bertingkat (21 Nov 2026)** — supaya papan peringkat bergradasi, tidak ada jurang whale ↔ F2P:
+  - **low** (16%): kadang kartu bulanan (12%), Paket Pemula hampir pasti, sesekali mingguan hemat/penawaran Lv; paket harian kecil.
+  - **card** (13%): Kartu Bulanan rutin + sedikit paket.
+  - **mid** (10%): Paket Pemula + Petualang, kadang Sultan (10%), Dana Pertumbuhan 50%, mingguan, penawaran Lv 30%.
+  - **dolphin** (5%): hampir semua paket sekali beli, Sultan 45%, mingguan Kebangkitan 35%, bulanan 15%.
+  - `ASC.tier` (pengali anggaran Kebangkitan): low 1,05 · mid 1,25 · dolphin 1,4 · whale ke atas lebih tinggi.
+  - **`ASC.ramp` 1,2 hari main**: bahan Kebangkitan dari paket dipakai bertahap (20% langsung, sisanya merata selama 1,2 hari main sejak beli) → CP naik mulus, tidak melompat 15rb → 80rb dalam sejam.
+  - Hasil `gap.py` (whale 2%), hari ke-14: #1 1,08jt · #100 558rb · #200 248rb · #500 162rb · #1000 111rb · #2000 49rb · #5000 20rb. Hari ke-3: #1 395rb · #100 100rb · #300 28rb · #1000 17rb.
 - **Paket (21 Nov 2026)**: bot pembelanja ikut membeli paket (`SPEND.bun`, peluang per tier; sultan = semua paket): sekali beli & penawaran naik level saat levelnya tercapai (dicek `botLv`), Dana Pertumbuhan (permata cair per level), mingguan/bulanan tiap periode. Isi paket: permata + tiket → tarikan, bahan Kebangkitan (asc1 + asc2×3 + asc3×30) → anggaran Kebangkitan tambahan `bx` (boleh sebelum menembus 5-5 = P2W), Paket Sultan → hero ★3 standar yang belum dimiliki. Penjualan paket dilaporkan ke bank (katalog server dari `BOTCFG.SHOP`).
 - **Gaya sultan** (`SPEND.WSTYLE`, dolphin ke atas, aliran `bHash(i,61)`): kolektor (24%: bahan Kebangkitan sebagian ke hero cadangan, koleksi lengkap), setia (20%: hero kesayangan `b.love` selalu di tim & dibangkitkan dulu, avatar), meta (22%: tim terkuat), banner (20%: borongan banner ×2,2, harian ×0,45), gajian (14%: belanja ×4 di tanggal gajian) + dompet acak ×0,65–1,6. Lencana Ksatria dari dupe berlebih ditukar hero ★3 standar yang belum dimiliki (semua bot). Avatar beragam: sultan sesuai gaya, pemain lain campur favorit / hero kesayangan (selera `b.love`) / ★3 pertama / hero terkuat.
 - **Persen whaler per server (21 Nov 2026)**: pemilik mengatur lewat Telegram `/whale` (kartu + tombol per server), `/whale <id> <persen>` atau `/whale semua <persen>` (juga persen untuk server baru, kv `whale`). Whaler = whale + super whale + mega whale (perbandingan 1,4 : 0,45 : 0,15 tetap), sisanya f2p : kartu : dolphin = 75 : 17 : 6. Bawaan 2%.
