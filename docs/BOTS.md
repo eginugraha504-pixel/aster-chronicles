@@ -1,4 +1,4 @@
-# Pemain Bot — Buku Pegangan (per 19 Nov 2026)
+# Pemain Bot — Buku Pegangan (per 21 Nov 2026)
 
 Dokumen induk semua perilaku bot di Aster Chronicles. Baca ini dulu sebelum mengubah bot. Tujuan desainnya: **pemain asli tidak bisa membedakan dunia bot dari server yang benar-benar ramai**. Setiap fitur bot harus (1) masuk akal dilihat dari luar, (2) sama untuk semua penonton, (3) murah dihitung di HP.
 
@@ -37,17 +37,17 @@ Rincian per fitur yang lebih lama ada di `docs/SISTEM.md`; dokumen ini merangkum
 
 ## 2b. Server (19 Nov 2026)
 
-- Seperti game pada umumnya: **4 server dibuka bersamaan** (S1 Aster, S2 Lumina, S3 Bara, S4 Samudra), server baru dibuka manual lewat Telegram `/server buka [nama]`. Tiap server maks **2.000 pemain** (bot + asli); penuh → tidak bisa dipilih saat daftar.
+- Seperti game pada umumnya: **4 server dibuka bersamaan** (S1 Aster, S2 Lumina, S3 Bara, S4 Samudra), server baru dibuka manual lewat Telegram `/server buka [nama]`. Tiap server maks **10.000 pemain** (bot + asli; sejak 21 Nov 2026, sebelumnya 2.000 — dunia lama tetap menyimpan cap-nya sendiri sampai /rilis); penuh → tidak bisa dipilih saat daftar.
 - **Akun terikat ke satu server** (dipilih saat daftar; tamu memilih di kartu Tamu, disimpan `aster_srv`), tanpa pindah. Akun lama → S1.
 - Tabel `servers` (migrasi 0010): `worlds` = daftar dunia bot `[{g,e,cap}]`. Dunia pertama milik server itu; **gabung server** (hanya akun GM, Panel GM › Gabung Server, `/api/srv/merge`) menambahkan dunia server asal ke belakang server tujuan, memindahkan pemain asli & obrolannya, dan server asal hilang dari daftar.
-- Di game: `BOTS.W` = dunia-dunia server ini; **id bot j = slot × 2.000 + indeks lokal**. Server yang tidak pernah digabung: j = indeks lama. Seed bot memakai indeks lokal + gen dunianya (`bHash`), jadi bot hasil gabungan tetap orang yang sama (level, CP, gacha). Semua loop memakai `botsIds(now)`, cek keberadaan `botIn(j)`; data server (teman, pesan, pencarian) dipetakan lewat `botJ(bw, bot)`.
+- Di game: `BOTS.W` = dunia-dunia server ini; **id bot j = slot × CAPX (10.000) + indeks lokal**. Server yang tidak pernah digabung: j = indeks lama. Seed bot memakai indeks lokal + gen dunianya (`bHash`), jadi bot hasil gabungan tetap orang yang sama (level, CP, gacha). Semua loop memakai `botsIds(now)`, cek keberadaan `botIn(j)`; data server (teman, pesan, pencarian) dipetakan lewat `botJ(bw, bot)`.
 - **Kurva bergabung per dunia** (`BOT_CFG.SRV`). Dua versi, dipilih oleh `w.v` di data dunia:
-  - **v1 (dunia lama)**: N(T) = 2.000 × (0,45·(1−e^(−T/1,5)) + 0,55·(1−e^(−E/25))) — ±490 hari 1, ±1.200 hari 7, ±1.750 hari 30. Semua server yang dibuka bersamaan tumbuh persis sama.
-  - **v2 — hype & pertumbuhan alami (21 Nov 2026)**, dipakai semua dunia baru (rilis serentak, `/server buka`, `/resetbot`). Dunia menyimpan `{g,e,cap,v:2,h,o}`: h = tingkat hype 1–10 saat dibuat, o = urutan server dalam satu rilis.
+  - **v1 (dunia lama)**: N(T) = cap × (0,45·(1−e^(−T/1,5)) + 0,55·(1−e^(−E/25))) — untuk cap 2.000: ±490 hari 1, ±1.200 hari 7, ±1.750 hari 30. Semua server yang dibuka bersamaan tumbuh persis sama.
+  - **v2 — hype & pertumbuhan alami (21 Nov 2026)**, dipakai semua dunia baru (rilis serentak, `/server buka`, `/resetbot`). Dunia menyimpan `{g,e,cap,v:2,h,o,wh}`: h = tingkat hype 1–10 saat dibuat, o = urutan server dalam satu rilis, wh = riwayat persen whaler (lihat §6).
     N(T) = cap × [R·(1−e^(−T/tr)) + W·(1−e^(−E/tw)) + G·(1−e^(−E/tg))], G = 1−R−W.
     R = **serbuan rilis** (langsung main dalam hitungan jam; hype 1 ≈ 3% … hype 10 ≈ 76%), W = gelombang minggu pertama, G = pertumbuhan alami sampai penuh (`SRV.HYPE`).
     E = hari efektif bergelombang = Σ laju harian; laju = **popularitas server** (`POP` 0,8–1,22, server urutan awal sedikit lebih ramai `ORD`) × **naik-turun acak yang mulus** (AR(1) `AR`/`SD`) × **akhir pekan** (`WKD`, Minggu & Sabtu lebih ramai) × **lonjakan viral acak** (`BURST`, lebih sering saat hype tinggi, meluruh ±1,6 hari) × perlambatan ×0,45 tiap server lebih baru dibuka. Semua acak dari gen dunia (`wRng`) → sama persis di game & server, tapi tiap server punya irama sendiri.
-    Perkiraan rata-rata per server: hype 1 ±110 hari 1 / ±445 hari 7; hype 5 ±580 / ±1.250; hype 7 ±980 / ±1.480; hype 10 ±1.600 / ±1.850 (±1.280 dalam 6 jam pertama). Contoh hype 6, pemain baru per hari di 4 server: 938·149·79·64… / 986·324·73·48… / 721·133·149·112·107·188… / 670·169·91·…·150 (lonjakan hari 8).
+    Perkiraan rata-rata per server (angka untuk cap 2.000; cap 10.000 → ×5): hype 1 ±110 hari 1 / ±445 hari 7; hype 5 ±580 / ±1.250; hype 7 ±980 / ±1.480; hype 10 ±1.600 / ±1.850 (±1.280 dalam 6 jam pertama). Contoh hype 6, pemain baru per hari di 4 server: 938·149·79·64… / 986·324·73·48… / 721·133·149·112·107·188… / 670·169·91·…·150 (lonjakan hari 8).
   - Server & game memakai rumus yang sama (`wRng`, `wDyn`, `wE2`, `wJoinN`, `botJoinDaysW`; ekspor uji `__curve` di game.js). Setelah hari pertama, jam bergabung tetap ditekuk ke jam ramai WIB.
 - **Hype & rilis (Telegram)**: `/hype [1-10]` mengatur tingkat hype (kv `hype`, bawaan 5) untuk dunia berikutnya, lengkap dengan perkiraan jam 1 / 6 jam / hari 1 / 7 / 30. `/rilis` = **rilis serentak**: pilih jumlah server (server ditambah bila kurang) dan waktu (sekarang, 19:00/20:00/21:00, atau `/rilis 6 20:30`) → semua dunia bot dihapus, semua server aktif dibuka ulang bersamaan dengan epoch = waktu rilis (`releaseAll`). Terjadwal = server tampil sebagai pra-registrasi ("Buka 20:00" di layar pilih server), bot mulai berdatangan tepat saat jam buka. Pemain asli tetap. `/server` menampilkan hype tiap server, pertambahan sejam & 24 jam terakhir, atau hitung mundur rilis.
 - **Per server**: obrolan dunia (`wchat.srv`, kunci AI `ai_scene_at:<srv>` dst.), Bos Dunia (slot `"<srv>:<tgl>T<jam>"`), peringkat pemain asli (`/api/players?srv=`), pencarian, rival, Arena. Reset bot per server (`/resetbot <id>`); `/server` = daftar + tombol reset.
@@ -74,7 +74,13 @@ Setiap bot punya sifat tetap, diambil dari aliran acak masing-masing:
   - Jatah satu **hari progres** (05:00–05:00 WIB) dibagi ke sesi-sesi online hari itu (`botPlay`). Offline = diam; online = naik.
   - `botProgInv`: kebalikan, selalu jatuh di dalam sesi (tarikan gacha terjadi saat bot online).
 - **Usaha rival** `botBoost(i,t)` ditambahkan: `Pe = P + boost` (lihat §8). Gacha memakai `P` (usaha tidak menambah tarikan).
-- **Keadaan** `botState(i,t)` (mahal, ±0,5–5 ms): gacha tersimulasi per era (`botGacha`), level akun (`botLv` dari kurva + ekor XP), level hero (dibatasi emas di awal), senjata (kurva lv & LB × `opt`), perlengkapan, Kebangkitan (`botAscend`, anggaran × tier × pengalaman), tim (seberapa rapi = `opt`), CP, tahap cerita, statistik (jam main, hari login, hoki), riwayat ★3, VIP.
+- **Keadaan** `botState(i,t)` (±0,4 ms): gacha tersimulasi per era (`botGacha`, mencatat kapan tiap hero/senjata didapat & tiap dupe), level akun (`botLv` dari kurva + ekor XP), lalu `botFit`: level hero, tim, senjata, perlengkapan, Kebangkitan; CP, tahap cerita, statistik (jam main, hari login, hoki), riwayat ★3, VIP.
+- **CP tumbuh terus & hampir tidak pernah turun (21 Nov 2026)** — dulu level hero = pecahan acak tetap dari batasnya (langsung mentok sejak hari 1), acak satu aliran berurutan (hero baru mengacak ulang semuanya), dan anggaran Kebangkitan dihitung dari CP saat itu (CP turun sedikit → kebangkitan hilang → CP anjlok). Sekarang:
+  - **Level hero naik bertahap sejak hero itu didapat**: f = f1 − (f1 − f0)·e^(−hari main sejak didapat / τ) × batas level (`HLV` per kelangkaan, pemain rapi lebih cepat & lebih penuh), tetap dibatasi emas (2 + 3×level akun) & level akun di awal.
+  - **Acak stabil per hero/slot** (`bHash` + id hero), bukan satu aliran → hero baru tidak menggeser keputusan lama (senjata yang "lupa" dipasang, perlengkapan, hero favorit).
+  - **Tim dipilih dulu, barang menyusul**: kekuatan "kalau dipakai" (hero + senjata terbaik kelasnya, dibagi berurutan dari hero terkuat + bintang Kebangkitan yang terjangkau + sinergi) → 3 calon tim teratas dicoba dengan barang sungguhan, diambil CP tertinggi. Senjata & perlengkapan terbaik untuk anggota tim lebih dulu; perlengkapan per posisi tim pindah ke hero pengganti.
+  - **Kebangkitan mulai saat CP tim (sebelum kebangkitan) pertama kali ≥ `ASC.minCP` 26.000 (≈ tamat 5-5)**. Titik mulai itu dicari mundur sekali per bot dari hasil gacha sekarang (isi akun masa lalu = awalan urutan tarikan, `botCp0At` + `botAscStart`), disimpan di memori & localStorage `aster_botpu`. Bahan = (hari main − titik mulai) × `perDay` × tier × pengalaman × opt → tidak pernah berkurang, dan tidak macet di dinding 5-5 seperti rumus lama. Urutan belanja tetap: semua ★4 (hero → senjata → perlengkapan), lalu ★5, ★6; hero tim diurut bintang lalu lama dimiliki.
+  - Hasil uji (dunia 2.000 cap, 117 bot × 45 hari, per jam): 5.494 kali naik vs 57 kali turun >0,5% (umumnya 1–5% saat ganti anggota tim). Papan atas tidak lagi diam berhari-hari: #1 22,7rb (hari 1,25) → 53rb (hari 3, mulai bangkit) → 182rb (hari 6); #10 16,1rb → 22,7rb; median aktif 8,6rb → 13,9rb. Selisih tahap (dari CP) terhadap kurva simulasi pemain asli: median 0 sampai +1 untuk hampir semua kelompok (dulu −1 s/d −4 di hari 21–30).
 - **Tahap cerita**: dari kolom 6 kurva (veteran skip cerita → cepat), dibatasi CP (`rec ≤ CP×1,12`); setelah kurva habis (hari 30) mengikuti CP.
 - **Admin** bisa menimpa lv/cp/vip/sembunyikan lewat Telegram (`ov`).
 
@@ -98,6 +104,8 @@ Terpisah dari profil (seberapa sering login) dan tier (seberapa banyak belanja).
 
 ## 6. Belanja (tier)
 
+- **Persen whaler per server (21 Nov 2026)**: pemilik mengatur lewat Telegram `/whale` (kartu + tombol per server), `/whale <id> <persen>` atau `/whale semua <persen>` (juga persen untuk server baru, kv `whale`). Whaler = whale + super whale + mega whale (perbandingan 1,4 : 0,45 : 0,15 tetap), sisanya f2p : kartu : dolphin = 75 : 17 : 6. Bawaan 2%.
+  Disimpan di dunia sebagai riwayat `wh = [[waktu, persen], ...]`; game memilih tier saat bot **bergabung** (`botTierW(bW(i), join)`), jadi bot lama tidak berubah (riwayat belanja, laporan bank & CP-nya tetap) — server yang belum buka: berlaku sejak buka. `/rilis` & reset bot membawa persen server masing-masing; kartu `/whale` menampilkan perkiraan persen whaler di antara pemain yang sudah bergabung. Riwayat ikut tanda tangan dunia (`wSigOf`) → cache bot dibuang saat diubah.
 - `BOT_CFG.SPEND` + `BOT_TIERS`: Kartu Bulanan, paket harian acak (×2,2 di tanggal gajian), borong saat banner baru, battle pass. Permata berbayar → tarikan tambahan (`botPaidPulls`). Total belanja → VIP 1–7.
 - **Whale / super whale / mega whale membakar permata**: kurva mereka berasal dari simulasi dengan top up harian ±3rb/7rb/15rb permata, **isi ulang stamina 3/5/5× sehari, reset dungeon 2/5/5× per jenis**. Porsi permata yang terbakar (`burn` .33/.55/.28) tidak dihitung sebagai tarikan.
 - Super & mega whale: selalu rajin/hardcore, tidak pernah berhenti, selalu kejar rate-up; pengalaman veteran (swhale kadang biasa).
@@ -143,9 +151,9 @@ Selalu ada satu bot yang menjadikanmu sasaran. "Abadi" = posisinya, bukan orangn
 
 ## 9. Performa & skala
 
-- `botSum(i,t,sync)`: ringkasan (cp, lv, vip, top, stage). Bot berhenti main → disimpan di localStorage `aster_botsum` (maks ±900rb karakter, dibuang dulu bila kuota penuh — save pemain selalu menang, `lsPut`). Bot aktif → `BSUMA` per kunci `botKey` (progres per 15 menit efektif + level).
+- `botSum(i,t,sync)`: ringkasan (cp, lv, vip, top, stage). Bot berhenti main → disimpan di localStorage `aster_botsum` (maks ±900rb karakter, dibuang dulu bila kuota penuh — save pemain selalu menang, `lsPut`). Bot aktif → `BSUMA` per kunci `botKey` (progres per 15 menit efektif + level), **ikut disimpan bersama kuncinya** (21 Nov 2026) → buka game lagi hanya menghitung bot yang sudah main sejak terakhir (server 10rb hari 30: ±0,5 dtk, bukan ±5 dtk). Titik mulai Kebangkitan per bot: `aster_botpu`.
 - **Realtime**: ringkasan basi dipakai sebentar, bot dimasukkan antrean `BSQ`, `botsFresh` menghitung ulang di latar tiap 8 dtk (potongan 8 ms) lalu peringkat/profil yang terbuka diperbarui (refresh 5 dtk, memo daftar 6 dtk).
-- `botsWarm`: semua bot dihitung bertahap tiap 2 menit. 30 hari (9,4rb bot) ±5 dtk; setahun (53rb bot) ±25 dtk di latar.
+- `botsWarm`: semua bot dihitung bertahap tiap 2 menit (yang kuncinya sama tidak dihitung ulang). Pertama kali di perangkat: server 10rb hari 3 (5,2rb bot) ±2,5 dtk, hari 30 (9,4rb bot) ±9,5 dtk di latar (`botState` ±0,8 ms, ±40% di gacha).
 - Cache: `botState` LRU 15rb, sesi 60rb, hari progres 80rb, belanja 20rb. Semua dibersihkan saat dunia di-reset (`botsApplyWorld`).
 
 ## 10. Simulator & kurva (`tools/botsim`)
@@ -159,6 +167,7 @@ Selalu ada satu bot yang menjadikanmu sasaran. "Abadi" = posisinya, bukan orangn
 
 | Saat | Yang terlihat |
 |---|---|
+| _(tabel ini dunia uji lama 100rb bot, sebelum perbaikan CP 21 Nov 2026 — angka papan atas sekarang lihat §4 "CP tumbuh terus")_ | |
 | Hari ke-1 | ±800 bot. Veteran F2P Lv20–26 sudah 5 besar; pemula santai Lv2–5 |
 | Hari ke-7 | ±4.100 bot. Mega whale veteran ±Lv110 / CP ±63rb; F2P veteran terbaik ±25rb |
 | Hari ke-30 | ±9.400 bot. Mega whale teratas ±630rb CP; rata-rata hardcore veteran ±59rb vs hardcore pemula ±22rb |

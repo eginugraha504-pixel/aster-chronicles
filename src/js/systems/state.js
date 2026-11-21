@@ -39,7 +39,7 @@ function migrate(){
  if(!S.team.some(Boolean))S.team=defState().team;
  if(!S.mail||typeof S.mail!=='object')S.mail={};if(!S.shop)S.shop={date:'',bought:{}};if(!S.ev||typeof S.ev!=='object')S.ev={};S.tixH=S.tixH||0;S.tixW=S.tixW||0;S.loginDays=Math.max(1,S.loginDays||0);
  if(S.banner>=BANNERS.length)S.banner=0;if(S.world>=WORLDS.length)S.world=0}
-function lsPut(k,v){try{localStorage.setItem(k,v);return true}catch(e){try{localStorage.removeItem('aster_botsum');localStorage.setItem(k,v);return true}catch(e2){return false}}}
+function lsPut(k,v){try{localStorage.setItem(k,v);return true}catch(e){try{localStorage.removeItem('aster_botsum');localStorage.removeItem('aster_botpu');localStorage.setItem(k,v);return true}catch(e2){return false}}}
 function save(){lsPut(SAVE_KEY,JSON.stringify(S));if(typeof netMarkDirty==='function')netMarkDirty()}
 function checkDaily(){const d=today();if(S.daily.date!==d){S.daily={date:d,c:{summon:0,clear:0,lvup:0,boss:0,dg:0},claimed:{}};S.loginDays=(S.loginDays||0)+1}}
 function regen(){const now=Date.now();if(S.stam>=stamMax()){S.stamTs=now;return}const n=Math.floor((now-S.stamTs)/STAM_MS);if(n>0){S.stam=Math.min(stamMax(),S.stam+n);S.stamTs+=n*STAM_MS;if(S.stam>=stamMax())S.stamTs=now}}

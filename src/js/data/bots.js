@@ -19,7 +19,8 @@ const BOT_CFG={
  // SERVER: tiap server punya dunia bot sendiri, maks cap pemain. Kurva bergabung per dunia (T = hari sejak server buka):
  //   N(T) = cap × (w1·(1−e^(−T/t1)) + w2·(1−e^(−E/t2)))  — gelombang pembukaan + pertumbuhan ekor
  //   E = hari efektif ekor: tiap server yang lebih baru dibuka, laju ekor dunia ini × slow (pemain baru pindah ke server baru)
- //   Hasil (tanpa server baru): ±490 hari 1, ±1.200 hari 7, ±1.750 hari 30, penuh ±3 bulan. CAPX = ruang indeks per dunia (gabungan server).
+ //   Hasil (tanpa server baru): ±25% cap di hari 1, ±60% hari 7, ±88% hari 30, penuh ±3 bulan. CAPX = ruang indeks per dunia (gabungan server), ≥ cap.
+ //   cap 10.000 sejak 21 Nov 2026 (dunia lama menyimpan cap-nya sendiri, 2.000, sampai /rilis).
  //   (Rumus di atas = dunia lama, v1. Dunia baru memakai v2 di bawah.)
  // v2 — HYPE & pertumbuhan alami per server. Dipakai semua dunia baru: rilis serentak (/rilis), server baru, reset bot.
  //   h = tingkat hype 1..10 saat dunia dibuat (diatur pemilik lewat Telegram /hype).
@@ -29,7 +30,7 @@ const BOT_CFG={
  //     E  = hari efektif bergelombang = Σ laju harian; laju = popularitas server (POP, sedikit lebih ramai untuk server urutan awal: ORD)
  //          × naik-turun acak yang mulus (AR/SD) × akhir pekan (WKD, Minggu..Sabtu) × lonjakan viral acak (BURST) × perlambatan saat server lebih baru dibuka (slow)
  //   Semua acak berasal dari gen dunia → sama persis di game & server, tiap server punya kurva sendiri.
- SRV:{cap:2000,CAPX:2000,w1:.45,t1:1.5,w2:.55,t2:25,slow:.45,
+ SRV:{cap:10000,CAPX:10000,w1:.45,t1:1.5,w2:.55,t2:25,slow:.45,
   HYPE:[null,
    {n:'Sepi',     R:.03,tr:1,  W:.07,tw:5,  tg:45},
    {n:'Pelan',    R:.06,tr:.8, W:.10,tw:4.5,tg:40},
@@ -117,6 +118,7 @@ const BOT_CFG={
  // w = bobot %; card = peluang beli Kartu Bulanan; renew = peluang perpanjang; rate = peluang beli paket per hari main;
  // packs = paket acak [id,bobot]; banner = jumlah paket saat banner baru [min,maks]; bp = paket saat banner baru
  SPEND:{
+  whales:['whale','swhale','mwhale'],   // "whaler" untuk persen per server (Telegram /whale); bawaan = jumlah bobot ketiganya (2%)
   tiers:[
    {id:'f2p',    w:75},
    {id:'card',   w:17,card:1,  renew:.8, rate:.035,first:[.02,1.2],packs:[['g1',6],['g2',3]],                    banner:[0,1],bp:[['g1',3],['g2',2]]},
@@ -145,10 +147,14 @@ const BOT_CFG={
   loyal:.5,                        // tetap setia pada hero favorit pertama (sisanya pindah ke ★3 terbatas terbaru)
   rename:{p:.12,days:[2,14],pool:600}}, // peluang ganti nama sekali, kapan (hari), ukuran kolam nama baru (dibuat Claude)
  GEAR_FROM_DAY:2,             // mulai punya Pelindung/Aksesori
- BENCH_LV:[.35,.7],           // level hero cadangan relatif terhadap cap
- // Kebangkitan bot (★4–★6): mulai setelah CP tim kira-kira menembus 5-5 (minCP). Anggaran bahan per hari main
+ BENCH_LV:[.35,.7],           // (lama) level hero cadangan relatif terhadap cap
+ // level hero per kelangkaan (★1..★3): f = f1 − (f1 − f0)·e^(−hari sejak hero didapat / tau), dikali batas level hero.
+ //   f0/f1 = [dasar, + × opt], tau = [dasar, + × (1−opt)] hari main efektif. Naik bertahap tiap sesi, tidak pernah turun.
+ HLV:[null,{f0:[.3,.35],f1:[.7,.2],tau:[2.4,6]},{f0:[.35,.4],f1:[.82,.14],tau:[1.4,4.5]},{f0:[.4,.45],f1:[.92,.08],tau:[.6,3]}],
+ // Kebangkitan bot (★4–★6): bahan mulai terkumpul sejak CP tim (sebelum kebangkitan) pertama kali ≥ minCP (≈ 5-5 tamat: rek 29.000 / 1,12).
+ // Titik mulai itu dicari sekali per bot & disimpan (systems/bots.js botAscStart). Anggaran bahan per hari main
  // dalam 'setara Kristal' (asc2 ≈ 3, asc3 ≈ 30 kristal), dikali tier belanja & ketelitian main. Urutan: semua ★4 dulu (hero → senjata → perlengkapan), lalu ★5, lalu ★6.
- ASC:{minCP:27000,perDay:28,tier:{f2p:1,card:1.15,dolphin:1.3,whale:1.6,swhale:2.4,mwhale:3.6},
+ ASC:{minCP:26000,perDay:28,tier:{f2p:1,card:1.15,dolphin:1.3,whale:1.6,swhale:2.4,mwhale:3.6},
   cost:{h:{4:60,5:220,6:1200},w:{4:40,5:155,6:810},g:{4:30,5:114,6:570}}},
  // nama: dibuat Claude (integrasi sample) lalu disimpan bersama di db; hanya huruf & angka
  // bio/status profil: dibuat Claude, bertag supaya cocok dengan keadaan bot

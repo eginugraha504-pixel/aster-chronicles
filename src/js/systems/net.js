@@ -81,11 +81,11 @@ function netApplyWorld(d,full){if(!d||!d.ok||!Array.isArray(d.worlds)||!d.worlds
  const W=[];d.worlds.forEach((w,s)=>{const L=w.bots||[];for(let k=0;k<L.length;k++){BOTS.uids[s*X+w.from+k]=L[k][0];BOTS.srvNames[s*X+w.from+k]=L[k][1]}
   for(const k in BOTS.ov)if(Math.floor(+k/X)===s)delete BOTS.ov[k];for(const k in(w.ov||{}))BOTS.ov[s*X+(+k)]=w.ov[k];
   for(const k in(w.rv||{}))BOTS.rvAll[s*X+(+k)]=w.rv[k];
-  let nn=0;while(nn<w.cap&&BOTS.srvNames[s*X+nn]!=null)nn++;W.push({g:w.g,e:w.e,cap:w.cap,newer:w.newer||[],nn,v:w.v,h:w.h,o:w.o})});
+  let nn=0;while(nn<w.cap&&BOTS.srvNames[s*X+nn]!=null)nn++;W.push({g:w.g,e:w.e,cap:w.cap,newer:w.newer||[],nn,v:w.v,h:w.h,o:w.o,wh:w.wh})});
  if(NET.wsig!=null&&NET.wsig!==sig&&typeof WC!=='undefined'){WC.list=[];WC.since=0;WC.seen=0;try{localStorage.removeItem('aster_wcseen')}catch(e){}}  // dunia berubah: obrolan dimuat ulang
  BOTS.uidIdx=null;BOTS.cache={};botsSetWorlds(W);if(typeof rvApply==='function')rvApply(Object.assign({},BOTS.rvAll));
  BOTS.names=BOTS.srvNames.slice();BOTS.nameSet=null;BOTS.ready=true;NET.worldOk=true;NET.wsig=sig;NET.worldSrv=d.srv;NET.srvName=d.name;NET.gen=BOTS.gen;
- try{localStorage.setItem(WORLD_KEY,JSON.stringify({ok:true,srv:d.srv,name:d.name,worlds:d.worlds.map((w,s)=>({g:w.g,e:w.e,cap:w.cap,newer:w.newer,v:w.v,h:w.h,o:w.o,from:0,
+ try{localStorage.setItem(WORLD_KEY,JSON.stringify({ok:true,srv:d.srv,name:d.name,worlds:d.worlds.map((w,s)=>({g:w.g,e:w.e,cap:w.cap,newer:w.newer,v:w.v,h:w.h,o:w.o,wh:w.wh,from:0,
   bots:Array.from({length:W[s].nn},(_,k)=>[BOTS.uids[s*X+k],BOTS.srvNames[s*X+k]]),ov:Object.fromEntries(Object.entries(BOTS.ov).filter(([k])=>Math.floor(+k/X)===s).map(([k,v])=>[+k-s*X,v])),rv:{}}))}))}catch(e){}
  BOTS.onChange&&BOTS.onChange()}
 function netWorldCache(){try{const c=JSON.parse(localStorage.getItem(WORLD_KEY)||'null');if(c&&c.worlds&&c.srv===netSrv())netApplyWorld(c,true)}catch(e){}}

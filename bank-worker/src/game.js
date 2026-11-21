@@ -83,15 +83,25 @@ const SRV_NAMES = ['Aster', 'Lumina', 'Bara', 'Samudra', 'Rimba', 'Fajar', 'Senj
    Tingkat hype 1..10 (kv 'hype', bawaan 5) diatur pemilik lewat Telegram /hype. Dipakai saat dunia bot baru dibuat
    (rilis serentak, server baru, reset bot): makin hype makin banyak pemain yang langsung main saat server dibuka. */
 const hypeGet = async env => Math.min(10, Math.max(1, Math.round(+(await kvGet(env, 'hype')) || 5)));
-const newWorld = (g, e, h, o) => { const w = { g, e, cap: BOTCFG.SRV.cap, v: 2, h }; if (o != null) w.o = o; return w };
+const newWorld = (g, e, h, o, wp) => { const w = { g, e, cap: BOTCFG.SRV.cap, v: 2, h }; if (o != null) w.o = o; if (wp != null) w.wh = [[e, wp]]; return w };
+/* ---------------- whaler per server ----------------
+   Persen whaler (whale + super whale + mega whale) tiap server diatur pemilik lewat Telegram /whale. Disimpan di dunia bot sebagai
+   riwayat wh = [[waktu, persen], ...]: hanya bot yang BERGABUNG setelah waktu itu yang terpengaruh — bot lama tetap (riwayat belanja & CP-nya).
+   Game memilih tier belanja bot dari persen saat bot itu bergabung (src/js/systems/bots.js botTierW).
+   kv 'whale' = persen untuk dunia baru (/whale semua). Bawaan BOTCFG.WHALE.def (2%). /rilis & reset bot membawa persen server masing-masing. */
+const WH_DEF = BOTCFG.WHALE.def;
+const whaleGet = async env => { const v = parseFloat(await kvGet(env, 'whale')); return Number.isFinite(v) ? Math.min(100, Math.max(0, v)) : WH_DEF };
+const whNow = w => { const H = w && w.wh; return H && H.length ? +H[H.length - 1][1] : WH_DEF };   // persen untuk pendatang berikutnya
+const srvWhale = s => whNow(s.W[0]);
+const pctS = v => String(Math.round(v * 100) / 100).replace('.', ',') + '%';
 async function serversAll(env) {
   let rows = (await env.DB.prepare('SELECT * FROM servers ORDER BY id').all()).results;
   if (!rows.length) {   // pertama kali: 4 server dibuka bersamaan (hari 1). Dunia bot lama dibuang.
     const t = now(), st = [env.DB.prepare('DELETE FROM friends WHERE a IN (SELECT uid FROM players WHERE bot IS NOT NULL) OR b IN (SELECT uid FROM players WHERE bot IS NOT NULL)'),
       env.DB.prepare('DELETE FROM dms WHERE frm IN (SELECT uid FROM players WHERE bot IS NOT NULL) OR too IN (SELECT uid FROM players WHERE bot IS NOT NULL)'),
       env.DB.prepare('DELETE FROM players WHERE bot IS NOT NULL'), env.DB.prepare('DELETE FROM wchat'), env.DB.prepare('DELETE FROM rvb'), env.DB.prepare('UPDATE players SET srv=1')];
-    const h = await hypeGet(env);
-    for (let id = 1; id <= 4; id++) { const g = await nextGen(env); st.push(env.DB.prepare('INSERT OR IGNORE INTO servers (id,name,opened,merged,worlds) VALUES (?,?,?,NULL,?)').bind(id, SRV_NAMES[id - 1], t, JSON.stringify([newWorld(g, t, h, id - 1)]))) }
+    const h = await hypeGet(env), wp = await whaleGet(env);
+    for (let id = 1; id <= 4; id++) { const g = await nextGen(env); st.push(env.DB.prepare('INSERT OR IGNORE INTO servers (id,name,opened,merged,worlds) VALUES (?,?,?,NULL,?)').bind(id, SRV_NAMES[id - 1], t, JSON.stringify([newWorld(g, t, h, id - 1, wp)]))) }
     await env.DB.batch(st); rows = (await env.DB.prepare('SELECT * FROM servers ORDER BY id').all()).results;
   }
   const opens = rows.map(r => r.opened).sort((a, b) => a - b);
@@ -101,7 +111,7 @@ async function srvGet(env, id, all) { all = all || await serversAll(env); let s 
 // pastikan akun bot sudah ada untuk semua bot dunia w yang sudah bergabung (+10 cadangan). Maks 5000 per panggilan.
 export async function ensureBots(env, w) {
   if (!w) { for (const s of await serversAll(env)) if (!s.merged) for (const x of s.W) await ensureBots(env, x); return }
-  const joined = botsJoinedW(w), need = Math.min(w.cap, joined + 200);
+  const joined = botsJoinedW(w), need = Math.min(w.cap, joined + Math.max(200, Math.round(w.cap * .03)));
   const have = await env.DB.prepare('SELECT COUNT(*) n FROM players WHERE bw=?').bind(w.g).first();
   if (have.n >= Math.min(w.cap, joined + 10)) return have.n;
   const taken = new Set((await env.DB.prepare('SELECT lower(uname) u FROM players').all()).results.map(r => r.u));
@@ -136,13 +146,13 @@ export async function resetServer(env, id) {
   const s = await srvGet(env, id); if (!s) return null; const g = await nextGen(env), t = now(), h = await hypeGet(env);
   await env.DB.batch([...dropWorlds(env, s.W.map(w => w.g)), env.DB.prepare('DELETE FROM wchat WHERE srv=?').bind(s.id),
     env.DB.prepare(`DELETE FROM kv WHERE k IN (${srvKv(s.id).map(() => '?').join(',')})`).bind(...srvKv(s.id)),
-    env.DB.prepare('UPDATE servers SET worlds=? WHERE id=?').bind(JSON.stringify([newWorld(g, t, h)]), s.id)]);
+    env.DB.prepare('UPDATE servers SET worlds=? WHERE id=?').bind(JSON.stringify([newWorld(g, t, h, undefined, srvWhale(s))]), s.id)]);
   return { id: s.id, gen: g, h };
 }
 export async function openServer(env, name) {
   const all = await serversAll(env), id = Math.max(0, ...all.map(s => s.id)) + 1, g = await nextGen(env), t = now(), h = await hypeGet(env);
   const nm = clean(name, 16) || SRV_NAMES[(id - 1) % SRV_NAMES.length];
-  await env.DB.prepare('INSERT INTO servers (id,name,opened,merged,worlds) VALUES (?,?,?,NULL,?)').bind(id, nm, t, JSON.stringify([newWorld(g, t, h)])).run();
+  await env.DB.prepare('INSERT INTO servers (id,name,opened,merged,worlds) VALUES (?,?,?,NULL,?)').bind(id, nm, t, JSON.stringify([newWorld(g, t, h, undefined, await whaleGet(env))])).run();
   return { id, name: nm, h };
 }
 /* RILIS SERENTAK: semua server aktif dibuka ulang bersamaan pada waktu ts (sekarang atau terjadwal) — dunia bot baru (hari 1)
@@ -155,10 +165,10 @@ export async function releaseAll(env, n, ts) {
     env.DB.prepare('DELETE FROM players WHERE bot IS NOT NULL'), env.DB.prepare('DELETE FROM wchat'), env.DB.prepare('DELETE FROM rvb')];
   for (const id of ids) { const ks = srvKv(id); st.push(env.DB.prepare(`DELETE FROM kv WHERE k IN (${ks.map(() => '?').join(',')})`).bind(...ks)) }
   let o = 0, id = Math.max(0, ...ids);
-  for (const s of act) st.push(env.DB.prepare('UPDATE servers SET worlds=?, opened=? WHERE id=?').bind(JSON.stringify([newWorld(await nextGen(env), ts, h, o++)]), ts, s.id));
-  const add = [];
+  for (const s of act) st.push(env.DB.prepare('UPDATE servers SET worlds=?, opened=? WHERE id=?').bind(JSON.stringify([newWorld(await nextGen(env), ts, h, o++, srvWhale(s))]), ts, s.id));
+  const add = [], wp = await whaleGet(env);
   while (act.length + add.length < n) { id++; const nm = SRV_NAMES[(id - 1) % SRV_NAMES.length]; add.push({ id, name: nm });
-    st.push(env.DB.prepare('INSERT INTO servers (id,name,opened,merged,worlds) VALUES (?,?,?,NULL,?)').bind(id, nm, ts, JSON.stringify([newWorld(await nextGen(env), ts, h, o++)]))) }
+    st.push(env.DB.prepare('INSERT INTO servers (id,name,opened,merged,worlds) VALUES (?,?,?,NULL,?)').bind(id, nm, ts, JSON.stringify([newWorld(await nextGen(env), ts, h, o++, wp)]))) }
   await env.DB.batch(st);
   return { n: act.length + add.length, added: add, h, ts };
 }
@@ -456,11 +466,11 @@ export async function gameRoute(req, env, url, json) {
     const SV = await srvGet(env, +url.searchParams.get('srv') || 1); if (!SV) return fail('srv', 404);
     const from = String(url.searchParams.get('from') || '').split(',').map(x => Math.max(0, +x || 0)), out = [];
     for (let k = 0; k < SV.W.length; k++) { const w = SV.W[k]; await ensureBots(env, w);
-      const { results } = await env.DB.prepare('SELECT bot,uid,uname FROM players WHERE bw=? AND bot>=? ORDER BY bot LIMIT 2100').bind(w.g, from[k] || 0).all();
+      const { results } = await env.DB.prepare('SELECT bot,uid,uname FROM players WHERE bw=? AND bot>=? ORDER BY bot LIMIT ?').bind(w.g, from[k] || 0, w.cap + 250).all();
       const ov = (await env.DB.prepare('SELECT bot,ov FROM players WHERE bw=? AND ov IS NOT NULL').bind(w.g).all()).results;
       const rvq = (await env.DB.prepare('SELECT bot,t0,t1,dp FROM rvb WHERE gen=? ORDER BY bot,t0 LIMIT 4000').bind(w.g).all()).results, rv = {};
       for (const r of rvq) (rv[r.bot] = rv[r.bot] || []).push([r.t0, r.t1, r.dp]);
-      out.push({ g: w.g, e: w.e, cap: w.cap, newer: w.newer, v: w.v, h: w.h, o: w.o, from: from[k] || 0, bots: results.map(r => [r.uid, r.uname]), ov: Object.fromEntries(ov.map(r => [r.bot, pj(r.ov, {})])), rv }) }
+      out.push({ g: w.g, e: w.e, cap: w.cap, newer: w.newer, v: w.v, h: w.h, o: w.o, wh: w.wh, from: from[k] || 0, bots: results.map(r => [r.uid, r.uname]), ov: Object.fromEntries(ov.map(r => [r.bot, pj(r.ov, {})])), rv }) }
     return json({ ok: true, srv: SV.id, name: SV.name, opened: SV.opened, worlds: out });
   }
   // ---- rival abadi: bot rival berusaha lebih keras (farming ekstra) di sesi main berikutnya; dibatasi supaya wajar ----
@@ -624,7 +634,7 @@ const ago = ms => { if (!ms) return 'belum pernah'; const m = Math.floor((now() 
 // kolom yang bisa diubah lewat tombol
 const H_FIELDS = { gems: 'Permata', gold: 'Emas', lv: 'Level', stam: 'Stamina', tixH: 'Tiket Hero', tixW: 'Tiket Senjata', uname: 'Username', pw: 'Password' };
 const B_FIELDS = { uname: 'Username', lv: 'Level', cp: 'CP', vip: 'VIP' };
-const ADMIN_HELP = `🛠 <b>Admin Aster Chronicles</b>\n\n• /akun &lt;UID|username&gt; — lihat & ubah akun (pemain atau bot)\n• /cari &lt;teks&gt; — cari username\n• /pemain — daftar pemain asli\n• /set &lt;UID|username&gt; &lt;kolom&gt; &lt;nilai&gt; — ubah apa saja\n   pemain: kolom di data simpanan, mis. <code>gems</code>, <code>heroes.nami.lv</code>, <code>mats.crys</code>\n   bot: <code>lv</code>, <code>cp</code>, <code>vip</code>, <code>uname</code>\n   nilai <code>hapus</code> = menghapus kolom\n• /data &lt;UID|username&gt; — file JSON data simpanan\n• /gm &lt;UID|username&gt; — jadikan/cabut GM (akun testing tanpa batas); /gm saja = daftar GM\n• /server — daftar server · /server buka [nama] — buka server baru · /resetbot &lt;id&gt; — reset bot satu server\n• /hype [1-10] — tingkat hype: makin tinggi makin banyak pemain yang langsung main saat server dibuka\n• /rilis — rilis serentak: semua server dibuka bersamaan (sekarang atau terjadwal), dunia bot mulai dari hari 1\n• /ai on|off — Mode AI Obrolan Dunia (Claude Haiku 5.5)\n\nKetik UID (8 angka) atau username saja juga bisa.`;
+const ADMIN_HELP = `🛠 <b>Admin Aster Chronicles</b>\n\n• /akun &lt;UID|username&gt; — lihat & ubah akun (pemain atau bot)\n• /cari &lt;teks&gt; — cari username\n• /pemain — daftar pemain asli\n• /set &lt;UID|username&gt; &lt;kolom&gt; &lt;nilai&gt; — ubah apa saja\n   pemain: kolom di data simpanan, mis. <code>gems</code>, <code>heroes.nami.lv</code>, <code>mats.crys</code>\n   bot: <code>lv</code>, <code>cp</code>, <code>vip</code>, <code>uname</code>\n   nilai <code>hapus</code> = menghapus kolom\n• /data &lt;UID|username&gt; — file JSON data simpanan\n• /gm &lt;UID|username&gt; — jadikan/cabut GM (akun testing tanpa batas); /gm saja = daftar GM\n• /server — daftar server · /server buka [nama] — buka server baru · /resetbot &lt;id&gt; — reset bot satu server\n• /hype [1-10] — tingkat hype: makin tinggi makin banyak pemain yang langsung main saat server dibuka\n• /rilis — rilis serentak: semua server dibuka bersamaan (sekarang atau terjadwal), dunia bot mulai dari hari 1\n• /whale — persen whaler (pembelanja besar) per server, mis. <code>/whale 1 10</code> atau <code>/whale semua 5</code>\n• /ai on|off — Mode AI Obrolan Dunia (Claude Haiku 5.5)\n\nKetik UID (8 angka) atau username saja juga bisa.`;
 
 function setPath(o, path, v) {
   const ks = path.split('.').filter(Boolean); if (!ks.length) return false;
@@ -710,16 +720,60 @@ async function hypeCard(env, chat, send, note) {
     `Perkiraan pemain per server (maks ${fmt(BOTCFG.SRV.cap)}):\n• 1 jam pertama: ±${fmt(E[0])}\n• 6 jam: ±${fmt(E[1])}\n• hari 1: ±${fmt(E[2])}\n• hari 7: ±${fmt(E[3])}\n• hari 30: ±${fmt(E[4])}\n\n` +
     `Tiap server tetap beda-beda: ada yang lebih ramai, ada hari sepi, akhir pekan lebih ramai, dan kadang lonjakan viral.\n\n1 = sepi … 10 = fenomenal (server bisa penuh di hari pertama).`, { inline_keyboard: rows });
 }
+/* ---------------- Telegram: persen whaler per server ---------------- */
+// perkiraan persen whaler di antara pemain yang SUDAH bergabung (riwayat ditimbang jumlah pendatang tiap periode)
+function whReal(w, t) {
+  const H = (w.wh || []).filter(x => x[0] <= t).sort((a, b) => a[0] - b[0]), N = botsJoinedW(w, t); if (!N) return null;
+  let acc = 0, prevN = 0, p = WH_DEF; for (const [a, v] of H) { const n = botsJoinedW(w, a); acc += (n - prevN) * p; prevN = n; p = +v }
+  return (acc + (N - prevN) * p) / N;
+}
+async function whaleSet(env, s, pct) {
+  const t = now(), W = pj(s.worlds, []);
+  for (const w of W) {
+    if (w.e > t) { w.wh = [[w.e, pct]]; continue }                         // belum buka: berlaku sejak buka
+    const H = w.wh || []; if (Math.abs((H.length ? +H[H.length - 1][1] : WH_DEF) - pct) < 1e-9) continue;
+    H.push([t, pct]); w.wh = H;
+  }
+  await env.DB.prepare('UPDATE servers SET worlds=? WHERE id=?').bind(JSON.stringify(W), s.id).run();
+}
+async function whaleCard(env, chat, send, note) {
+  const all = (await serversAll(env)).filter(s => !s.merged), t = now(), def = await whaleGet(env);
+  const L = all.map(s => { let n = 0, x = 0; for (const w of s.W) { const k = botsJoinedW(w, t), r = whReal(w, t); if (r != null) { n += k; x += k * r } }
+    const p = srvWhale(s);
+    return `<b>S${s.id} · ${esc(s.name)}</b> — 🐋 <b>${pctS(p)}</b>${Math.abs(p - WH_DEF) < 1e-9 ? ' (bawaan)' : ''}` + (n ? `
+   sekarang ±${pctS(x / n)} dari ${fmt(n)} pemain ≈ ${fmt(Math.round(x / 100))} whaler` : s.opened > t ? `
+   ⏰ belum buka` : '') });
+  const rows = all.map(s => [{ text: `S${s.id} ${s.name} · ${pctS(srvWhale(s))}`, callback_data: 'wh:s:' + s.id }]);
+  rows.push([{ text: '🌍 Semua server', callback_data: 'wh:s:0' }]);
+  return send(env, chat, `${note ? note + '\n\n' : ''}🐋 <b>Persen Whaler per Server</b>\nWhaler = whale + super whale + mega whale (pembelanja besar). Bawaan ${pctS(WH_DEF)}; sisanya F2P / kartu bulanan / dolphin dengan perbandingan tetap.\n` +
+    `Berlaku untuk pemain yang <b>bergabung setelah diubah</b> — pemain lama tidak berubah (riwayat belanja & CP-nya tetap). Server yang belum buka: berlaku sejak buka.\n\n` + L.join('\n') +
+    `\n\nDunia baru (/server buka): ${pctS(def)}. Saat /rilis atau reset bot, tiap server membawa persennya sendiri.\nKetik juga: <code>/whale 1 10</code> (S1 jadi 10%) atau <code>/whale semua 5</code>.`, { inline_keyboard: rows });
+}
+async function whalePick(env, chat, send, id) {
+  const all = (await serversAll(env)).filter(s => !s.merged), s = id ? all.find(x => x.id === id) : null; if (id && !s) return send(env, chat, 'Server tidak ditemukan.');
+  const cur = s ? srvWhale(s) : await whaleGet(env), V = [0, 1, 2, 3, 5, 8, 10, 15, 20, 30, 50, 75];
+  const rows = [V.slice(0, 4), V.slice(4, 8), V.slice(8)].map(r => r.map(v => ({ text: (Math.abs(v - cur) < 1e-9 ? '✅ ' : '') + v + '%', callback_data: `wh:${id}:${v}` })));
+  rows.push([{ text: '↩︎ Kembali', callback_data: 'whale' }]);
+  return send(env, chat, `🐋 <b>${s ? `S${s.id} · ${esc(s.name)}` : 'Semua server'}</b> — sekarang ${pctS(cur)}\nPilih persen whaler${s ? '' : ' untuk SEMUA server (juga dipakai server baru)'}:`, { inline_keyboard: rows });
+}
+async function whaleApply(env, chat, send, id, v) {
+  v = Math.round(Math.min(100, Math.max(0, v)) * 100) / 100;
+  const all = (await serversAll(env)).filter(s => !s.merged), L = id ? all.filter(s => s.id === id) : all; if (!L.length) return send(env, chat, 'Server tidak ditemukan.');
+  for (const s of L) await whaleSet(env, s, v);
+  if (!id) await kvSet(env, 'whale', v);
+  return whaleCard(env, chat, send, `✅ ${id ? `S${id}` : 'Semua server'}: whaler <b>${pctS(v)}</b>. Pemain yang bergabung mulai sekarang mengikuti persen ini; game memuat pengaturan baru dalam ±30 detik.`);
+}
 // jam rilis berikutnya (WIB) untuk HH:MM
 function nextWib(hh, mm) { const off = BOTCFG.TZ * 36e5, t = now(), d = new Date(t + off); let x = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), hh, mm) - off; if (x <= t + 6e4) x += DAY; return x }
 const wibHM = ts => new Date(ts + BOTCFG.TZ * 36e5).toISOString().slice(11, 16);
 const relTime = ts => { const m = Math.round((ts - now()) / 6e4); return m < 60 ? m + ' menit lagi' : m < 1440 ? Math.floor(m / 60) + ' jam ' + (m % 60) + ' menit lagi' : Math.floor(m / 1440) + ' hari lagi' };
 async function rilisCard(env, chat, send) {
-  const h = await hypeGet(env), act = (await serversAll(env)).filter(s => !s.merged).length, E = hypeEst(h);
+  const h = await hypeGet(env), A = (await serversAll(env)).filter(s => !s.merged), act = A.length, E = hypeEst(h), wd = await whaleGet(env);
   const opts = [...new Set([act, 4, 6, 8, 10, 12, 16])].filter(v => v >= act && v <= 16).sort((a, b) => a - b).slice(0, 4);
   return send(env, chat, `🚀 <b>Rilis Serentak</b>\nSemua server dibuka bersamaan dan dunia bot mulai dari hari 1. Pemain asli tetap (akun & servernya); semua akun bot, pertemanan/pesan dengan bot, dan Obrolan Dunia dihapus.\n\n` +
-    `🔥 Hype: <b>${h} · ${HYPE_N(h)}</b> (ubah: /hype)\n🌍 Server aktif sekarang: ${act}\nPerkiraan per server: ±${fmt(E[0])} pemain di jam pertama, ±${fmt(E[2])} di hari pertama.\n\nPilih jumlah server:`,
-    { inline_keyboard: [opts.map(v => ({ text: `${v} server`, callback_data: 'rls:n:' + v })), [{ text: '🔥 Ubah hype', callback_data: 'hype' }]] });
+    `🔥 Hype: <b>${h} · ${HYPE_N(h)}</b> (ubah: /hype)\n🌍 Server aktif sekarang: ${act}\nPerkiraan per server: ±${fmt(E[0])} pemain di jam pertama, ±${fmt(E[2])} di hari pertama.\n` +
+    `🐋 Whaler: ${A.map(s => `S${s.id} ${pctS(srvWhale(s))}`).join(' · ')}${opts.some(v => v > act) ? ` · server baru ${pctS(wd)}` : ''} (ubah: /whale)\n\nPilih jumlah server:`,
+    { inline_keyboard: [opts.map(v => ({ text: `${v} server`, callback_data: 'rls:n:' + v })), [{ text: '🔥 Ubah hype', callback_data: 'hype' }, { text: '🐋 Whaler', callback_data: 'whale' }]] });
 }
 async function rilisWhen(env, chat, send, n) {
   const T = [19, 20, 21].map(hh => nextWib(hh, 0)), lab = ts => (new Date(ts + BOTCFG.TZ * 36e5).getUTCDate() !== new Date(now() + BOTCFG.TZ * 36e5).getUTCDate() ? 'besok ' : '') + wibHM(ts);
@@ -808,10 +862,11 @@ export async function adminMessage(env, chat, t, low, send) {
   }
   if (/^\/(resetbot|server)(?:@\w+)?$/i.test(t)) {
     const L = await srvList(env), all = await serversAll(env);
-    await send(env, chat, `🌍 <b>Server</b> · hype sekarang ${await hypeGet(env)} (/hype)\n\n` + L.map(x => `<b>S${x.id} · ${esc(x.name)}</b> — ${fmt(x.n)}/${fmt(x.cap)} pemain${x.full ? ' · PENUH' : ''}${x.merged ? ' · gabungan' : ''}${x.h ? ' · 🔥' + x.h : ''}\n   ` +
+    const wpOf = id => { const s = all.find(y => y.id === id); return s ? ' · 🐋' + pctS(srvWhale(s)) : '' };
+    await send(env, chat, `🌍 <b>Server</b> · hype sekarang ${await hypeGet(env)} (/hype)\n\n` + L.map(x => `<b>S${x.id} · ${esc(x.name)}</b> — ${fmt(x.n)}/${fmt(x.cap)} pemain${x.full ? ' · PENUH' : ''}${x.merged ? ' · gabungan' : ''}${x.h ? ' · 🔥' + x.h : ''}${wpOf(x.id)}\n   ` +
       (x.opened > now() ? `⏰ buka ${when(x.opened)} (${relTime(x.opened)})` : `+${fmt(x.d1)} sejam terakhir · +${fmt(x.d24)} 24 jam · buka ${when(x.opened)}`)).join('\n') +
       (all.some(s => s.merged) ? `\n\nDigabung: ${all.filter(s => s.merged).map(s => `S${s.id}→S${s.merged}`).join(', ')}` : '') +
-      `\n\n• /rilis — rilis serentak semua server (sekarang/terjadwal)\n• /hype — tingkat hype untuk dunia baru\n• /server buka [nama] — buka server baru (hari 1, maks ${fmt(BOTCFG.SRV.cap)} pemain)\n• /resetbot &lt;id&gt; — reset dunia bot satu server\n• Gabung server: lewat Panel GM di game.`,
+      `\n\n• /rilis — rilis serentak semua server (sekarang/terjadwal)\n• /hype — tingkat hype untuk dunia baru\n• /whale — persen whaler per server\n• /server buka [nama] — buka server baru (hari 1, maks ${fmt(BOTCFG.SRV.cap)} pemain)\n• /resetbot &lt;id&gt; — reset dunia bot satu server\n• Gabung server: lewat Panel GM di game.`,
       { inline_keyboard: L.map(x => [{ text: `♻️ Reset bot S${x.id}`, callback_data: `rbot:${x.id}` }]) });
     return true;
   }
@@ -823,6 +878,13 @@ export async function adminMessage(env, chat, t, low, send) {
   if ((m = t.match(/^\/hype(?:@\w+)?(?:\s+(\d+))?$/i))) {
     if (m[1]) { const v = +m[1]; if (!(v >= 1 && v <= 10)) { await send(env, chat, 'Tingkat hype 1 sampai 10, mis. <code>/hype 7</code>'); return true } await kvSet(env, 'hype', v); await hypeCard(env, chat, send, `✅ Hype diatur ke <b>${v} · ${HYPE_N(v)}</b>.`); return true }
     await hypeCard(env, chat, send); return true;
+  }
+  if ((m = t.match(/^\/whale(?:@\w+)?(?:\s+(semua|all|s?\d+))?(?:\s+(\d+(?:[.,]\d+)?)\s*%?)?$/i))) {
+    if (!m[1]) { await whaleCard(env, chat, send); return true }
+    const id = /^(semua|all)$/i.test(m[1]) ? 0 : +m[1].replace(/^s/i, '');
+    if (m[2] == null) { await whalePick(env, chat, send, id); return true }
+    const v = parseFloat(m[2].replace(',', '.')); if (!(v >= 0 && v <= 100)) { await send(env, chat, 'Persen whaler 0 sampai 100, mis. <code>/whale 1 10</code>'); return true }
+    await whaleApply(env, chat, send, id, v); return true;
   }
   if ((m = t.match(/^\/rilis(?:@\w+)?(?:\s+(\d+))?(?:\s+(sekarang|\d{1,2}[:.]\d{2}))?$/i))) {
     if (!m[1]) { await rilisCard(env, chat, send); return true }
@@ -877,6 +939,9 @@ export async function adminCallback(env, chat, d, send) {
   if (d === 'rbot:no') { await send(env, chat, 'Dibatalkan.'); return true }
   if (d === 'hype') { await hypeCard(env, chat, send); return true }
   if ((m = d.match(/^hype:(\d+)$/))) { const v = Math.min(10, Math.max(1, +m[1])); await kvSet(env, 'hype', v); await hypeCard(env, chat, send, `✅ Hype diatur ke <b>${v} · ${HYPE_N(v)}</b>.`); return true }
+  if (d === 'whale') { await whaleCard(env, chat, send); return true }
+  if ((m = d.match(/^wh:s:(\d+)$/))) { await whalePick(env, chat, send, +m[1]); return true }
+  if ((m = d.match(/^wh:(\d+):(\d+(?:\.\d+)?)$/))) { await whaleApply(env, chat, send, +m[1], +m[2]); return true }
   if (d === 'rls') { await rilisCard(env, chat, send); return true }
   if ((m = d.match(/^rls:n:(\d+)$/))) { await rilisWhen(env, chat, send, +m[1]); return true }
   if ((m = d.match(/^rls:t:(\d+):(\d+)$/))) { await rilisConfirm(env, chat, send, +m[1], +m[2]); return true }
