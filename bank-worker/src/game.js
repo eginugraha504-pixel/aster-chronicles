@@ -369,7 +369,7 @@ async function aiChat(env, b, u) {
   const mem = uid => memQ.filter(m => m.uid === uid && !inHist.has(String(m.id))).slice(0, 3).map(m => `"${clip(showTxt(m.txt), 70)}"`).join(', ');
   const ovAll = overused(hist), ovOf = uid => overused(memQ.filter(m => m.uid === uid).slice(0, 12), 4);
   const P = b.player || null, d = new Date(t + 7 * 36e5), HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-  let user = `WAKTU: ${HARI[d.getUTCDay()]} ${hhmm(t)} WIB · ${clip(b.online, 6)} pemain online · server: ${clip(b.world, 300)}
+  let user = `WAKTU: ${HARI[d.getUTCDay()]} ${hhmm(t)} WIB · ${clip(b.online, 6)} pemain online · server: ${clip(b.world, 700)}
 ${P ? `PEMAIN (manusia, data PUBLIK saja): ${clip(P.name, 16)} — ${clip(P.pub, 300)}\n` : ''}${b.humans ? `Pemain asli lain online: ${clip(b.humans, 200)}\n` : ''}PENULIS (pemain lain yang sedang online):
 ${cands.map(c => { const m = mem(c.uid), o = ovOf(c.uid); return `- ${c.name}: PUBLIK[${c.pub}] PRIBADI-hanya-dia[${c.priv}] GAYA[${c.style}]${m ? ` INGATAN[pernah bilang: ${m}]` : ''}${o.length ? ` JANGAN-ULANG[${o.join(', ')}]` : ''}` }).join('\n')}
 ${ANR.length ? `PENGUMUMAN SISTEM terbaru (pita berjalan, semua orang lihat; boleh disinggung sesekali, tidak wajib):\n${ANR.slice(0, 4).reverse().map(a => `- ${hhmm(a.ts)} ${annTxt(a)}`).join('\n')}\n` : ''}${ovAll.length ? `Kata yang sudah terlalu sering muncul di obrolan (hindari): ${ovAll.join(', ')}\n` : ''}
@@ -767,7 +767,8 @@ export async function gameRoute(req, env, url, json) {
     if (act === 'bot') return json(await dmBot(env, u, w, b));
     if (act === 'send') {
       const txt = clean(b.txt, 300); if (!txt) return fail('empty');
-      const row = await friendRow(env, u.uid, w); if (!row || row.st !== 'ok') return fail('notfriend', 403);
+      // teman, atau bot yang lebih dulu mengirim pesan (mis. menyapa karena kamu terkenal / mengajak ke guild-nya)
+      const row = await friendRow(env, u.uid, w); if ((!row || row.st !== 'ok') && !(await env.DB.prepare('SELECT 1 FROM dms d JOIN players p ON p.uid=d.frm WHERE d.frm=? AND d.too=? AND p.bot IS NOT NULL LIMIT 1').bind(w, u.uid).first())) return fail('notfriend', 403);
       const last = await env.DB.prepare('SELECT ts FROM dms WHERE frm=? ORDER BY id DESC LIMIT 1').bind(u.uid).first();
       if (last && now() - last.ts < 700) return fail('fast', 429);
       const r = await env.DB.prepare('INSERT INTO dms (frm,too,txt,ts) VALUES (?,?,?,?)').bind(u.uid, w, txt, now()).run();
@@ -977,7 +978,7 @@ async function whaleApply(env, chat, send, id, v) {
    lalu menulis balasan (Claude Haiku) dengan jeda baca + mengetik → muncul saat waktunya, sama seperti pemain sungguhan.
    kind 'hello' = sapaan pertama setelah berteman (jarang, sekali saja). Hemat token: hanya saat ada pesanmu / sapaan, maks 60 per pemain per hari. */
 const DM_ROLE = `Kamu menulis pesan pribadi (DM) di game mobile gacha Aster Chronicles atas nama SATU pemain di server: orang Indonesia biasa yang main sambil kerja, kuliah, rebahan. Ia berteman di game dengan lawan bicaranya.
-- Tulis seperti chat pribadi game sungguhan: pendek, santai, sesuai GAYA. Tidak harus antusias; boleh singkat ("wkwk iya", "lagi farming nih", "bentar lagi bos"). Kadang tanya balik, kadang tidak. Jangan berbasa-basi panjang, jangan seperti layanan pelanggan.
+- Tulis seperti chat pribadi game sungguhan: pendek, santai, sesuai GAYA. Kalian bisa sudah berteman atau baru pertama kali kontak (lihat HUBUNGAN). Tidak harus antusias; boleh singkat ("wkwk iya", "lagi farming nih", "bentar lagi bos"). Kadang tanya balik, kadang tidak. Jangan berbasa-basi panjang, jangan seperti layanan pelanggan.
 - Konsisten dengan data diri (PUBLIK & PRIBADI) dan yang SEDANG dikerjakan. Boleh cerita data pribadinya sendiri (pity, apes, top up, nabung) kalau wajar — ini obrolan berdua. Jangan tahu data pribadi lawan bicara kecuali ia sendiri cerita.
 - Ingat isi percakapan sebelumnya; jangan mengulang kalimat yang sama.
 - Fakta game harus benar sesuai pengetahuan di bawah; jangan mengarang fitur (guild SUDAH ada: absen, donasi, toko koin guild, peringkat guild, mosi kudeta; Guild War BELUM ada). Istilah game ini: ★3 / bintang 3, permata, tiket, tahap 3-4.
@@ -987,7 +988,8 @@ const DM_ROLE = `Kamu menulis pesan pribadi (DM) di game mobile gacha Aster Chro
 const DM_Q = /\?|gimana|bagaimana|kenapa|knp|apa|siapa|berapa|brp|mana|kapan|bisa|boleh|mau/i;
 async function dmBot(env, u, w, b) {
   const bot = await env.DB.prepare('SELECT uid,uname,bot,bw FROM players WHERE uid=? AND bot IS NOT NULL AND ban=0').bind(w).first(); if (!bot) return { ok: false, e: 'bot' };
-  const fr = await friendRow(env, u.uid, w); if (!fr || fr.st !== 'ok') return { ok: false, e: 'notfriend' };
+  if (b.kind === 'fame') return dmFame(env, u, bot, b);
+  const fr = await friendRow(env, u.uid, w); if ((!fr || fr.st !== 'ok') && !(await env.DB.prepare('SELECT 1 FROM dms WHERE frm=? AND too=? LIMIT 1').bind(w, u.uid).first())) return { ok: false, e: 'notfriend' };
   const t = now(), kind = b.kind === 'hello' ? 'hello' : 'reply';
   const at = Math.round(Math.min(t + 10 * 6e4, Math.max(t - 3 * DAY, +b.at || t)));
   const unread = (await env.DB.prepare('SELECT * FROM dms WHERE frm=? AND too=? AND rd=0 ORDER BY ts, id').bind(u.uid, w).all()).results;
@@ -1014,7 +1016,7 @@ KAMU = ${bn}: PUBLIK[${clip(c.pub, 320)}] PRIBADI-hanya-kamu[${clip(c.priv, 300)
 LAWAN BICARA = ${pn} (data publik): ${clip(P.pub, 300)}
 HUBUNGAN (rasa sukamu ke ${pn}): ${clip(b.rel, 260) || 'baru berteman di game'}
 GUILD: ${g.mine ? `${pn} di guild ${clip(g.mine, 200)}` : `${pn} belum punya guild`}; kamu: ${clip(g.theirs, 260) || 'belum punya guild'}
-${g.vote ? `MOSI KUDETA: ${clip(g.vote, 240)}\n` : ''}${inv ? `${pn} SEDANG MENGAJAKMU masuk guild-nya. Pertimbanganmu: ${clip(g.hint, 300)}. Putuskan sendiri secara wajar; "join": true HANYA kalau kamu benar-benar setuju pindah sekarang (kalau ragu, tolak halus / minta waktu).\n` : ''}PERCAKAPAN DM (lama -> baru):
+${g.recruit ? `KAMU SEDANG MEREKRUT: ${clip(g.recruit, 260)}\n` : ''}${g.vote ? `MOSI KUDETA: ${clip(g.vote, 240)}\n` : ''}${inv ? `${pn} SEDANG MENGAJAKMU masuk guild-nya. Pertimbanganmu: ${clip(g.hint, 300)}. Putuskan sendiri secara wajar; "join": true HANYA kalau kamu benar-benar setuju pindah sekarang (kalau ragu, tolak halus / minta waktu).\n` : ''}PERCAKAPAN DM (lama -> baru):
 ${hist.map(h => `${hhmm(h.ts)} ${h.frm === u.uid ? pn : bn}: ${clip(h.txt, 200)}`).join('\n') || '(belum ada)'}
 `;
     const ex = `"rel":0${inv ? ',"join":false' : ''}${g.vote ? ',"vote":null' : ''}`;
@@ -1045,6 +1047,54 @@ ${hist.map(h => `${hhmm(h.ts)} ${h.frm === u.uid ? pn : bn}: ${clip(h.txt, 200)}
     if (v && w !== v.who && w !== v.tgt) { const Y = pj(v.yes, {}), N = pj(v.no, {}); delete Y[w]; delete N[w]; (o.vote === 'yes' ? Y : N)[w] = Math.min(v.t1 - 1, Math.round(tt)); await env.DB.prepare('UPDATE gvote SET yes=?, no=? WHERE id=?').bind(JSON.stringify(Y), JSON.stringify(N), v.id).run(); voted = o.vote }
   }
   return { ok: true, n: st.length, read: rt, at: Math.round(tt), ai: useAI ? 1 : 0, ...(moved ? { moved } : {}), ...(voted ? { voted } : {}) };
+}
+/* ---------------- Pesan karena "terkenal" ----------------
+   Game tahu peringkat CP pemain: masuk top 20/10/3/1 → pengurus guild lain mengajak bergabung (rekrut), pemain biasa
+   menyapa / minta tips (fans), yang peringkatnya dekat menantang (rival), teman / rekan guild memberi selamat (ucapan).
+   Game memilih si bot & waktunya (saat ia online); di sini pesan pembukanya ditulis (Claude bila AI DM nyala, selain itu kalimat biasa).
+   Batas: 8 per pemain per hari, 1 per bot per 3 hari. Tidak perlu berteman: pemain boleh membalas bot yang lebih dulu menghubungi. */
+const FAME_X = { rekrut: 'merekrut ke guild-mu', fans: 'menyapa karena kagum / penasaran (minta tips, nanya tim)', rival: 'menantang santai karena kalian bersaing di papan CP', ucapan: 'memberi selamat' };
+const FAMEC = { rekrut: ['halo, CP kamu gede banget. mau gabung {g} ga? udah aku kirim undangan', 'permisi, aku dari {g}. lagi cari member kuat nih, tertarik?', 'eh kamu yang peringkat #{r} kan? join {g} yuk, guild kita aktif', 'salam kenal, {g} lagi rekrut. kalau minat cek undangan ya'],
+  fans: ['wih suhu, CP nya gila', 'halo kak, boleh tanya tim nya pakai siapa aja?', 'salam kenal sepuh, peringkat #{r} keren banget', 'kak gimana caranya bisa CP segitu', 'izin kenalan suhu'],
+  rival: ['selamat masuk #{r}, tapi jangan seneng dulu', 'wkwk kamu nyalip aku, liat aja minggu ini', 'CP kita beda tipis nih, gas adu', 'eh rival baru nih'],
+  ucapan: ['selamat masuk {k}!', 'gila kamu sekarang #{r}', 'mantap, sekarang {k} nih', 'wih makin jauh aja CP nya'] };
+async function dmFame(env, u, bot, b) {
+  const t = now(), w = bot.uid, x = FAME_X[b.x] ? b.x : 'fans', day = dayKey().slice(3), fk = 'fame:' + u.uid, cur = String(await kvGet(env, fk) || ''), used = cur.startsWith(day + ':') ? +cur.split(':')[1] : 0;
+  if (used >= 8) return { ok: true, n: 0, e: 'limit' };
+  const bk = 'famb:' + u.uid + ':' + w; if (+(await kvGet(env, bk) || 0) > t - 3 * DAY) return { ok: true, n: 0, e: 'cool' };
+  await kvSet(env, fk, day + ':' + (used + 1)); await kvSet(env, bk, t);
+  const at = Math.round(Math.min(t + 6e4, Math.max(t - DAY, +b.at || t))), V = b.v || {}, fill = s => s.replace(/\{(\w)\}/g, (m, k) => clip(V[k] ?? '', 24));
+  let out = [], useAI = (await aiDmOn(env, kvGet)) && !!(env.ANTHROPIC_API_KEY || env.AI_FAKE);
+  if (useAI && await bump(env, dayKey()) > +(env.AI_DAILY || 2000)) useAI = false;
+  if (useAI) {
+    const hist = (await env.DB.prepare('SELECT * FROM (SELECT * FROM dms WHERE ((frm=? AND too=?) OR (frm=? AND too=?)) ORDER BY ts DESC, id DESC LIMIT 8) ORDER BY ts, id').bind(u.uid, w, w, u.uid).all()).results;
+    const c = b.cand || {}, P = b.player || {}, g = b.g || {}, HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'], d = new Date(at + 7 * 36e5), pn = clip(P.name || u.uname, 16), bn = bot.uname;
+    const user = `WAKTU: ${HARI[d.getUTCDay()]} ${hhmm(at)} WIB
+KAMU = ${bn}: PUBLIK[${clip(c.pub, 320)}] PRIBADI-hanya-kamu[${clip(c.priv, 300)}] GAYA[${clip(c.style, 320)}]
+ORANG YANG KAMU HUBUNGI = ${pn} (data publik, terlihat di peringkat): ${clip(P.pub, 300)}
+HUBUNGAN: ${clip(b.rel, 220) || 'belum kenal, belum berteman'}
+GUILD: kamu ${clip(g.theirs, 220) || 'belum punya guild'}; ${pn} ${g.mine ? 'di guild ' + clip(g.mine, 200) : 'belum punya guild'}
+ALASAN MENGHUBUNGI: ${FAME_X[x]}. ${clip(b.why, 420)}
+${hist.length ? `PERCAKAPAN DM SEBELUMNYA (lama -> baru):
+${hist.map(h => `${hhmm(h.ts)} ${h.frm === u.uid ? pn : bn}: ${clip(h.txt, 160)}`).join('\n')}
+` : ''}
+Tulis 1-2 pesan DM pembuka yang pendek & natural dari ${bn} ke ${pn} sesuai ALASAN, GAYA, dan seberapa kenal kalian (orang asing → sopan santai, singkat; boleh panggil "suhu"/"sepuh"/"kak" kalau cocok dengan gayanya). Jangan lebay, jangan seperti iklan. JSON: {"out":[{"text":"...","delay":3}]}`;
+    try {
+      if (env.AI_FAKE) { if (env.TG_LOG) (globalThis.__ai ||= []).push(user); out = [{ text: fill(FAMEC[x][0]), delay: 3 }] }
+      else { const r = await callClaude(env, user, 200, DM_ROLE), m = String(r.text).match(/\{[\s\S]*\}/); let o = null; try { o = m ? JSON.parse(m[0]) : null } catch (e) { } out = (o && o.out) || [] }
+    } catch (e) { useAI = false }
+  }
+  if (!useAI || !out.length) { const L = FAMEC[x]; out = [{ text: fill(L[Math.floor(rnd01() * L.length)]), delay: 3 }] }
+  const lower = !!(b.cand && b.cand.lower); let tt = at; const st = [];
+  for (const y of out.slice(0, 2)) {
+    let txt = clip(y.text, 300).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/https?\S+/g, '').replace(/~+/g, '').replace(/\s{2,}/g, ' ').trim(); if (!txt) continue;
+    if (lower) txt = txt.toLowerCase(); tt += Math.max(1500, Math.min(12e3, (+y.delay || 3) * 1000)) + txt.length * 130;
+    st.push(env.DB.prepare('INSERT INTO dms (frm,too,txt,ts) VALUES (?,?,?,?)').bind(w, u.uid, txt, Math.round(tt)));
+  }
+  // sebagian juga mengajak berteman
+  if (b.fr && !(await friendRow(env, u.uid, w))) { const [a, c2] = pair(u.uid, w); st.push(env.DB.prepare('INSERT OR IGNORE INTO friends (a,b,frm,st,ts) VALUES (?,?,?,?,?)').bind(a, c2, w, 'req', Math.round(tt))) }
+  if (st.length) await env.DB.batch(st);
+  return { ok: true, n: out.length, at: Math.round(tt), ai: useAI ? 1 : 0 };
 }
 // balasan DM tanpa AI (AI DM dimatikan / batas harian habis): pendek & wajar
 const DMC = { greet: ['halo juga', 'hai', 'yo', 'halo, lagi ngapain?', 'eh halo'], q: ['hmm kurang tau juga', 'coba cek di menunya deh', 'aku juga masih bingung wkwk', 'kayaknya iya', 'nanti aku cek ya'],

@@ -108,6 +108,7 @@ js/systems/chat.js
 js/systems/botsale.js
 js/systems/net.js
 js/systems/guild.js
+js/systems/fame.js
 js/systems/smelt.js
 js/systems/ascend.js
 js/systems/unlock.js

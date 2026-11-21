@@ -34,11 +34,11 @@ function openSocial(tab){if(!loggedIn())return needAcct();if(tab)socTab=tab;
   const o=await api('/api/find?q='+encodeURIComponent(q)+'&srv='+netSrv());netCards(o.list);if(!$('#frRes'))return;const L=(o.list||[]).filter(p=>p.uid!==NET.acct.uid&&(p.bot==null||(botIn(p.bot)&&!botHidden(p.bot))));
   r.innerHTML=L.length?`<div class="frlist">${L.map(p=>socRow(p,frBtn(p.uid))).join('')}</div>`:`<p class="sub frempty">${o.ok?T('Pemain tidak ditemukan.'):netErr(o.e)}</p>`}}
 function frBtn(uid){const st=frState(uid);return st==='ok'?`<button class="btn sm" data-act="dmOpen" data-arg="${uid}">💬</button>`:st==='out'?`<button class="btn sm gray" disabled>${T('Diminta')}</button>`:st==='inc'?`<button class="btn sm green" data-act="frResp" data-arg="${uid}:1">${T('Terima')}</button>`:`<button class="btn sm green" data-act="frAdd" data-arg="${uid}">+ ${T('Teman')}</button>`}
-async function dmThreads(){const o=await api('/api/dm/threads',{tok:netTok()}),box=$('#dmThreads');if(!box)return;const L=netCards(o.list||[]);
+async function dmThreads(){const o=await api('/api/dm/threads',{tok:netTok()}),box=$('#dmThreads');if(!box)return;const L=netCards(o.list||[]);NET.dmCards=L;
  box.innerHTML=L.length?`<div class="frlist">${L.map(p=>`<button class="frrow dmth" data-act="dmOpen" data-arg="${p.uid}">${socAv(p)}<span class="rknm"><b>${socName(p)}</b><small>${p.msg.me?T('Kamu')+': ':''}${esc(p.msg.txt)}</small></span><span class="dmt"><small>${agoMs(Date.now()-p.msg.ts)}</small>${p.unread?`<i class="dot n">${p.unread}</i>`:''}</span></button>`).join('')}</div>`:`<p class="sub frempty">${T('Belum ada pesan. Kirim pesan ke teman dari tab Teman.')}</p>`}
 
 /* ---------------- pesan 1:1 ---------------- */
-function dmPeer(uid){const all=NET.friends.friends.concat(NET.friends.inc,NET.friends.out);return all.find(p=>p.uid===uid)||{uid,u:'?',bot:null}}
+function dmPeer(uid){const all=NET.friends.friends.concat(NET.friends.inc,NET.friends.out,NET.dmCards||[]);let p=all.find(p=>p.uid===uid);if(!p){const i=botIdxOf(uid);p=i>=0?{uid,u:botName(i),bot:i}:{uid,u:'?',bot:null}}return p}
 function dmRowsHTML(){if(!dmList.length)return`<p class="sub frempty">${T('Mulai percakapan!')}</p>`;let out='',day='';
  for(const m of dmList){const d=new Date(m.ts+BOT_CFG.TZ*36e5).toISOString().slice(0,10);if(d!==day){day=d;out+=`<div class="dmday">${d===new Date(Date.now()+BOT_CFG.TZ*36e5).toISOString().slice(0,10)?T('Hari ini'):d.split('-').reverse().join('/')}</div>`}
   out+=`<div class="dmm${m.me?' mine':''}"><p>${esc(m.txt)}</p><small>${chTime(m.ts)}${m.me?(m.id<=dmSeen?' ✓✓':' ✓'):''}</small></div>`}return out}
@@ -53,8 +53,10 @@ function openDM(uid){if(!loggedIn())return needAcct();const p=dmPeer(uid);dmOpen
  const bot=p.bot!=null;
  modal(`<button class="btn red mclose" data-act="dmBack">‹</button><h3 class="dmh"><button data-act="profView" data-arg="${uid}">${socAv(p)}<span><b>${socName(p)}</b><small>${onDot(p)?T('Online'):T('Aktif {t}',{t:agoMs(Date.now()-lastSeen(p))})}<em id="dmTyping"> · ${T('sedang mengetik...')}</em></small></span></button></h3>
  <div class="dmlist" id="dmList"><p class="sub frempty">${T('Memuat pesan...')}</p></div>
- ${isFriend(uid)?`<form class="chin" id="dmForm"><input id="dmIn" maxlength="300" autocomplete="off" placeholder="${T('Tulis pesan...')}"><button class="btn" type="submit">${T('Kirim')}</button></form>`:`<p class="sub frempty">${T('Kalian harus berteman untuk saling mengirim pesan.')}</p>`}`);
+ ${isFriend(uid)||p.bot!=null?`<form class="chin" id="dmForm"><input id="dmIn" maxlength="300" autocomplete="off" placeholder="${T('Tulis pesan...')}"><button class="btn" type="submit">${T('Kirim')}</button></form>`:`<p class="sub frempty">${T('Kalian harus berteman untuk saling mengirim pesan.')}</p>`}`);
  $('#modal .mbox').classList.add('socbox','dmbox');
+ // bukan teman (mis. bot yang menyapa karena kamu terkenal / mengajak ke guild-nya): bisa langsung ajak berteman
+ if(!isFriend(uid)&&frState(uid)!=='out'){const h=$('#modal h3.dmh');if(h)h.insertAdjacentHTML('afterend',`<div class="dmadd"><small>${T('Belum berteman')}</small><button class="btn sm green" data-act="frAdd" data-arg="${uid}">+ ${T('Tambah Teman')}</button></div>`)}
  const f=$('#dmForm');if(f)f.onsubmit=async e=>{e.preventDefault();const i=$('#dmIn'),v=(i.value||'').trim();if(!v)return;i.value='';sfx('tap');
   const o=await api('/api/dm/send',{tok:netTok(),uid,txt:v});if(!o.ok){i.value=v;toast(o.e==='fast'?T('Pelan-pelan, tunggu sebentar.'):o.e==='notfriend'?T('Kalian belum berteman.'):netErr(o.e));return}dmPoll();if(bot)dmBotKick()};
  dmPoll(true);clearInterval(dmTimer);dmTimer=setInterval(()=>{if(!$('#dmList')){dmClose();return}dmPoll()},4000)}
@@ -121,7 +123,7 @@ Object.assign(ACT,{
  socTab:k=>{socTab=k;openSocial()},
  frCopy:()=>{try{navigator.clipboard.writeText(NET.acct.uid)}catch(e){}toast(T('UID disalin'))},
  profView:uid=>{const back=$('#chList')?'chat':$('#socBody')?'friends':null;openProfile(String(uid),back)},
- frAdd:async uid=>{const o=await frAct('add',uid);if(!o||!o.ok)return;sfx('claim');toast(o.st==='ok'?T('Kalian sekarang berteman!'):T('Permintaan pertemanan dikirim'));const pa=$('#modal .pfact');if(pa)pa.outerHTML=profActions(uid);else if($('#frRes'))$('#frFind').requestSubmit();},
+ frAdd:async uid=>{const o=await frAct('add',uid);if(!o||!o.ok)return;const da=$('.dmadd');if(da)da.remove();sfx('claim');toast(o.st==='ok'?T('Kalian sekarang berteman!'):T('Permintaan pertemanan dikirim'));const pa=$('#modal .pfact');if(pa)pa.outerHTML=profActions(uid);else if($('#frRes'))$('#frFind').requestSubmit();},
  frResp:async a=>{const[uid,ok]=a.split(':');const o=await frAct('resp',uid,{ok:ok==='1'});if(!o||!o.ok)return;if(ok==='1'){const bi=botIdxOf(uid);if(bi>=0)dmBotFriended(uid,bi,true)}sfx(ok==='1'?'claim':'close');toast(ok==='1'?T('Kalian sekarang berteman!'):T('Permintaan ditolak'));const pa=$('#modal .pfact');if(pa)pa.outerHTML=profActions(uid);else openSocial()},
  frDel:async uid=>{await frAct('del',uid);const pa=$('#modal .pfact');if(pa)pa.outerHTML=profActions(uid);else openSocial()},
  frDelAsk:uid=>{const p=dmPeer(uid);confirmBox(T('Hapus {n} dari daftar teman?',{n:esc(p.bot!=null?botName(p.bot):p.u)}),async()=>{await frAct('del',uid);openSocial('fr')},T('Hapus'))},

@@ -401,3 +401,14 @@ Terbuka di **Lv 12** (FEAT.guild; tombol Guild beranda tidak terkunci lagi). Kod
 - **Saklar AI terpisah** (Telegram `/ai`): `/ai dunia on|off` (Obrolan Dunia, kv `ai_on`) · `/ai dm on|off` (DM 1:1 + Obrolan Guild, kv `ai_dm`) · `/ai semua on|off`. DM saat AI mati → balasan pendek biasa (bujukan memakai peluang biasa).
 - **Telegram `/guild [id]`**: guild teratas server, jumlah anggota (pemain asli), tick terakhir, kabar politik (kudeta, mosi gagal, ganti ketua, bubar).
 - Reset / hapus / rilis server menghapus data guild server itu; gabung server memindahkan guild-nya.
+
+## Ketenaran: bot sadar peringkat CP (22 Nov 2026)
+`src/js/systems/fame.js` + `dmFame` di worker.
+- Para bot tahu **5 besar CP server** (nama, CP, tim, guild) dan **3 guild terkuat** — dikirim di konteks AI Obrolan Dunia (`chWorldTxt` → `fameWorldTxt`), jadi obrolan bot bisa membicarakan pemain kuat & meta tim.
+- Saat kamu **masuk top 20 / 10 / 3 / #1 CP** (dicek tiap 90 dtk), muncul 1 / 2 / 2 / 3 pesan dari bot yang **bukan temanmu**, lalu sesekali selama bertahan di tingkat itu (±0,35 / 0,7 / 1,2 / 2 per hari; maks 2 / 3 / 4 / 6 per hari). Tiap pesan dijadwalkan saat si bot online (≤ 1 hari), 1 bot maks sekali per 3 hari; server membatasi 8 per pemain per hari.
+  - **rekrut**: ketua / wakil guild yang lebih kuat dari guild-mu (atau 5 besar bila kamu belum ber-guild) mengajak bergabung — undangan ikut masuk tab **Undangan** (langsung masuk walau guild-nya lewat lamaran); balasan DM berikutnya tetap konsisten "sedang merekrut".
+  - **fans**: pemain biasa yang jauh di bawahmu dan ramah menyapa / kagum / minta tips ("suhu", "sepuh").
+  - **rival**: pemain kompetitif yang peringkatnya berdekatan (±6) menantang santai.
+  - **ucapan**: teman bot / rekan guild memberi selamat. Rekan guild juga sesekali membanggakanmu di obrolan guild selama kamu di 10 besar.
+  - Sebagian sekalian mengajak berteman. Kamu bisa **membalas bot yang lebih dulu mengirim pesan** walau belum berteman (DM menampilkan "Belum berteman + Tambah Teman"); ia membalas seperti teman bot biasa.
+  - Pesan ditulis Claude bila AI DM + Guild nyala (konteks: alasan menghubungi, data publikmu termasuk peringkat, guild kalian, relasi), selain itu kalimat biasa.

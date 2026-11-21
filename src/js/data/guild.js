@@ -92,5 +92,6 @@ const GCH={
  vote:['waduh ada mosi kudeta','serius nih mau ganti ketua?','aku sih dukung {n}','aku tetap sama ketua','ketua jarang on sih emang','jangan ribut dong','vote dulu semua','hmm aku netral aja'],
  coup:['ketua baru! {n} menang voting','wah beneran kudeta berhasil','selamat {n}, semoga guild makin aktif','sedih ketua lama diganti'],
  coupno:['mosi gagal, ketua tetap','udah udah, damai lagi ya','yaudah ketua tetap, lanjut main'],
- found:['guild baru, ayo rame in','halo semua, guild baru nih, ajak temen ya','gas kita bikin guild ini top']
+ found:['guild baru, ayo rame in','halo semua, guild baru nih, ajak temen ya','gas kita bikin guild ini top'],
+ fame:['{n} makin gila CP nya','guild kita punya {k} server nih, {n}','{n} gendong guild wkwk','bangga ada {n} di sini','{n} bagi tips dong','pantes guild kita naik, ada {n}']
 };

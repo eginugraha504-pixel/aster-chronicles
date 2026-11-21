@@ -237,6 +237,7 @@ function gDmCtx(i){if(!gReady())return{};const me=gMine(),g0=gBotGuild(i),uid=bo
  if(me){const pm=P.get(me.id),r=GS.mem.get(NET.acct.uid);o.mine=`${me.name} (Lv ${me.lv}, peringkat #${pm.rk}, ${me.M.length}/${me.cap} anggota, ${NET.acct.u} ${G_ROLE[r.role]})`}
  if(g0){const pa=P.get(g0.id),m=GS.mem.get(uid);o.theirs=`${g0.name} (Lv ${g0.lv}, peringkat #${pa.rk}), jabatan ${G_ROLE[m.role]}, sudah ${Math.max(1,Math.round((Date.now()-m.joined)/BDAY))} hari${me&&me.id===g0.id?' — SATU GUILD dengan '+NET.acct.u:''}`}
  const inv=S.gInvDM&&S.gInvDM[uid]>Date.now();if(inv&&me&&(!g0||g0.id!==me.id)){o.inv=true;o.hint=gInvHint(i);o.ok=Math.random()<gInvP(i)}
+ const of=(S.gOffer||[]).find(x=>x.by===uid&&GS.G.has(x.gid));if(of&&(!me||me.id!==of.gid))o.recruit=`kamu sudah mengundang ${NET.acct.u} masuk guild-mu ${GS.G.get(of.gid).name} (undangannya menunggu di tab Undangan guild ${NET.acct.u}); kalau ia mau, suruh ia terima di sana`;
  const v=g0&&me&&g0.id===me.id?gVoteOf(g0.id):null;if(v){const w=v.who===NET.acct.uid?NET.acct.u:gMemInfo({uid:v.who}).name,t=gMemInfo({uid:v.tgt}).name;o.vote=`${w} ingin menggulingkan ketua ${t} (berakhir ${new Date(v.t1).toTimeString().slice(0,5)})${v.who===NET.acct.uid?'; '+NET.acct.u+' minta dukunganmu':v.tgt===NET.acct.uid?'; '+NET.acct.u+' adalah ketua yang mau digulingkan':''}`}
  return o}
 
@@ -257,6 +258,8 @@ function gVirt(g,info,from,to){const out=[],now=Date.now(),wbN=t=>{try{const c=w
   else if(e.ty==='k'){o.n=nm(e.a);L=GCH.kick}else if(e.ty==='lvup'){o.lv=e.x;o.nx=Math.min(10,+e.x+1);L=GCH.lvup;n=2}else if(e.ty==='L'){o.n=nm(e.a);L=GCH.lead;n=2}
   else if(e.ty==='vote'){o.n=nm(e.a);L=GCH.vote;n=3}else if(e.ty==='coup'){o.n=nm(e.a);L=GCH.coup;n=2}else if(e.ty==='coupno'){L=GCH.coupno}else if(e.ty==='found'){const fi=botIdxOf(e.a);if(fi>=0){out.push({uid:e.a,u:botName(fi),txt:pk(GCH.found),ts:e.ts+6e4,v:1})}continue}
   if(!L)continue;for(let q=0;q<n;q++){const t=e.ts+(30+R()*240+q*70)*1e3;if(t>now)break;const x=onAt(t,R,ex)||(q===0?bots[Math.floor(R()*bots.length)]:null);if(!x)continue;out.push({uid:x.m.uid,u:botName(x.i),txt:fill(pk(L),o),ts:Math.round(t),v:1})}}
+ // pemain (aku) masuk 10 besar CP server → sesekali dibanggakan rekan guild
+ const fr=S.fame&&S.fame.rk;if(fr&&fr<=10&&loggedIn()&&g.M.some(m=>m.uid===NET.acct.uid))for(let h=Math.floor(from/(3*36e5));h*3*36e5<=to;h++){const R=bRng(bHash(g.id,h*11+7));if(R()>.3)continue;const t=h*3*36e5+Math.floor(R()*3*36e5);if(t<from||t>to)continue;const x=onAt(t,R,NET.acct.uid);if(x)out.push({uid:x.m.uid,u:botName(x.i),txt:fill(GCH.fame[Math.floor(R()*GCH.fame.length)],{n:S.name,k:fr<=1?'#1':fr<=3?'top 3':'top 10'}),ts:t,v:1})}
  return out.filter(m=>m.ts<=now)}
 
 /* ---------- tindakan pemain ---------- */
