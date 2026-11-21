@@ -52,12 +52,14 @@ function tuRedeem(code,onlyId){const I=tuState(),c=tuNorm(code);if(c.length!==10
   if(o.st==='paid')return{err:T('Kode ini sudah dipakai.')};
   return tuDeliver(id)}
  return{err:T('Kode tidak cocok dengan pesanan mana pun. Pastikan kode dari pesanan yang benar dan belum kedaluwarsa.')}}
+// total belanja naik → VIP baru diumumkan ke server (VIP ≥ ANN_CFG.vipMin)
+function tuSpent(I,p){const v0=vipOf(I.spent||0);I.spent=(I.spent||0)+p;const v1=vipOf(I.spent);if(v1>v0&&typeof annMine==='function')setTimeout(()=>annMine('vip',v1),2500)}
 function tuDeliver(id){const I=tuState(),o=I.orders[id],p=tuSku(o.sku);let rw={},first=false;
- if(p.bun){rw=bunDeliver(o.sku).rw||{};o.st='paid';o.paidT=Date.now();o.gems=rw.gems||0;I.spent=(I.spent||0)+o.price;save();return{ok:1,id,sku:o.sku,rw,bun:1}}
+ if(p.bun){rw=bunDeliver(o.sku).rw||{};o.st='paid';o.paidT=Date.now();o.gems=rw.gems||0;tuSpent(I,o.price);save();return{ok:1,id,sku:o.sku,rw,bun:1}}
  if(p.card){rw.gems=p.now;const d=wibDay();I.card.until=Math.max(I.card.until,d-1)+p.days;
   // permata hari ini langsung masuk juga (lewat surat)
  }else{first=!I.first[o.sku];rw.gems=p.gems+(first?p.gems:p.bonus);I.first[o.sku]=1}
- grant(rw);o.st='paid';o.paidT=Date.now();o.gems=rw.gems;I.spent=(I.spent||0)+o.price;save();if(p.card)tuCardTick();
+ grant(rw);o.st='paid';o.paidT=Date.now();o.gems=rw.gems;tuSpent(I,o.price);save();if(p.card)tuCardTick();
  return{ok:1,id,sku:o.sku,rw,first,card:!!p.card}}
 // Kartu Bulanan: kirim permata harian lewat surat (sekali per hari WIB, hari yang terlewat hangus)
 function tuCardTick(){const I=tuState(),d=wibDay(),c=TOPUP_CFG.card;if(I.card.until<d||I.card.last===d)return;I.card.last=d;

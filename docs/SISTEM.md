@@ -196,6 +196,13 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - Dana Pertumbuhan: klaim permata per level di tab Paket. Beli Emas: kartu di Toko Emas (`goldBuy`).
 - `S.iap.bun = {bought, offers, gf.claimed, gold, pop}`.
 
+## Pengumuman server & Rekor (21 Nov 2026)
+- Data `ANN_CFG` (data/announce.js, ikut ke server lewat `BOTCFG.ANN`), mesin `systems/announce.js`, tampilan `ui/announce.js` + `css/announce.css`, server `/api/ann` (POST) + `ann` di `/api/wc` (GET `as`/`fk`/`st`), tabel `ann` (migrasi 0011).
+- Jenis: `p3` ★3 dari Panggilan, `vip` naik VIP (≥3), `top1` #1 CP/Arena baru, `t10` masuk 10 besar CP pertama kali, `rec` rekor pertama server (dunia 1–8, CP 10rb–2jt, ★4/★5/★6, koleksi lengkap), `mvp` Bos Dunia.
+- Beranda: strip Obrolan Dunia berubah jadi pita emas berjalan selama satu pengumuman (teks panjang digeser). Obrolan Dunia: baris [Sistem] (nama bisa diketuk). Peringkat › tab **Rekor**.
+- Kejadian bot dilaporkan sebelum terjadi & disimpan dengan waktu kejadiannya → sama untuk semua pemain. Kejadianmu sendiri (★3, VIP) dilaporkan saat terjadi (wajib akun). GM: hanya terlihat sendiri.
+- Reset server / rilis serentak menghapus pengumuman & rekor server itu; gabung server memindahkan yang tidak bentrok.
+
 ## Penjualan bot → bank Telegram
 - `js/systems/botsale.js`: tiap menit game melaporkan pembelian bot (sejak `BOT_CFG.SPEND.bankFrom`, maks 3 hari) ke `POST /api/botsale` (HMAC `TOPUP_CFG.secret`). Server (`bank-worker/`, tabel `botsales`, migrasi 0003) membuang duplikat per kunci lalu menambah saldo **HUN2 STUDIO** + mutasi `jual`.
 - Telegram: tombol **🏢 HUN2 STUDIO** / `/toko` (saldo, penjualan hari ini/7 hari/total, pembeli terbesar, 10 transaksi terakhir), `/notif on|off` (kabar pembelian ≥ Rp799rb, default mati).

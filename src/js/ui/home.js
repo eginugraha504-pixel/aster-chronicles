@@ -46,7 +46,7 @@ function homeHTML(){const ns=nextStage(),id=homeHero(),h=HD[id],mdot=missionClai
 let lobby=null;
 // latar beranda ilustrasi: versi senja jam 17.00–04.59 (jam perangkat), selain itu versi siang
 function homeArt(){if(typeof wbMode==='function'&&wbMode()&&hasBgArt('home_wb'))return'home_wb';const h=new Date().getHours(),k=(h>=17||h<5)&&hasBgArt('home_eve')?'home_eve':'home_day';return hasBgArt(k)?k:null}
-function initLobby(){const cv=$('#lobbyc'),st=$('.hstage');if(!st)return;lobbyPlace();const bc=$('#hbgc');lobby={cv,st,g:cv&&cv.getContext('2d'),bg:bc&&bc.getContext('2d'),id:homeHero(),t:0,jump:0,happy:0,banT:0};if(lobby.bg)drawHomeScene(lobby.bg,0)}
+function initLobby(){if(typeof annStripTick==='function')annStripTick($('#hchat'));const cv=$('#lobbyc'),st=$('.hstage');if(!st)return;lobbyPlace();const bc=$('#hbgc');lobby={cv,st,g:cv&&cv.getContext('2d'),bg:bc&&bc.getContext('2d'),id:homeHero(),t:0,jump:0,happy:0,banT:0};if(lobby.bg)drawHomeScene(lobby.bg,0)}
 function drawLobby(dt){const L=lobby;if(!L||!L.st.isConnected){lobby=null;return}L.t+=dt;
  {const now=Date.now();if(HB.hide&&now>HB.hide)bubbleHide();if(!HB.hide&&now>HB.next){const v=heroLineV(L.id);bubbleShow(L.id,v.t,bubbleMs(v.t));if(v.k)voice(v.k);HB.next=now+6e4+Math.random()*12e4}}
  L.banT+=dt;if(L.banT>4.5){L.banT=0;banIdx=(banIdx+1)%BANNERS.length;const e=$('#hban');if(e)e.innerHTML=banHTML()}

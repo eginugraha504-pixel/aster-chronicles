@@ -1,0 +1,46 @@
+/* =====================================================================
+   PENGUMUMAN SERVER (ui/announce.js)
+   ===================================================================== */
+/* pita berjalan: strip Obrolan Dunia di beranda berubah emas selama satu pengumuman */
+.hchat.ann{gap:6px;padding:0 8px 0 4px;animation:annIn .45s cubic-bezier(.2,.9,.3,1.2);
+ background:linear-gradient(90deg,rgba(92,40,4,.95),rgba(150,82,10,.93) 50%,rgba(92,40,4,.95)) padding-box,linear-gradient(90deg,#fff0a8,#e0a020 30%,#fff0a8 60%,#c98a1a) border-box;
+ box-shadow:0 0 0 1px rgba(255,220,120,.35),0 0 14px rgba(255,190,60,.55),0 3px 8px rgba(0,0,0,.45);overflow:hidden}
+.hchat.ann:after{display:none}
+.hchat.ann:before{content:'';position:absolute;top:0;bottom:0;left:-40%;width:30%;background:linear-gradient(100deg,transparent,rgba(255,250,220,.35),transparent);animation:annShine 2.6s .5s ease-in-out infinite;pointer-events:none}
+.hchat .anico{flex:none;width:22px;height:22px;display:grid;place-items:center;animation:annHorn 1.2s ease-in-out infinite}
+.hchat .anico .ix{width:21px;height:21px}
+.hchat .antag{flex:none;font-style:normal;font-size:9.5px;font-weight:900;letter-spacing:.3px;color:#5a2a00;background:linear-gradient(#fff3b0,#ffc83d);border-radius:6px;padding:1px 5px;box-shadow:0 1px 0 #8a5a18}
+.hchat .anmq{flex:1;min-width:0;overflow:hidden;white-space:nowrap;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6px,#000 calc(100% - 10px),transparent);mask-image:linear-gradient(90deg,transparent,#000 6px,#000 calc(100% - 10px),transparent)}
+.hchat .anmt{display:inline-block;font-size:11.5px;font-weight:700;color:#fff6dc;text-shadow:0 1px 0 rgba(60,20,0,.8);will-change:transform}
+.hchat .anmt .ann-n{color:#fff;font-weight:900}
+.hchat .anmt .ann-h{color:#ffe066}.hchat .anmt .ann-h.lim{color:#ff9de0}
+@keyframes annIn{0%{transform:scaleY(.4);opacity:0}100%{transform:none;opacity:1}}
+@keyframes annShine{0%{left:-40%}60%,100%{left:120%}}
+@keyframes annHorn{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(6deg) scale(1.08)}}
+
+/* Obrolan Dunia: baris [Sistem] (dasar .chsys di css/chat.css) */
+.chsys{align-items:flex-start;justify-content:flex-start;gap:6px;margin:8px auto 2px;padding:5px 10px 5px 7px;max-width:94%;text-align:left;font-weight:700;
+ background:rgba(255,214,110,.26);border:1.5px solid rgba(214,150,30,.3)}
+.chsys img{width:18px;height:18px;border-radius:0;flex:none;margin-top:1px}
+.chsys p{margin:0;min-width:0;font-size:11.5px;line-height:1.38}
+.chsys p small{font-size:9.5px;opacity:.5;font-weight:700;margin-left:6px;white-space:nowrap}
+.chsys .ann-n{background:none;border:0;padding:0;font:inherit;font-weight:900;color:#7a3f12;text-decoration:underline dotted rgba(122,63,18,.5);text-underline-offset:2px}
+.chsys b.ann-n{text-decoration:none}
+.chsys .ann-h{color:#b4560a}.chsys .ann-h.lim{color:#c0308a}
+.chsys.hot{background:linear-gradient(90deg,rgba(255,196,70,.5),rgba(255,226,140,.32));border-color:rgba(214,150,30,.6);color:#6a3c00}
+
+/* Peringkat › Rekor */
+.rcnote{margin:0 4px 6px;font-size:11px;color:var(--mut);text-align:center}
+.rclist{gap:4px}
+.rcsec{margin:6px 4px 1px;font-size:11.5px;font-weight:900;color:#7a4a18;letter-spacing:.2px}.rcsec i{font-style:normal;font-weight:800;color:var(--mut);margin-left:4px}
+.rclist .rcrow{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:12px;background:#fff8e6;border:2px solid rgba(74,42,23,.3)}
+.rcrow .rcic{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(#fff6d0,#f0c860);border:2px solid #b07818}
+.rcrow .rcic .ix{width:18px;height:18px}
+.rcrow .rct{flex:1;min-width:0;display:flex;flex-direction:column}
+.rcrow .rct b{font-size:12px;color:var(--txt);line-height:1.2}
+.rcrow .rct small{font-size:10px;color:var(--mut)}
+.rcrow .rcwho{flex:none;max-width:44%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:inherit;font-size:11.5px;font-weight:900;color:#7a3f12;background:linear-gradient(#fff3c4,#ffd86a);border:2px solid #b07818;border-radius:10px;padding:3px 8px}
+.rcrow .rcwho em{font-style:normal;font-size:10px;color:#2f7a2f}
+.rcrow.mine{border-color:#4a9a3a;background:#f0fbe6}
+.rcrow.none{opacity:.6;background:#f6efe0;border-style:dashed}
+.rcrow.none .rcic{filter:grayscale(1);opacity:.7}

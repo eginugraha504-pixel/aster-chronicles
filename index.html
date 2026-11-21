@@ -1444,6 +1444,54 @@ i.on{display:inline-block;width:9px;height:9px;border-radius:50%;background:#3ad
 .chstkp.on{display:grid}.chstkp button{padding:0;border:0;background:none;cursor:pointer}.chstkp img.chstk{width:100%;height:auto;aspect-ratio:1}
 .chstkb{flex:none;width:40px;padding:0;border:2px solid #7a4a28;border-radius:12px;background:#fffaf0;cursor:pointer}.chstkb img.chstk{width:30px;height:30px;filter:none}
 
+/* ==== css/announce.css ==== */
+/* =====================================================================
+   PENGUMUMAN SERVER (ui/announce.js)
+   ===================================================================== */
+/* pita berjalan: strip Obrolan Dunia di beranda berubah emas selama satu pengumuman */
+.hchat.ann{gap:6px;padding:0 8px 0 4px;animation:annIn .45s cubic-bezier(.2,.9,.3,1.2);
+ background:linear-gradient(90deg,rgba(92,40,4,.95),rgba(150,82,10,.93) 50%,rgba(92,40,4,.95)) padding-box,linear-gradient(90deg,#fff0a8,#e0a020 30%,#fff0a8 60%,#c98a1a) border-box;
+ box-shadow:0 0 0 1px rgba(255,220,120,.35),0 0 14px rgba(255,190,60,.55),0 3px 8px rgba(0,0,0,.45);overflow:hidden}
+.hchat.ann:after{display:none}
+.hchat.ann:before{content:'';position:absolute;top:0;bottom:0;left:-40%;width:30%;background:linear-gradient(100deg,transparent,rgba(255,250,220,.35),transparent);animation:annShine 2.6s .5s ease-in-out infinite;pointer-events:none}
+.hchat .anico{flex:none;width:22px;height:22px;display:grid;place-items:center;animation:annHorn 1.2s ease-in-out infinite}
+.hchat .anico .ix{width:21px;height:21px}
+.hchat .antag{flex:none;font-style:normal;font-size:9.5px;font-weight:900;letter-spacing:.3px;color:#5a2a00;background:linear-gradient(#fff3b0,#ffc83d);border-radius:6px;padding:1px 5px;box-shadow:0 1px 0 #8a5a18}
+.hchat .anmq{flex:1;min-width:0;overflow:hidden;white-space:nowrap;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6px,#000 calc(100% - 10px),transparent);mask-image:linear-gradient(90deg,transparent,#000 6px,#000 calc(100% - 10px),transparent)}
+.hchat .anmt{display:inline-block;font-size:11.5px;font-weight:700;color:#fff6dc;text-shadow:0 1px 0 rgba(60,20,0,.8);will-change:transform}
+.hchat .anmt .ann-n{color:#fff;font-weight:900}
+.hchat .anmt .ann-h{color:#ffe066}.hchat .anmt .ann-h.lim{color:#ff9de0}
+@keyframes annIn{0%{transform:scaleY(.4);opacity:0}100%{transform:none;opacity:1}}
+@keyframes annShine{0%{left:-40%}60%,100%{left:120%}}
+@keyframes annHorn{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(6deg) scale(1.08)}}
+
+/* Obrolan Dunia: baris [Sistem] (dasar .chsys di css/chat.css) */
+.chsys{align-items:flex-start;justify-content:flex-start;gap:6px;margin:8px auto 2px;padding:5px 10px 5px 7px;max-width:94%;text-align:left;font-weight:700;
+ background:rgba(255,214,110,.26);border:1.5px solid rgba(214,150,30,.3)}
+.chsys img{width:18px;height:18px;border-radius:0;flex:none;margin-top:1px}
+.chsys p{margin:0;min-width:0;font-size:11.5px;line-height:1.38}
+.chsys p small{font-size:9.5px;opacity:.5;font-weight:700;margin-left:6px;white-space:nowrap}
+.chsys .ann-n{background:none;border:0;padding:0;font:inherit;font-weight:900;color:#7a3f12;text-decoration:underline dotted rgba(122,63,18,.5);text-underline-offset:2px}
+.chsys b.ann-n{text-decoration:none}
+.chsys .ann-h{color:#b4560a}.chsys .ann-h.lim{color:#c0308a}
+.chsys.hot{background:linear-gradient(90deg,rgba(255,196,70,.5),rgba(255,226,140,.32));border-color:rgba(214,150,30,.6);color:#6a3c00}
+
+/* Peringkat › Rekor */
+.rcnote{margin:0 4px 6px;font-size:11px;color:var(--mut);text-align:center}
+.rclist{gap:4px}
+.rcsec{margin:6px 4px 1px;font-size:11.5px;font-weight:900;color:#7a4a18;letter-spacing:.2px}.rcsec i{font-style:normal;font-weight:800;color:var(--mut);margin-left:4px}
+.rclist .rcrow{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:12px;background:#fff8e6;border:2px solid rgba(74,42,23,.3)}
+.rcrow .rcic{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(#fff6d0,#f0c860);border:2px solid #b07818}
+.rcrow .rcic .ix{width:18px;height:18px}
+.rcrow .rct{flex:1;min-width:0;display:flex;flex-direction:column}
+.rcrow .rct b{font-size:12px;color:var(--txt);line-height:1.2}
+.rcrow .rct small{font-size:10px;color:var(--mut)}
+.rcrow .rcwho{flex:none;max-width:44%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:inherit;font-size:11.5px;font-weight:900;color:#7a3f12;background:linear-gradient(#fff3c4,#ffd86a);border:2px solid #b07818;border-radius:10px;padding:3px 8px}
+.rcrow .rcwho em{font-style:normal;font-size:10px;color:#2f7a2f}
+.rcrow.mine{border-color:#4a9a3a;background:#f0fbe6}
+.rcrow.none{opacity:.6;background:#f6efe0;border-style:dashed}
+.rcrow.none .rcic{filter:grayscale(1);opacity:.7}
+
 /* ==== css/social.css ==== */
 /* ================= SOSIAL: teman, pesan 1:1, profil, kartu masuk/daftar ================= */
 .socbox{display:flex;flex-direction:column;max-height:86vh}
@@ -3532,6 +3580,31 @@ const WB_RW={
  // mingguan (Poin Pemburu = total damage Senin–Minggu)
  week:[{to:1,rw:{asc1:3,gems:600,badge:60}},{to:2,rw:{asc1:2,gems:400,badge:40}},{to:3,rw:{asc1:1,gems:300,badge:30}},{to:10,rw:{gems:150,badge:20}},{to:50,rw:{gold:30000}}]};
 
+/* ==== js/data/announce.js ==== */
+/* =====================================================================
+   PENGUMUMAN SERVER — angka keseimbangan
+   Mesin: systems/announce.js · Tampilan: ui/announce.js + css/announce.css
+   Server: bank-worker/src/game.js (/api/ann, tabel ann) — angka yang sama ikut ke botcfg.js (BOTCFG.ANN)
+   Isi: ★3 dari Panggilan, naik VIP, pergantian #1 CP & Arena, rekor pertama server, MVP Bos Dunia.
+   Tampil sebagai pita berjalan di beranda (strip Obrolan Dunia) + baris [Sistem] di Obrolan Dunia.
+   Disimpan server → semua pemain di server yang sama melihat pengumuman yang sama.
+   ===================================================================== */
+const ANN_CFG={
+ p3Slot:6*6e4,       // ★3 bot: paling banyak satu pengumuman per slot (acak berbobot: terbatas ×1,5, sultan sampai ×1,6)
+ vipSlot:20*6e4,     // naik VIP bot: satu per slot
+ quiet:.2,           // jam paling sepi (pukul 3–4 pagi) hanya ±20% slot yang dipakai; makin ramai jamnya (BOT_CFG.HOURS) makin penuh
+ vipMin:3,           // VIP yang diumumkan (pemain asli & bot sama)
+ cd:{cp:20*6e4,ar:45*6e4},   // jeda minimal antar pergantian #1 (supaya tidak bolak-balik)
+ hold:2*6e4,         // #1 baru harus bertahan sekian lama sebelum dilaporkan
+ recCP:[10000,50000,100000,250000,500000,1000000,2000000],   // rekor "pertama menembus CP …"
+ recAsc:[4,5,6],     // rekor "pertama membangkitkan hero ke ★…"
+ win:20*6e4,         // ★3 & VIP bot dihitung sejauh ini ke depan (sekali hitung, lalu dipakai bertahap)
+ ahead:6*6e4,        // dilaporkan sekian lama SEBELUM terjadi; server menyimpannya dengan waktu kejadian
+ keep:3*864e5,       // pengumuman biasa disimpan 3 hari (rekor disimpan sampai server direset)
+ show:7000,          // lama minimal satu pengumuman di pita beranda (ms); teks panjang ditambah waktu geser
+ fresh:3*6e4,        // pengumuman lebih tua dari ini tidak diputar lagi di pita
+};
+
 /* ==== js/data/worlds.js ==== */
 /* =====================================================================
    DUNIA & TAHAP — tambah dunia = tambah 1 entri (5 tahap dibuat otomatis)
@@ -4299,7 +4372,10 @@ Object.assign(I18N.en,{'Rivalmu':'Your rival','hari ke-{n}':'day {n}','Salip':'O
  'Kamu meninggalkan rivalmu {n} jauh di belakang. Kamu menang!':'You left your rival {n} far behind. You win!','{n} melesat jauh di depanmu. Rival baru akan dicarikan.':'{n} pulled far ahead of you. A new rival will be found.','Rivalmu {n} sudah lama tidak bermain.':'Your rival {n} hasn\'t played in a while.',
  'peserta':'participants',
  'sedang mengetik...':'typing...',
- '+{n} Emas':'+{n} Gold','+{n} Permata dari Dana Pertumbuhan!':'+{n} Gems from the Growth Fund!','Aktif · naikkan level untuk klaim':'Active · level up to claim','Bagian dari {n}. Pilih hero ★{s} yang kamu mau.':'Part of {n}. Pick the ★{s} hero you want.','Batas beli emas hari ini habis. Besok lagi!':'Gold purchase limit reached for today. Come back tomorrow!','Bayar sekali, permata cair tiap naik level — total {n} Permata':'Pay once, gems unlock every level — {n} Gems total','Beli Emas':'Buy Gold','Dana Pertumbuhan':'Growth Fund','Dana Pertumbuhan aktif! Klaim permata di Toko › Paket setiap naik level.':'Growth Fund active! Claim gems in Shop › Bundles every level up.','Dibayar lewat bot Bank Central Universe di Telegram, isi paket masuk otomatis. Uang & barangnya fiktif.':'Paid via the Bank Central Universe bot on Telegram; items arrive automatically. Money and items are fictional.','Dibayar {t}. Isi paket sudah masuk.':'Paid {t}. Bundle delivered.','Habis bulan ini':'Sold out this month','Habis minggu ini':'Sold out this week','Hero ★{n} pilihanmu menunggu di Kotak Surat.':'Your ★{n} hero pick is waiting in the Mailbox.','Isi paket langsung masuk ke akun':'Contents go straight to your account','KHUSUS PEMAIN BARU!':'NEW PLAYER SPECIAL!','KRITIS ×{m}! +{n} Emas':'CRITICAL ×{m}! +{n} Gold','Klaim {n} Permata':'Claim {n} Gems','Lencana':'Badges','Lihat Semua Paket':'See All Bundles','Menunggu pembayaran... Paket masuk otomatis setelah kamu menekan ✅ Bayar di bot.':'Waiting for payment... The bundle arrives automatically after you tap ✅ Pay in the bot.','NILAI':'VALUE','Nanti':'Later','PENAWARAN TERBATAS!':'LIMITED OFFER!','Paket':'Bundles','Paket Bulanan':'Monthly Bundles','Paket Mingguan':'Weekly Bundles','Penawaran Terbatas':'Limited Offers','Penawaran terbatas':'Limited offer','Permata cair tiap naik level (Lv {a}–{b})':'Gems unlock as you level up (Lv {a}–{b})','Pilih Hero ★{n}':'Pick a ★{n} Hero','Sekali beli':'One-time','Sudah dibeli':'Already purchased','Terbeli ✓':'Purchased ✓','Tiap bulan':'Monthly','Tiap minggu':'Weekly','jt':'M','klaim {n}':'claim {n}','membeli {n}':'bought {n}','reset Senin 00:00 WIB':'resets Monday 00:00 WIB','{n} Emas · kadang KRITIS ×2/×3 · sisa {a}/{b} hari ini':'{n} Gold · sometimes CRITICAL ×2/×3 · {a}/{b} left today','{n} berhasil dibeli!':'{n} purchased!','{n}: pilih 1 hero ★{s}':'{n}: pick 1 ★{s} hero','Paket ini terbuka di Lv {n}.':'This bundle unlocks at Lv {n}.','Paket ini sudah dibeli atau sudah tidak tersedia.':'This bundle was already bought or is no longer available.','Paket Pemula':'Starter Pack','Paket Petualang':'Adventurer Pack','Paket Sultan':'Sultan Pack','Paket Mingguan Hemat':'Weekly Saver Pack','Paket Mingguan Kebangkitan':'Weekly Ascension Pack','Paket Bulanan Sultan':'Monthly Sultan Pack','Paket Lv 10':'Lv 10 Pack','Paket Lv 20':'Lv 20 Pack','Paket Lv 30':'Lv 30 Pack','Paket Lv 40':'Lv 40 Pack','Paket Lv 50':'Lv 50 Pack','Paket Lv 60':'Lv 60 Pack','Paket Lv 80':'Lv 80 Pack','Paket Lv 100':'Lv 100 Pack'});
+ '+{n} Emas':'+{n} Gold','+{n} Permata dari Dana Pertumbuhan!':'+{n} Gems from the Growth Fund!','Aktif · naikkan level untuk klaim':'Active · level up to claim','Bagian dari {n}. Pilih hero ★{s} yang kamu mau.':'Part of {n}. Pick the ★{s} hero you want.','Batas beli emas hari ini habis. Besok lagi!':'Gold purchase limit reached for today. Come back tomorrow!','Bayar sekali, permata cair tiap naik level — total {n} Permata':'Pay once, gems unlock every level — {n} Gems total','Beli Emas':'Buy Gold','Dana Pertumbuhan':'Growth Fund','Dana Pertumbuhan aktif! Klaim permata di Toko › Paket setiap naik level.':'Growth Fund active! Claim gems in Shop › Bundles every level up.','Dibayar lewat bot Bank Central Universe di Telegram, isi paket masuk otomatis. Uang & barangnya fiktif.':'Paid via the Bank Central Universe bot on Telegram; items arrive automatically. Money and items are fictional.','Dibayar {t}. Isi paket sudah masuk.':'Paid {t}. Bundle delivered.','Habis bulan ini':'Sold out this month','Habis minggu ini':'Sold out this week','Hero ★{n} pilihanmu menunggu di Kotak Surat.':'Your ★{n} hero pick is waiting in the Mailbox.','Isi paket langsung masuk ke akun':'Contents go straight to your account','KHUSUS PEMAIN BARU!':'NEW PLAYER SPECIAL!','KRITIS ×{m}! +{n} Emas':'CRITICAL ×{m}! +{n} Gold','Klaim {n} Permata':'Claim {n} Gems','Lencana':'Badges','Lihat Semua Paket':'See All Bundles','Menunggu pembayaran... Paket masuk otomatis setelah kamu menekan ✅ Bayar di bot.':'Waiting for payment... The bundle arrives automatically after you tap ✅ Pay in the bot.','NILAI':'VALUE','Nanti':'Later','PENAWARAN TERBATAS!':'LIMITED OFFER!','Paket':'Bundles','Paket Bulanan':'Monthly Bundles','Paket Mingguan':'Weekly Bundles','Penawaran Terbatas':'Limited Offers','Penawaran terbatas':'Limited offer','Permata cair tiap naik level (Lv {a}–{b})':'Gems unlock as you level up (Lv {a}–{b})','Pilih Hero ★{n}':'Pick a ★{n} Hero','Sekali beli':'One-time','Sudah dibeli':'Already purchased','Terbeli ✓':'Purchased ✓','Tiap bulan':'Monthly','Tiap minggu':'Weekly','jt':'M','klaim {n}':'claim {n}','membeli {n}':'bought {n}','reset Senin 00:00 WIB':'resets Monday 00:00 WIB','{n} Emas · kadang KRITIS ×2/×3 · sisa {a}/{b} hari ini':'{n} Gold · sometimes CRITICAL ×2/×3 · {a}/{b} left today','{n} berhasil dibeli!':'{n} purchased!','{n}: pilih 1 hero ★{s}':'{n}: pick 1 ★{s} hero','Paket ini terbuka di Lv {n}.':'This bundle unlocks at Lv {n}.','Paket ini sudah dibeli atau sudah tidak tersedia.':'This bundle was already bought or is no longer available.','Paket Pemula':'Starter Pack','Paket Petualang':'Adventurer Pack','Paket Sultan':'Sultan Pack','Paket Mingguan Hemat':'Weekly Saver Pack','Paket Mingguan Kebangkitan':'Weekly Ascension Pack','Paket Bulanan Sultan':'Monthly Sultan Pack','Paket Lv 10':'Lv 10 Pack','Paket Lv 20':'Lv 20 Pack','Paket Lv 30':'Lv 30 Pack','Paket Lv 40':'Lv 40 Pack','Paket Lv 50':'Lv 50 Pack','Paket Lv 60':'Lv 60 Pack','Paket Lv 80':'Lv 80 Pack','Paket Lv 100':'Lv 100 Pack',
+ 'Hoki! {n} mendapatkan ★3 {h} hanya dalam {k} tarikan!':'Lucky! {n} got ★3 {h} in just {k} pulls!','Selamat! {n} mendapatkan ★3 terbatas {h}!':'Congrats! {n} got limited ★3 {h}!','Selamat! {n} mendapatkan ★3 {h}!':'Congrats! {n} got ★3 {h}!','{n} mencapai VIP {v}, tingkat tertinggi!':'{n} reached VIP {v}, the highest tier!','Selamat! {n} naik ke VIP {v}!':'Congrats! {n} reached VIP {v}!','{n} menggeser {p} dari puncak Arena!':'{n} knocked {p} off the top of the Arena!','{n} kini memimpin peringkat Arena!':'{n} now leads the Arena ranking!','{n} merebut Peringkat #1 CP server dari {p}!':'{n} took the server\'s #1 CP spot from {p}!','{n} kini Peringkat #1 CP server!':'{n} is now #1 in server CP!','Rekor server! {n} jadi yang pertama menamatkan {w}!':'Server record! {n} is the first to clear {w}!','Rekor server! {n} jadi yang pertama menembus CP {v}!':'Server record! {n} is the first to break {v} CP!','Rekor server! {n} jadi yang pertama membangkitkan hero ke ★{s}!':'Server record! {n} is the first to awaken a hero to ★{s}!','Rekor server! {n} jadi yang pertama mengoleksi semua {c} hero!':'Server record! {n} is the first to collect all {c} heroes!','Bos Dunia {b} tumbang! MVP: {n} dengan {d} damage.':'World Boss {b} defeated! MVP: {n} with {d} damage.','Bos Dunia {b} berhasil kabur. Damage terbesar: {n}.':'World Boss {b} escaped. Top damage: {n}.','REKOR':'RECORD','Pertama menamatkan {w}':'First to clear {w}','Pertama menembus CP {v}':'First to break {v} CP','Pertama punya hero ★{s}':'First ★{s} hero','Pertama koleksi lengkap ({c} hero)':'First full collection ({c} heroes)','Memuat rekor...':'Loading records...','rekor tercatat':'records set','Siapa yang pertama di server ini? Rekor tercatat selamanya sampai server dibuka ulang.':'Who was first on this server? Records stay until the server is relaunched.','Belum ada — jadilah yang pertama!':'None yet — be the first!','Rekor':'Records',
+ 'Kekuatan Tim':'Team Power','Kebangkitan':'Awakening',
+ 'Selamat! {n} masuk 10 besar Peringkat CP server!':'Congrats! {n} entered the server\'s CP Top 10!'});
 
 /* ==== js/lang/ja.js ==== */
 /* =====================================================================
@@ -4548,7 +4624,10 @@ Object.assign(I18N.ja,{'Rivalmu':'ライバル','hari ke-{n}':'{n}日目','Salip
  'Kamu meninggalkan rivalmu {n} jauh di belakang. Kamu menang!':'ライバル{n}を大きく引き離した。あなたの勝ち！','{n} melesat jauh di depanmu. Rival baru akan dicarikan.':'{n}がはるか先へ。新しいライバルを探します。','Rivalmu {n} sudah lama tidak bermain.':'ライバル{n}はしばらくプレイしていない。',
  'peserta':'参加者',
  'sedang mengetik...':'入力中...',
- '+{n} Emas':'+{n} ゴールド','+{n} Permata dari Dana Pertumbuhan!':'成長基金から+{n}ジェム！','Aktif · naikkan level untuk klaim':'有効・レベルを上げて受け取ろう','Bagian dari {n}. Pilih hero ★{s} yang kamu mau.':'{n}の特典。好きな★{s}英雄を選ぼう。','Batas beli emas hari ini habis. Besok lagi!':'本日のゴールド購入上限に達しました。また明日！','Bayar sekali, permata cair tiap naik level — total {n} Permata':'一度の購入でレベルごとにジェム獲得 — 合計{n}ジェム','Beli Emas':'ゴールド購入','Dana Pertumbuhan':'成長基金','Dana Pertumbuhan aktif! Klaim permata di Toko › Paket setiap naik level.':'成長基金が有効！レベルアップごとにショップ › パックで受け取ろう。','Dibayar lewat bot Bank Central Universe di Telegram, isi paket masuk otomatis. Uang & barangnya fiktif.':'TelegramのBank Central Universeボットで支払うと自動で届きます。お金もアイテムも架空です。','Dibayar {t}. Isi paket sudah masuk.':'{t}に支払い済み。パックは受け取り済み。','Habis bulan ini':'今月は購入済み','Habis minggu ini':'今週は購入済み','Hero ★{n} pilihanmu menunggu di Kotak Surat.':'★{n}英雄の選択がメールボックスで待っています。','Isi paket langsung masuk ke akun':'内容はすぐにアカウントへ','KHUSUS PEMAIN BARU!':'新規プレイヤー限定！','KRITIS ×{m}! +{n} Emas':'クリティカル×{m}！+{n}ゴールド','Klaim {n} Permata':'{n}ジェムを受け取る','Lencana':'バッジ','Lihat Semua Paket':'すべてのパックを見る','Menunggu pembayaran... Paket masuk otomatis setelah kamu menekan ✅ Bayar di bot.':'支払い待ち… ボットで✅支払うを押すとパックが自動で届きます。','NILAI':'お得度','Nanti':'あとで','PENAWARAN TERBATAS!':'期間限定オファー！','Paket':'パック','Paket Bulanan':'月間パック','Paket Mingguan':'週間パック','Penawaran Terbatas':'期間限定オファー','Penawaran terbatas':'期間限定','Permata cair tiap naik level (Lv {a}–{b})':'レベルアップでジェム解放（Lv {a}–{b}）','Pilih Hero ★{n}':'★{n}英雄を選択','Sekali beli':'1回限り','Sudah dibeli':'購入済み','Terbeli ✓':'購入済み ✓','Tiap bulan':'毎月','Tiap minggu':'毎週','jt':'百万','klaim {n}':'{n}受取','membeli {n}':'{n}を購入','reset Senin 00:00 WIB':'月曜00:00(WIB)リセット','{n} Emas · kadang KRITIS ×2/×3 · sisa {a}/{b} hari ini':'{n}ゴールド・時々クリティカル×2/×3・本日残り{a}/{b}','{n} berhasil dibeli!':'{n}を購入しました！','{n}: pilih 1 hero ★{s}':'{n}：★{s}英雄を1人選択','Paket ini terbuka di Lv {n}.':'このパックはLv {n}で解放されます。','Paket ini sudah dibeli atau sudah tidak tersedia.':'このパックは購入済みか、もう販売していません。','Paket Pemula':'スターターパック','Paket Petualang':'冒険者パック','Paket Sultan':'スルタンパック','Paket Mingguan Hemat':'週間お得パック','Paket Mingguan Kebangkitan':'週間覚醒パック','Paket Bulanan Sultan':'月間スルタンパック','Paket Lv 10':'Lv10パック','Paket Lv 20':'Lv20パック','Paket Lv 30':'Lv30パック','Paket Lv 40':'Lv40パック','Paket Lv 50':'Lv50パック','Paket Lv 60':'Lv60パック','Paket Lv 80':'Lv80パック','Paket Lv 100':'Lv100パック'});
+ '+{n} Emas':'+{n} ゴールド','+{n} Permata dari Dana Pertumbuhan!':'成長基金から+{n}ジェム！','Aktif · naikkan level untuk klaim':'有効・レベルを上げて受け取ろう','Bagian dari {n}. Pilih hero ★{s} yang kamu mau.':'{n}の特典。好きな★{s}英雄を選ぼう。','Batas beli emas hari ini habis. Besok lagi!':'本日のゴールド購入上限に達しました。また明日！','Bayar sekali, permata cair tiap naik level — total {n} Permata':'一度の購入でレベルごとにジェム獲得 — 合計{n}ジェム','Beli Emas':'ゴールド購入','Dana Pertumbuhan':'成長基金','Dana Pertumbuhan aktif! Klaim permata di Toko › Paket setiap naik level.':'成長基金が有効！レベルアップごとにショップ › パックで受け取ろう。','Dibayar lewat bot Bank Central Universe di Telegram, isi paket masuk otomatis. Uang & barangnya fiktif.':'TelegramのBank Central Universeボットで支払うと自動で届きます。お金もアイテムも架空です。','Dibayar {t}. Isi paket sudah masuk.':'{t}に支払い済み。パックは受け取り済み。','Habis bulan ini':'今月は購入済み','Habis minggu ini':'今週は購入済み','Hero ★{n} pilihanmu menunggu di Kotak Surat.':'★{n}英雄の選択がメールボックスで待っています。','Isi paket langsung masuk ke akun':'内容はすぐにアカウントへ','KHUSUS PEMAIN BARU!':'新規プレイヤー限定！','KRITIS ×{m}! +{n} Emas':'クリティカル×{m}！+{n}ゴールド','Klaim {n} Permata':'{n}ジェムを受け取る','Lencana':'バッジ','Lihat Semua Paket':'すべてのパックを見る','Menunggu pembayaran... Paket masuk otomatis setelah kamu menekan ✅ Bayar di bot.':'支払い待ち… ボットで✅支払うを押すとパックが自動で届きます。','NILAI':'お得度','Nanti':'あとで','PENAWARAN TERBATAS!':'期間限定オファー！','Paket':'パック','Paket Bulanan':'月間パック','Paket Mingguan':'週間パック','Penawaran Terbatas':'期間限定オファー','Penawaran terbatas':'期間限定','Permata cair tiap naik level (Lv {a}–{b})':'レベルアップでジェム解放（Lv {a}–{b}）','Pilih Hero ★{n}':'★{n}英雄を選択','Sekali beli':'1回限り','Sudah dibeli':'購入済み','Terbeli ✓':'購入済み ✓','Tiap bulan':'毎月','Tiap minggu':'毎週','jt':'百万','klaim {n}':'{n}受取','membeli {n}':'{n}を購入','reset Senin 00:00 WIB':'月曜00:00(WIB)リセット','{n} Emas · kadang KRITIS ×2/×3 · sisa {a}/{b} hari ini':'{n}ゴールド・時々クリティカル×2/×3・本日残り{a}/{b}','{n} berhasil dibeli!':'{n}を購入しました！','{n}: pilih 1 hero ★{s}':'{n}：★{s}英雄を1人選択','Paket ini terbuka di Lv {n}.':'このパックはLv {n}で解放されます。','Paket ini sudah dibeli atau sudah tidak tersedia.':'このパックは購入済みか、もう販売していません。','Paket Pemula':'スターターパック','Paket Petualang':'冒険者パック','Paket Sultan':'スルタンパック','Paket Mingguan Hemat':'週間お得パック','Paket Mingguan Kebangkitan':'週間覚醒パック','Paket Bulanan Sultan':'月間スルタンパック','Paket Lv 10':'Lv10パック','Paket Lv 20':'Lv20パック','Paket Lv 30':'Lv30パック','Paket Lv 40':'Lv40パック','Paket Lv 50':'Lv50パック','Paket Lv 60':'Lv60パック','Paket Lv 80':'Lv80パック','Paket Lv 100':'Lv100パック',
+ 'Hoki! {n} mendapatkan ★3 {h} hanya dalam {k} tarikan!':'幸運！{n}がわずか{k}回で★3 {h}を獲得！','Selamat! {n} mendapatkan ★3 terbatas {h}!':'おめでとう！{n}が限定★3 {h}を獲得！','Selamat! {n} mendapatkan ★3 {h}!':'おめでとう！{n}が★3 {h}を獲得！','{n} mencapai VIP {v}, tingkat tertinggi!':'{n}がVIP {v}（最高ランク）に到達！','Selamat! {n} naik ke VIP {v}!':'おめでとう！{n}がVIP {v}にランクアップ！','{n} menggeser {p} dari puncak Arena!':'{n}が{p}をアリーナ首位から引きずり下ろした！','{n} kini memimpin peringkat Arena!':'{n}がアリーナランキング首位に！','{n} merebut Peringkat #1 CP server dari {p}!':'{n}が{p}からサーバーCP 1位を奪取！','{n} kini Peringkat #1 CP server!':'{n}がサーバーCP 1位に！','Rekor server! {n} jadi yang pertama menamatkan {w}!':'サーバー記録！{n}が最初に{w}をクリア！','Rekor server! {n} jadi yang pertama menembus CP {v}!':'サーバー記録！{n}が最初にCP {v}を突破！','Rekor server! {n} jadi yang pertama membangkitkan hero ke ★{s}!':'サーバー記録！{n}が最初にヒーローを★{s}に覚醒！','Rekor server! {n} jadi yang pertama mengoleksi semua {c} hero!':'サーバー記録！{n}が最初に全{c}ヒーローを収集！','Bos Dunia {b} tumbang! MVP: {n} dengan {d} damage.':'ワールドボス{b}撃破！MVP：{n}（ダメージ{d}）','Bos Dunia {b} berhasil kabur. Damage terbesar: {n}.':'ワールドボス{b}は逃走した。最大ダメージ：{n}','REKOR':'記録','Pertama menamatkan {w}':'{w}を最初にクリア','Pertama menembus CP {v}':'CP {v}を最初に突破','Pertama punya hero ★{s}':'最初の★{s}ヒーロー','Pertama koleksi lengkap ({c} hero)':'最初の全ヒーロー収集（{c}体）','Memuat rekor...':'記録を読み込み中...','rekor tercatat':'件の記録','Siapa yang pertama di server ini? Rekor tercatat selamanya sampai server dibuka ulang.':'このサーバーで一番乗りは誰？記録はサーバーが再オープンされるまで残ります。','Belum ada — jadilah yang pertama!':'まだ誰もいない — 一番乗りを目指そう！','Rekor':'記録',
+ 'Kekuatan Tim':'チーム戦力','Kebangkitan':'覚醒',
+ 'Selamat! {n} masuk 10 besar Peringkat CP server!':'おめでとう！{n}がサーバーCPランキングTOP10入り！'});
 
 /* ==== js/art/icons.js ==== */
 /* =====================================================================
@@ -6478,13 +6557,13 @@ function botSnap(b,t){for(let d=wibDay(t);d<=wibDay(t)+3;d++){for(const[s0,s1]of
 /* ---- ringkasan bot (CP, level, VIP, hero) — skala sampai 100rb bot ----
    Bot yang sudah berhenti (endT lewat) tidak berubah lagi → ringkasannya disimpan di localStorage dan tidak dihitung ulang.
    Bot aktif: dari botState (cache penuh dibatasi ±5000 objek). Ganti SUM_VER bila keseimbangan CP berubah. */
-const SUM_VER=7,BSUM={d:{},key:'',dirty:0,at:0};
+const SUM_VER=8,BSUM={d:{},key:'',dirty:0,at:0};
 const bsumKey=()=>botsSig()+':'+SUM_VER+':'+BOT_CFG.ERAS.length+':'+HEROES.length;
-function bsumLoad(){const k=bsumKey();if(BSUM.key===k)return;BSUM.key=k;BSUM.d={};for(const q in BSUMA)delete BSUMA[q];try{const o=JSON.parse(localStorage.getItem('aster_botsum')||'null');if(o&&o.k===k){const D=o.d||{};for(const i in D){const x=D[i];BSUM.d[i]=Array.isArray(x)?{cp:x[0],lv:x[1],vip:x[2],top:x[3],st:x[4]}:x}
-  const A=o.a||{};for(const i in A){const x=A[i];BSUMA[i]={k:x[0],o:{cp:x[1],lv:x[2],vip:x[3],top:x[4],st:x[5]}}}}}catch(e){}}
-function bsumSave(){bpuSave();if(!BSUM.dirty||Date.now()-BSUM.at<3e4)return;BSUM.at=Date.now();BSUM.dirty=0;const d={},a={};for(const i in BSUM.d){const o=BSUM.d[i];d[i]=[o.cp,o.lv,o.vip,o.top,o.st]}
+function bsumLoad(){const k=bsumKey();if(BSUM.key===k)return;BSUM.key=k;BSUM.d={};for(const q in BSUMA)delete BSUMA[q];try{const o=JSON.parse(localStorage.getItem('aster_botsum')||'null');if(o&&o.k===k){const D=o.d||{};for(const i in D){const x=D[i];BSUM.d[i]=Array.isArray(x)?{cp:x[0],lv:x[1],vip:x[2],top:x[3],st:x[4],nh:x[5],ms:x[6]}:x}
+  const A=o.a||{};for(const i in A){const x=A[i];BSUMA[i]={k:x[0],o:{cp:x[1],lv:x[2],vip:x[3],top:x[4],st:x[5],nh:x[6],ms:x[7]}}}}}catch(e){}}
+function bsumSave(){bpuSave();if(!BSUM.dirty||Date.now()-BSUM.at<3e4)return;BSUM.at=Date.now();BSUM.dirty=0;const d={},a={};for(const i in BSUM.d){const o=BSUM.d[i];d[i]=[o.cp,o.lv,o.vip,o.top,o.st,o.nh,o.ms]}
  // ringkasan bot beku (tidak berubah lagi) + bot aktif beserta kunci botKey-nya (dipakai lagi selama kuncinya sama); dibatasi ~900rb karakter agar kuota save pemain aman
- for(const i in BSUMA){if(BSUM.d[i])continue;const x=BSUMA[i],o=x.o;a[i]=[x.k,o.cp,o.lv,o.vip,o.top,o.st]}
+ for(const i in BSUMA){if(BSUM.d[i])continue;const x=BSUMA[i],o=x.o;a[i]=[x.k,o.cp,o.lv,o.vip,o.top,o.st,o.nh,o.ms]}
  let j=JSON.stringify({k:BSUM.key,d,a});if(j.length>9e5)j=JSON.stringify({k:BSUM.key,d});if(j.length>9e5){localStorage.removeItem('aster_botsum');return}
  try{localStorage.setItem('aster_botsum',j)}catch(e){try{localStorage.removeItem('aster_botsum')}catch(e2){}}}
 const botFrozen=(i,now=Date.now())=>{const b=botBase(i);return b.endT<now-6e4};
@@ -6493,7 +6572,7 @@ const BSUMA={};   // ringkasan bot aktif di memori, berlaku selama kunci botKey 
 const BSQ=new Set();
 function botSum(i,now=Date.now(),sync=false){bsumLoad();const fz=botFrozen(i,now);let o=fz?BSUM.d[i]:null;
  if(!o&&!fz){const k=botKey(i,now).key,a=BSUMA[i];if(a&&a.k===k)o=a.o;else if(a&&!sync){o=a.o;BSQ.add(i)}}
- if(!o){const s=botState(i,now);o={cp:s.cp,lv:s.lv,vip:s.stats.vip,top:s.av||s.fav||s.team[0],st:s.stage};if(fz){BSUM.d[i]=o}else BSUMA[i]={k:s.key,o};BSUM.dirty++}
+ if(!o){const s=botState(i,now),hs=Object.keys(s.heroes);o={cp:s.cp,lv:s.lv,vip:s.stats.vip,top:s.av||s.fav||s.team[0],st:s.stage,nh:hs.length,ms:Math.max(0,...hs.map(id=>s.heroes[id].asc||HD[id].r))};if(fz){BSUM.d[i]=o}else BSUMA[i]={k:s.key,o};BSUM.dirty++}
  const ov=typeof botOv==='function'&&botOv(i);if(ov&&(ov.lv!=null||ov.cp!=null||ov.vip!=null))o=Object.assign({},o,ov.lv!=null?{lv:ov.lv}:{},ov.cp!=null?{cp:ov.cp}:{},ov.vip!=null?{vip:ov.vip}:{});return o}
 const botPres=(i,now)=>botFrozen(i,now)?{online:false,last:botBase(i).endT}:botPresence(i,now);
 /* ---- daftar semua bot yang tampil (+ pemain sendiri) ---- */
@@ -7394,12 +7473,14 @@ function tuRedeem(code,onlyId){const I=tuState(),c=tuNorm(code);if(c.length!==10
   if(o.st==='paid')return{err:T('Kode ini sudah dipakai.')};
   return tuDeliver(id)}
  return{err:T('Kode tidak cocok dengan pesanan mana pun. Pastikan kode dari pesanan yang benar dan belum kedaluwarsa.')}}
+// total belanja naik → VIP baru diumumkan ke server (VIP ≥ ANN_CFG.vipMin)
+function tuSpent(I,p){const v0=vipOf(I.spent||0);I.spent=(I.spent||0)+p;const v1=vipOf(I.spent);if(v1>v0&&typeof annMine==='function')setTimeout(()=>annMine('vip',v1),2500)}
 function tuDeliver(id){const I=tuState(),o=I.orders[id],p=tuSku(o.sku);let rw={},first=false;
- if(p.bun){rw=bunDeliver(o.sku).rw||{};o.st='paid';o.paidT=Date.now();o.gems=rw.gems||0;I.spent=(I.spent||0)+o.price;save();return{ok:1,id,sku:o.sku,rw,bun:1}}
+ if(p.bun){rw=bunDeliver(o.sku).rw||{};o.st='paid';o.paidT=Date.now();o.gems=rw.gems||0;tuSpent(I,o.price);save();return{ok:1,id,sku:o.sku,rw,bun:1}}
  if(p.card){rw.gems=p.now;const d=wibDay();I.card.until=Math.max(I.card.until,d-1)+p.days;
   // permata hari ini langsung masuk juga (lewat surat)
  }else{first=!I.first[o.sku];rw.gems=p.gems+(first?p.gems:p.bonus);I.first[o.sku]=1}
- grant(rw);o.st='paid';o.paidT=Date.now();o.gems=rw.gems;I.spent=(I.spent||0)+o.price;save();if(p.card)tuCardTick();
+ grant(rw);o.st='paid';o.paidT=Date.now();o.gems=rw.gems;tuSpent(I,o.price);save();if(p.card)tuCardTick();
  return{ok:1,id,sku:o.sku,rw,first,card:!!p.card}}
 // Kartu Bulanan: kirim permata harian lewat surat (sekali per hari WIB, hari yang terlewat hangus)
 function tuCardTick(){const I=tuState(),d=wibDay(),c=TOPUP_CFG.card;if(I.card.until<d||I.card.last===d)return;I.card.last=d;
@@ -7871,7 +7952,7 @@ const netSrv=()=>loggedIn()?(+NET.acct.srv||1):(+(()=>{try{return localStorage.g
 const netApi=()=>(typeof TOPUP_CFG!=='undefined'&&TOPUP_CFG.api||'').replace(/\/$/,'');
 // pemutus sirkuit: server menolak (429 batas harian Cloudflare / 5xx) atau tidak terjangkau -> panggilan LATAR (ping, obrolan,
 // dunia, teman, simpan...) berhenti sementara 30 dtk, 1, 2, 4 ... maks 10 menit, supaya tidak memboroskan kuota permintaan.
-const NET_BG=/^\/api\/(ping|wc|wb|world|players|fr\/list|bots\/snap|dm\/threads|dm\/get|save|load)\b/;
+const NET_BG=/^\/api\/(ping|wc|wb|world|players|fr\/list|bots\/snap|dm\/threads|dm\/get|save|load|ann)\b/;
 function netDown(){const b=NET.backoff=Math.min(6e5,(NET.backoff||15e3)*2);NET.downUntil=Date.now()+b;if(!NET.downNote||Date.now()-NET.downNote>6e5){NET.downNote=Date.now();try{toast(T('Server sedang sibuk. Mencoba lagi sebentar lagi...'))}catch(e){}}}
 async function api(path,body,opt={}){if(!netApi())return{ok:false,e:'net'};
  if(NET.downUntil>Date.now()&&NET_BG.test(path))return{ok:false,e:'net',down:1};
@@ -7933,7 +8014,7 @@ function netApplyWorld(d,full){if(!d||!d.ok||!Array.isArray(d.worlds)||!d.worlds
   for(const k in BOTS.ov)if(Math.floor(+k/X)===s)delete BOTS.ov[k];for(const k in(w.ov||{}))BOTS.ov[s*X+(+k)]=w.ov[k];
   for(const k in(w.rv||{}))BOTS.rvAll[s*X+(+k)]=w.rv[k];
   let nn=0;while(nn<w.cap&&BOTS.srvNames[s*X+nn]!=null)nn++;W.push({g:w.g,e:w.e,cap:w.cap,newer:w.newer||[],nn,v:w.v,h:w.h,o:w.o,wh:w.wh})});
- if(NET.wsig!=null&&NET.wsig!==sig&&typeof WC!=='undefined'){WC.list=[];WC.since=0;WC.seen=0;try{localStorage.removeItem('aster_wcseen')}catch(e){}}  // dunia berubah: obrolan dimuat ulang
+ if(NET.wsig!=null&&NET.wsig!==sig&&typeof WC!=='undefined'){WC.list=[];WC.since=0;WC.seen=0;try{localStorage.removeItem('aster_wcseen')}catch(e){}if(typeof annReset==='function')annReset()}  // dunia berubah: obrolan dimuat ulang
  BOTS.uidIdx=null;BOTS.cache={};botsSetWorlds(W);if(typeof rvApply==='function')rvApply(Object.assign({},BOTS.rvAll));
  BOTS.names=BOTS.srvNames.slice();BOTS.nameSet=null;BOTS.ready=true;NET.worldOk=true;NET.wsig=sig;NET.worldSrv=d.srv;NET.srvName=d.name;NET.gen=BOTS.gen;
  try{localStorage.setItem(WORLD_KEY,JSON.stringify({ok:true,srv:d.srv,name:d.name,worlds:d.worlds.map((w,s)=>({g:w.g,e:w.e,cap:w.cap,newer:w.newer,v:w.v,h:w.h,o:w.o,wh:w.wh,from:0,
@@ -8421,6 +8502,137 @@ function rvProfHTML(i){const R=S.rv;if(!R)return'';const now=Date.now();
  const h=(R.hist||[]).find(x=>x.i===i&&x.gen===botsSig());return h?`<div class="rvprof old">${T('Mantan rival')} · ${rvWhy(h.why)} · ${T('saling salip: kamu {a}, dia {b}',{a:h.me,b:h.him})}</div>`:''}
 setTimeout(()=>{setInterval(()=>{try{rvTick()}catch(e){console.error(e)}},2e4)},15e3);
 
+/* ==== js/systems/announce.js ==== */
+/* =====================================================================
+   PENGUMUMAN SERVER — mesin (angka: data/announce.js · tampilan: ui/announce.js · server: /api/ann)
+   ---------------------------------------------------------------------
+   Semua pengumuman disimpan server → semua pemain di server yang sama melihat hal yang sama.
+   Sumber kejadian:
+   - ★3 & naik VIP para BOT: dari simulasi bot (deterministik, sama di semua perangkat). Bot yang punya sesi
+     main di jendela [sekarang, +20 menit] dihitung gacha & belanjanya (disimpan per bot ±1 jam ke depan,
+     dihitung sepotong-sepotong di latar). Tiap slot (★3: 6 menit, VIP: 20 menit) dipilih SATU kejadian
+     (acak berbobot: terbatas & sultan sedikit lebih sering; malam hari banyak slot dilewati) lalu dilaporkan
+     ±6 menit sebelum terjadi;
+     server menyimpannya dengan waktu kejadian dan baru mengirimkannya saat waktunya tiba.
+   - #1 CP & Arena: papan yang sama dengan layar Peringkat; dilaporkan bila #1 baru bertahan ≥2 menit.
+   - Masuk 10 besar CP pertama kali (sekali per orang per server; bot paling banyak 1 diumumkan per 10 menit).
+   - Rekor pertama server: ringkasan bot (CP, tahap, jumlah hero, ★ tertinggi) + datamu sendiri.
+   - MVP Bos Dunia: papan damage raid setelah bos tumbang / kabur.
+   - Kejadianmu sendiri: ★3 dari Panggilan (ui/summon.js) & naik VIP (systems/topup.js), dilaporkan saat terjadi.
+   Diambil bersama Obrolan Dunia (/api/wc?...&as=) — lihat wcFetch di ui/chat.js.
+   ===================================================================== */
+const ANN={list:[],ids:new Set(),keys:new Set(),since:0,st:null,stAt:0,stWant:0,fk:new Set(),q:[],cur:null,curT:0,
+ cand:{p3:{},vb:{}},scan:{to:0,sig:'',busy:false},bev:new Map(),sent:{},top:{},chkAt:0,arAt:0,recAt:0,mvp:{},
+ jit:Math.random()*3*6e4};   // jit: tiap perangkat melapor di saat berbeda (0–3 menit lebih lambat) → yang lain sudah melihat kuncinya terisi, tidak ikut melapor
+function annReset(){Object.assign(ANN,{seen0:0,list:[],ids:new Set(),keys:new Set(),since:0,st:null,stAt:0,stWant:0,fk:new Set(),q:[],cur:null,curT:0,
+ cand:{p3:{},vb:{}},scan:{to:0,sig:'',busy:false},bev:new Map(),sent:{},top:{},t10:{}})}
+// momen yang memancing obrolan (sama persis dengan annHot di server)
+function annHot(a){const d=a.d||{};if(d.gm||d.q)return false;if(a.ty==='top1'||a.ty==='rec'||a.ty==='mvp')return true;if(d.hu)return a.ty==='p3'||a.ty==='vip'||a.ty==='t10';
+ return a.ty==='p3'?!!(d.l||d.n)&&a.id%100<40:a.ty==='t10'?a.id%100<30:a.ty==='vip'&&d.v>=7&&a.id%100<30}
+
+/* ---------- ambil (bersama /api/wc) ---------- */
+function annQS(){let q='&as='+ANN.since+'&fk=1';if(loggedIn())q+='&me='+NET.acct.uid;if(!ANN.st||ANN.stWant||Date.now()-ANN.stAt>6e4){q+='&st=1';ANN.stWant=0}return q}
+// mine: hasil laporan sendiri (POST) — tidak memajukan kursor 'since' supaya pengumuman orang lain tidak terlewat
+function annApply(o,mine){const now=Date.now();if(!o)return;if(o.fk)ANN.fk=new Set(o.fk);if(o.st){ANN.st=o.st;ANN.stAt=now}
+ const add=[];for(const a of o.ann||[]){if(!a||ANN.ids.has(a.id))continue;ANN.ids.add(a.id);ANN.keys.add(a.k);add.push(a);if(!mine)ANN.since=Math.max(ANN.since,a.ts)}
+ const first=!mine&&!ANN.seen0;if(!mine&&o.ann)ANN.seen0=1;if(!add.length)return;
+ ANN.list=ANN.list.concat(add).sort((x,y)=>x.ts-y.ts||x.id-y.id);if(ANN.list.length>150)ANN.list=ANN.list.slice(-150);
+ // pita beranda: hanya yang masih hangat; saat pertama dimuat cukup yang terbaru
+ const fr=add.filter(a=>a.ts<=now+1500&&now-a.ts<ANN_CFG.fresh&&!(a.d&&a.d.q));(first?fr.slice(-1):fr).forEach(a=>ANN.q.push(a));if(ANN.q.length>4)ANN.q=ANN.q.slice(-4);
+ if(add.some(a=>a.ty==='rec'||a.ty==='top1'))ANN.stWant=1;
+ // momen besar → Obrolan Dunia ikut bereaksi (server memilih satu, sekali per pengumuman)
+ if(!first&&add.some(annHot)&&typeof NET!=='undefined'&&NET.ai&&typeof WC!=='undefined')WC.aiNext=Math.min(WC.aiNext||Infinity,now+1500+Math.random()*4e3)}
+async function annPost(L){if(!L||!L.length||typeof netApi!=='function'||!netApi())return null;
+ try{const o=await api('/api/ann',{tok:netTok()||undefined,srv:netSrv(),list:L});if(o&&o.ok&&o.list&&o.list.length)annApply({ann:o.list},true);return o}catch(e){return null}}
+// kejadianku sendiri (wajib masuk akun)
+function annMine(ty,x){if(typeof loggedIn!=='function'||!loggedIn())return;
+ if(ty==='p3'){const hs=[...new Set((x||[]).filter(r=>r&&!r.wid&&HD[r.id]&&HD[r.id].r===3).map(r=>r.id))];if(hs.length)annPost([{ty:'p3',h:hs}])}
+ else if(ty==='vip'&&x>=ANN_CFG.vipMin)annPost([{ty:'vip',v:x}])}
+
+// pengumuman panas yang baru muncul: orangnya (bila bot & sedang online) — dan #1 yang tergeser — ikut jadi calon penulis adegan reaksi
+function annHotBot(now,on){const out=[];for(let k=ANN.list.length-1;k>=0;k--){const a=ANN.list[k];if(now-a.ts>3.5*6e4)break;if(a.ts>now||!annHot(a))continue;
+  for(const u of[a.uid,a.d&&a.d.pu]){const i=u?botIdxOf(String(u)):-1;if(i>=0&&on.includes(i)&&!out.includes(i))out.push(i)}}return out.slice(0,2)}
+
+/* ---------- ★3 & VIP bot: hitung di latar, pilih satu per slot ---------- */
+const ANN_HZ=60*6e4;   // kejadian tiap bot disimpan sampai ±1 jam ke depan (hitung ulang hanya bila jendela melewatinya)
+function annBotEv(i,t1){let c=ANN.bev.get(i);if(c&&c.T>=t1)return c;const b=botBase(i),T=Math.max(t1,Date.now()+ANN_HZ),G=botGacha(b,botProg(b,T),T),from=Date.now()-3*6e4;
+ const p3=G.ev.filter(e=>!e.w&&e.t>=from&&e.t<=T).map(e=>({t:e.t,id:e.id,lim:e.lim,up:e.up&&e.on,n:e.n}));
+ // VIP pada tiap pembelian (untuk bobot "sultan" & pengumuman naik VIP)
+ const vs=[];let tot=0,v=0;for(const o of G.spend.buys){tot+=o.price;const v1=vipOf(tot);if(v1>v){v=v1;vs.push([o.t,v1])}}
+ c={T,p3,vs};ANN.bev.set(i,c);if(ANN.bev.size>6000)ANN.bev.delete(ANN.bev.keys().next().value);return c}
+const annVipAt=(c,t)=>{let v=0;for(const x of c.vs){if(x[0]>t)break;v=x[1]}return v};
+const annJit=(i,t)=>(bHash(i,Math.floor(t/1e3)%1000003)%1000)/1000;
+// ritme siang-malam: slot dipakai sesuai keramaian jamnya (sama di semua perangkat: hash nomor slot)
+function annSlotOn(len,s){const H=BOT_CFG.HOURS,h=new Date(s*len+BOT_CFG.TZ*36e5).getUTCHours(),act=H[h]/Math.max(...H),q=ANN_CFG.quiet;
+ return((Math.imul(s+len/6e4,2654435761)>>>0)%1000)/1000<q+(1-q)*act}
+function annCand(i,c,t0,t1){const C=ANN_CFG;
+ for(const e of c.p3){if(e.t<t0||e.t>=t1||!annSlotOn(C.p3Slot,Math.floor(e.t/C.p3Slot)))continue;const sc=(e.lim?1.5:1)*(1+annVipAt(c,e.t)/12)*(.5+annJit(i,e.t)),s=Math.floor(e.t/C.p3Slot),o=ANN.cand.p3[s];
+  if(!o||sc>o.sc||(sc===o.sc&&i<o.i))ANN.cand.p3[s]={i,t:e.t,id:e.id,lim:e.lim,n:e.n,sc}}
+ for(const[t,v]of c.vs){if(t<t0||t>=t1||v<C.vipMin||!annSlotOn(C.vipSlot,Math.floor(t/C.vipSlot)))continue;const sc=v+annJit(i,t),s=Math.floor(t/C.vipSlot),o=ANN.cand.vb[s];
+  if(!o||sc>o.sc||(sc===o.sc&&i<o.i))ANN.cand.vb[s]={i,t,v,sc}}}
+// jendela [to lama, sekarang+20 menit): bot yang punya sesi main di dalamnya → kandidat
+function annScan(){const C=ANN_CFG,now=Date.now(),sig=botsSig();if(ANN.scan.busy||!BOTS.uids||!BOTS.W||!BOTS.W.length)return;
+ if(ANN.scan.sig!==sig){ANN.scan={to:0,sig,busy:false};ANN.cand={p3:{},vb:{}};ANN.bev=new Map()}
+ if(ANN.scan.to>=now+C.ahead+6*6e4)return;   // jendela masih cukup jauh ke depan
+ const t0=Math.max(ANN.scan.to,now-2*6e4),t1=now+C.win,ids=botsIds(t1),d0=wibDay(t0),d1=wibDay(t1);let k=0;ANN.scan.busy=true;
+ const step=()=>{if(botsSig()!==sig){ANN.scan.busy=false;return}const s0=performance.now();
+  try{while(k<ids.length&&performance.now()-s0<6){const i=ids[k++];if(botHidden(i))continue;const b=botBase(i);if(b.join>=t1||b.endT<=t0)continue;
+   let hit=b.join>=t0;for(let d=d0;!hit&&d<=d1;d++)for(const s of botSessions(b,d))if(s[0]<t1&&s[1]>t0){hit=true;break}
+   if(hit)annCand(i,annBotEv(i,t1),t0,t1)}}catch(e){k=ids.length}
+  if(k<ids.length){setTimeout(step,30);return}ANN.scan.to=t1;ANN.scan.busy=false;annReport()};
+ setTimeout(step,0)}
+function annReport(){const C=ANN_CFG,now=Date.now(),L=[];
+ for(const[ty,slot]of[['p3',C.p3Slot],['vb',C.vipSlot]]){const M=ANN.cand[ty];
+  for(const s in M){const c=M[s];if(c.t<now-9e4){delete M[s];continue}if(c.t>now+C.ahead-ANN.jit)continue;
+   const k=ty+':'+s;if(ANN.fk.has(k)||ANN.keys.has(k)||ANN.sent[k])continue;const uid=botUid(c.i);if(!uid||botHidden(c.i))continue;ANN.sent[k]=now;
+   L.push(ty==='p3'?{ty:'p3',uid,h:c.id,l:c.lim?1:0,n:c.n<=10?c.n:0,t:Math.round(c.t)}:{ty:'vip',uid,v:c.v,t:Math.round(c.t)})}}
+ for(const k in ANN.sent)if(now-ANN.sent[k]>30*6e4)delete ANN.sent[k];
+ if(L.length)annPost(L.slice(0,8))}
+
+/* ---------- #1 CP & Arena, masuk 10 besar CP pertama kali ---------- */
+function annTopCheck(now,ar){const C=ANN_CFG,St=ANN.st;if(!St)return;const me=loggedIn()&&!(typeof isGM==='function'&&isGM())?String(NET.acct.uid):null;
+ const T10=botsList(now).sort((a,b)=>b.cp-a.cp||b.lv-a.lv).slice(0,10),was=new Set(St.t10||[]),seen=ANN.t10||(ANN.t10={}),L=[];
+ T10.forEach((e,k)=>{const uid=e.me?me:e.h?String(e.h):botUid(e.i);if(!uid||was.has(uid))return;if(!seen[uid])seen[uid]=now;
+  if(now-seen[uid]<C.hold||(ANN.sent['t10:'+uid]&&now-ANN.sent['t10:'+uid]<10*6e4))return;ANN.sent['t10:'+uid]=now;L.push(e.me?{ty:'t10',r:k+1}:{ty:'t10',uid,r:k+1})});
+ for(const u in seen)if(!T10.some(e=>(e.me?me:e.h?String(e.h):botUid(e.i))===u))delete seen[u];
+ if(L.length)annPost(L.sort((a,b)=>(b.uid?0:1)-(a.uid?0:1)).slice(0,8)).then(()=>{ANN.stWant=1});
+ const board=bd=>bd==='cp'?botsList(now).map(e=>[e,e.cp]):(typeof arBoard==='function'&&featOK('arena')?arBoard(now).filter(e=>!e.h).map(e=>[e,e.pts]).concat([[{me:true},arState().pts]]):[]);
+ for(const bd of ar?['cp','ar']:['cp']){let best=null,bv=-1;for(const[e,v]of board(bd))if(v>bv){bv=v;best=e}if(!best)continue;
+  const uid=best.me?me:best.h?String(best.h):botUid(best.i);if(!uid)continue;
+  const T=ANN.top[bd];if(!T||T.uid!==uid){ANN.top[bd]={uid,since:now};continue}
+  const cur=St.top&&St.top[bd];if(cur&&cur.uid===uid)continue;if(cur&&now-cur.ts<C.cd[bd])continue;if(now-T.since<C.hold)continue;
+  const sk='top1:'+bd;if(ANN.sent[sk]&&now-ANN.sent[sk]<3*6e4)continue;ANN.sent[sk]=now;
+  annPost([best.me?{ty:'top1',b:bd,v:bv}:{ty:'top1',b:bd,uid,v:bv}]).then(()=>{ANN.stWant=1})}}
+
+/* ---------- rekor pertama server ---------- */
+function annRecList(){const C=ANN_CFG,L=[];WORLDS.forEach((w,k)=>L.push('st:'+(k+1)));C.recCP.forEach(v=>L.push('cp:'+v));C.recAsc.forEach(v=>L.push('a:'+v));L.push('all:'+HEROES.length);return L}
+// urutan gengsi: bila beberapa rekor tercapai bersamaan, yang paling bergengsi diumumkan (sisanya dicatat diam-diam)
+function annRecRank(r){const[k,v]=r.split(':');return k==='cp'?100+ANN_CFG.recCP.indexOf(+v):k==='a'?90+(+v):k==='all'?85:60+(+v)}
+function annRecCheck(now){const St=ANN.st;if(!St)return;const have=new Set((St.rec||[]).map(r=>r.r));
+ const need=annRecList().filter(r=>!have.has(r)&&!(ANN.sent['rec:'+r]&&now-ANN.sent['rec:'+r]<5*6e4));if(!need.length)return;
+ const E=[];for(const i of botsIds(now)){if(botHidden(i))continue;const o=BSUM.d[i]||(BSUMA[i]&&BSUMA[i].o);if(o&&o.nh!=null)E.push({i,cp:o.cp,sn:STAGES[o.st]?STAGES[o.st].n+1:0,nh:o.nh,ms:o.ms})}
+ if(loggedIn()&&!(typeof isGM==='function'&&isGM())){let sn=0;for(const st of SLIST)if(S.stages[st.key])sn=Math.max(sn,st.n+1);
+  E.push({me:1,cp:teamPow(),sn,nh:Object.keys(S.heroes).length,ms:Math.max(0,...Object.keys(S.heroes).map(id=>heroStar(id)))})}
+ const L=[];for(const r of need){const[k,v]=r.split(':'),n=+v,val=e=>k==='st'?e.sn:k==='cp'?e.cp:k==='a'?e.ms:e.nh,ok=e=>k==='st'?e.sn>=n*5:val(e)>=n;
+  let best=null;for(const e of E)if(ok(e)&&(!best||val(e)>val(best)))best=e;if(!best)continue;const uid=best.me?null:botUid(best.i);if(!best.me&&!uid)continue;
+  ANN.sent['rec:'+r]=now;L.push(best.me?{ty:'rec',r}:{ty:'rec',r,uid})}
+ if(L.length)annPost(L.sort((a,b)=>annRecRank(b.r)-annRecRank(a.r)).slice(0,8)).then(()=>{ANN.stWant=1})}
+
+/* ---------- MVP Bos Dunia ---------- */
+function annMvpCheck(now){if(typeof wbCur!=='function'||!wbOpen())return;const c=wbCur(now);if(c.st!=='live'&&c.st!=='after')return;
+ const k=wbKey(c.t0);if(ANN.mvp[k])return;const st=wbState(c.t0,now),done=st.dead?now-st.killT>25e3:c.st==='after'&&now-wbEnd(c.t0)>3e4;if(!done)return;ANN.mvp[k]=1;
+ const gm=typeof isGM==='function'&&isGM(),top=wbBoard(c.t0,now).L.filter(e=>!(e.me&&gm))[0];if(!top||!top.dmg)return;
+ if(top.me&&!loggedIn())return;const uid=top.me?null:top.uid?String(top.uid):botUid(top.bot);if(!top.me&&!uid)return;
+ annPost([Object.assign({ty:'mvp',wk:k,dmg:Math.round(top.dmg),k:st.dead?1:0,b:wbBoss(c.t0).n},top.me?{}:{uid})])}
+
+/* ---------- jalankan (tiap 15 dtk; berhenti saat aplikasi di latar) ---------- */
+function annTick(){if(document.hidden||!S||!S.named||!BOTS.ready||!botsWarmOk())return;const now=Date.now();
+ try{annScan()}catch(e){ANN.scan.busy=false}try{annReport()}catch(e){}
+ if(now-ANN.chkAt>3e4){ANN.chkAt=now;const ar=now-ANN.arAt>6e4;if(ar)ANN.arAt=now;try{annTopCheck(now,ar)}catch(e){}}
+ if(now-ANN.recAt>9e4){ANN.recAt=now;try{annRecCheck(now)}catch(e){}}
+ try{annMvpCheck(now)}catch(e){}}
+setTimeout(()=>setInterval(annTick,15e3),9e3);
+
 /* ==== js/ui/core.js ==== */
 /* ================= UI CORE ================= */
 let tab='home',heroFilter='all',misTab='daily',heroTab='hero',wFilter='all';
@@ -8520,7 +8732,7 @@ function homeHTML(){const ns=nextStage(),id=homeHero(),h=HD[id],mdot=missionClai
 let lobby=null;
 // latar beranda ilustrasi: versi senja jam 17.00–04.59 (jam perangkat), selain itu versi siang
 function homeArt(){if(typeof wbMode==='function'&&wbMode()&&hasBgArt('home_wb'))return'home_wb';const h=new Date().getHours(),k=(h>=17||h<5)&&hasBgArt('home_eve')?'home_eve':'home_day';return hasBgArt(k)?k:null}
-function initLobby(){const cv=$('#lobbyc'),st=$('.hstage');if(!st)return;lobbyPlace();const bc=$('#hbgc');lobby={cv,st,g:cv&&cv.getContext('2d'),bg:bc&&bc.getContext('2d'),id:homeHero(),t:0,jump:0,happy:0,banT:0};if(lobby.bg)drawHomeScene(lobby.bg,0)}
+function initLobby(){if(typeof annStripTick==='function')annStripTick($('#hchat'));const cv=$('#lobbyc'),st=$('.hstage');if(!st)return;lobbyPlace();const bc=$('#hbgc');lobby={cv,st,g:cv&&cv.getContext('2d'),bg:bc&&bc.getContext('2d'),id:homeHero(),t:0,jump:0,happy:0,banT:0};if(lobby.bg)drawHomeScene(lobby.bg,0)}
 function drawLobby(dt){const L=lobby;if(!L||!L.st.isConnected){lobby=null;return}L.t+=dt;
  {const now=Date.now();if(HB.hide&&now>HB.hide)bubbleHide();if(!HB.hide&&now>HB.next){const v=heroLineV(L.id);bubbleShow(L.id,v.t,bubbleMs(v.t));if(v.k)voice(v.k);HB.next=now+6e4+Math.random()*12e4}}
  L.banT+=dt;if(L.banT>4.5){L.banT=0;banIdx=(banIdx+1)%BANNERS.length;const e=$('#hban');if(e)e.innerHTML=banHTML()}
@@ -8897,7 +9109,7 @@ const costHTML=(b,n)=>useTix(b,n)?`${ic(tixKey(b),12)} ${n} ${T('Tiket')}`:`${ic
 function doPull(arg){const b=BANNERS[S.banner],n=arg==='10'?10:1;
  if(arg==='free'){if(S.freeDate===today()||b.weapon)return;S.freeDate=today()}
  else{const tk=tixKey(b);if((S[tk]||0)>=n)S[tk]-=n;else{const c=n===10?COST10:COST1;if(S.gems<c){toast(T('Permata tidak cukup! Cek Kotak Surat, misi, dan tahap untuk mendapat Permata.'),1);return}S.gems-=c}}
- const res=pullItems(b,n);S.daily.c.summon+=n;evCount('summon',n);save();updateTop();playSummon(res,arg)}
+ const res=pullItems(b,n);S.daily.c.summon+=n;evCount('summon',n);save();updateTop();playSummon(res,arg);if(typeof annMine==='function')annMine('p3',res)}
 const RATE_COL={3:'linear-gradient(90deg,#ffbf2e,#fff3a0)',2:'linear-gradient(90deg,#4aa8ff,#9ccfff)',1:'linear-gradient(90deg,#a8653e,#e0a070)'};
 function openRates(){const b=BANNERS[S.banner],W=!!b.weapon,rup=b.rateUp?(W?WD[b.rateUp].name:HD[b.rateUp].name):null;
  const pu=Math.round(RATE_UP[W?'wpn':'hero']*100),eff=gachaEffRate();
@@ -9131,19 +9343,19 @@ function rankSnapUpdate(){const L=botsList(),now=Date.now(),cur=rankMaps(L);let 
  const d=wibDay(now);S.rankDay=S.rankDay||{};if(!S.rankDay.cur||S.rankDay.cur.d!==d){if(S.rankDay.cur)S.rankDay.prev=S.rankDay.cur;S.rankDay.cur={d,cp:cur.cp.me,lv:cur.lv.me};save()}else{S.rankDay.cur.cp=cur.cp.me;S.rankDay.cur.lv=cur.lv.me}}
 function rankDelta(e,k){if(!e.me&&e.isNew)return`<span class="rkd new">${T('BARU')}</span>`;if(!e.me&&e.back)return`<span class="rkd back">${T('KEMBALI')}</span>`;
  const P=rankTab!=='ar'&&RANK_PREV&&RANK_PREV[rankTab];if(!P)return'';const was=P[e.me?'me':e.i];if(!was)return'';const d=was-(k+1);return d>0?`<span class="rkd up">▲${d}</span>`:d<0?`<span class="rkd dn">▼${-d}</span>`:`<span class="rkd eq">–</span>`}
-function rankSorted(){if(rankTab==='ar'){arCheck();return arBoard().slice().concat([arMe()]).sort((a,b)=>b.pts-a.pts||b.cp-a.cp)}const L=botsList();return L.sort(rankTab==='cp'?(a,b)=>b.cp-a.cp||b.lv-a.lv:(a,b)=>b.lv-a.lv||b.cp-a.cp)}
+function rankSorted(){if(rankTab==='rec')return botsList().sort((a,b)=>b.cp-a.cp||b.lv-a.lv);if(rankTab==='ar'){arCheck();return arBoard().slice().concat([arMe()]).sort((a,b)=>b.pts-a.pts||b.cp-a.cp)}const L=botsList();return L.sort(rankTab==='cp'?(a,b)=>b.cp-a.cp||b.lv-a.lv:(a,b)=>b.lv-a.lv||b.cp-a.cp)}
 function rankRow(e,k){const md=k<3?` m${k+1}`:'';return`<button class="rkrow${e.me?' mine':''}" ${e.me?'data-act="closeModal"':e.h?`data-act="profView" data-arg="${e.h}"`:`data-act="botView" data-arg="${e.i}"`}>
  <span class="rkn${md}">${k+1}</span><span class="rkav">${e.top?`<img class="px" src="${portrait(e.top)}">`:''}${e.online?'<i class="on"></i>':''}</span>
  <span class="rknm"><b>${e.vip?`<i class="vip v${Math.min(7,e.vip)}">VIP${e.vip}</i>`:''}${esc(e.name)}${e.me?` <em>${T('Kamu')}</em>`:''}${!e.me&&typeof e.i==='number'&&typeof rvIs==='function'&&rvIs(e.i)?`<span class="rkd rv">⚔ ${T('RIVAL')}</span>`:''}${rankDelta(e,k)}</b><small>${e.me&&S.rankDay&&S.rankDay.prev&&S.rankDay.prev[rankTab]?T('Kemarin #{n}',{n:S.rankDay.prev[rankTab]}):e.online?T('Online'):T('Aktif {t}',{t:agoMs(Date.now()-e.last)})}</small></span>
  <span class="rkv">${rankTab==='ar'?`<b>${lgIc(e.pts,14)} ${fmt(e.pts)}</b><small>CP ${fmt(e.cp)}</small>`:`<b>${rankTab==='cp'?fmt(e.cp):'Lv '+e.lv}</b><small>${rankTab==='cp'?'Lv '+e.lv:'CP '+fmt(e.cp)}</small>`}</span></button>`}
-function rankListHTML(){const L=rankSorted(),me=L.findIndex(e=>e.me),n=L.length-1,on=L.filter(e=>e.online&&!e.me).length;
+function rankListHTML(){if(rankTab==='rec'&&typeof annRecPanelHTML==='function')return annRecPanelHTML();const L=rankSorted(),me=L.findIndex(e=>e.me),n=L.length-1,on=L.filter(e=>e.online&&!e.me).length;
  if(!n)return`<p class="sub" style="text-align:center;padding:30px 0">${BOTS.ready?T('Memanggil para petualang...'):T('Memuat pemain...')}</p>`;
  return`<div class="rkinfo"><span>${typeof NET!=='undefined'&&NET.srvName?`<em class="rksrv">S${netSrv()} · ${esc(NET.srvName)}</em> `:''}<b>${n}</b> ${rankTab==='ar'?T('peserta'):T('pemain')}</span><span><i class="on"></i><b>${on}</b> ${T('online')}</span></div>
  ${rankTab!=='ar'&&typeof rvBarHTML==='function'?rvBarHTML():''}<div class="rklist" id="rkScroll">${L.slice(0,100).map(rankRow).join('')}</div>${me>=100?`<div class="rkme">${rankRow(L[me],me)}</div>`:''}`}
 function openRank(){botsInit();botsEnsure();botsEnsureBios();rankBot=null;netPlayers();
  if(!botsWarmOk()){modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Peringkat')}</h3><p class="sub" style="text-align:center;padding:30px 0">${T('Memuat peringkat...')}</p>`);botsWarm(()=>{if($('#modal').classList.contains('on')&&!rankBot)openRank()});return}if(!RANK_PREV||!openRank.done){rankSnapUpdate();openRank.done=1}
  modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Peringkat')}</h3>
- <div class="mtabs"><button class="btn ${rankTab==='cp'?'':'blue'}" data-act="rankTab" data-arg="cp">${T('CP Tim')}</button><button class="btn ${rankTab==='lv'?'':'blue'}" data-act="rankTab" data-arg="lv">${T('Level')}</button><button class="btn ${rankTab==='ar'?'':'blue'}" data-act="rankTab" data-arg="ar">${T('Arena')}</button></div>
+ <div class="mtabs"><button class="btn ${rankTab==='cp'?'':'blue'}" data-act="rankTab" data-arg="cp">${T('CP Tim')}</button><button class="btn ${rankTab==='lv'?'':'blue'}" data-act="rankTab" data-arg="lv">${T('Level')}</button><button class="btn ${rankTab==='ar'?'':'blue'}" data-act="rankTab" data-arg="ar">${T('Arena')}</button><button class="btn ${rankTab==='rec'?'':'blue'}" data-act="rankTab" data-arg="rec">${T('Rekor')}</button></div>
  <div id="rkBody">${rankListHTML()}</div>`);rankStartTimer()}
 function rankRefresh(){const b=$('#rkBody');if(!b)return;const sc=$('#rkScroll'),top=sc?sc.scrollTop:0;b.innerHTML=rankListHTML();const sc2=$('#rkScroll');if(sc2)sc2.scrollTop=top}
 function rankStartTimer(){if(rankTimer)return;
@@ -9173,7 +9385,7 @@ function openBot(i,back){i=+i;if(!botIn(i)||botHidden(i))return;rankBot=i;botsEn
  modal(`<button class="btn red mclose" data-act="${back||'rank'}">‹</button><h3>${T('Profil Pemain')}</h3><div id="botBody">${botBodyHTML(i)}</div>${uid?profActions(uid):''}`);rankStartTimer();
  if(uid&&loggedIn()&&Date.now()-NET.frAt>15e3)netFriends().then(()=>{const pa=$('#modal .pfact');if(pa&&rankBot===i)pa.outerHTML=profActions(uid)})}
 
-Object.assign(ACT,{rank:()=>openRank(),rankTab:a=>{rankTab=a;openRank()},botView:i=>openBot(i)});
+Object.assign(ACT,{rank:()=>openRank(),rankTab:a=>{rankTab=a;if(a==='rec'&&typeof ANN!=='undefined'){ANN.stWant=1;if(typeof wcFetch==='function')wcFetch().then(()=>{if(rankTab==='rec')rankRefresh()})}openRank()},botView:i=>openBot(i)});
 // mulai dunia bot sesaat setelah game siap (nama dibuat Claude bila tersedia)
 setTimeout(()=>{botsInit();botsWarm();setInterval(()=>{botsEnsure();botsEnsureRenames()},30e3);setInterval(()=>botsWarm(),120e3)},2500);
 
@@ -9472,7 +9684,7 @@ let chatOpen=false,chatSig='';
 const chTime=t=>{const d=new Date(t+BOT_CFG.TZ*36e5);return String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0')};
 try{WC.seen=+localStorage.getItem('aster_wcseen')||0}catch(e){}
 async function wcFetch(){if(WC.busy)return;WC.busy=true;WC.at=Date.now();
- try{const o=await api('/api/wc?since='+WC.since+'&srv='+netSrv());if(o.ok){NET.ai=!!o.ai;if(o.list.length){const have=new Set(WC.list.map(m=>m.id));WC.list=WC.list.concat(o.list.filter(m=>!have.has(m.id))).sort((a,b)=>a.ts-b.ts||a.id-b.id).slice(-150);WC.since=WC.list[WC.list.length-1].ts}}}finally{WC.busy=false}}
+ try{const o=await api('/api/wc?since='+WC.since+'&srv='+netSrv()+(typeof annQS==='function'?annQS():''));if(o.ok){NET.ai=!!o.ai;if(typeof annApply==='function')annApply(o);if(o.list.length){const have=new Set(WC.list.map(m=>m.id));WC.list=WC.list.concat(o.list.filter(m=>!have.has(m.id))).sort((a,b)=>a.ts-b.ts||a.id-b.id).slice(-150);WC.since=WC.list[WC.list.length-1].ts}}}finally{WC.busy=false}}
 // bot pengirim pesan (akun bot di server) -> VIP & potret dari simulasi bot
 function wcBot(m){const i=typeof botIdxOf==='function'?botIdxOf(m.uid):-1;return i>=0&&botIn(i)?i:-1}
 function wcVip(m){const i=wcBot(m);return i>=0?botState(i).stats.vip:m.vip}
@@ -9501,7 +9713,7 @@ function wcStyle(i){const P=wcPersona(i);return`${P.ketik}; ketawa: ${P.tawa}; $
 const wcLv3=(i,now)=>botState(i,now).lv>=(FEAT.chat.lv||3);   // aturan sama dengan pemain: menulis setelah Lv 3
 // data bot: PUBLIK (bisa dilihat semua: profil/peringkat) vs PRIBADI (hanya dia yang tahu)
 function wcDesc(i,now){const c=chCtx(i,now),s=botState(i,now),a=botActivity(i,now),g=s.ev.filter(e=>!e.w&&now-e.t<3*36e5&&e.t<=now).pop();
- return{pub:`Lv ${s.lv}, CP ${fmt(s.cp)}${s.stats.vip?', lencana VIP '+s.stats.vip:''}, tim ${s.team.map(id=>HD[id].name).join('/')}, hero favorit ${c.hero}, tahap terjauh ${c.stage}${c.league?', liga Arena '+c.league:''}${g?`, ${Math.round((now-g.t)/6e4)} menit lalu dapat ★3 ${HD[g.id].name} (muncul di pengumuman)`:''}`,
+ return{pub:`Lv ${s.lv}, CP ${fmt(s.cp)}${s.stats.vip?', lencana VIP '+s.stats.vip:''}, tim ${s.team.map(id=>HD[id].name).join('/')}, hero favorit ${c.hero}, tahap terjauh ${c.stage}${c.league?', liga Arena '+c.league:''}${g?`, ${Math.round((now-g.t)/6e4)} menit lalu dapat ★3 ${HD[g.id].name}${typeof ANN!=='undefined'&&ANN.list.some(a=>a.ty==='p3'&&a.uid===botUid(i)&&(a.d.h||[]).includes(g.id))?' (muncul di pengumuman sistem)':''}`:''}`,
   priv:`${a?'SEDANG: '+a.t+'; ':''}gacha lagi ${c.luck==='sial'?'apes':c.luck==='hoki'?'hoki':'biasa'}, pity ${c.pity}, ${c.vip>=4?'sultan':c.paid?'kadang top up'+(c.card?' (kartu bulanan)':''):'f2p'}${c.held?', nabung '+c.held+' tarikan':''}, main ${c.days} hari${c.fading?', mulai bosan':''}, ${c.sk==='veteran'?'sudah biasa main gacha sejenis: skip cerita, hafal cara farming (sapu tahap, dungeon, toko emas), suka kasih tips':c.sk==='baru'?(c.days<=7?'pertama kali main game gacha, masih bingung banyak fitur, baca cerita':'awalnya awam gacha, sekarang mulai paham'):'paham dasar game'}${typeof rvIs==='function'&&rvIs(i)&&loggedIn()&&bHash(i,now/36e5|0)%3===0?`, diam-diam bersaing CP dengan ${NET.acct.u} di peringkat (selisih ${fmt(Math.abs(s.cp-teamPow()))}, ${s.cp>teamPow()?'dia di depan':'dia di belakang'}; jarang dibahas)`:''}`}}
 // data PUBLIK pemain (yang bisa dilihat orang lain di profil) — tidak ada permata, pity, top up, atau aktivitas
 function wcMePub(){const own=Object.keys(S.heroes),s3=own.filter(id=>(S.heroes[id].asc||HD[id].r)>=3).map(id=>HD[id].name),cl=SLIST.filter(x=>S.stages[x.key]).pop(),v=vipOf(S.iap&&S.iap.spent||0);
@@ -9513,7 +9725,8 @@ function wcAiBody(kind,reTo){const now=Date.now();
  const recent=[...new Set(WC.list.filter(m=>now-m.ts<15*6e4).map(wcBot).filter(i=>i>=0&&on.includes(i)))].slice(-2);
  const r=bRng(now>>>0),pool=talk.map(i=>[i,(chPersona(i).chat+.2)*r()]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
  const rv=kind==='tick'&&typeof rvChatPending==='function'?rvChatPending(now,on):null;
- const idx=[...new Set([...(rv?[rv.i]:[]),...tgt,...ment,...recent,...pool])].slice(0,5);
+ const an=kind==='tick'&&typeof annHotBot==='function'?annHotBot(now,on):[];
+ const idx=[...new Set([...(rv?[rv.i]:[]),...an,...tgt,...ment,...recent,...pool])].slice(0,5);
  const cands=idx.map(i=>{const D=wcDesc(i,now),s=botState(i,now);return{uid:botUid(i),pub:D.pub,priv:D.priv,style:wcStyle(i),lower:wcPersona(i).lower,fav:s.fav||''}});
  const humans=NET.players.filter(p=>p.on&&!(NET.acct&&p.uid===NET.acct.uid)).map(p=>`${p.u} (Lv ${p.lv})`).join(', ');
  return{tok:netTok(),srv:netSrv(),kind,watch:chatOpen&&!!$('#chList'),online:wcOnline(),world:chWorldTxt(now),humans,cands,player:loggedIn()?{name:NET.acct.u,pub:wcMePub()}:null,n:chatOpen?'2-5':'2-4',wb:kind==='tick'&&typeof WB!=='undefined'&&WB.ev?WB.ev:null,rv:rv?{ev:rv.ev,who:botUid(rv.i),k:rv.k}:null}}
@@ -9531,7 +9744,9 @@ function chRow(m,prev){const me=wcMine(m),same=prev&&prev.uid===m.uid&&m.ts-prev
  if(me)return`<div class="chm self${same?' cont':''}">${same?'':`<div class="chn"><small>${chTime(m.ts)}</small>${vip}<b>${nm}</b></div>`}${chBody(m)}</div>`;
  return`<div class="chm${same?' cont':''}${chAt(m)?' at':''}">${same?'<span class="chav sp"></span>':`<button class="chav" data-act="profView" data-arg="${m.uid}">${av}</button>`}
   <div class="chb">${same?'':`<div class="chn"><button data-act="profView" data-arg="${m.uid}">${vip}<b>${nm}</b></button><small>${chTime(m.ts)}</small></div>`}${chBody(m)}</div></div>`}
-function chListHTML(L){if(!L.length)return`<p class="sub chempty">${WC.at?T('Belum ada obrolan. Sapa yang lain!'):T('Memuat obrolan...')}</p>`;return L.map((m,k)=>chRow(m,L[k-1])).join('')}
+function chListHTML(L){const A=typeof annChat==='function'?annChat(L):[];if(!L.length&&!A.length)return`<p class="sub chempty">${WC.at?T('Belum ada obrolan. Sapa yang lain!'):T('Memuat obrolan...')}</p>`;
+ // pesan + baris [Sistem] pengumuman server (ui/announce.js), urut waktu
+ const M=L.concat(A).sort((a,b)=>a.ts-b.ts||(a.sys?1:0)-(b.sys?1:0));return M.map((m,k)=>m.sys?annRowHTML(m.a):chRow(m,M[k-1]&&!M[k-1].sys?M[k-1]:null)).join('')}
 // jumlah online = bot yang sedang bermain (jadwal sesi bot, sama untuk semua pemain) + pemain asli online (+ kamu)
 // daftar bot online memakai botPresence (sama dengan Peringkat & profil; bot yang baru bergabung juga online), disimpan 10 dtk
 function wcBotsOn(){const now=Date.now();if(WC.onAt&&now-WC.onAt<1e4)return WC.on;const L=[];try{for(const i of botsIds(now))if(!botHidden(i)&&!botFrozen(i,now)&&botPresence(i,now).online)L.push(i)}catch(e){}WC.onAt=now;return WC.on=L}
@@ -9547,7 +9762,7 @@ function openChat(){chatOpen=true;wcFetch().then(()=>chatRefresh(true));netPlaye
  if(f)f.onsubmit=async e=>{e.preventDefault();const i=$('#chIn'),v=(i.value||'').trim();if(!v)return;i.value='';sfx('tap');
   if(!(await wcSend(v)))i.value=v};
  chatSig='';chatRefresh(true)}
-function chatRefresh(force){const box=$('#chList');if(!box){chatOpen=false;return}const L=WC.list,last=L[L.length-1],sig=L.length+':'+(last?last.id:'');
+function chatRefresh(force){const box=$('#chList');if(!box){chatOpen=false;return}const L=WC.list,last=L[L.length-1],sig=L.length+':'+(last?last.id:'')+':'+(typeof ANN!=='undefined'?ANN.list.length+':'+(ANN.list.length?ANN.list[ANN.list.length-1].id:''):'');
  const nearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;
  if(sig!==chatSig||force){chatSig=sig;box.innerHTML=chListHTML(L);if(force||nearBottom)box.scrollTop=box.scrollHeight}
  const on=$('#chOn');if(on)on.textContent=wcOnline();if(last){WC.seen=last.ts;try{localStorage.setItem('aster_wcseen',WC.seen)}catch(e){}}}
@@ -9563,12 +9778,74 @@ function chatTick(){const now=Date.now(),L=document.getElementById('login');if(L
  if(NET.ai&&now>WC.aiNext&&!WC.aiBusy){if(!WC.aiNext)WC.aiNext=now+5e3+Math.random()*1e4;else wcAi('tick')}
  if(chatOpen&&$('#chList')){if(now-WC.at>4000)wcFetch().then(()=>chatRefresh());}
  else{chatOpen=false;if(now-WC.at>(NET.ai?2e4:3e4)||(NET.wc>WC.since&&now-WC.at>5e3))wcFetch().then(()=>{const m=WC.list.filter(x=>x.ts>WC.seen&&chAt(x)).pop();if(m&&m.id>(WC.atSeen||0)){WC.atSeen=m.id;toast(T('{n} menyebutmu di obrolan',{n:m.u}))}})}
- const st=$('#hchat');if(st)st.innerHTML=chatStripHTML()}
+ // strip beranda: pita berjalan pengumuman server (ui/announce.js) bila ada, selain itu 1 pesan terakhir
+ const st=$('#hchat');if(st&&!(typeof annStripTick==='function'&&annStripTick(st)))st.innerHTML=chatStripHTML()}
 setTimeout(()=>setInterval(chatTick,1500),3500);
 Object.assign(ACT,{chat:()=>openChat(),chatQuick:q=>{const i=$('#chIn');if(i){i.value=q;i.focus()}},
  wcRe:id=>{if(!$('#chForm'))return;const m=WC.list.find(x=>x.id===+id);if(m)wcReSet(m)},wcReX:()=>wcReSet(null),
  wcStkTog:()=>{const p=$('#chStk');p&&p.classList.toggle('on')},
  wcStk:async k=>{const p=$('#chStk');p&&p.classList.remove('on');sfx('tap');await wcSend(':stk:'+k+':')}});
+
+/* ==== js/ui/announce.js ==== */
+/* =====================================================================
+   PENGUMUMAN SERVER — tampilan (mesin: systems/announce.js · gaya: css/announce.css)
+   - Pita berjalan: strip Obrolan Dunia di beranda berubah emas & menggeser teks pengumuman, satu per satu.
+   - Obrolan Dunia: baris [Sistem] di antara pesan (nama bisa diketuk → profil).
+   - Peringkat › Rekor: daftar rekor pertama server (siapa & kapan).
+   ===================================================================== */
+ICON.horn=pxIcon(K=>{K.rect(1,6,3,4,'#a8650e');K.poly([[3.5,5],[11.5,1],[11.5,15],[3.5,11]],'#ffc83d');K.poly([[3.5,5],[11.5,1],[11.5,5],[3.5,7.5]],'#ffe9a0');
+ K.rect(11,1,2,14,'#e0a020');K.rect(12,2,1,12,'#c98a1a');K.rect(5,11,2,4,'#a8650e');K.pts([[14,5],[15,6],[15,7],[15,8],[15,9],[14,10]],'#fff6c0');K.P(4,7,'#fff6c0')});
+const annNm=(a,link)=>link&&a.uid?`<button class="ann-n" data-act="profView" data-arg="${esc(a.uid)}">${esc(a.u)}</button>`:`<b class="ann-n">${esc(a.u)}</b>`;
+const annH=id=>`<b class="ann-h${HD[id]&&HD[id].limited?' lim':''}">${HD[id]?HD[id].name:esc(id)}</b>`;
+// teks satu pengumuman (HTML). link: nama bisa diketuk (Obrolan Dunia)
+function annHTML(a,link){const d=a.d||{},n=annNm(a,link);
+ if(a.ty==='p3'){const hs=(d.h||[]).filter(id=>HD[id]);if(!hs.length)return'';if(d.n)return T('Hoki! {n} mendapatkan ★3 {h} hanya dalam {k} tarikan!',{n,h:annH(hs[0]),k:d.n});
+  return T(d.l?'Selamat! {n} mendapatkan ★3 terbatas {h}!':'Selamat! {n} mendapatkan ★3 {h}!',{n,h:hs.map(annH).join(' & ')})}
+ if(a.ty==='vip')return d.v>=7?T('{n} mencapai VIP {v}, tingkat tertinggi!',{n,v:d.v}):T('Selamat! {n} naik ke VIP {v}!',{n,v:d.v});
+ if(a.ty==='t10')return T('Selamat! {n} masuk 10 besar Peringkat CP server!',{n});
+ if(a.ty==='top1'){const p=d.pn?`<b class="ann-n">${esc(d.pn)}</b>`:'';
+  return d.b==='ar'?(p?T('{n} menggeser {p} dari puncak Arena!',{n,p}):T('{n} kini memimpin peringkat Arena!',{n})):(p?T('{n} merebut Peringkat #1 CP server dari {p}!',{n,p}):T('{n} kini Peringkat #1 CP server!',{n}))}
+ if(a.ty==='rec'){const[k,v]=String(d.r||'').split(':'),x=+v;
+  return k==='st'?T('Rekor server! {n} jadi yang pertama menamatkan {w}!',{n,w:`<b class="ann-h">${WORLDS[x-1]?WORLDS[x-1].n:x}</b>`})
+   :k==='cp'?T('Rekor server! {n} jadi yang pertama menembus CP {v}!',{n,v:`<b class="ann-h">${fmt(x)}</b>`})
+   :k==='a'?T('Rekor server! {n} jadi yang pertama membangkitkan hero ke ★{s}!',{n,s:x}):T('Rekor server! {n} jadi yang pertama mengoleksi semua {c} hero!',{n,c:x})}
+ if(a.ty==='mvp')return d.k?T('Bos Dunia {b} tumbang! MVP: {n} dengan {d} damage.',{b:T(d.b||''),n,d:`<b class="ann-h">${fmt(d.dmg||0)}</b>`}):T('Bos Dunia {b} berhasil kabur. Damage terbesar: {n}.',{b:T(d.b||''),n});
+ return''}
+const annTag=a=>a.ty==='rec'?T('REKOR'):a.ty==='top1'?'#1':a.ty==='t10'?'TOP 10':a.ty==='mvp'?'MVP':a.ty==='vip'?'VIP':'★3';
+
+/* ---------- pita berjalan (strip Obrolan Dunia di beranda) ---------- */
+function annStripHTML(a){return`<span class="anico"><img class="ix" src="${ICON.horn}" alt=""></span><i class="antag">${annTag(a)}</i><span class="anmq"><span class="anmt">${annHTML(a,false)}</span></span>`}
+// teks pendek: masuk dari kanan; teks panjang: diam sebentar lalu menggeser sampai ujungnya terbaca. Hasil = lama tampil (ms)
+function annMarquee(el){const C=ANN_CFG,box=el.querySelector('.anmq'),tx=el.querySelector('.anmt');if(!box||!tx||!tx.animate)return C.show;
+ const W=box.clientWidth,w=tx.scrollWidth;
+ if(w<=W-2){tx.animate([{transform:`translateX(${Math.round(W*.45)}px)`,opacity:0},{transform:'translateX(0)',opacity:1}],{duration:520,easing:'cubic-bezier(.2,.8,.3,1)'});return C.show}
+ const dx=w-W+14,mv=dx/40*1000,hold=1400,tot=hold+mv+1800;
+ tx.animate([{transform:'translateX(0)',offset:0},{transform:'translateX(0)',offset:hold/tot},{transform:`translateX(${-dx}px)`,offset:(hold+mv)/tot},{transform:`translateX(${-dx}px)`,offset:1}],{duration:tot,fill:'forwards'});
+ return Math.max(C.show,tot+300)}
+// dipanggil tiap 1,5 dtk dari chatTick (ui/chat.js): true = strip sedang memutar pengumuman
+function annStripTick(el){if(!el)return false;const now=Date.now();
+ if(ANN.cur&&ANN.curT&&now>=ANN.curT)ANN.cur=null;
+ if(!ANN.cur){while(ANN.q.length&&now-ANN.q[0].ts>ANN_CFG.fresh)ANN.q.shift();ANN.cur=ANN.q.shift()||null;ANN.curT=0}
+ if(!ANN.cur){if(el.classList.contains('ann')){el.classList.remove('ann');delete el.dataset.an;el.innerHTML=chatStripHTML()}return false}
+ if(el.dataset.an!==String(ANN.cur.id)){el.dataset.an=String(ANN.cur.id);el.classList.add('ann');el.innerHTML=annStripHTML(ANN.cur);const d=annMarquee(el);if(!ANN.curT)ANN.curT=now+d}
+ return true}
+
+/* ---------- Obrolan Dunia: baris [Sistem] ---------- */
+function annChat(L){const now=Date.now(),from=L.length?L[0].ts:now-3*36e5;return ANN.list.filter(a=>a.ts<=now&&a.ts>=from&&!(a.d&&a.d.q)&&annHTML(a,false)).map(a=>({sys:1,ts:a.ts,a}))}
+function annRowHTML(a){return`<div class="chsys${annHot(a)?' hot':''}"><img class="ix" src="${ICON.horn}" alt=""><p>${annHTML(a,true)}<small>${chTime(a.ts)}</small></p></div>`}
+
+/* ---------- Peringkat › Rekor ---------- */
+function annRecTitle(r){const[k,v]=r.split(':'),n=+v;
+ return k==='st'?T('Pertama menamatkan {w}',{w:WORLDS[n-1]?WORLDS[n-1].n:n}):k==='cp'?T('Pertama menembus CP {v}',{v:fmt(n)}):k==='a'?T('Pertama punya hero ★{s}',{s:n}):T('Pertama koleksi lengkap ({c} hero)',{c:n})}
+const annRecIc=r=>{const k=r.split(':')[0];return k==='st'?ICON.adv:k==='cp'?ICON.rank:k==='a'?(ICON.asc3||ICON.summon):ICON.summon};
+const ANN_RECG=[['st','Petualangan'],['cp','Kekuatan Tim'],['a','Kebangkitan'],['all','Koleksi']];
+function annRecPanelHTML(){if(!ANN.st)return`<p class="sub" style="text-align:center;padding:30px 0">${T('Memuat rekor...')}</p>`;
+ const R={};for(const x of ANN.st.rec||[])R[x.r]=x;const L=annRecList(),got=L.filter(r=>R[r]).length,now=Date.now();
+ const row=r=>{const x=R[r],mine=x&&loggedIn()&&String(x.uid)===String(NET.acct.uid);
+  return`<div class="rcrow${x?'':' none'}${mine?' mine':''}"><span class="rcic"><img class="ix" src="${annRecIc(r)}" alt=""></span><span class="rct"><b>${annRecTitle(r)}</b><small>${x?agoMs(now-x.ts):T('Belum ada — jadilah yang pertama!')}</small></span>${x?`<button class="rcwho" data-act="profView" data-arg="${esc(x.uid)}">${esc(x.u)}${mine?` <em>${T('Kamu')}</em>`:''}</button>`:''}</div>`};
+ return`<div class="rkinfo"><span>${typeof NET!=='undefined'&&NET.srvName?`<em class="rksrv">S${netSrv()} · ${esc(NET.srvName)}</em> `:''}<b>${got}</b>/${L.length} ${T('rekor tercatat')}</span></div>
+ <p class="rcnote">${T('Siapa yang pertama di server ini? Rekor tercatat selamanya sampai server dibuka ulang.')}</p>
+ <div class="rklist rclist" id="rkScroll">${ANN_RECG.map(([k,n])=>{const G=L.filter(r=>r.split(':')[0]===k);return`<div class="rcsec">${T(n)} <i>${G.filter(r=>R[r]).length}/${G.length}</i></div>${G.map(row).join('')}`}).join('')}</div>`}
 
 /* ==== js/ui/social.js ==== */
 /* =====================================================================

@@ -20,7 +20,7 @@ const netSrv=()=>loggedIn()?(+NET.acct.srv||1):(+(()=>{try{return localStorage.g
 const netApi=()=>(typeof TOPUP_CFG!=='undefined'&&TOPUP_CFG.api||'').replace(/\/$/,'');
 // pemutus sirkuit: server menolak (429 batas harian Cloudflare / 5xx) atau tidak terjangkau -> panggilan LATAR (ping, obrolan,
 // dunia, teman, simpan...) berhenti sementara 30 dtk, 1, 2, 4 ... maks 10 menit, supaya tidak memboroskan kuota permintaan.
-const NET_BG=/^\/api\/(ping|wc|wb|world|players|fr\/list|bots\/snap|dm\/threads|dm\/get|save|load)\b/;
+const NET_BG=/^\/api\/(ping|wc|wb|world|players|fr\/list|bots\/snap|dm\/threads|dm\/get|save|load|ann)\b/;
 function netDown(){const b=NET.backoff=Math.min(6e5,(NET.backoff||15e3)*2);NET.downUntil=Date.now()+b;if(!NET.downNote||Date.now()-NET.downNote>6e5){NET.downNote=Date.now();try{toast(T('Server sedang sibuk. Mencoba lagi sebentar lagi...'))}catch(e){}}}
 async function api(path,body,opt={}){if(!netApi())return{ok:false,e:'net'};
  if(NET.downUntil>Date.now()&&NET_BG.test(path))return{ok:false,e:'net',down:1};
@@ -82,7 +82,7 @@ function netApplyWorld(d,full){if(!d||!d.ok||!Array.isArray(d.worlds)||!d.worlds
   for(const k in BOTS.ov)if(Math.floor(+k/X)===s)delete BOTS.ov[k];for(const k in(w.ov||{}))BOTS.ov[s*X+(+k)]=w.ov[k];
   for(const k in(w.rv||{}))BOTS.rvAll[s*X+(+k)]=w.rv[k];
   let nn=0;while(nn<w.cap&&BOTS.srvNames[s*X+nn]!=null)nn++;W.push({g:w.g,e:w.e,cap:w.cap,newer:w.newer||[],nn,v:w.v,h:w.h,o:w.o,wh:w.wh})});
- if(NET.wsig!=null&&NET.wsig!==sig&&typeof WC!=='undefined'){WC.list=[];WC.since=0;WC.seen=0;try{localStorage.removeItem('aster_wcseen')}catch(e){}}  // dunia berubah: obrolan dimuat ulang
+ if(NET.wsig!=null&&NET.wsig!==sig&&typeof WC!=='undefined'){WC.list=[];WC.since=0;WC.seen=0;try{localStorage.removeItem('aster_wcseen')}catch(e){}if(typeof annReset==='function')annReset()}  // dunia berubah: obrolan dimuat ulang
  BOTS.uidIdx=null;BOTS.cache={};botsSetWorlds(W);if(typeof rvApply==='function')rvApply(Object.assign({},BOTS.rvAll));
  BOTS.names=BOTS.srvNames.slice();BOTS.nameSet=null;BOTS.ready=true;NET.worldOk=true;NET.wsig=sig;NET.worldSrv=d.srv;NET.srvName=d.name;NET.gen=BOTS.gen;
  try{localStorage.setItem(WORLD_KEY,JSON.stringify({ok:true,srv:d.srv,name:d.name,worlds:d.worlds.map((w,s)=>({g:w.g,e:w.e,cap:w.cap,newer:w.newer,v:w.v,h:w.h,o:w.o,wh:w.wh,from:0,

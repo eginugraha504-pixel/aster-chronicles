@@ -50,6 +50,7 @@ JSON: {"out":[{"who":"nama","text":"...","delay":8}]}`;
 
 export async function callClaude(env, user, maxTok, role) {
   if (env.AI_FAKE) {   // uji lokal tanpa token: balasan tiruan dari daftar penulis
+    if (env.TG_LOG) { (globalThis.__ai ||= []).push(user); if (globalThis.__ai.length > 20) globalThis.__ai.shift() }   // uji lokal: /__ai menampilkan prompt
     const names = [...user.matchAll(/^- ([A-Za-z0-9]+):/gm)].map(m => m[1]), last = [...user.matchAll(/^#(\d+) /gm)].map(m => +m[1]).pop() || null;
     return { text: JSON.stringify({ out: names.slice(0, 4).map((n, k) => ({ who: n, text: k === 3 ? '' : ['ada yg udh pull banner baru?', 'masih nabung wkwk', 'barusan clear 2-3'][k], stk: k === 3 ? 'sakuya_wkwk' : '', re: k === 1 ? last : null, delay: 2 })) }), usage: {}, model: 'fake' };
   }

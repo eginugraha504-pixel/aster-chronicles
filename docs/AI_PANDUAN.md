@@ -61,13 +61,15 @@ Ubah/tambah teks di sini bila ada fitur baru yang perlu dijelaskan dengan kata-k
 
 ## Peringkat & dunia pemain
 - Server: game punya beberapa server (S1 Aster, S2 Lumina, S3 Bara, S4 Samudra, server baru dibuka berkala). Tiap server maks 10.000 pemain dengan peringkat, obrolan dunia, Bos Dunia, dan Arena sendiri. Akun terikat ke server yang dipilih saat daftar dan tidak bisa pindah. Server baru biasanya paling ramai pemain baru.
-- Peringkat: tab CP Tim, Level, Arena. Ada label BARU (pemain baru) dan KEMBALI (kembali main), indikator online, naik/turun peringkat.
+- Peringkat: tab CP Tim, Level, Arena, Rekor. Ada label BARU (pemain baru) dan KEMBALI (kembali main), indikator online, naik/turun peringkat.
+- Rekor server (tab Rekor): siapa yang PERTAMA di server menamatkan tiap dunia, menembus CP 10.000 / 50.000 / 100.000 / 250.000 / 500.000 / 1.000.000 / 2.000.000, punya hero ★4 / ★5 / ★6, dan mengoleksi semua hero. Rekor tercatat selamanya sampai server dibuka ulang dan diumumkan sistem.
 - Tiap server berisi sampai 10.000 pemain lain yang bermain di jam masing-masing (ramai malam hari WIB), ada yang santai, reguler, rajin, hardcore; ada yang gratis, pakai Kartu Bulanan, belanja sedang, sampai sultan (sultan memborong semua paket & mengejar koleksi hero lengkap; gayanya beda-beda: kolektor, setia pada satu hero, ikut meta, borong tiap banner, belanja pas gajian). Ada yang menabung permata untuk banner tertentu, ada yang ganti nama, ada yang berhenti lalu kembali saat banner baru.
 - Profil pemain: favorit, tim utama, koleksi hero, total summon, ★3 didapat, hari login, waktu main, status hoki/apes gacha, bio, VIP, Kartu Bulanan.
 - Rival: di atas Peringkat ada bar ⚔ Rival — satu pemain yang CP-nya kejar-kejaran denganmu (selisih CP, skor salip-menyalip). Kalau kamu menyalipnya ia biasanya farming lebih keras di sesi berikutnya; kalau selisih sudah jauh ia bisa menyerah atau melesat, lalu muncul rival baru.
 
 ## Obrolan Dunia
-- Chat global semua pemain. Pengumuman [Sistem] saat seseorang mendapat ★3 terbatas. Ketuk nama untuk melihat profil. Sebut nama dengan @nama.
+- Chat global semua pemain. Ketuk nama untuk melihat profil. Sebut nama dengan @nama.
+- Pengumuman sistem (pita berjalan emas di beranda + baris [Sistem] di Obrolan Dunia, sama untuk semua pemain): seseorang mendapat ★3 dari Panggilan (kadang "Hoki! … hanya dalam N tarikan"), naik VIP (VIP 3 ke atas), merebut Peringkat #1 CP atau puncak Arena, masuk 10 besar CP untuk pertama kali, mencetak rekor pertama server, dan MVP (damage terbesar) Bos Dunia. Tidak semua ★3 diumumkan (dipilih berkala supaya tidak banjir; malam hari lebih jarang).
 
 ## Tips yang benar (boleh dipakai pemain saat menjawab)
 - Kalah di tahap: naikkan level hero, level & Limit Break senjata (dungeon), pasang Pelindung & Aksesori, manfaatkan keunggulan elemen (api > tanah > air > api; cahaya ⟷ gelap saling kuat ×1,3; kalah elemen ×0,75), pakai Penjaga + Pendukung.

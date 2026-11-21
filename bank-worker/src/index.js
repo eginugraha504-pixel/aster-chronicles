@@ -264,6 +264,7 @@ export default {
       return json({ webhook: a, commands: b, info: w.result ? { url: w.result.url, pending: w.result.pending_update_count, err: w.result.last_error_message } : w });
     }
     if (env.TG_LOG && p === '/__out') { const o = globalThis.__out || []; globalThis.__out = []; return json(o) }
+    if (env.TG_LOG && p === '/__ai') { const o = globalThis.__ai || []; globalThis.__ai = []; return json(o) }
     return new Response(`${BANK} aktif ✅`, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
   },
 };

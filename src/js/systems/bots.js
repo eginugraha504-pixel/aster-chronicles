@@ -402,13 +402,13 @@ function botSnap(b,t){for(let d=wibDay(t);d<=wibDay(t)+3;d++){for(const[s0,s1]of
 /* ---- ringkasan bot (CP, level, VIP, hero) — skala sampai 100rb bot ----
    Bot yang sudah berhenti (endT lewat) tidak berubah lagi → ringkasannya disimpan di localStorage dan tidak dihitung ulang.
    Bot aktif: dari botState (cache penuh dibatasi ±5000 objek). Ganti SUM_VER bila keseimbangan CP berubah. */
-const SUM_VER=7,BSUM={d:{},key:'',dirty:0,at:0};
+const SUM_VER=8,BSUM={d:{},key:'',dirty:0,at:0};
 const bsumKey=()=>botsSig()+':'+SUM_VER+':'+BOT_CFG.ERAS.length+':'+HEROES.length;
-function bsumLoad(){const k=bsumKey();if(BSUM.key===k)return;BSUM.key=k;BSUM.d={};for(const q in BSUMA)delete BSUMA[q];try{const o=JSON.parse(localStorage.getItem('aster_botsum')||'null');if(o&&o.k===k){const D=o.d||{};for(const i in D){const x=D[i];BSUM.d[i]=Array.isArray(x)?{cp:x[0],lv:x[1],vip:x[2],top:x[3],st:x[4]}:x}
-  const A=o.a||{};for(const i in A){const x=A[i];BSUMA[i]={k:x[0],o:{cp:x[1],lv:x[2],vip:x[3],top:x[4],st:x[5]}}}}}catch(e){}}
-function bsumSave(){bpuSave();if(!BSUM.dirty||Date.now()-BSUM.at<3e4)return;BSUM.at=Date.now();BSUM.dirty=0;const d={},a={};for(const i in BSUM.d){const o=BSUM.d[i];d[i]=[o.cp,o.lv,o.vip,o.top,o.st]}
+function bsumLoad(){const k=bsumKey();if(BSUM.key===k)return;BSUM.key=k;BSUM.d={};for(const q in BSUMA)delete BSUMA[q];try{const o=JSON.parse(localStorage.getItem('aster_botsum')||'null');if(o&&o.k===k){const D=o.d||{};for(const i in D){const x=D[i];BSUM.d[i]=Array.isArray(x)?{cp:x[0],lv:x[1],vip:x[2],top:x[3],st:x[4],nh:x[5],ms:x[6]}:x}
+  const A=o.a||{};for(const i in A){const x=A[i];BSUMA[i]={k:x[0],o:{cp:x[1],lv:x[2],vip:x[3],top:x[4],st:x[5],nh:x[6],ms:x[7]}}}}}catch(e){}}
+function bsumSave(){bpuSave();if(!BSUM.dirty||Date.now()-BSUM.at<3e4)return;BSUM.at=Date.now();BSUM.dirty=0;const d={},a={};for(const i in BSUM.d){const o=BSUM.d[i];d[i]=[o.cp,o.lv,o.vip,o.top,o.st,o.nh,o.ms]}
  // ringkasan bot beku (tidak berubah lagi) + bot aktif beserta kunci botKey-nya (dipakai lagi selama kuncinya sama); dibatasi ~900rb karakter agar kuota save pemain aman
- for(const i in BSUMA){if(BSUM.d[i])continue;const x=BSUMA[i],o=x.o;a[i]=[x.k,o.cp,o.lv,o.vip,o.top,o.st]}
+ for(const i in BSUMA){if(BSUM.d[i])continue;const x=BSUMA[i],o=x.o;a[i]=[x.k,o.cp,o.lv,o.vip,o.top,o.st,o.nh,o.ms]}
  let j=JSON.stringify({k:BSUM.key,d,a});if(j.length>9e5)j=JSON.stringify({k:BSUM.key,d});if(j.length>9e5){localStorage.removeItem('aster_botsum');return}
  try{localStorage.setItem('aster_botsum',j)}catch(e){try{localStorage.removeItem('aster_botsum')}catch(e2){}}}
 const botFrozen=(i,now=Date.now())=>{const b=botBase(i);return b.endT<now-6e4};
@@ -417,7 +417,7 @@ const BSUMA={};   // ringkasan bot aktif di memori, berlaku selama kunci botKey 
 const BSQ=new Set();
 function botSum(i,now=Date.now(),sync=false){bsumLoad();const fz=botFrozen(i,now);let o=fz?BSUM.d[i]:null;
  if(!o&&!fz){const k=botKey(i,now).key,a=BSUMA[i];if(a&&a.k===k)o=a.o;else if(a&&!sync){o=a.o;BSQ.add(i)}}
- if(!o){const s=botState(i,now);o={cp:s.cp,lv:s.lv,vip:s.stats.vip,top:s.av||s.fav||s.team[0],st:s.stage};if(fz){BSUM.d[i]=o}else BSUMA[i]={k:s.key,o};BSUM.dirty++}
+ if(!o){const s=botState(i,now),hs=Object.keys(s.heroes);o={cp:s.cp,lv:s.lv,vip:s.stats.vip,top:s.av||s.fav||s.team[0],st:s.stage,nh:hs.length,ms:Math.max(0,...hs.map(id=>s.heroes[id].asc||HD[id].r))};if(fz){BSUM.d[i]=o}else BSUMA[i]={k:s.key,o};BSUM.dirty++}
  const ov=typeof botOv==='function'&&botOv(i);if(ov&&(ov.lv!=null||ov.cp!=null||ov.vip!=null))o=Object.assign({},o,ov.lv!=null?{lv:ov.lv}:{},ov.cp!=null?{cp:ov.cp}:{},ov.vip!=null?{vip:ov.vip}:{});return o}
 const botPres=(i,now)=>botFrozen(i,now)?{online:false,last:botBase(i).endT}:botPresence(i,now);
 /* ---- daftar semua bot yang tampil (+ pemain sendiri) ---- */

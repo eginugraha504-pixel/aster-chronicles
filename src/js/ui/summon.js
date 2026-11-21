@@ -16,7 +16,7 @@ const costHTML=(b,n)=>useTix(b,n)?`${ic(tixKey(b),12)} ${n} ${T('Tiket')}`:`${ic
 function doPull(arg){const b=BANNERS[S.banner],n=arg==='10'?10:1;
  if(arg==='free'){if(S.freeDate===today()||b.weapon)return;S.freeDate=today()}
  else{const tk=tixKey(b);if((S[tk]||0)>=n)S[tk]-=n;else{const c=n===10?COST10:COST1;if(S.gems<c){toast(T('Permata tidak cukup! Cek Kotak Surat, misi, dan tahap untuk mendapat Permata.'),1);return}S.gems-=c}}
- const res=pullItems(b,n);S.daily.c.summon+=n;evCount('summon',n);save();updateTop();playSummon(res,arg)}
+ const res=pullItems(b,n);S.daily.c.summon+=n;evCount('summon',n);save();updateTop();playSummon(res,arg);if(typeof annMine==='function')annMine('p3',res)}
 const RATE_COL={3:'linear-gradient(90deg,#ffbf2e,#fff3a0)',2:'linear-gradient(90deg,#4aa8ff,#9ccfff)',1:'linear-gradient(90deg,#a8653e,#e0a070)'};
 function openRates(){const b=BANNERS[S.banner],W=!!b.weapon,rup=b.rateUp?(W?WD[b.rateUp].name:HD[b.rateUp].name):null;
  const pu=Math.round(RATE_UP[W?'wpn':'hero']*100),eff=gachaEffRate();

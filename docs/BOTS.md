@@ -125,6 +125,15 @@ Terpisah dari profil (seberapa sering login) dan tier (seberapa banyak belanja).
 
 - **DM teman bot (21 Nov 2026)**: bot membaca pesanmu saat ia online (20 dtk–4 menit setelah sempat melihat; kalau offline, di sesi berikutnya — bisa sudah lewat bila kamu tidak membuka game) lalu membalas sesuai wataknya (`dmBotP`, sebagian cuma membaca) lewat Claude Haiku (`/api/dm/bot`, `DM_ROLE`, maks 60/pemain/hari). `rd` = waktu baca, balasan berjadwal (ts di masa depan) muncul saat waktunya + "sedang mengetik...". Bot yang berhenti main tidak membaca. Kadang menyapa duluan setelah berteman (`dmBotFriended`). Ajakan berteman dari bot condong ke lawan Arena 3 hari terakhir & pemain dengan CP/level mirip (`botFrNear`).
 - **Kejujuran AI**: penulis AI (obrolan & DM) tidak menyebut diri AI tanpa alasan, tapi bila ditanya serius apakah ini bot/AI, tidak menyangkal & tidak mengaku manusia.
+- **Pengumuman server (21 Nov 2026)** — `data/announce.js` (angka), `systems/announce.js` (mesin), `ui/announce.js` + `css/announce.css` (tampilan), server `/api/ann` + tabel `ann`:
+  - ★3 & naik VIP para bot dihitung dari simulasi (deterministik): bot yang punya sesi di jendela [sekarang, +20 menit] dihitung `botGacha` + belanjanya sampai ±1 jam ke depan (`annBotEv`, cache per bot), tiap slot dipilih **satu** kejadian (★3 tiap 6 menit, VIP ≥3 tiap 20 menit, acak berbobot: terbatas ×1,5, sultan sampai ×1,6; ritme siang-malam `annSlotOn` dari `BOT_CFG.HOURS` — jam 3 pagi hanya ±20% slot). Dilaporkan ±6 menit **sebelum** terjadi; server menyimpan dengan waktu kejadian (ts masa depan) dan kunci slot unik → semua perangkat menghitung pilihan yang sama, laporan ganda diabaikan. ±120 ★3 & ±37 VIP per hari.
+  - #1 CP / Arena: dari papan yang sama dengan Peringkat, dilaporkan bila #1 baru bertahan ≥2 menit (jeda 20 / 45 menit antar pergantian). Hari ke-3 ±6–8 pergantian #1 CP per hari, hari ke-14 ±1.
+  - Masuk 10 besar CP pertama kali (`t10`, sekali per orang per server; bot maks 1 diumumkan per 10 menit, sisanya dicatat diam-diam).
+  - Rekor pertama server: dari ringkasan bot (`botSum` kini menyimpan juga `nh` jumlah hero & `ms` ★ tertinggi, SUM_VER 8) + data pemain sendiri. Banyak rekor sekaligus → yang paling bergengsi diumumkan, sisanya dicatat diam-diam (`q`).
+  - MVP Bos Dunia: dari `wbBoard` setelah bos tumbang (±25 dtk) / kabur.
+  - Kejadian pemain asli (★3 dari Panggilan, naik VIP) dilaporkan saat terjadi. Akun GM hanya terlihat oleh dirinya, tidak ikut #1/rekor/MVP.
+  - Tampil: strip Obrolan Dunia di beranda jadi pita emas berjalan (`annStripTick`), baris [Sistem] di Obrolan Dunia (`annChat`), Peringkat › **Rekor**. Momen besar (#1, rekor, MVP, ★3/VIP pemain asli, sebagian ★3 terbatas/hoki & VIP 7 bot) → satu adegan reaksi AI (`annHot`, jeda 4 menit); orang di pengumuman & #1 yang tergeser (bila online) ikut jadi calon penulis (`annHotBot`). Pengumuman 20 menit terakhir masuk konteks AI.
+  - Biaya: pindai pertama hari ke-30 (9,4rb bot) ±1,6 dtk CPU dalam potongan 6 ms; berikutnya ±50 ms (cache per bot).
 
 ## 8. Rival abadi (`data/rival.js`, `systems/rival.js`)
 
@@ -156,7 +165,7 @@ Selalu ada satu bot yang menjadikanmu sasaran. "Abadi" = posisinya, bukan orangn
 
 ## 9. Performa & skala
 
-- `botSum(i,t,sync)`: ringkasan (cp, lv, vip, top, stage). Bot berhenti main → disimpan di localStorage `aster_botsum` (maks ±900rb karakter, dibuang dulu bila kuota penuh — save pemain selalu menang, `lsPut`). Bot aktif → `BSUMA` per kunci `botKey` (progres per 15 menit efektif + level), **ikut disimpan bersama kuncinya** (21 Nov 2026) → buka game lagi hanya menghitung bot yang sudah main sejak terakhir (server 10rb hari 30: ±0,5 dtk, bukan ±5 dtk). Titik mulai Kebangkitan per bot: `aster_botpu`.
+- `botSum(i,t,sync)`: ringkasan (cp, lv, vip, top, stage, nh = jumlah hero, ms = ★ tertinggi). Bot berhenti main → disimpan di localStorage `aster_botsum` (maks ±900rb karakter, dibuang dulu bila kuota penuh — save pemain selalu menang, `lsPut`). Bot aktif → `BSUMA` per kunci `botKey` (progres per 15 menit efektif + level), **ikut disimpan bersama kuncinya** (21 Nov 2026) → buka game lagi hanya menghitung bot yang sudah main sejak terakhir (server 10rb hari 30: ±0,5 dtk, bukan ±5 dtk). Titik mulai Kebangkitan per bot: `aster_botpu`.
 - **Realtime**: ringkasan basi dipakai sebentar, bot dimasukkan antrean `BSQ`, `botsFresh` menghitung ulang di latar tiap 8 dtk (potongan 8 ms) lalu peringkat/profil yang terbuka diperbarui (refresh 5 dtk, memo daftar 6 dtk).
 - `botsWarm`: semua bot dihitung bertahap tiap 2 menit (yang kuncinya sama tidak dihitung ulang). Pertama kali di perangkat: server 10rb hari 3 (5,2rb bot) ±2,5 dtk, hari 30 (9,4rb bot) ±9,5 dtk di latar (`botState` ±0,8 ms, ±40% di gacha).
 - Cache: `botState` LRU 15rb, sesi 60rb, hari progres 80rb, belanja 20rb. Semua dibersihkan saat dunia di-reset (`botsApplyWorld`).
@@ -192,7 +201,7 @@ Selalu ada satu bot yang menjadikanmu sasaran. "Abadi" = posisinya, bukan orangn
 - **Mentok & curhat**: bot yang tertahan di tahap sama berhari-hari minta tips di chat; veteran menjawab.
 - **Perubahan watak**: F2P mulai top up saat banner limited favoritnya; whale apes ngamuk lalu berhenti; reaksi di chat & peringkat.
 - **Meta ikut-ikutan**: komposisi tim pemain teratas ditiru bot lain; hero baru menggeser meta dan jadi bahan debat.
-- **Momen peringkat**: chat ramai saat ada yang tembus 10 besar / ganti #1.
+- **Momen peringkat** lanjutan: chat ramai saat ada yang tembus 10 besar (ganti #1 sudah: pengumuman server).
 - **Rival bertingkat**: rival dari pemain asli lain (bila nanti ramai), rival guild.
 - **Batas level akun** (keputusan desain game, berlaku juga untuk pemain asli).
 - Guild & perang wilayah 20.00–21.00 (bot ikut).

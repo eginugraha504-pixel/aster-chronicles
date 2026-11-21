@@ -99,7 +99,7 @@ async function serversAll(env) {
   if (!rows.length) {   // pertama kali: 4 server dibuka bersamaan (hari 1). Dunia bot lama dibuang.
     const t = now(), st = [env.DB.prepare('DELETE FROM friends WHERE a IN (SELECT uid FROM players WHERE bot IS NOT NULL) OR b IN (SELECT uid FROM players WHERE bot IS NOT NULL)'),
       env.DB.prepare('DELETE FROM dms WHERE frm IN (SELECT uid FROM players WHERE bot IS NOT NULL) OR too IN (SELECT uid FROM players WHERE bot IS NOT NULL)'),
-      env.DB.prepare('DELETE FROM players WHERE bot IS NOT NULL'), env.DB.prepare('DELETE FROM wchat'), env.DB.prepare('DELETE FROM rvb'), env.DB.prepare('UPDATE players SET srv=1')];
+      env.DB.prepare('DELETE FROM players WHERE bot IS NOT NULL'), env.DB.prepare('DELETE FROM wchat'), env.DB.prepare('DELETE FROM rvb'), env.DB.prepare('DELETE FROM ann'), env.DB.prepare('UPDATE players SET srv=1')];
     const h = await hypeGet(env), wp = await whaleGet(env);
     for (let id = 1; id <= 4; id++) { const g = await nextGen(env); st.push(env.DB.prepare('INSERT OR IGNORE INTO servers (id,name,opened,merged,worlds) VALUES (?,?,?,NULL,?)').bind(id, SRV_NAMES[id - 1], t, JSON.stringify([newWorld(g, t, h, id - 1, wp)]))) }
     await env.DB.batch(st); rows = (await env.DB.prepare('SELECT * FROM servers ORDER BY id').all()).results;
@@ -144,7 +144,7 @@ const srvKv = id => ['ai_scene_at', 'ai_until', 'stk_at', 'stk_gap', 'watch_at']
 // reset satu server: dunia bot baru (hari 1), obrolan server dikosongkan. Pemain asli tetap.
 export async function resetServer(env, id) {
   const s = await srvGet(env, id); if (!s) return null; const g = await nextGen(env), t = now(), h = await hypeGet(env);
-  await env.DB.batch([...dropWorlds(env, s.W.map(w => w.g)), env.DB.prepare('DELETE FROM wchat WHERE srv=?').bind(s.id),
+  await env.DB.batch([...dropWorlds(env, s.W.map(w => w.g)), env.DB.prepare('DELETE FROM wchat WHERE srv=?').bind(s.id), env.DB.prepare('DELETE FROM ann WHERE srv=?').bind(s.id),
     env.DB.prepare(`DELETE FROM kv WHERE k IN (${srvKv(s.id).map(() => '?').join(',')})`).bind(...srvKv(s.id)),
     env.DB.prepare('UPDATE servers SET worlds=? WHERE id=?').bind(JSON.stringify([newWorld(g, t, h, undefined, srvWhale(s))]), s.id)]);
   return { id: s.id, gen: g, h };
@@ -162,7 +162,7 @@ export async function releaseAll(env, n, ts) {
   const all = await serversAll(env), act = all.filter(s => !s.merged).sort((a, b) => a.id - b.id), h = await hypeGet(env);
   const bots = 'SELECT uid FROM players WHERE bot IS NOT NULL', ids = all.map(s => s.id);
   const st = [env.DB.prepare(`DELETE FROM friends WHERE a IN (${bots}) OR b IN (${bots})`), env.DB.prepare(`DELETE FROM dms WHERE frm IN (${bots}) OR too IN (${bots})`),
-    env.DB.prepare('DELETE FROM players WHERE bot IS NOT NULL'), env.DB.prepare('DELETE FROM wchat'), env.DB.prepare('DELETE FROM rvb')];
+    env.DB.prepare('DELETE FROM players WHERE bot IS NOT NULL'), env.DB.prepare('DELETE FROM wchat'), env.DB.prepare('DELETE FROM rvb'), env.DB.prepare('DELETE FROM ann')];
   for (const id of ids) { const ks = srvKv(id); st.push(env.DB.prepare(`DELETE FROM kv WHERE k IN (${ks.map(() => '?').join(',')})`).bind(...ks)) }
   let o = 0, id = Math.max(0, ...ids);
   for (const s of act) st.push(env.DB.prepare('UPDATE servers SET worlds=?, opened=? WHERE id=?').bind(JSON.stringify([newWorld(await nextGen(env), ts, h, o++, srvWhale(s))]), ts, s.id));
@@ -178,7 +178,7 @@ async function mergeServer(env, a, b) {
   if (!A || !B || A.id === B.id || A.merged || B.merged) return { ok: false, e: 'srv' };
   const W = pj(B.worlds, []).concat(pj(A.worlds, []));
   await env.DB.batch([env.DB.prepare('UPDATE servers SET worlds=? WHERE id=?').bind(JSON.stringify(W), B.id), env.DB.prepare('UPDATE servers SET merged=? WHERE id=?').bind(B.id, A.id),
-    env.DB.prepare('UPDATE players SET srv=? WHERE srv=? AND bot IS NULL').bind(B.id, A.id), env.DB.prepare('UPDATE wchat SET srv=? WHERE srv=?').bind(B.id, A.id)]);
+    env.DB.prepare('UPDATE players SET srv=? WHERE srv=? AND bot IS NULL').bind(B.id, A.id), env.DB.prepare('UPDATE wchat SET srv=? WHERE srv=?').bind(B.id, A.id), env.DB.prepare('UPDATE OR IGNORE ann SET srv=? WHERE srv=?').bind(B.id, A.id), env.DB.prepare('DELETE FROM ann WHERE srv=?').bind(A.id)]);
   return { ok: true, into: B.id, worlds: W.length };
 }
 // ringkasan server untuk layar pilih server
@@ -223,7 +223,7 @@ HINDARI (bikin kelihatan palsu/cringe)
 - Minta maaf, meluruskan diri sendiri, membahas obrolan itu sendiri ("tadi aku bilang..."), kalimat penutup manis, pertanyaan basa-basi beruntun.
 - Tanda seru berlebihan, emoji, huruf kapital teriak, nasihat yang sama diulang ("pake tiket dulu aja").
 
-PRIVASI (wajib): tiap penulis hanya tahu data PRIBADI dirinya sendiri (SEDANG, pity, permata, top up, tabungan, hoki/apes, berapa hari main). Data pribadi orang lain (termasuk pemain asli) TIDAK diketahui kecuali orang itu sendiri sudah menyebutnya di obrolan. Yang bisa dilihat semua orang hanya: nama, level, CP, peringkat, lencana VIP, tim & hero di profil, tahap terjauh, liga Arena, dan pengumuman ★3.
+PRIVASI (wajib): tiap penulis hanya tahu data PRIBADI dirinya sendiri (SEDANG, pity, permata, top up, tabungan, hoki/apes, berapa hari main). Data pribadi orang lain (termasuk pemain asli) TIDAK diketahui kecuali orang itu sendiri sudah menyebutnya di obrolan. Yang bisa dilihat semua orang hanya: nama, level, CP, peringkat, lencana VIP, tim & hero di profil, tahap terjauh, liga Arena, dan pengumuman sistem (★3 dari Panggilan, naik VIP, #1 CP/Arena, rekor server, MVP Bos Dunia).
 FAKTA: semua fakta game harus benar sesuai pengetahuan di bawah; jangan mengarang fitur (guild & guild war BELUM ada). Pakai istilah game ini: ★3 / bintang 3 (bukan SSR/UR), permata, tiket, tahap 3-4; bos hanya di tahap x-5. Tanpa emoji, tanpa tautan, ramah keluarga, tidak menyebut orang nyata/merek/politik. Jangan menyebut diri AI/bot tanpa alasan, tapi kalau ada yang bertanya dengan serius apakah ia sedang ngobrol dengan bot/AI, jangan menyangkal dan jangan mengaku manusia: jawab jujur singkat (pemain AI di game ini) lalu lanjut santai. Candaan "bot lu" setelah main jelek cukup dibalas candaan tanpa mengaku manusia. Hanya penulis dari daftar yang boleh bicara. Balas HANYA JSON.`;
 // rival abadi: momen persaingan antara bot rival {r} dan pemain {p} (dikirim game saat si rival sedang online)
 const RV_EVS = {
@@ -247,7 +247,7 @@ function overused(rows, n = 6) {
 }
 async function aiChat(env, b, u) {
   if (!(await aiOnline(env))) return { ok: false, e: 'off' };
-  const kind = b.kind === 'reply' ? 'reply' : 'tick', t = now(); let wbEv = null, rvEv = null;
+  const kind = b.kind === 'reply' ? 'reply' : 'tick', t = now(); let wbEv = null, rvEv = null, anEv = null;
   const SV = await srvGet(env, u ? u.srv : +b.srv || 1); if (!SV) return { ok: false, e: 'srv' };
   const sid = SV.id, G = SV.W.map(w => w.g), K = k => k + ':' + sid;   // semua kunci & obrolan per server
   // penulis: hanya akun bot sungguhan, nama dari server
@@ -257,6 +257,8 @@ async function aiChat(env, b, u) {
   const byUid = new Map(rows.map(r => [r.uid, r.uname])), cands = C.filter(c => byUid.has(c.uid)).map(c => ({ ...c, name: byUid.get(c.uid) }));
   if (!cands.length) return { ok: false, e: 'cands' };
   if (b.watch) await kvSet(env, K('watch_at'), t);
+  // pengumuman server 20 menit terakhir (terlihat semua orang) — konteks obrolan & bahan reaksi
+  const ANR = (await env.DB.prepare('SELECT * FROM ann WHERE srv=? AND ts<=? AND ts>? ORDER BY ts DESC LIMIT 8').bind(sid, t, t - 20 * 6e4).all()).results.filter(a => { const d = pj(a.d, {}); return !d.gm && !d.q });
   let humanMsg = null;
   if (kind === 'reply') {
     if (!u) return { ok: false, e: 'auth' };
@@ -276,7 +278,10 @@ async function aiChat(env, b, u) {
     if (W && cands.length >= 1) { const kk = `wbev:${sid}:${W.k}:${W.ev}`; if (!(await kvGet(env, kk))) { await kvSet(env, kk, t); wbEv = W } }
     const V = !wbEv && u && b.rv && typeof b.rv === 'object' && RV_EVS[b.rv.ev] && /^[\w:.-]{1,40}$/.test(String(b.rv.k)) ? b.rv : null, rc = V && cands.find(c => c.uid === String(V.who));
     if (rc) { const kk = `rvev:${u.uid}:${V.k}`; if (!(await kvGet(env, kk)) && +(await kvGet(env, 'rvat:' + u.uid) || 0) < t - 2 * 36e5) { await kvSet(env, kk, t); await kvSet(env, 'rvat:' + u.uid, t); rvEv = { ...V, name: rc.name } } }
-    if (!wbEv && !rvEv && !(cands.length >= 2 && t - at >= gap && t > until - 8e3)) {
+    // pengumuman server yang baru saja muncul (#1 baru, rekor, MVP, ★3/VIP pemain asli, sebagian ★3 terbatas bot) → satu adegan reaksi
+    if (!wbEv && !rvEv && t - +(await kvGet(env, K('anr_at')) || 0) > 4 * 6e4) for (const a of ANR) { if (t - a.ts > 3.5 * 6e4 || !annHot(a)) continue;
+      const kk = 'anr:' + a.id; if (await kvGet(env, kk)) continue; await kvSet(env, kk, t); await kvSet(env, K('anr_at'), t); anEv = a; break }
+    if (!wbEv && !rvEv && !anEv && !(cands.length >= 2 && t - at >= gap && t > until - 8e3)) {
       // bot gabut kirim stiker (tanpa AI)
       if (t - stkAt < (stkGap || 12e4) || t < until) return { ok: false, skip: 1, next: Math.max(2e4, (stkGap || 12e4) - (t - stkAt)) };
       await kvSet(env, K('stk_at'), t); await kvSet(env, K('stk_gap'), Math.round((240 + rnd01() * 480) * 1000 * night));
@@ -309,7 +314,7 @@ async function aiChat(env, b, u) {
   let user = `WAKTU: ${HARI[d.getUTCDay()]} ${hhmm(t)} WIB · ${clip(b.online, 6)} pemain online · server: ${clip(b.world, 300)}
 ${P ? `PEMAIN (manusia, data PUBLIK saja): ${clip(P.name, 16)} — ${clip(P.pub, 300)}\n` : ''}${b.humans ? `Pemain asli lain online: ${clip(b.humans, 200)}\n` : ''}PENULIS (pemain lain yang sedang online):
 ${cands.map(c => { const m = mem(c.uid), o = ovOf(c.uid); return `- ${c.name}: PUBLIK[${c.pub}] PRIBADI-hanya-dia[${c.priv}] GAYA[${c.style}]${m ? ` INGATAN[pernah bilang: ${m}]` : ''}${o.length ? ` JANGAN-ULANG[${o.join(', ')}]` : ''}` }).join('\n')}
-${ovAll.length ? `Kata yang sudah terlalu sering muncul di obrolan (hindari): ${ovAll.join(', ')}\n` : ''}
+${ANR.length ? `PENGUMUMAN SISTEM terbaru (pita berjalan, semua orang lihat; boleh disinggung sesekali, tidak wajib):\n${ANR.slice(0, 4).reverse().map(a => `- ${hhmm(a.ts)} ${annTxt(a)}`).join('\n')}\n` : ''}${ovAll.length ? `Kata yang sudah terlalu sering muncul di obrolan (hindari): ${ovAll.join(', ')}\n` : ''}
 STIKER: ${[...STK].map(([k, n]) => `${k}=${n}`).join('; ')}
 OBROLAN (lama -> baru):
 ${lines.join('\n') || '(sepi)'}
@@ -324,6 +329,16 @@ JSON: {"out":[{"who":"nama","text":"...","re":null,"stk":"","delay":5}]}`;
   } else if (rvEv) {
     user += `\nKEJADIAN SEKARANG (persaingan pribadi): ${RV_EVS[rvEv.ev].replaceAll('{r}', rvEv.name).replaceAll('{p}', clip(P?.name || u.uname, 16))}
 Tulis 1-4 pesan: ${rvEv.name} menulis 1-2 pesan duluan (boleh menyebut ${clip(P?.name || u.uname, 16)} atau tidak), lalu 0-2 penulis lain boleh ikut nimbrung singkat (ngompor-ngomporin, ketawa). Wajar, pendek, seperti obrolan game sungguhan. delay = detik 2-15.
+JSON: {"out":[{"who":"nama","text":"...","re":null,"stk":"","delay":4}]}`;
+  } else if (anEv) {
+    const ad = pj(anEv.d, {}), who = cands.find(c => c.uid === anEv.uid), prev = ad.pu && cands.find(c => c.uid === ad.pu);
+    const how = anEv.ty === 'p3' ? (ad.hu ? `${anEv.name} itu PEMAIN ASLI yang sedang main: beberapa orang memberi selamat atau iri bercanda (boleh sebut namanya), ada yang nanya habis berapa tarikan.` : 'kagum atau iri bercanda ("hoki amat"), nanya habis berapa tarikan / banner apa, ada juga yang cuek.')
+      : anEv.ty === 'vip' ? 'nyindir sultan bercanda ("dompet tebal", "donatur server"), kagum, atau pura-pura nangis sebagai f2p.'
+      : anEv.ty === 'top1' ? `heboh singkat, nanya timnya apa${ad.pn ? `, ngeledek ${ad.pn} yang tergeser${prev ? ` (${ad.pn} ada di daftar penulis: boleh ngeles/kesal bercanda)` : ''}` : ''}.`
+      : anEv.ty === 't10' ? `ada yang baru masuk 10 besar: kagum, nanya CP atau timnya, bilang mau nyusul${ad.hu ? ` (${anEv.name} PEMAIN ASLI: boleh disapa namanya)` : ''}.`
+      : anEv.ty === 'rec' ? 'kagum, nanya timnya, iri bercanda, atau bilang mau nyusul.' : 'yang ikut raid membahas damage & peringkatnya, kagum ke MVP, ngeluh telat masuk.';
+    user += `\nKEJADIAN SEKARANG: pengumuman sistem barusan muncul: "${annTxt(anEv)}".${who ? ` ${who.name} adalah orang di pengumuman itu dan ada di daftar penulis: boleh ikut menanggapi (senang, pamer tipis, atau merendah), tidak wajib.` : ''}
+Reaksi alami: ${how} Tulis 2-5 pesan dari 2-3 penulis, pendek-pendek, sebagian saling sahut. Jangan mengulang isi pengumuman kata per kata dan jangan semua memberi selamat. delay = detik 2-15.
 JSON: {"out":[{"who":"nama","text":"...","re":null,"stk":"","delay":4}]}`;
   } else if (wbEv) {
     user += `\nKEJADIAN SEKARANG DI GAME: ${WB_EVS[wbEv.ev].replace('{b}', clip(String(wbEv.boss || 'Naga'), 20)).replace('{p}', Math.max(0, Math.min(100, +wbEv.p || 0)))}${WB_EL[wbEv.el] ? `\nFAKTA: elemen naga ini ${WB_EL[wbEv.el]}. Fase Sisik Baja (sisa HP di bawah 50%): hanya elemen unggul yang menembus penuh. Tim tumbang bangkit lagi setelah 10 detik.` : ''}
@@ -353,7 +368,99 @@ JSON: {"out":[{"who":"nama","text":"...","re":null,"stk":"","delay":6}]}`;
   }
   if (st.length) await env.DB.batch(st.slice(0, 16));
   if (kind === 'tick') await kvSet(env, K('ai_until'), Math.round(tt));
-  return { ok: true, n: st.length, until: Math.round(tt), rv: !!rvEv };
+  return { ok: true, n: st.length, until: Math.round(tt), rv: !!rvEv, an: anEv ? anEv.id : null };
+}
+
+/* ---------------- PENGUMUMAN SERVER (tabel ann · angka: src/js/data/announce.js → BOTCFG.ANN) ----------------
+   ★3 dari Panggilan, naik VIP, pergantian #1 CP/Arena, rekor pertama server, MVP Bos Dunia → pita berjalan di beranda
+   + baris [Sistem] di Obrolan Dunia, sama untuk semua pemain di server itu.
+   - Kejadian BOT dihitung game (deterministik, sama di semua perangkat) dan dilaporkan ±6 menit SEBELUM terjadi →
+     disimpan dengan waktu kejadiannya (ts di masa depan, baru dikirim ke pemain saat waktunya). Kunci (k) unik per slot:
+     laporan ganda dari banyak pemain diabaikan dan ★3/VIP bot paling banyak satu per slot.
+   - Kejadian PEMAIN ASLI dilaporkan saat terjadi (wajib masuk akun). Akun GM: hanya terlihat oleh dirinya sendiri,
+     tidak ikut #1/rekor/MVP (GM juga tidak tampil di Peringkat pemain lain).
+   - Rekor (ty='rec') disimpan sampai server direset; banyak rekor sekaligus → satu diumumkan, sisanya tercatat diam-diam (q). */
+const AC = BOTCFG.ANN || {}, HERO = BOTCFG.HERO || {}, WNAME = BOTCFG.WORLDS || [], WBN = BOTCFG.WBOSS || [];
+const ANN_TY = new Set(['p3', 'vip', 'top1', 't10', 'rec', 'mvp']);
+const annNice = a => ({ id: a.id, k: a.k, ty: a.ty, uid: a.uid, u: a.name, d: pj(a.d, {}), ts: a.ts });
+const numID = n => n >= 1e6 ? String(Math.round(n / 1e5) / 10).replace('.', ',') + ' juta' : n >= 1e3 ? String(Math.round(n / 100) / 10).replace('.', ',') + ' ribu' : String(Math.round(n));
+function recOk(r) {
+  const m = /^(st|cp|a|all):(\d{1,8})$/.exec(String(r || '')); if (!m) return false; const v = +m[2];
+  return m[1] === 'st' ? v >= 1 && v <= WNAME.length : m[1] === 'cp' ? (AC.recCP || []).includes(v) : m[1] === 'a' ? (AC.recAsc || []).includes(v) : v >= 10 && v <= Object.keys(HERO).length;
+}
+// teks Indonesia (konteks AI): sama dengan teks di game (ui/announce.js)
+function annTxt(a) {
+  const d = typeof a.d === 'string' ? pj(a.d, {}) : (a.d || {}), n = a.name || a.u || '?', H = id => (HERO[id] || [id])[0];
+  if (a.ty === 'p3') { const hs = (d.h || []).map(H); return d.n ? `Hoki! ${n} mendapatkan ★3 ${hs[0]} hanya dalam ${d.n} tarikan!` : `Selamat! ${n} mendapatkan ★3 ${d.l ? 'terbatas ' : ''}${hs.join(' & ')}!` }
+  if (a.ty === 'vip') return d.v >= 7 ? `${n} mencapai VIP ${d.v}, tingkat tertinggi!` : `Selamat! ${n} naik ke VIP ${d.v}!`;
+  if (a.ty === 't10') return `Selamat! ${n} masuk 10 besar Peringkat CP server!`;
+  if (a.ty === 'top1') return d.b === 'ar' ? (d.pn ? `${n} menggeser ${d.pn} dari puncak Arena!` : `${n} kini memimpin peringkat Arena!`) : (d.pn ? `${n} merebut Peringkat #1 CP server dari ${d.pn}!` : `${n} kini Peringkat #1 CP server!`);
+  if (a.ty === 'rec') { const [k, v] = String(d.r || '').split(':');
+    return `Rekor server! ${n} jadi yang pertama ${k === 'st' ? 'menamatkan ' + (WNAME[+v - 1] || 'Dunia ' + v) : k === 'cp' ? 'menembus CP ' + numID(+v) : k === 'a' ? 'membangkitkan hero ke ★' + v : 'mengoleksi semua ' + v + ' hero'}!` }
+  if (a.ty === 'mvp') return d.k ? `Bos Dunia ${d.b} tumbang! MVP: ${n} dengan ${numID(d.dmg)} damage.` : `Bos Dunia ${d.b} berhasil kabur. Damage terbesar: ${n}.`;
+  return '';
+}
+// momen yang memancing obrolan (sama dengan annHot di game): #1, rekor, MVP, kejadian pemain asli; sebagian ★3 terbatas/hoki & VIP 7 bot
+function annHot(a) {
+  const d = typeof a.d === 'string' ? pj(a.d, {}) : (a.d || {}); if (d.gm || d.q) return false;
+  if (a.ty === 'top1' || a.ty === 'rec' || a.ty === 'mvp') return true;
+  if (d.hu) return a.ty === 'p3' || a.ty === 'vip' || a.ty === 't10';
+  return a.ty === 'p3' ? !!(d.l || d.n) && a.id % 100 < 40 : a.ty === 't10' ? a.id % 100 < 30 : a.ty === 'vip' && d.v >= 7 && a.id % 100 < 30;
+}
+// subjek pengumuman harus pemain asli / bot server ini; nama selalu dari server
+async function annSubj(env, sv, uid) {
+  if (!/^\d{8}$/.test(String(uid || ''))) return null;
+  const r = await env.DB.prepare('SELECT uid,uname,bot,bw,srv,ban,gm FROM players WHERE uid=?').bind(String(uid)).first();
+  if (!r || r.ban) return null;
+  if (r.bot != null ? !sv.W.some(w => w.g === r.bw) : (r.srv !== sv.id || r.gm)) return null;
+  return r;
+}
+async function annTop(env, sid) {
+  const top = {};
+  for (const bd of ['cp', 'ar']) { const r = await env.DB.prepare("SELECT uid,name,ts FROM ann WHERE srv=? AND k>=? AND k<? ORDER BY ts DESC LIMIT 1").bind(sid, 'top1:' + bd + ':', 'top1:' + bd + ';').first(); if (r) top[bd] = { uid: r.uid, u: r.name, ts: r.ts } }
+  return top;
+}
+async function annPost(env, b) {
+  const t = now(), u = b.tok ? await auth(env, b) : null; if (u && u.ban) return { ok: false, e: 'ban' };
+  const sv = await srvGet(env, u ? u.srv : +b.srv || 1); if (!sv) return { ok: false, e: 'srv' };
+  const sid = sv.id, L = (Array.isArray(b.list) ? b.list : []).slice(0, 8), out = [];
+  if ((await env.DB.prepare('SELECT COUNT(*) n FROM ann WHERE srv=? AND ts>?').bind(sid, t - 10 * 6e4).first()).n > 40) return { ok: true, add: 0, full: 1 };   // pelindung banjir
+  for (const x of L) {
+    if (!x || !ANN_TY.has(x.ty)) continue;
+    const self = x.uid == null || (u && String(x.uid) === u.uid);
+    const subj = self ? u : await annSubj(env, sv, x.uid); if (!subj) continue;
+    const isBot = subj.bot != null, gm = !isBot && !!subj.gm, tt = Math.round(+x.t || 0), fut = tt >= t - 2 * 6e4 && tt <= t + 8 * 6e4;
+    let k = null, d = {}, ts = t;
+    if (x.ty === 'p3') {
+      if (isBot) { const h = String(x.h || ''), hs = HERO[h]; if (!hs || hs[1] !== 3 || !fut) continue;
+        k = 'p3:' + Math.floor(tt / AC.p3Slot); d = { h: [h], l: x.l && hs[2] ? 1 : 0 }; const n = Math.round(+x.n || 0); if (n >= 1 && n <= 10) d.n = n; ts = Math.max(tt, t) }
+      else { const hs = [...new Set((Array.isArray(x.h) ? x.h : []).map(String))].filter(h => HERO[h] && HERO[h][1] === 3).slice(0, 3); if (!hs.length) continue;
+        k = 'p3u:' + subj.uid + ':' + Math.floor(t / 2e4); d = { h: hs, l: hs.some(h => HERO[h][2]) ? 1 : 0, hu: 1 } }
+    } else if (x.ty === 'vip') {
+      const v = Math.round(+x.v || 0); if (v < (AC.vipMin || 3) || v > 7) continue;
+      if (isBot) { if (!fut) continue; k = 'vb:' + Math.floor(tt / AC.vipSlot); ts = Math.max(tt, t); d = { v } } else { k = 'vip:' + subj.uid + ':' + v; d = { v, hu: 1 } }
+    } else if (x.ty === 'top1') {
+      if (gm) continue; const bd = x.b === 'ar' ? 'ar' : 'cp', last = (await annTop(env, sid))[bd];
+      if (last && (last.uid === subj.uid || t - last.ts < (AC.cd || {})[bd])) continue;
+      k = 'top1:' + bd + ':' + Math.floor(t / 6e4); d = { b: bd, v: Math.max(0, Math.min(1e10, Math.round(+x.v || 0))) }; if (last) { d.pn = last.u; d.pu = last.uid } if (!isBot) d.hu = 1;
+    } else if (x.ty === 't10') {   // pertama kali masuk 10 besar CP (sekali per orang per server); bot: maks 1 diumumkan per 10 menit
+      if (gm) continue; k = 't10:' + subj.uid; d = { r: Math.max(1, Math.min(10, Math.round(+x.r || 10))) }; if (!isBot) d.hu = 1;
+      else { const lt = await env.DB.prepare("SELECT ts FROM ann WHERE srv=? AND ty='t10' AND d NOT LIKE '%\"q\":1%' ORDER BY ts DESC LIMIT 1").bind(sid).first(); if (lt && t - lt.ts < 10 * 6e4) d.q = 1 }
+    } else if (x.ty === 'rec') {
+      if (gm || !recOk(x.r)) continue; k = 'rec:' + x.r; d = { r: String(x.r) }; if (!isBot) d.hu = 1;
+      const lr = await env.DB.prepare("SELECT ts FROM ann WHERE srv=? AND ty='rec' AND d NOT LIKE '%\"q\":1%' ORDER BY ts DESC LIMIT 1").bind(sid).first();
+      if (lr && t - lr.ts < 3 * 6e4) d.q = 1;
+    } else if (x.ty === 'mvp') {
+      const wk = String(x.wk || ''), t0 = Date.parse(wk + ':00:00Z') - 7 * 36e5;
+      if (gm || !/^\d{4}-\d\d-\d\dT\d\d$/.test(wk) || !(t > t0 && t < t0 + 3 * 36e5)) continue;
+      k = 'mvp:' + wk; d = { b: WBN.includes(String(x.b)) ? String(x.b) : 'Naga', dmg: Math.max(0, Math.min(1e13, Math.round(+x.dmg || 0))), k: x.k ? 1 : 0 }; if (!isBot) d.hu = 1;
+    }
+    if (!k) continue; if (gm) d.gm = 1;
+    const r = await env.DB.prepare('INSERT OR IGNORE INTO ann (srv,k,ty,uid,name,d,ts) VALUES (?,?,?,?,?,?,?)').bind(sid, k, x.ty, subj.uid, subj.uname, JSON.stringify(d), Math.round(ts)).run();
+    if (r.meta.changes) out.push({ id: r.meta.last_row_id, k, ty: x.ty, uid: subj.uid, u: subj.uname, d, ts: Math.round(ts) });
+  }
+  if (out.length && rnd01() < .05) await env.DB.prepare("DELETE FROM ann WHERE srv=? AND ty IN ('p3','vip','mvp') AND ts<?").bind(sid, t - (AC.keep || 3 * 864e5)).run();
+  return { ok: true, add: out.length, list: out.filter(a => a.ts <= t + 1000) };
 }
 
 /* ---------------- sesi ---------------- */
@@ -612,6 +719,7 @@ export async function gameRoute(req, env, url, json) {
     if (Math.random() < .02) await env.DB.prepare('DELETE FROM wbdmg WHERE ts < ?').bind(t - 9 * 864e5).run();
     return out();
   }
+  if (p === '/api/ann' && req.method === 'POST') { const o = await annPost(env, b); return o.ok ? json(o) : fail(o.e, o.e === 'ban' ? 403 : 400) }
   if (p === '/api/wc') {
     if (req.method === 'GET') {
       const since = Math.max(0, +url.searchParams.get('since') || 0), t = now(), sid = (await srvGet(env, +url.searchParams.get('srv') || 1))?.id || 1;
@@ -619,7 +727,14 @@ export async function gameRoute(req, env, url, json) {
       const q = since ? env.DB.prepare(SEL + ' WHERE w.srv=? AND w.ts>=? AND w.ts<=? ORDER BY w.ts, w.id LIMIT 80').bind(sid, since, t)
         : env.DB.prepare('SELECT * FROM (' + SEL + ' WHERE w.srv=? AND w.ts<=? ORDER BY w.ts DESC LIMIT 60) ORDER BY ts, id').bind(sid, t);
       const { results } = await q.all();
-      return json({ ok: true, t, ai: await aiOnline(env), list: results.map(r => ({ id: r.id, uid: r.uid, u: r.cur || r.name, txt: r.txt, ts: r.ts, re: r.re || null, q: r.re && r.qn ? { u: r.qn, t: String(r.qt).slice(0, 60) } : null, vip: pj(r.prof, {}).vip || 0, top: pj(r.prof, {}).top || null })) });
+      // pengumuman server: yang baru (ts >= as), kunci yang sudah terjadwal (fk=1, untuk pelapor kejadian bot), status #1 & rekor (st=1)
+      const as = +url.searchParams.get('as') || 0, meU = String(url.searchParams.get('me') || ''), ex = {};
+      const AQ = as ? env.DB.prepare('SELECT * FROM ann WHERE srv=? AND ts>=? AND ts<=? ORDER BY ts, id LIMIT 40').bind(sid, as, t)
+        : env.DB.prepare('SELECT * FROM (SELECT * FROM ann WHERE srv=? AND ts<=? AND ts>? ORDER BY ts DESC LIMIT 30) ORDER BY ts, id').bind(sid, t, t - 3 * 36e5);
+      ex.ann = (await AQ.all()).results.map(annNice).filter(a => !a.d.gm || a.uid === meU);
+      if (url.searchParams.get('fk')) ex.fk = (await env.DB.prepare('SELECT k FROM ann WHERE srv=? AND ts>?').bind(sid, t).all()).results.map(r => r.k);
+      if (url.searchParams.get('st')) ex.st = { top: await annTop(env, sid), t10: (await env.DB.prepare("SELECT uid FROM ann WHERE srv=? AND ty='t10'").bind(sid).all()).results.map(r => r.uid), rec: (await env.DB.prepare("SELECT uid,name,d,ts FROM ann WHERE srv=? AND ty='rec' AND ts<=? ORDER BY ts").bind(sid, t).all()).results.map(r => ({ r: pj(r.d, {}).r, uid: r.uid, u: r.name, ts: r.ts })) };
+      return json({ ok: true, t, ai: await aiOnline(env), list: results.map(r => ({ id: r.id, uid: r.uid, u: r.cur || r.name, txt: r.txt, ts: r.ts, re: r.re || null, q: r.re && r.qn ? { u: r.qn, t: String(r.qt).slice(0, 60) } : null, vip: pj(r.prof, {}).vip || 0, top: pj(r.prof, {}).top || null })), ...ex });
     }
     const [u, f] = await me(); if (f) return f;
     const txt = clean(b.txt, 120); if (!txt) return fail('empty');

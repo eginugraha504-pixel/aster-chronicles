@@ -15,6 +15,7 @@ css/bundle.css
 css/battle.css
 css/arena.css
 css/chat.css
+css/announce.css
 css/social.css
 css/smelt.css
 css/ascend.css
@@ -47,6 +48,7 @@ js/data/chat/brain.js
 js/data/stickers.js
 js/data/enemies.js
 js/data/worldboss.js
+js/data/announce.js
 js/data/worlds.js
 js/data/banners.js
 js/data/missions.js
@@ -108,6 +110,7 @@ js/systems/unlock.js
 js/systems/gm.js
 js/systems/worldboss.js
 js/systems/rival.js
+js/systems/announce.js
 
 # --- UI layar ---
 js/ui/core.js
@@ -127,6 +130,7 @@ js/ui/arena.js
 js/ui/topup.js
 js/ui/bundle.js
 js/ui/chat.js
+js/ui/announce.js
 js/ui/social.js
 js/ui/smelt.js
 js/ui/ascend.js

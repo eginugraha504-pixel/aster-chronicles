@@ -16,7 +16,7 @@ let chatOpen=false,chatSig='';
 const chTime=t=>{const d=new Date(t+BOT_CFG.TZ*36e5);return String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0')};
 try{WC.seen=+localStorage.getItem('aster_wcseen')||0}catch(e){}
 async function wcFetch(){if(WC.busy)return;WC.busy=true;WC.at=Date.now();
- try{const o=await api('/api/wc?since='+WC.since+'&srv='+netSrv());if(o.ok){NET.ai=!!o.ai;if(o.list.length){const have=new Set(WC.list.map(m=>m.id));WC.list=WC.list.concat(o.list.filter(m=>!have.has(m.id))).sort((a,b)=>a.ts-b.ts||a.id-b.id).slice(-150);WC.since=WC.list[WC.list.length-1].ts}}}finally{WC.busy=false}}
+ try{const o=await api('/api/wc?since='+WC.since+'&srv='+netSrv()+(typeof annQS==='function'?annQS():''));if(o.ok){NET.ai=!!o.ai;if(typeof annApply==='function')annApply(o);if(o.list.length){const have=new Set(WC.list.map(m=>m.id));WC.list=WC.list.concat(o.list.filter(m=>!have.has(m.id))).sort((a,b)=>a.ts-b.ts||a.id-b.id).slice(-150);WC.since=WC.list[WC.list.length-1].ts}}}finally{WC.busy=false}}
 // bot pengirim pesan (akun bot di server) -> VIP & potret dari simulasi bot
 function wcBot(m){const i=typeof botIdxOf==='function'?botIdxOf(m.uid):-1;return i>=0&&botIn(i)?i:-1}
 function wcVip(m){const i=wcBot(m);return i>=0?botState(i).stats.vip:m.vip}
@@ -45,7 +45,7 @@ function wcStyle(i){const P=wcPersona(i);return`${P.ketik}; ketawa: ${P.tawa}; $
 const wcLv3=(i,now)=>botState(i,now).lv>=(FEAT.chat.lv||3);   // aturan sama dengan pemain: menulis setelah Lv 3
 // data bot: PUBLIK (bisa dilihat semua: profil/peringkat) vs PRIBADI (hanya dia yang tahu)
 function wcDesc(i,now){const c=chCtx(i,now),s=botState(i,now),a=botActivity(i,now),g=s.ev.filter(e=>!e.w&&now-e.t<3*36e5&&e.t<=now).pop();
- return{pub:`Lv ${s.lv}, CP ${fmt(s.cp)}${s.stats.vip?', lencana VIP '+s.stats.vip:''}, tim ${s.team.map(id=>HD[id].name).join('/')}, hero favorit ${c.hero}, tahap terjauh ${c.stage}${c.league?', liga Arena '+c.league:''}${g?`, ${Math.round((now-g.t)/6e4)} menit lalu dapat ★3 ${HD[g.id].name} (muncul di pengumuman)`:''}`,
+ return{pub:`Lv ${s.lv}, CP ${fmt(s.cp)}${s.stats.vip?', lencana VIP '+s.stats.vip:''}, tim ${s.team.map(id=>HD[id].name).join('/')}, hero favorit ${c.hero}, tahap terjauh ${c.stage}${c.league?', liga Arena '+c.league:''}${g?`, ${Math.round((now-g.t)/6e4)} menit lalu dapat ★3 ${HD[g.id].name}${typeof ANN!=='undefined'&&ANN.list.some(a=>a.ty==='p3'&&a.uid===botUid(i)&&(a.d.h||[]).includes(g.id))?' (muncul di pengumuman sistem)':''}`:''}`,
   priv:`${a?'SEDANG: '+a.t+'; ':''}gacha lagi ${c.luck==='sial'?'apes':c.luck==='hoki'?'hoki':'biasa'}, pity ${c.pity}, ${c.vip>=4?'sultan':c.paid?'kadang top up'+(c.card?' (kartu bulanan)':''):'f2p'}${c.held?', nabung '+c.held+' tarikan':''}, main ${c.days} hari${c.fading?', mulai bosan':''}, ${c.sk==='veteran'?'sudah biasa main gacha sejenis: skip cerita, hafal cara farming (sapu tahap, dungeon, toko emas), suka kasih tips':c.sk==='baru'?(c.days<=7?'pertama kali main game gacha, masih bingung banyak fitur, baca cerita':'awalnya awam gacha, sekarang mulai paham'):'paham dasar game'}${typeof rvIs==='function'&&rvIs(i)&&loggedIn()&&bHash(i,now/36e5|0)%3===0?`, diam-diam bersaing CP dengan ${NET.acct.u} di peringkat (selisih ${fmt(Math.abs(s.cp-teamPow()))}, ${s.cp>teamPow()?'dia di depan':'dia di belakang'}; jarang dibahas)`:''}`}}
 // data PUBLIK pemain (yang bisa dilihat orang lain di profil) — tidak ada permata, pity, top up, atau aktivitas
 function wcMePub(){const own=Object.keys(S.heroes),s3=own.filter(id=>(S.heroes[id].asc||HD[id].r)>=3).map(id=>HD[id].name),cl=SLIST.filter(x=>S.stages[x.key]).pop(),v=vipOf(S.iap&&S.iap.spent||0);
@@ -57,7 +57,8 @@ function wcAiBody(kind,reTo){const now=Date.now();
  const recent=[...new Set(WC.list.filter(m=>now-m.ts<15*6e4).map(wcBot).filter(i=>i>=0&&on.includes(i)))].slice(-2);
  const r=bRng(now>>>0),pool=talk.map(i=>[i,(chPersona(i).chat+.2)*r()]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
  const rv=kind==='tick'&&typeof rvChatPending==='function'?rvChatPending(now,on):null;
- const idx=[...new Set([...(rv?[rv.i]:[]),...tgt,...ment,...recent,...pool])].slice(0,5);
+ const an=kind==='tick'&&typeof annHotBot==='function'?annHotBot(now,on):[];
+ const idx=[...new Set([...(rv?[rv.i]:[]),...an,...tgt,...ment,...recent,...pool])].slice(0,5);
  const cands=idx.map(i=>{const D=wcDesc(i,now),s=botState(i,now);return{uid:botUid(i),pub:D.pub,priv:D.priv,style:wcStyle(i),lower:wcPersona(i).lower,fav:s.fav||''}});
  const humans=NET.players.filter(p=>p.on&&!(NET.acct&&p.uid===NET.acct.uid)).map(p=>`${p.u} (Lv ${p.lv})`).join(', ');
  return{tok:netTok(),srv:netSrv(),kind,watch:chatOpen&&!!$('#chList'),online:wcOnline(),world:chWorldTxt(now),humans,cands,player:loggedIn()?{name:NET.acct.u,pub:wcMePub()}:null,n:chatOpen?'2-5':'2-4',wb:kind==='tick'&&typeof WB!=='undefined'&&WB.ev?WB.ev:null,rv:rv?{ev:rv.ev,who:botUid(rv.i),k:rv.k}:null}}
@@ -75,7 +76,9 @@ function chRow(m,prev){const me=wcMine(m),same=prev&&prev.uid===m.uid&&m.ts-prev
  if(me)return`<div class="chm self${same?' cont':''}">${same?'':`<div class="chn"><small>${chTime(m.ts)}</small>${vip}<b>${nm}</b></div>`}${chBody(m)}</div>`;
  return`<div class="chm${same?' cont':''}${chAt(m)?' at':''}">${same?'<span class="chav sp"></span>':`<button class="chav" data-act="profView" data-arg="${m.uid}">${av}</button>`}
   <div class="chb">${same?'':`<div class="chn"><button data-act="profView" data-arg="${m.uid}">${vip}<b>${nm}</b></button><small>${chTime(m.ts)}</small></div>`}${chBody(m)}</div></div>`}
-function chListHTML(L){if(!L.length)return`<p class="sub chempty">${WC.at?T('Belum ada obrolan. Sapa yang lain!'):T('Memuat obrolan...')}</p>`;return L.map((m,k)=>chRow(m,L[k-1])).join('')}
+function chListHTML(L){const A=typeof annChat==='function'?annChat(L):[];if(!L.length&&!A.length)return`<p class="sub chempty">${WC.at?T('Belum ada obrolan. Sapa yang lain!'):T('Memuat obrolan...')}</p>`;
+ // pesan + baris [Sistem] pengumuman server (ui/announce.js), urut waktu
+ const M=L.concat(A).sort((a,b)=>a.ts-b.ts||(a.sys?1:0)-(b.sys?1:0));return M.map((m,k)=>m.sys?annRowHTML(m.a):chRow(m,M[k-1]&&!M[k-1].sys?M[k-1]:null)).join('')}
 // jumlah online = bot yang sedang bermain (jadwal sesi bot, sama untuk semua pemain) + pemain asli online (+ kamu)
 // daftar bot online memakai botPresence (sama dengan Peringkat & profil; bot yang baru bergabung juga online), disimpan 10 dtk
 function wcBotsOn(){const now=Date.now();if(WC.onAt&&now-WC.onAt<1e4)return WC.on;const L=[];try{for(const i of botsIds(now))if(!botHidden(i)&&!botFrozen(i,now)&&botPresence(i,now).online)L.push(i)}catch(e){}WC.onAt=now;return WC.on=L}
@@ -91,7 +94,7 @@ function openChat(){chatOpen=true;wcFetch().then(()=>chatRefresh(true));netPlaye
  if(f)f.onsubmit=async e=>{e.preventDefault();const i=$('#chIn'),v=(i.value||'').trim();if(!v)return;i.value='';sfx('tap');
   if(!(await wcSend(v)))i.value=v};
  chatSig='';chatRefresh(true)}
-function chatRefresh(force){const box=$('#chList');if(!box){chatOpen=false;return}const L=WC.list,last=L[L.length-1],sig=L.length+':'+(last?last.id:'');
+function chatRefresh(force){const box=$('#chList');if(!box){chatOpen=false;return}const L=WC.list,last=L[L.length-1],sig=L.length+':'+(last?last.id:'')+':'+(typeof ANN!=='undefined'?ANN.list.length+':'+(ANN.list.length?ANN.list[ANN.list.length-1].id:''):'');
  const nearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;
  if(sig!==chatSig||force){chatSig=sig;box.innerHTML=chListHTML(L);if(force||nearBottom)box.scrollTop=box.scrollHeight}
  const on=$('#chOn');if(on)on.textContent=wcOnline();if(last){WC.seen=last.ts;try{localStorage.setItem('aster_wcseen',WC.seen)}catch(e){}}}
@@ -107,7 +110,8 @@ function chatTick(){const now=Date.now(),L=document.getElementById('login');if(L
  if(NET.ai&&now>WC.aiNext&&!WC.aiBusy){if(!WC.aiNext)WC.aiNext=now+5e3+Math.random()*1e4;else wcAi('tick')}
  if(chatOpen&&$('#chList')){if(now-WC.at>4000)wcFetch().then(()=>chatRefresh());}
  else{chatOpen=false;if(now-WC.at>(NET.ai?2e4:3e4)||(NET.wc>WC.since&&now-WC.at>5e3))wcFetch().then(()=>{const m=WC.list.filter(x=>x.ts>WC.seen&&chAt(x)).pop();if(m&&m.id>(WC.atSeen||0)){WC.atSeen=m.id;toast(T('{n} menyebutmu di obrolan',{n:m.u}))}})}
- const st=$('#hchat');if(st)st.innerHTML=chatStripHTML()}
+ // strip beranda: pita berjalan pengumuman server (ui/announce.js) bila ada, selain itu 1 pesan terakhir
+ const st=$('#hchat');if(st&&!(typeof annStripTick==='function'&&annStripTick(st)))st.innerHTML=chatStripHTML()}
 setTimeout(()=>setInterval(chatTick,1500),3500);
 Object.assign(ACT,{chat:()=>openChat(),chatQuick:q=>{const i=$('#chIn');if(i){i.value=q;i.focus()}},
  wcRe:id=>{if(!$('#chForm'))return;const m=WC.list.find(x=>x.id===+id);if(m)wcReSet(m)},wcReX:()=>wcReSet(null),
