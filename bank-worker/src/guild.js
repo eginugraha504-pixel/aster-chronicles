@@ -181,6 +181,7 @@ const ROLE_N = ['Anggota', 'Elit', 'Wakil Ketua', 'Ketua'];
 const cleanOut = (s, lower) => { let x = clip(s, 300).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/https?\S+/g, '').replace(/~+/g, '').replace(/\s{2,}/g, ' ').trim(); return lower ? x.toLowerCase() : x };
 
 /* ---------- HTTP ---------- */
+const sha256 = async s => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map(x => x.toString(16).padStart(2, '0')).join('');
 export async function guildRoute(p, b, env, C) {
   const { json, fail, me, srvGet, srvSt, kvGet, kvSet, clean, pj, url } = C, now = () => Date.now();
   if (p === '/api/g/all') {   // keadaan semua guild satu server (publik): G = [id,nama,ketua,xp,lambang,mode,minLv,berdiri,pendiri], M = {gid:"uid:role:menit36,..."}
@@ -234,6 +235,23 @@ export async function guildRoute(p, b, env, C) {
     return json({ ok: true, n: L.length });
   }
 
+  // ---- tick politik bot (22 Nov 2026): dari game pemain (server sendiri), dari dashboard penonton / GM (server yang dilihat: b.srv),
+  //      atau dari penjadwal GitHub Actions tiap 20 menit (b.key = sha256('gtick:' + BOT_TOKEN), b.srv) → semua server tetap hidup walau tanpa pemain
+  if (p === '/api/g/tick') {
+    let sid = 0;
+    if (b.key) { if (!env.BOT_TOKEN || String(b.key) !== await sha256('gtick:' + env.BOT_TOKEN)) return fail('key', 403); sid = +b.srv || 0 }
+    else { const [u, f] = await me(); if (f) return f; sid = (u.watch || u.gm) && +b.srv ? +b.srv : u.srv }
+    const SV = await srvGet(env, sid); if (!SV || srvSt(SV) !== 'open') return fail('srv');
+    const srv = SV.id, t = now(), k = Math.floor(t / TICK); if (Math.abs(+b.k - k) > 1) return fail('k');
+    const kk = 'gt:' + srv, last = +(await kvGet(env, kk) || 0); if (+b.k <= last) return json({ ok: false, e: 'old', tk: last });
+    const r = await env.DB.prepare('INSERT INTO kv (k,v) VALUES (?,?) ON CONFLICT(k) DO UPDATE SET v=excluded.v WHERE CAST(kv.v AS INTEGER) < CAST(excluded.v AS INTEGER)').bind(kk, String(+b.k)).run();
+    if (!r.meta.changes) return json({ ok: false, e: 'old' });
+    const ops = Array.isArray(b.ops) ? b.ops.slice(0, 6000) : [];
+    const o = ops.length ? await applyTick(env, srv, SV.W.map(w => w.g), ops, t) : {};
+    await voteSweep(env, srv);
+    return json({ ok: true, tk: +b.k, srv, ...o });
+  }
+
   // ---- tindakan (butuh akun) ----
   const [u, f] = await me(); if (f) return f; if (u.watch) return fail('watch', 403);
   const SV = await srvGet(env, u.srv); if (!SV || srvSt(SV) !== 'open') return fail('srv');
@@ -244,16 +262,6 @@ export async function guildRoute(p, b, env, C) {
   const isBotHere = async uid => !!(SV.W.length && await env.DB.prepare(`SELECT 1 FROM players WHERE uid=? AND bot IS NOT NULL AND bw IN (${SV.W.map(() => '?').join(',')})`).bind(String(uid), ...SV.W.map(w => w.g)).first());
   const leftCool = async () => { const v = +(await kvGet(env, 'gleft:' + u.uid) || 0); return !u.gm && t - v < 2 * 36e5 ? v + 2 * 36e5 : 0 };
 
-  if (act === 'tick') {   // tick politik bot dari game
-    const k = Math.floor(t / TICK); if (Math.abs(+b.k - k) > 1) return fail('k');
-    const kk = 'gt:' + srv, last = +(await kvGet(env, kk) || 0); if (+b.k <= last) return json({ ok: false, e: 'old', tk: last });
-    const r = await env.DB.prepare('INSERT INTO kv (k,v) VALUES (?,?) ON CONFLICT(k) DO UPDATE SET v=excluded.v WHERE CAST(kv.v AS INTEGER) < CAST(excluded.v AS INTEGER)').bind(kk, String(+b.k)).run();
-    if (!r.meta.changes) return json({ ok: false, e: 'old' });
-    const ops = Array.isArray(b.ops) ? b.ops.slice(0, 6000) : [];
-    const o = ops.length ? await applyTick(env, srv, SV.W.map(w => w.g), ops, t) : {};
-    await voteSweep(env, srv);
-    return json({ ok: true, tk: +b.k, ...o });
-  }
   if (act === 'create') {
     if (myM) return fail('ing'); if ((u.lv || 1) < MINLV && !u.gm) return fail('lv');
     const cd = await leftCool(); if (cd) return json({ ok: false, e: 'gcool', at: cd });

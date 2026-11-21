@@ -35,7 +35,10 @@ async function watchPick(id){if(id!=='all')id=+id;if(WT.sv===id&&!WT.loading){wa
  const ok=await netWorld(true);if(WT.sv!==id)return;
  if(!ok||!BOTS.W||!BOTS.W.length){WT.loading=false;watchRender();toast(T('Gagal memuat server. Coba lagi.'),1);return}
  if(typeof BLM!=='undefined')BLM.L=null;await netPlayers(true);if(WT.sv!==id)return;if(typeof gLoad==='function')await gLoad(true);if(WT.sv!==id)return;
- botsWarm(()=>{if(WT.sv!==id)return;WT.loading=false;WT.sig=botsSig();watchTopSave(id);watchRender()})}
+ botsWarm(()=>{if(WT.sv!==id)return;WT.loading=false;WT.sig=botsSig();watchTopSave(id);watchRender();watchGTick()})}
+// server yang dilihat belum dihitung politik guild-nya (tidak ada pemain yang online) → dashboard ikut menghitung tick-nya
+async function watchGTick(){const id=WT.sv;if(typeof id!=='number'||WT.loading||typeof gTickRun!=='function'||!botsWarmOk()||!gReady())return;
+ if(GS.tk>=Math.floor(Date.now()/G_CFG.tick))return;const o=await gTickRun({tok:netTok(),srv:id});if(WT.sv===id&&o&&o.ok&&WT.tab==='gd')watchRender()}
 function watchTopSave(id){try{const L=botsList().filter(e=>!e.me).sort((a,b)=>b.cp-a.cp);WT.top[id]={at:Date.now(),n:L.length,on:L.filter(e=>e.online).length,cp:L.slice(0,3).map(e=>({name:e.name,cp:e.cp,lv:e.lv,top:e.top}))}}catch(e){}}
 
 /* ---------- papan CP / Level / Arena ---------- */
@@ -107,6 +110,7 @@ async function watchTick(){if(!document.getElementById('watch')||!watchMode())re
  if(document.hidden)return;
  if(WT.sv==='all'){await watchSrvList();watchRender();return}
  if(WT.loading)return;
+ watchGTick();
  if(WT.tab==='wb'){if(WT.raid!=null&&Date.now()<wbEnd(WT.raid)+6e4){await wbPull(WT.raid,true);try{WT.rb={t0:WT.raid,b:wbBoard(WT.raid,Date.now()),gb:wbGBoard(WT.raid,Date.now()),at:Date.now()}}catch(e){}watchRender()}return}
  netPlayers();if(Date.now()-(NET.worldAt||0)>6e4)netWorld();watchTopSave(WT.sv);watchRender()}
 

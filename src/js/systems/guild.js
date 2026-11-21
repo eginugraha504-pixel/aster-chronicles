@@ -178,11 +178,15 @@ async function gTick(){if(!loggedIn()||NET.acct.watch||GS.tickBusy||document.hid
  const L=document.getElementById('login');if(L&&L.classList.contains('on'))return;
  const now=Date.now(),k=Math.floor(now/G_CFG.tick),last=Math.max(GS.srv===netSrv()?GS.tk:0,NET.gtk||0);if(k<=last)return;
  if(now-k*G_CFG.tick<(+NET.acct.uid%67)*1200)return;   // jeda acak per pemain: tidak semua game menghitung bersamaan
- GS.tickBusy=true;
- try{await gLoad(true);if(!gReady()||GS.tk>=k)return;const ops=gSim(now,k);
-  const o=await api('/api/g/tick',{tok:netTok(),k,ops});
+ await gTickRun({tok:netTok()})}
+/* inti tick: hitung politik bot server yang sedang dimuat (netSrv) lalu kirim ke server.
+   extra: {tok} pemain (servernya sendiri) · {tok,srv} dashboard penonton / GM (server yang dilihat) · {key,srv} penjadwal GitHub Actions.
+   Tick yang terlewat (tidak ada yang menghitung) dikejar otomatis: gSim memakai selang sejak tick terakhir (maks 3 hari). */
+async function gTickRun(extra){if(GS.tickBusy)return{e:'busy'};GS.tickBusy=true;
+ try{const now=Date.now(),k=Math.floor(now/G_CFG.tick);await gLoad(true);if(!gReady())return{e:'load'};if(GS.tk>=k)return{skip:GS.tk};
+  const ops=gSim(now,k),o=await api('/api/g/tick',Object.assign({k,ops},extra||{}));
   if(o&&o.ok){GS.tk=k;NET.gtk=k;await gLoad(true)}else if(o&&o.e==='old'){GS.tk=Math.max(GS.tk,o.tk||k);NET.gtk=GS.tk}
- }catch(e){console.warn('gTick',e)}finally{GS.tickBusy=false}}
+  return Object.assign({n:ops.length},o||{})}catch(e){console.warn('gTick',e);return{e:String(e)}}finally{GS.tickBusy=false}}
 setInterval(gTick,2e4);
 
 /* ---------- bujuk bot masuk guild-ku ---------- */
