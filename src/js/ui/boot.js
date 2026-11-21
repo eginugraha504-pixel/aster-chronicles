@@ -91,10 +91,12 @@ function loginNameHTML(){setTimeout(srvPickLoad,0);return`<div class="lgcard"><b
 /* ---------- pilih server (daftar akun baru / tamu). Akun terikat ke satu server, tanpa pindah. ---------- */
 const SRVL={list:null,at:0,sel:null};
 async function srvLoad(){if(SRVL.list&&Date.now()-SRVL.at<6e4)return SRVL.list;const o=await api('/api/servers');if(o&&o.ok){SRVL.list=o.list;SRVL.at=Date.now()}return SRVL.list||[]}
-function srvState(x){const age=(Date.now()-x.opened)/864e5;return x.full?['full',T('PENUH')]:age<3?['new',T('BARU')]:x.n/x.cap>.7?['busy',T('RAMAI')]:['ok',T('LANCAR')]}
+function srvOpenAt(t){const d=new Date(t),p=n=>String(n).padStart(2,'0'),hm=p(d.getHours())+':'+p(d.getMinutes());return t-Date.now()<864e5?hm:p(d.getDate())+'/'+p(d.getMonth()+1)+' '+hm}
+// server yang dijadwalkan rilis (pra-registrasi): sudah bisa dipilih, dunia mulai ramai saat jam buka
+function srvState(x){const age=(Date.now()-x.opened)/864e5;return x.opened>Date.now()?['soon',T('SEGERA')]:x.full?['full',T('PENUH')]:age<3?['new',T('BARU')]:x.n/x.cap>.7?['busy',T('RAMAI')]:['ok',T('LANCAR')]}
 function srvDefault(L){const ok=(L||[]).filter(x=>!x.full);return ok.length?ok.reduce((a,b)=>b.opened>a.opened||(b.opened===a.opened&&b.n<a.n)?b:a).id:null}
 function srvPickHTML(){const L=SRVL.list;if(!L)return`<div class="srvpick"><small>${T('Memuat daftar server...')}</small></div>`;if(SRVL.sel==null||!L.some(x=>x.id===SRVL.sel&&!x.full))SRVL.sel=srvDefault(L);
- return`<label>${T('Server')}</label><div class="srvpick">${L.map(x=>{const[st,lb]=srvState(x);return`<button class="srvb ${st}${x.id===SRVL.sel?' on':''}" data-act="srvSel" data-arg="${x.id}"${x.full?' disabled':''}><b>S${x.id} · ${esc(x.name)}</b><small>${fmt(x.n)}/${fmt(x.cap)}</small><i>${lb}</i></button>`}).join('')}</div>
+ return`<label>${T('Server')}</label><div class="srvpick">${L.map(x=>{const[st,lb]=srvState(x);return`<button class="srvb ${st}${x.id===SRVL.sel?' on':''}" data-act="srvSel" data-arg="${x.id}"${x.full?' disabled':''}><b>S${x.id} · ${esc(x.name)}</b><small>${x.opened>Date.now()?T('Buka {t}',{t:srvOpenAt(x.opened)})+' · ':''}${fmt(x.n)}/${fmt(x.cap)}</small><i>${lb}</i></button>`}).join('')}</div>
  <small class="lgrule">${T('Akun terikat ke server pilihanmu dan tidak bisa pindah.')}</small>`}
 function srvPickLoad(){srvLoad().then(()=>{document.querySelectorAll('.srvwrap').forEach(e=>e.innerHTML=srvPickHTML())})}
 const srvNameOf=id=>{const x=(SRVL.list||[]).find(y=>y.id===+id);return x?`S${x.id} · ${x.name}`:'S'+id};

@@ -1695,7 +1695,7 @@ button.frrow{cursor:pointer}
 .srvb{flex:1 1 calc(50% - 6px);display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:6px 8px;border-radius:10px;border:2px solid #c9b48a;background:#fff8ea;color:#4a3420;text-align:left;position:relative;font-family:inherit}
 .srvb b{font-size:12.5px}.srvb small{font-size:10.5px;opacity:.75}
 .srvb i{position:absolute;right:6px;top:6px;font-style:normal;font-size:9px;font-weight:900;padding:1px 5px;border-radius:6px;background:#8a7a5a;color:#fff}
-.srvb.new i{background:#2fa84f}.srvb.busy i{background:#e08a1e}.srvb.full i{background:#9a3a30}.srvb.ok i{background:#3a8ae0}
+.srvb.soon i{background:#8a4ae0}.srvb.new i{background:#2fa84f}.srvb.busy i{background:#e08a1e}.srvb.full i{background:#9a3a30}.srvb.ok i{background:#3a8ae0}
 .srvb.on{border-color:#e0a020;background:#fff0c4;box-shadow:0 0 0 2px #ffd36a inset}
 .srvb:disabled{opacity:.5}
 .lgwel .lgsrv{display:block;font-size:11px;opacity:.85;margin-top:2px}
@@ -2651,7 +2651,28 @@ const BOT_CFG={
  //   N(T) = cap × (w1·(1−e^(−T/t1)) + w2·(1−e^(−E/t2)))  — gelombang pembukaan + pertumbuhan ekor
  //   E = hari efektif ekor: tiap server yang lebih baru dibuka, laju ekor dunia ini × slow (pemain baru pindah ke server baru)
  //   Hasil (tanpa server baru): ±490 hari 1, ±1.200 hari 7, ±1.750 hari 30, penuh ±3 bulan. CAPX = ruang indeks per dunia (gabungan server).
- SRV:{cap:2000,CAPX:2000,w1:.45,t1:1.5,w2:.55,t2:25,slow:.45},
+ //   (Rumus di atas = dunia lama, v1. Dunia baru memakai v2 di bawah.)
+ // v2 — HYPE & pertumbuhan alami per server. Dipakai semua dunia baru: rilis serentak (/rilis), server baru, reset bot.
+ //   h = tingkat hype 1..10 saat dunia dibuat (diatur pemilik lewat Telegram /hype).
+ //   N(T) = cap × [R·(1−e^(−T/tr)) + W·(1−e^(−E/tw)) + G·(1−e^(−E/tg))], G = 1−R−W
+ //     R  = serbuan rilis: pemain yang langsung main dalam hitungan jam (makin hype makin besar & cepat)
+ //     W  = gelombang minggu pertama (kabar dari mulut ke mulut), G = pertumbuhan alami sampai penuh
+ //     E  = hari efektif bergelombang = Σ laju harian; laju = popularitas server (POP, sedikit lebih ramai untuk server urutan awal: ORD)
+ //          × naik-turun acak yang mulus (AR/SD) × akhir pekan (WKD, Minggu..Sabtu) × lonjakan viral acak (BURST) × perlambatan saat server lebih baru dibuka (slow)
+ //   Semua acak berasal dari gen dunia → sama persis di game & server, tiap server punya kurva sendiri.
+ SRV:{cap:2000,CAPX:2000,w1:.45,t1:1.5,w2:.55,t2:25,slow:.45,
+  HYPE:[null,
+   {n:'Sepi',     R:.03,tr:1,  W:.07,tw:5,  tg:45},
+   {n:'Pelan',    R:.06,tr:.8, W:.10,tw:4.5,tg:40},
+   {n:'Biasa',    R:.10,tr:.65,W:.15,tw:4,  tg:34},
+   {n:'Hangat',   R:.15,tr:.5, W:.20,tw:3.5,tg:29},
+   {n:'Ramai',    R:.22,tr:.4, W:.25,tw:3,  tg:25},
+   {n:'Panas',    R:.30,tr:.32,W:.25,tw:2.8,tg:22},
+   {n:'Viral',    R:.40,tr:.25,W:.25,tw:2.5,tg:19},
+   {n:'Booming',  R:.52,tr:.2, W:.22,tw:2.2,tg:16},
+   {n:'Meledak',  R:.64,tr:.15,W:.20,tw:2,  tg:14},
+   {n:'Fenomenal',R:.76,tr:.12,W:.16,tw:1.8,tg:12}],
+  POP:[.8,1.22],ORD:.06,AR:.65,SD:.38,WKD:[1.25,1,.97,1,1,1.08,1.22],BURST:{p:.03,ph:.006,a:[1.5,3],dec:1.6},DAYS:1200},
  // profil gaya main. a = variasi kecepatan relatif kurva profilnya; sess = sesi per hari [min,maks];
  // opt = seberapa optimal pemain menyusun tim/meningkatkan senjata; chrono = geser jam main (jam)
  profiles:[
@@ -5987,7 +6008,26 @@ function botJ(bw,i){const W=BOTS.W||[],s=W.findIndex(w=>w.g===+bw);return s<0||i
    N(T) = cap × (w1·(1−e^(−T/t1)) + w2·(1−e^(−E/t2))), T = hari sejak dunia dibuka; E = hari efektif ekor (melambat tiap server lebih baru dibuka).
    Setelah hari pertama, jam bergabung ditekuk ke jam ramai WIB. */
 function wEff(T,w){const C=BOT_CFG.SRV,O=w.newer||[];let e=0,last=0,k=0;for(const o of O){const d=(o-w.e)/BDAY;if(d>=T)break;if(d>last){e+=(d-last)*Math.pow(C.slow,k);last=d}k++}return e+(T-last)*Math.pow(C.slow,k)}
-function wJoinN(T,w){const C=BOT_CFG.SRV;return w.cap*(C.w1*(1-Math.exp(-T/C.t1))+C.w2*(1-Math.exp(-wEff(T,w)/C.t2)))}
+/* v2 (w.v===2): hype & pertumbuhan alami per server — lihat BOT_CFG.SRV. SAMA PERSIS dengan bank-worker/src/game.js (wDyn, wE2).
+   Laju harian disiapkan sekali per dunia (w._d): popularitas × naik-turun acak × akhir pekan × lonjakan viral × perlambatan server baru. */
+function wRng(g,k){return bRng((Math.imul(g+1,0x9E3779B1)^Math.imul(k+17,0x85EBCA6B))>>>0)}
+function wDyn(w){if(w._d)return w._d;const C=BOT_CFG.SRV,hv=Math.min(10,Math.max(1,Math.round(w.h||5))),H=C.HYPE[hv],r=wRng(w.g,1);
+ let pop=C.POP[0]+r()*(C.POP[1]-C.POP[0]);if(w.o!=null)pop*=Math.max(.8,1+C.ORD*(1.5-w.o));
+ const R=Math.min(.88,H.R*pop),Wv=Math.min(.95-R,H.W*Math.sqrt(pop)),G=1-R-Wv,D=C.DAYS,B=C.BURST;
+ const rate=new Float64Array(D),q=wRng(w.g,2),b=wRng(w.g,3),dec=Math.exp(-1/B.dec),pb=B.p+B.ph*hv,ar=C.AR,sq=Math.sqrt(1-ar*ar);
+ let x=0,acc=0;
+ for(let d=0;d<D;d++){const u1=Math.max(1e-9,q()),u2=q(),z=Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);x=d?ar*x+sq*z:z;
+  acc*=dec;if(d>0&&b()<pb)acc+=B.a[0]+b()*(B.a[1]-B.a[0])-1;
+  const wd=new Date(w.e+(d+.5)*BDAY+BOT_CFG.TZ*36e5).getUTCDay();rate[d]=pop*Math.exp(C.SD*x-C.SD*C.SD/2)*C.WKD[wd]*(1+acc)}
+ const nd=(w.newer||[]).map(o=>(o-w.e)/BDAY).filter(v=>v>0).sort((a,c)=>a-c),S=[],Cu=[],Rt=[];let E=0,k=0,j=0;
+ for(let d=0;d<D;d++){let a=d;for(;;){while(j<nd.length&&nd[j]<=a){k++;j++}const nx=Math.min(d+1,j<nd.length?nd[j]:Infinity),rt=rate[d]*Math.pow(C.slow,k);
+  S.push(a);Cu.push(E);Rt.push(rt);E+=rt*(nx-a);a=nx;if(a>=d+1)break}}
+ S.push(D);Cu.push(E);Rt.push(Rt[Rt.length-1]);
+ return w._d={R,W:Wv,G,tr:H.tr,tw:H.tw,tg:H.tg,pop,S,Cu,Rt}}
+function wE2(T,d){if(T<=0)return 0;const S=d.S;let lo=0,hi=S.length-1;if(T>=S[hi])return d.Cu[hi]+d.Rt[hi]*(T-S[hi]);
+ while(hi-lo>1){const m=(lo+hi)>>1;if(S[m]<=T)lo=m;else hi=m}return d.Cu[lo]+d.Rt[lo]*(T-S[lo])}
+function wJoinN(T,w){if(w.v===2){if(T<=0)return 0;const d=wDyn(w),E=wE2(T,d);return w.cap*(d.R*(1-Math.exp(-T/d.tr))+d.W*(1-Math.exp(-E/d.tw))+d.G*(1-Math.exp(-E/d.tg)))}
+ const C=BOT_CFG.SRV;return w.cap*(C.w1*(1-Math.exp(-T/C.t1))+C.w2*(1-Math.exp(-wEff(T,w)/C.t2)))}
 function botJoinDaysW(i,w){if(i>=w.cap)return Infinity;let lo=0,hi=1;while(wJoinN(hi,w)<i+1&&hi<1e5)hi*=2;if(wJoinN(hi,w)<i+1)return Infinity;
  for(let k=0;k<50;k++){const m=(lo+hi)/2;if(wJoinN(m,w)<i+1)lo=m;else hi=m}
  if(hi<1)return hi;const E=w.e/BDAY;return Math.max(1,botJoinWarp(E+hi,BOT_CFG)-E)}
@@ -6268,9 +6308,10 @@ setInterval(botsFresh,8e3);
 const BW_KEY='aster_botworld';
 function botsClearCaches(){BOTS.base={};BOTS.cache={};BOTS.cacheN=0;BSUM.key='';for(const k in BSUMA)delete BSUMA[k];BSQ.clear();BSES.clear();BSES0.clear();BPLAY.clear();for(const k in BSPEND)delete BSPEND[k];BSPEND_N=0;BLM.L=null;BIDS.t=-1;BOTS.seen=0;BOTS.seenSet=null;BOTS.warmAt=0;if(typeof AR!=='undefined')AR.board=null;if(typeof WB!=='undefined'&&WB.cache)WB.cache.clear()}
 // dunia-dunia server ini [{g,e,cap,newer}] (systems/net.js). Berubah (reset/gabung/server baru) -> semua cache bot dibuang.
-function botsSetWorlds(W){const sig=W.map(w=>w.g+'@'+w.e+'#'+(w.newer||[]).length).join(','),old=(BOTS.W||[]).map(w=>w.g+'@'+w.e+'#'+(w.newer||[]).length).join(',');
+const wSigOf=w=>w.g+'@'+w.e+'#'+(w.newer||[]).length+(w.v?'v'+w.v+'h'+w.h+'o'+w.o:'');
+function botsSetWorlds(W){const sig=W.map(wSigOf).join(','),old=(BOTS.W||[]).map(wSigOf).join(',');
  if(sig===old){W.forEach((w,k)=>{BOTS.W[k].nn=w.nn});return false}
- BOTS.W=W.map(w=>({g:w.g,e:w.e,cap:w.cap,newer:(w.newer||[]).slice().sort((a,b)=>a-b),nn:w.nn}));BOTS.gen=W[0].g;BOT_CFG.epoch=W[0].e;botsClearCaches();
+ BOTS.W=W.map(w=>{const x={g:w.g,e:w.e,cap:w.cap,newer:(w.newer||[]).slice().sort((a,b)=>a-b),nn:w.nn};if(w.v){x.v=w.v;x.h=w.h;x.o=w.o}return x});BOTS.gen=W[0].g;BOT_CFG.epoch=W[0].e;botsClearCaches();
  try{localStorage.removeItem('aster_ranksnap')}catch(e){}
  if(typeof S!=='undefined'&&S&&S.rankDay&&(S.rankDay.gen||0)!==BOTS.gen){S.rankDay={gen:BOTS.gen}}
  if(typeof rankReset==='function')rankReset();BOTS.onChange&&BOTS.onChange();return true}
@@ -7629,11 +7670,11 @@ function netApplyWorld(d,full){if(!d||!d.ok||!Array.isArray(d.worlds)||!d.worlds
  const W=[];d.worlds.forEach((w,s)=>{const L=w.bots||[];for(let k=0;k<L.length;k++){BOTS.uids[s*X+w.from+k]=L[k][0];BOTS.srvNames[s*X+w.from+k]=L[k][1]}
   for(const k in BOTS.ov)if(Math.floor(+k/X)===s)delete BOTS.ov[k];for(const k in(w.ov||{}))BOTS.ov[s*X+(+k)]=w.ov[k];
   for(const k in(w.rv||{}))BOTS.rvAll[s*X+(+k)]=w.rv[k];
-  let nn=0;while(nn<w.cap&&BOTS.srvNames[s*X+nn]!=null)nn++;W.push({g:w.g,e:w.e,cap:w.cap,newer:w.newer||[],nn})});
+  let nn=0;while(nn<w.cap&&BOTS.srvNames[s*X+nn]!=null)nn++;W.push({g:w.g,e:w.e,cap:w.cap,newer:w.newer||[],nn,v:w.v,h:w.h,o:w.o})});
  if(NET.wsig!=null&&NET.wsig!==sig&&typeof WC!=='undefined'){WC.list=[];WC.since=0;WC.seen=0;try{localStorage.removeItem('aster_wcseen')}catch(e){}}  // dunia berubah: obrolan dimuat ulang
  BOTS.uidIdx=null;BOTS.cache={};botsSetWorlds(W);if(typeof rvApply==='function')rvApply(Object.assign({},BOTS.rvAll));
  BOTS.names=BOTS.srvNames.slice();BOTS.nameSet=null;BOTS.ready=true;NET.worldOk=true;NET.wsig=sig;NET.worldSrv=d.srv;NET.srvName=d.name;NET.gen=BOTS.gen;
- try{localStorage.setItem(WORLD_KEY,JSON.stringify({ok:true,srv:d.srv,name:d.name,worlds:d.worlds.map((w,s)=>({g:w.g,e:w.e,cap:w.cap,newer:w.newer,from:0,
+ try{localStorage.setItem(WORLD_KEY,JSON.stringify({ok:true,srv:d.srv,name:d.name,worlds:d.worlds.map((w,s)=>({g:w.g,e:w.e,cap:w.cap,newer:w.newer,v:w.v,h:w.h,o:w.o,from:0,
   bots:Array.from({length:W[s].nn},(_,k)=>[BOTS.uids[s*X+k],BOTS.srvNames[s*X+k]]),ov:Object.fromEntries(Object.entries(BOTS.ov).filter(([k])=>Math.floor(+k/X)===s).map(([k,v])=>[+k-s*X,v])),rv:{}}))}))}catch(e){}
  BOTS.onChange&&BOTS.onChange()}
 function netWorldCache(){try{const c=JSON.parse(localStorage.getItem(WORLD_KEY)||'null');if(c&&c.worlds&&c.srv===netSrv())netApplyWorld(c,true)}catch(e){}}
@@ -9482,10 +9523,12 @@ function loginNameHTML(){setTimeout(srvPickLoad,0);return`<div class="lgcard"><b
 /* ---------- pilih server (daftar akun baru / tamu). Akun terikat ke satu server, tanpa pindah. ---------- */
 const SRVL={list:null,at:0,sel:null};
 async function srvLoad(){if(SRVL.list&&Date.now()-SRVL.at<6e4)return SRVL.list;const o=await api('/api/servers');if(o&&o.ok){SRVL.list=o.list;SRVL.at=Date.now()}return SRVL.list||[]}
-function srvState(x){const age=(Date.now()-x.opened)/864e5;return x.full?['full',T('PENUH')]:age<3?['new',T('BARU')]:x.n/x.cap>.7?['busy',T('RAMAI')]:['ok',T('LANCAR')]}
+function srvOpenAt(t){const d=new Date(t),p=n=>String(n).padStart(2,'0'),hm=p(d.getHours())+':'+p(d.getMinutes());return t-Date.now()<864e5?hm:p(d.getDate())+'/'+p(d.getMonth()+1)+' '+hm}
+// server yang dijadwalkan rilis (pra-registrasi): sudah bisa dipilih, dunia mulai ramai saat jam buka
+function srvState(x){const age=(Date.now()-x.opened)/864e5;return x.opened>Date.now()?['soon',T('SEGERA')]:x.full?['full',T('PENUH')]:age<3?['new',T('BARU')]:x.n/x.cap>.7?['busy',T('RAMAI')]:['ok',T('LANCAR')]}
 function srvDefault(L){const ok=(L||[]).filter(x=>!x.full);return ok.length?ok.reduce((a,b)=>b.opened>a.opened||(b.opened===a.opened&&b.n<a.n)?b:a).id:null}
 function srvPickHTML(){const L=SRVL.list;if(!L)return`<div class="srvpick"><small>${T('Memuat daftar server...')}</small></div>`;if(SRVL.sel==null||!L.some(x=>x.id===SRVL.sel&&!x.full))SRVL.sel=srvDefault(L);
- return`<label>${T('Server')}</label><div class="srvpick">${L.map(x=>{const[st,lb]=srvState(x);return`<button class="srvb ${st}${x.id===SRVL.sel?' on':''}" data-act="srvSel" data-arg="${x.id}"${x.full?' disabled':''}><b>S${x.id} · ${esc(x.name)}</b><small>${fmt(x.n)}/${fmt(x.cap)}</small><i>${lb}</i></button>`}).join('')}</div>
+ return`<label>${T('Server')}</label><div class="srvpick">${L.map(x=>{const[st,lb]=srvState(x);return`<button class="srvb ${st}${x.id===SRVL.sel?' on':''}" data-act="srvSel" data-arg="${x.id}"${x.full?' disabled':''}><b>S${x.id} · ${esc(x.name)}</b><small>${x.opened>Date.now()?T('Buka {t}',{t:srvOpenAt(x.opened)})+' · ':''}${fmt(x.n)}/${fmt(x.cap)}</small><i>${lb}</i></button>`}).join('')}</div>
  <small class="lgrule">${T('Akun terikat ke server pilihanmu dan tidak bisa pindah.')}</small>`}
 function srvPickLoad(){srvLoad().then(()=>{document.querySelectorAll('.srvwrap').forEach(e=>e.innerHTML=srvPickHTML())})}
 const srvNameOf=id=>{const x=(SRVL.list||[]).find(y=>y.id===+id);return x?`S${x.id} · ${x.name}`:'S'+id};

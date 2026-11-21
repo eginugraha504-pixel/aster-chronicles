@@ -20,7 +20,28 @@ const BOT_CFG={
  //   N(T) = cap × (w1·(1−e^(−T/t1)) + w2·(1−e^(−E/t2)))  — gelombang pembukaan + pertumbuhan ekor
  //   E = hari efektif ekor: tiap server yang lebih baru dibuka, laju ekor dunia ini × slow (pemain baru pindah ke server baru)
  //   Hasil (tanpa server baru): ±490 hari 1, ±1.200 hari 7, ±1.750 hari 30, penuh ±3 bulan. CAPX = ruang indeks per dunia (gabungan server).
- SRV:{cap:2000,CAPX:2000,w1:.45,t1:1.5,w2:.55,t2:25,slow:.45},
+ //   (Rumus di atas = dunia lama, v1. Dunia baru memakai v2 di bawah.)
+ // v2 — HYPE & pertumbuhan alami per server. Dipakai semua dunia baru: rilis serentak (/rilis), server baru, reset bot.
+ //   h = tingkat hype 1..10 saat dunia dibuat (diatur pemilik lewat Telegram /hype).
+ //   N(T) = cap × [R·(1−e^(−T/tr)) + W·(1−e^(−E/tw)) + G·(1−e^(−E/tg))], G = 1−R−W
+ //     R  = serbuan rilis: pemain yang langsung main dalam hitungan jam (makin hype makin besar & cepat)
+ //     W  = gelombang minggu pertama (kabar dari mulut ke mulut), G = pertumbuhan alami sampai penuh
+ //     E  = hari efektif bergelombang = Σ laju harian; laju = popularitas server (POP, sedikit lebih ramai untuk server urutan awal: ORD)
+ //          × naik-turun acak yang mulus (AR/SD) × akhir pekan (WKD, Minggu..Sabtu) × lonjakan viral acak (BURST) × perlambatan saat server lebih baru dibuka (slow)
+ //   Semua acak berasal dari gen dunia → sama persis di game & server, tiap server punya kurva sendiri.
+ SRV:{cap:2000,CAPX:2000,w1:.45,t1:1.5,w2:.55,t2:25,slow:.45,
+  HYPE:[null,
+   {n:'Sepi',     R:.03,tr:1,  W:.07,tw:5,  tg:45},
+   {n:'Pelan',    R:.06,tr:.8, W:.10,tw:4.5,tg:40},
+   {n:'Biasa',    R:.10,tr:.65,W:.15,tw:4,  tg:34},
+   {n:'Hangat',   R:.15,tr:.5, W:.20,tw:3.5,tg:29},
+   {n:'Ramai',    R:.22,tr:.4, W:.25,tw:3,  tg:25},
+   {n:'Panas',    R:.30,tr:.32,W:.25,tw:2.8,tg:22},
+   {n:'Viral',    R:.40,tr:.25,W:.25,tw:2.5,tg:19},
+   {n:'Booming',  R:.52,tr:.2, W:.22,tw:2.2,tg:16},
+   {n:'Meledak',  R:.64,tr:.15,W:.20,tw:2,  tg:14},
+   {n:'Fenomenal',R:.76,tr:.12,W:.16,tw:1.8,tg:12}],
+  POP:[.8,1.22],ORD:.06,AR:.65,SD:.38,WKD:[1.25,1,.97,1,1,1.08,1.22],BURST:{p:.03,ph:.006,a:[1.5,3],dec:1.6},DAYS:1200},
  // profil gaya main. a = variasi kecepatan relatif kurva profilnya; sess = sesi per hari [min,maks];
  // opt = seberapa optimal pemain menyusun tim/meningkatkan senjata; chrono = geser jam main (jam)
  profiles:[
