@@ -435,7 +435,7 @@ async function annPost(env, b) {
       if (isBot) { const h = String(x.h || ''), hs = HERO[h]; if (!hs || hs[1] !== 3 || !fut) continue;
         k = 'p3:' + Math.floor(tt / AC.p3Slot); d = { h: [h], l: x.l && hs[2] ? 1 : 0 }; const n = Math.round(+x.n || 0); if (n >= 1 && n <= 10) d.n = n; ts = Math.max(tt, t) }
       else { const hs = [...new Set((Array.isArray(x.h) ? x.h : []).map(String))].filter(h => HERO[h] && HERO[h][1] === 3).slice(0, 3); if (!hs.length) continue;
-        k = 'p3u:' + subj.uid + ':' + Math.floor(t / 2e4); d = { h: hs, l: hs.some(h => HERO[h][2]) ? 1 : 0, hu: 1 } }
+        k = 'p3u:' + subj.uid + ':' + Math.floor(t / 2e4); d = { h: hs, l: hs.some(h => HERO[h][2]) ? 1 : 0, hu: 1 }; const n = Math.round(+x.n || 0); if (hs.length === 1 && n >= 1 && n <= 10) d.n = n }
     } else if (x.ty === 'vip') {
       const v = Math.round(+x.v || 0); if (v < (AC.vipMin || 3) || v > 7) continue;
       if (isBot) { if (!fut) continue; k = 'vb:' + Math.floor(tt / AC.vipSlot); ts = Math.max(tt, t); d = { v } } else { k = 'vip:' + subj.uid + ':' + v; d = { v, hu: 1 } }

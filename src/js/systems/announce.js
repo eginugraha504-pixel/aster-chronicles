@@ -40,8 +40,10 @@ function annApply(o,mine){const now=Date.now();if(!o)return;if(o.fk)ANN.fk=new S
 async function annPost(L){if(!L||!L.length||typeof netApi!=='function'||!netApi())return null;
  try{const o=await api('/api/ann',{tok:netTok()||undefined,srv:netSrv(),list:L});if(o&&o.ok&&o.list&&o.list.length)annApply({ann:o.list},true);return o}catch(e){return null}}
 // kejadianku sendiri (wajib masuk akun)
-function annMine(ty,x){if(typeof loggedIn!=='function'||!loggedIn())return;
- if(ty==='p3'){const hs=[...new Set((x||[]).filter(r=>r&&!r.wid&&HD[r.id]&&HD[r.id].r===3).map(r=>r.id))];if(hs.length)annPost([{ty:'p3',h:hs}])}
+// p3: x = hasil Panggilan, p0 = pity sebelum menarik → "Hoki! … hanya dalam N tarikan" bila ★3 pertama datang ≤10 tarikan
+function annMine(ty,x,p0){if(typeof loggedIn!=='function'||!loggedIn())return;
+ if(ty==='p3'){const L=x||[],j=L.findIndex(r=>r&&!r.wid&&HD[r.id]&&HD[r.id].r===3),hs=[...new Set(L.filter(r=>r&&!r.wid&&HD[r.id]&&HD[r.id].r===3).map(r=>r.id))];
+  if(hs.length)annPost([Object.assign({ty:'p3',h:hs},p0!=null&&j>=0&&hs.length===1?{n:p0+j+1}:{})])}
  else if(ty==='vip'&&x>=ANN_CFG.vipMin)annPost([{ty:'vip',v:x}])}
 
 // pengumuman panas yang baru muncul: orangnya (bila bot & sedang online) — dan #1 yang tergeser — ikut jadi calon penulis adegan reaksi
