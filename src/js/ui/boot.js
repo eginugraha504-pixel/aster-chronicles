@@ -11,7 +11,8 @@ const BOOT_TIPS=['Tips: Hero dengan elemen unggul memberi +30% damage. Cek petun
  'Tips: Toko Emas mengisi ulang stoknya setiap hari.',
  'Tips: Tim dengan Penjaga dan Pendukung mendapat bonus Formasi Seimbang.',
  'Tips: Gunakan Sapu di dungeon yang sudah bintang 3 untuk farming kilat.'];
-const NEWS=[{t:'Peringkat & Petualang Baru',d:'Peringkat CP dan Level kini hadir! Lihat profil petualang lain dan tim andalan mereka.'},
+const NEWS=[{t:'Batas Ulang Tahap',d:'Tahap cerita yang sudah dimenangkan kini bisa dimainkan ulang atau disapu 5× per hari (tahap bos 3×). Habis? Tambah lagi dengan permata, atau tunggu reset tengah malam.'},
+ {t:'Peringkat & Petualang Baru',d:'Peringkat CP dan Level kini hadir! Lihat profil petualang lain dan tim andalan mereka.'},
  {t:'5 Hero Baru',d:'Vela, Bruna, Nami, Kuro, dan Lumi bergabung ke panggilan standar, lengkap dengan senjata signature masing-masing.'},
  {t:'Pelindung & Aksesori',d:'Slot perlengkapan baru terbuka. Dapatkan di Tambang Bijih, Kuil Bintang, dan dari bos dunia.'}];
 const NAME_OK=/^[A-Za-z0-9]{3,12}$/;

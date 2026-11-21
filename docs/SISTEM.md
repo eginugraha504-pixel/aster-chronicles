@@ -364,6 +364,13 @@ Server: `bank-worker/src/game.js` (Cloudflare Worker `aster-bank` + D1, tabel di
 - Isi ulang dengan permata → +`stamMax()` (`stamRefillGive`, ui/core.js). Dulu +60 tetap.
 - Efek: pemain yang rajin Sapu bisa merantai naik level di awal (satu bar stamina bisa memberi >1 level sampai ±Lv 50 tergantung tahap). Kurva bot disimulasikan ulang dengan aturan ini.
 
+## Batas ulang tahap cerita (21 Nov 2026)
+- Masalah: di BAB II EXP tahap naik ×1,08 per tahap (8-5 = 403 EXP per sapu, 6 stamina) sedangkan naik level mengisi stamina penuh → satu bar stamina memberi beberapa level, tiap level mengisi bar lagi → naik level tanpa ujung (Lv 170 dalam beberapa jam; secara hitungan bisa sampai ±Lv 500).
+- Aturan: tahap cerita yang sudah dimenangkan bisa dimainkan ulang / disapu **5× per tahap per hari** (bos 3×) — `STAGE_REPLAY` (data/config.js), logika `stRp*` (systems/stages.js). Dihitung saat MENANG (main ulang) & Sapu; kemenangan pertama dan kalah tidak dihitung. Reset tengah malam (`S.daily.c['sr_<tahap>']`).
+- Habis → **Tambah Batas** dengan permata (+5/+3 lagi; 50 → 100 → 200, maks 3× per tahap per hari, `stRpResetUI`). Muncul di jendela tahap, hasil tempur (Ulangi/Lanjut) & hasil Sapu.
+- Tampilan: "Batas ulang hari ini 3/5" di jendela tahap & hasil Sapu, tombol Ulangi/Coba Lagi menulis "sisa n".
+- Laju baru (simulasi, hardcore veteran F2P): hari 1 Lv ±13, hari 7 ±42, hari 30 ±112 (dulu 40 / 125 / 263). EXP harian maksimum dari ulang semua 40 tahap ±19.800 (butuh ±1.150 stamina). Kurva bot disimulasikan ulang dengan aturan ini (sultan memakai Tambah Batas untuk tahap teratas 1/2/3× sehari).
+
 ## Server (19 Nov 2026)
 - 4 server dibuka bersamaan (hari 1), server baru manual lewat Telegram `/server buka [nama]`; maks 10.000 pemain per server (sejak 21 Nov 2026); akun terikat ke satu server (pilih saat daftar / tamu). Persen whaler per server diatur lewat Telegram `/whale` (berlaku untuk pemain yang bergabung setelahnya; lihat docs/BOTS.md §6).
 - **Hype & rilis serentak** (Telegram `/hype`, `/rilis`): tingkat hype 1–10 menentukan berapa banyak pemain yang langsung main saat server dibuka; rilis serentak membuka ulang semua server bersamaan (sekarang/terjadwal, server bisa ditambah). Tiap server tumbuh dengan iramanya sendiri (popularitas, hari ramai/sepi, akhir pekan, lonjakan viral). Rincian: `docs/BOTS.md` §2b. Gabung server hanya oleh akun GM (Panel GM). Obrolan, Bos Dunia, peringkat, Arena, rival, teman per server. Detail teknis: `docs/BOTS.md` §2b. Migrasi 0010 (`servers`, `players.srv`, `players.bw`, `wchat.srv`).

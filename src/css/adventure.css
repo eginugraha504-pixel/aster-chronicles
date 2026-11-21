@@ -169,5 +169,9 @@
 .dgday{color:#d8b8ff!important}
 /* Sapu tahap cerita (openStage) */
 .stsw{margin-top:8px;padding:8px;border-radius:12px;background:rgba(63,169,245,.08);border:1.5px dashed rgba(63,169,245,.45)}
+/* batas ulang harian tahap cerita (STAGE_REPLAY) */
+.strp{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px auto 0;padding:5px 12px;width:fit-content;border-radius:10px;background:rgba(74,42,23,.07);font-size:12px;font-weight:800;color:var(--mut)}
+.strp b{font-size:14px;color:var(--txt)}.strp small{font-weight:700;opacity:.8}
+.strp.out{background:rgba(224,64,64,.1);color:#b03030}.strp.out b{color:#c02828}
 .stswh{display:flex;align-items:baseline;gap:6px;margin-bottom:6px}.stswh b{font-family:var(--fh);font-size:14px}.stswh small{font-size:11px;color:var(--mut)}
 .stswb{display:flex;gap:5px}.stswb .btn{flex:1;padding:5px 4px;font-size:13px;min-width:0}

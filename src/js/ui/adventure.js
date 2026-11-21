@@ -47,20 +47,24 @@ function openStage(key){const st=STAGES[key];if(!unlocked(st))return toast(T('Se
  <div class="sec">Combat Power (CP)</div><div class="box"><div class="kv"><span>${T('CP disarankan')}</span><b>${fmt(st.rec)}</b></div><div class="kv"><span>${T('CP tim kamu')}</span><b style="color:${ok?'#2a9a3a':'#e04040'}">${fmt(tp)} ${ok?'✓':'!'}</b></div></div>
  <div class="sec">${T('Hadiah')}</div>${rewardHTML({gold:st.gold,exp:st.exp,...(!sr?{gems:st.gems}:{})})}${!sr?`<div style="font-size:12px;color:var(--mut)">${ic('gem',12)} ${T('Permata hanya untuk kemenangan pertama')}</div>`:''}
  <div class="sec">${T('Target bintang')}</div><div class="starsreq">${req.map(([s,t],i)=>`<div class="${sr>i?'got':'no'}"><i>${s}</i>${t}</div>`).join('')}</div>
- <div class="mrow"><button class="btn green" data-act="start" data-arg="${key}">${T('MULAI')}<small>${ic('stam',12)} ${st.cost} ${T('Stamina')}</small></button></div>
+ ${sr?stRpLineHTML(key):''}<div class="mrow">${sr&&!stRpLeft(key)?`<button class="btn gold" data-act="stRpReset" data-arg="${key}">${T('Tambah Batas')}<small>${stRpResetCost(key)==null?T('habis hari ini'):ic('gem',12)+' '+stRpResetCost(key)}</small></button>`
+  :`<button class="btn green" data-act="start" data-arg="${key}">${T('MULAI')}<small>${ic('stam',12)} ${st.cost} ${T('Stamina')}</small></button>`}</div>
  ${sr?stSweepRowHTML(key):`<p class="sub" style="text-align:center;font-size:11px">${T('Menangkan tahap ini sekali untuk membuka Sapu (selesai instan).')}</p>`}`)}
 /* Sapu tahap cerita: tahap yang sudah dimenangkan bisa diselesaikan instan (emas + EXP, tanpa permata) untuk menghabiskan stamina */
-const stSweepMax=st=>Math.max(0,Math.min(50,Math.floor(S.stam/st.cost)));
-function stSweepRowHTML(key){const st=STAGES[key];regen();const mx=stSweepMax(st),opts=[...new Set([1,5,10,mx].filter(n=>n>=1&&n<=mx))].sort((a,b)=>a-b);
+const stSweepMax=st=>Math.max(0,Math.min(50,Math.floor(S.stam/st.cost),stRpLeft(st.key)));
+// baris "Batas ulang hari ini" di layar tahap yang sudah dimenangkan
+function stRpLineHTML(key){const n=stRpLeft(key),m=stRpMax(key);return`<div class="strp${n?'':' out'}"><span>${T('Batas ulang hari ini')}</span><b>${n}/${m}</b>${n?'':`<small>${T('Reset tengah malam')}</small>`}</div>`}
+function stSweepRowHTML(key){const st=STAGES[key];regen();if(!stRpLeft(key))return'';const mx=stSweepMax(st),opts=[...new Set([1,5,10,mx].filter(n=>n>=1&&n<=mx))].sort((a,b)=>a-b);
  return`<div class="stsw"><div class="stswh"><b>${T('Sapu')}</b><small>${T('Selesai instan · {g} emas & {e} EXP per kali',{g:fmt(st.gold),e:st.exp})}</small></div>
  ${opts.length?`<div class="stswb">${opts.map(n=>`<button class="btn blue" data-act="stSweep" data-arg="${key}:${n}">${n===mx&&n>10?T('Maks'):'x'+n}<small>${ic('stam',11)} ${st.cost*n}</small></button>`).join('')}</div>`:`<p class="sub" style="text-align:center;font-size:11px">${T('Stamina tidak cukup untuk Sapu.')} <button class="btn gold sm" data-act="refill">${T('Isi Ulang')}</button></p>`}</div>`}
 function sweepStage(key,n){const st=STAGES[key];if(!st||st.dg||st.arena||!S.stages[key])return{err:T('Menangkan tahap ini sekali dulu untuk membuka Sapu.')};regen();checkDaily();n=Math.max(1,Math.floor(n));
- if(S.stam<st.cost*n)return{err:T('Stamina tidak cukup!'),stam:1};S.stam-=st.cost*n;
+ const left=stRpLeft(key);if(left<n)return{err:left?T('Batas ulang hari ini tinggal {n}×.',{n:left}):T('Batas ulang tahap ini hari ini habis.'),rp:1};
+ if(S.stam<st.cost*n)return{err:T('Stamina tidak cukup!'),stam:1};S.stam-=st.cost*n;stRpUse(key,n);
  const rw={gold:st.gold*n,exp:st.exp*n},ups=grant(rw);S.daily.c.clear+=n;evCount('clear',n);if(st.boss){S.daily.c.boss+=n;evCount('boss',n)}save();return{rw,ups}}
-function stSweepUI(key,n){const r=sweepStage(key,n);if(r.err){if(r.stam)stamShort();else toast(r.err,1);return}sfx('claim');updateTop();const st=STAGES[key],mx=stSweepMax(st);
+function stSweepUI(key,n){const r=sweepStage(key,n);if(r.err){if(r.stam)stamShort();else if(r.rp&&!stRpLeft(key))stRpResetUI(key);else toast(r.err,1);return}sfx('claim');updateTop();const st=STAGES[key],mx=stSweepMax(st);
  modal(`<h3>${T('Sapu Selesai!')}</h3><div class="sub" style="text-align:center">${st.key} · ${st.name} ×${n}</div>${rewardHTML(r.rw)}${r.ups?`<div class="sub" style="text-align:center;color:var(--hl)">${T('Level akun naik {n}x!',{n:r.ups})}</div>`:''}
  <div class="rexp"><b>Lv ${S.lv}</b><span class="bar"><i style="width:${Math.min(100,S.exp/expNeed(S.lv)*100)}%"></i></span><small>${fmt(S.exp)}/${fmt(expNeed(S.lv))}</small></div>
- <div class="mrow">${mx>=1?`<button class="btn blue" data-act="stSweep" data-arg="${key}:${Math.min(n,mx)}">${T('Lagi x{n}',{n:Math.min(n,mx)})}<small>${ic('stam',11)} ${st.cost*Math.min(n,mx)}</small></button>`:`<button class="btn gold" data-act="refill">${T('Isi Ulang')}</button>`}<button class="btn green" data-act="closeModal">OK</button></div>`)}
+ ${stRpLineHTML(key)}<div class="mrow">${mx>=1?`<button class="btn blue" data-act="stSweep" data-arg="${key}:${Math.min(n,mx)}">${T('Lagi x{n}',{n:Math.min(n,mx)})}<small>${ic('stam',11)} ${st.cost*Math.min(n,mx)}</small></button>`:!stRpLeft(key)?(stRpResetCost(key)!=null?`<button class="btn gold" data-act="stRpReset" data-arg="${key}">${T('Tambah Batas')}<small>${ic('gem',11)} ${stRpResetCost(key)}</small></button>`:''):`<button class="btn gold" data-act="refill">${T('Isi Ulang')}</button>`}<button class="btn green" data-act="closeModal">OK</button></div>`)}
 function openSlot(i){const ids=Object.keys(S.heroes).sort((a,b)=>heroPow(b)-heroPow(a));
  modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Pilih Hero · Slot {n}',{n:+i+1})}</h3><div style="font-size:13px;color:var(--mut)">${T('Slot 1 adalah Leader. Penjaga & Petarung otomatis di barisan depan.')}</div><div class="pick">${ids.map(id=>heroCard(id,'setSlot').replace(`data-arg="${id}"`,`data-arg="${i}:${id}"`)).join('')}</div>${S.team[i]?`<div class="mrow"><button class="btn red" data-act="clearSlot" data-arg="${i}">${T('Kosongkan Slot')}</button></div>`:''}`)}
 
