@@ -51,7 +51,7 @@ function botBodyHTML(i){const s=botState(i),p=botPresence(i),b=botBase(i),now=Da
  <div class="sec">${T('Tim Utama')}</div><div class="bteam">${s.team.map(id=>botHeroCard(s,id,true)).join('')}</div>
  <div class="sec">${T('Koleksi Hero')} · ${ids.length}/${HEROES.length}</div><div class="broster">${ids.map(id=>botHeroCard(s,id,false)).join('')}</div>
  <p class="sub" style="text-align:center;margin-top:6px">${T('Senjata dimiliki: {n}',{n:Object.keys(s.weapons).length})} · ${T('Perlengkapan: {n}',{n:Object.keys(s.gear).length})}</p>`}
-function openBot(i,back){i=+i;if(!botIn(i)||botHidden(i))return;rankBot=i;botsEnsureBios();const uid=botUid(i);
+function openBot(i,back){i=+i;if(!botIn(i)||botHidden(i))return;rankBot=i;botsEnsureBios();if(typeof annFreshBot==='function')annFreshBot(i);const uid=botUid(i);
  modal(`<button class="btn red mclose" data-act="${back||'rank'}">‹</button><h3>${T('Profil Pemain')}</h3><div id="botBody">${botBodyHTML(i)}</div>${uid?profActions(uid):''}`);rankStartTimer();
  if(uid&&loggedIn()&&Date.now()-NET.frAt>15e3)netFriends().then(()=>{const pa=$('#modal .pfact');if(pa&&rankBot===i)pa.outerHTML=profActions(uid)})}
 

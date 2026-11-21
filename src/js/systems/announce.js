@@ -48,6 +48,12 @@ function annMine(ty,x){if(typeof loggedIn!=='function'||!loggedIn())return;
 function annHotBot(now,on){const out=[];for(let k=ANN.list.length-1;k>=0;k--){const a=ANN.list[k];if(now-a.ts>3.5*6e4)break;if(a.ts>now||!annHot(a))continue;
   for(const u of[a.uid,a.d&&a.d.pu]){const i=u?botIdxOf(String(u)):-1;if(i>=0&&on.includes(i)&&!out.includes(i))out.push(i)}}return out.slice(0,2)}
 
+// profil bot dibuka: bila ia baru saja muncul di pengumuman, keadaannya dihitung ulang sekarang supaya ★3/VIP yang
+// diumumkan pasti terlihat (cache botState hanya berganti tiap ±15 menit progres)
+function annFreshBot(i){const uid=botUid(i),now=Date.now();if(!uid||!ANN.list.some(a=>a.uid===uid&&now-a.ts<30*6e4&&a.ts<=now))return;
+ const c=BOTS.cache[i];if(c&&c.at&&c.at>=Math.max(...ANN.list.filter(a=>a.uid===uid).map(a=>a.ts)))return;
+ delete BOTS.cache[i];delete BSUMA[i];if(BSUM.d)delete BSUM.d[i];BLM.t=0}
+
 /* ---------- ★3 & VIP bot: hitung di latar, pilih satu per slot ---------- */
 const ANN_HZ=60*6e4;   // kejadian tiap bot disimpan sampai ±1 jam ke depan (hitung ulang hanya bila jendela melewatinya)
 function annBotEv(i,t1){let c=ANN.bev.get(i);if(c&&c.T>=t1)return c;const b=botBase(i),T=Math.max(t1,Date.now()+ANN_HZ),G=botGacha(b,botProg(b,T),T),from=Date.now()-3*6e4;

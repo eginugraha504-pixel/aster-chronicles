@@ -220,10 +220,13 @@ function eraPool(t,isW,up){const k=eraIdx(t),E=BOT_CFG.ERAS[k],av=HEROES.filter(
 function botGacha(b,P,now=Date.now()){const C=BOT_CFG,total=Math.max(0,botCurve(b.cvS,2,P)),nH=Math.floor(total*C.HERO_SHARE),nW=Math.floor(total*(1-C.HERO_SHARE));
  const heroes={},weapons={},ev=[];STARTERS().forEach(id=>heroes[id]={lv:1,lb:0,wpn:null,at:b.join});STARTERS().map(id=>basicWeapon(HD[id].wcls)).filter(Boolean).forEach(w=>weapons[w]=newWpn());
  // waktu tiap tarikan: gratis (dari kurva progres) + berbayar (dari top up), lalu diurutkan
+ // tarikan gratis ke-k (0-based) baru terhitung saat total summon mencapai k+1 → waktunya = saat itu (bukan saat tarikan ke-k).
+ // Dengan begitu riwayat gacha STABIL: menghitung di waktu mana pun memberi kejadian ★3 yang sama untuk masa lalu
+ // (tarikan gratis tidak lagi "disisipkan mundur" di antara tarikan berbayar yang sudah terjadi → hasil tidak teracak ulang).
  const fT=(k,share)=>Math.max(b.join,botProgInv(b,botSumInv(b.cvS,k/share))),tH=[],tW=[];
- for(let k=0;k<nH;k++)tH.push(fT(k,C.HERO_SHARE));for(let k=0;k<nW;k++)tW.push(fT(k,1-C.HERO_SHARE));
- const SP=botSpend(b,now),burn=b.tier.burn||0,paid=botPaidPulls(burn?SP.gems.map(([t,g])=>[t,g*(1-burn)]):SP.gems);paid.forEach((t,k)=>(bHash(b.i,9000+k)%100<C.SPEND.heroShare*100?tH:tW).push(t));
- const sv=botSaveTimes(b,tH.sort((x,y)=>x-y),now);tW.sort((x,y)=>x-y);
+ for(let k=0;k<nH;k++)tH.push(fT(k+1,C.HERO_SHARE));for(let k=0;k<nW;k++)tW.push(fT(k+1,1-C.HERO_SHARE));
+ const SP=botSpend(b,now),burn=b.tier.burn||0,paid=botPaidPulls(burn?SP.gems.map(([t,g])=>[t,g*(1-burn)]):SP.gems);paid.forEach((t,k)=>{if(t<=now)(bHash(b.i,9000+k)%100<C.SPEND.heroShare*100?tH:tW).push(t)});
+ const sv=botSaveTimes(b,tH.filter(t=>t<=now).sort((x,y)=>x-y),now);tW.sort((x,y)=>x-y);while(tW.length&&tW[tW.length-1]>now)tW.pop();
  const run=(ts,isW,rng)=>{const st={pity:0,g:false};for(const t of ts){const ek=eraIdx(t),E=C.ERAS[ek];
   const ups=isW?E.wpn:E.hero,up=b.chaser&&ups.length?ups[bHash(b.i,ek+(isW?50:0))%ups.length]:null,pool=eraPool(t,isW,up);
   const pb=st.pity+1,o=gachaRoll(st,up,r=>pool[r],rng,false,isW),r=o.r,id=o.id;if(!id)continue;
@@ -366,7 +369,7 @@ function botState(i,now=Date.now()){const C=BOT_CFG,{b,P:P0,Pe:P,lv,key}=botKey(
   // hoki/apes: dibanding rata-rata ★3 yang diharapkan (peluang efektif termasuk pity ≈ ×1.05), ±1 simpangan baku
   const n3=G.ev.length,exp3=(G.nH+G.nW)*RATES[3]/100*1.05,z=(n3-exp3)/Math.sqrt(Math.max(1,exp3)),luck=z>1?'hoki':z<-1?'sial':'normal';
   let days=0;for(const[s0,s1]of b.segs){if(now<=s0)break;days+=(Math.min(now,s1)-s0)/BDAY}
-  out={i,key,lv,P,heroes,weapons,gear:F.gear,team,fav,av:heroes[av]?av:fav,ws:ws||null,pw,cp:teamCP(team).total,ev:G.ev,
+  out={i,key,at:now,lv,P,heroes,weapons,gear:F.gear,team,fav,av:heroes[av]?av:fav,ws:ws||null,pw,cp:teamCP(team).total,ev:G.ev,
    stats:{sum:G.nH+G.nW,s3:n3,lim3:G.ev.filter(e=>e.lim).length,luck,days:Math.max(1,Math.ceil(days)),hours:Math.max(.1,botCurve(b.cv,5,P)),
     paid:G.paid,held:G.held,pity:G.pity,spent:G.spend.total,vip:G.spend.vip,card:G.spend.card,buys:G.spend.buys.length}};
  }finally{S=keep}
@@ -402,7 +405,7 @@ function botSnap(b,t){for(let d=wibDay(t);d<=wibDay(t)+3;d++){for(const[s0,s1]of
 /* ---- ringkasan bot (CP, level, VIP, hero) — skala sampai 100rb bot ----
    Bot yang sudah berhenti (endT lewat) tidak berubah lagi → ringkasannya disimpan di localStorage dan tidak dihitung ulang.
    Bot aktif: dari botState (cache penuh dibatasi ±5000 objek). Ganti SUM_VER bila keseimbangan CP berubah. */
-const SUM_VER=8,BSUM={d:{},key:'',dirty:0,at:0};
+const SUM_VER=9,BSUM={d:{},key:'',dirty:0,at:0};
 const bsumKey=()=>botsSig()+':'+SUM_VER+':'+BOT_CFG.ERAS.length+':'+HEROES.length;
 function bsumLoad(){const k=bsumKey();if(BSUM.key===k)return;BSUM.key=k;BSUM.d={};for(const q in BSUMA)delete BSUMA[q];try{const o=JSON.parse(localStorage.getItem('aster_botsum')||'null');if(o&&o.k===k){const D=o.d||{};for(const i in D){const x=D[i];BSUM.d[i]=Array.isArray(x)?{cp:x[0],lv:x[1],vip:x[2],top:x[3],st:x[4],nh:x[5],ms:x[6]}:x}
   const A=o.a||{};for(const i in A){const x=A[i];BSUMA[i]={k:x[0],o:{cp:x[1],lv:x[2],vip:x[3],top:x[4],st:x[5],nh:x[6],ms:x[7]}}}}}catch(e){}}
