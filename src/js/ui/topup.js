@@ -18,7 +18,8 @@ function tuShopHTML(){const I=tuState(),C=TOPUP_CFG.card,left=tuCardLeft(),bot=I
  <p class="sub tunote">${T('Permata & uangnya fiktif: dibayar dengan saldo rekening Bank Central Universe di Telegram, lalu kode voucher dari bot ditukar di sini.')}</p>`}
 
 /* ---- tagihan pesanan ---- */
-function tuOpen(id){const I=tuState(),o=I.orders[id];if(!o)return;const p=tuSku(o.sku),link=tuLink(id),cmd=tuCommand(id),get=o.st==='paid'?o.gems:tuGemsFor(o.sku);
+function tuOpen(id){const I=tuState(),o=I.orders[id];if(!o)return;const p=tuSku(o.sku),link=tuLink(id),cmd=tuCommand(id),get=o.st==='paid'?o.gems:tuGemsFor(o.sku);TU.lastBun=!!(p&&p.bun);
+ if(p&&p.bun)return tuOpenBun(id,o,p,link,cmd);
  const st={wait:['wait',T('Menunggu pembayaran')],paid:['paid',T('Lunas')],exp:['exp',T('Kedaluwarsa')]}[o.st];
  modal(`<button class="btn red mclose" data-act="tuBack">‹</button><h3>🧾 ${T('Tagihan')}</h3>
  <div class="tubill"><div class="tbh">${tuGemPile(p.card?3:Math.min(6,TOPUP_CFG.packs.indexOf(p)+1),30)}<span><b class="ot">${tuName(o.sku)}</b><small>${p.card?T('{a} langsung + {b}/hari × {c} hari',{a:fmt(p.now),b:fmt(p.daily),c:p.days}):T('Kamu dapat {n} Permata',{n:fmt(get)})}</small></span></div>
@@ -34,25 +35,42 @@ function tuOpen(id){const I=tuState(),o=I.orders[id];if(!o)return;const p=tuSku(
   <details class="tuman"><summary>${T('Belum masuk? Tempel kode voucher')}</summary><div class="tuvc"><input id="tuCode" placeholder="XXXXX-XXXXX" maxlength="13" autocapitalize="characters" autocomplete="off"><button class="btn green" data-act="tuRedeem" data-arg="${id}">${T('Konfirmasi')}</button></div></details>
   <small class="tuttl">${T('Berlaku sampai {t}',{t:new Date(o.t+TOPUP_CFG.ttl).toLocaleString(S.lang==='en'?'en-GB':S.lang==='ja'?'ja-JP':'id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})})}</small>`
  :o.st==='paid'?`<p class="sub">${T('Dibayar {t}. {n} Permata sudah masuk.',{t:agoTxt(o.paidT),n:fmt(o.gems||0)})}</p>`:`<div class="mrow"><button class="btn" data-act="tuBuy" data-arg="${o.sku}">${T('Buat Pesanan Baru')}</button></div>`}`)}
+// tagihan paket (bundle): isi paket menggantikan tumpukan permata
+function tuOpenBun(id,o,p,link,cmd){const st={wait:['wait',T('Menunggu pembayaran')],paid:['paid',T('Lunas')],exp:['exp',T('Kedaluwarsa')]}[o.st];
+ modal(`<button class="btn red mclose" data-act="tuBack">‹</button><h3>🧾 ${T('Tagihan')}</h3>
+ <div class="tubill"><div class="tbh bunb"><img class="ix" src="${ICON.gift}" style="width:40px;height:40px"><span><b class="ot">${T(p.n)}</b><small>${p.fund?T('Permata cair tiap naik level (Lv {a}–{b})',{a:TOPUP_CFG.fund.lv[0],b:TOPUP_CFG.fund.lv[TOPUP_CFG.fund.lv.length-1]}):T('Isi paket langsung masuk ke akun')}</small></span></div>
+  ${p.fund?'':bunChips(p.rw,true)}
+  <div class="tbr"><span>${T('Total')}</span><b>${tuRp(o.price)}</b></div>
+  <div class="tbr"><span>${T('ID Pesanan')}</span><b><code>${id}</code></b></div>
+  <div class="tbr"><span>${T('Penerima')}</span><b>${TOPUP_CFG.merchant}</b></div>
+  <div class="tbr"><span>${T('Status')}</span><b class="tust ${st[0]}">${st[1]}</b></div></div>
+ ${o.st==='wait'?`${link?`<a class="btn tutg" href="${link}" target="_blank" rel="noopener">✈️ ${T('Bayar di Telegram')}</a>`:`<button class="btn tutg" data-act="tuBot">✈️ ${T('Atur username bot bank dulu')}</button>`}
+  <div class="tucmd"><small>${T('Atau kirim perintah ini ke bot:')}</small><code>${cmd}</code><button class="btn blue sm" data-act="tuCopy" data-arg="${id}">${T('Salin')}</button></div>
+  <div class="tulive"><i class="spin"></i><span>${T('Menunggu pembayaran... Paket masuk otomatis setelah kamu menekan ✅ Bayar di bot.')}</span></div>
+  <details class="tuman"><summary>${T('Belum masuk? Tempel kode voucher')}</summary><div class="tuvc"><input id="tuCode" placeholder="XXXXX-XXXXX" maxlength="13" autocapitalize="characters" autocomplete="off"><button class="btn green" data-act="tuRedeem" data-arg="${id}">${T('Konfirmasi')}</button></div></details>`
+ :o.st==='paid'?`<p class="sub">${T('Dibayar {t}. Isi paket sudah masuk.',{t:agoTxt(o.paidT)})}</p>`:`<div class="mrow"><button class="btn" data-act="tuBuy" data-arg="${o.sku}">${T('Buat Pesanan Baru')}</button></div>`}`)}
 function tuHist(){const I=tuState(),L=Object.entries(I.orders).sort((a,b)=>b[1].t-a[1].t);
  modal(`<button class="btn red mclose" data-act="tuBack">‹</button><h3>📜 ${T('Riwayat Top Up')}</h3>
  <div class="tusum"><span>${T('Total belanja')}</span><b>${tuRp(I.spent||0)}</b></div>
  ${L.length?`<div class="tuhist">${L.map(([id,o])=>`<button class="tuh ${o.st}" data-act="tuOpen" data-arg="${id}"><span><b>${tuName(o.sku)}</b><small>${id} · ${agoTxt(o.t)}</small></span><span><b>${tuRp(o.price)}</b><small class="tust ${o.st}">${{wait:T('Menunggu'),paid:T('Lunas'),exp:T('Kedaluwarsa')}[o.st]}</small></span></button>`).join('')}</div>`:`<p class="sub">${T('Belum ada transaksi.')}</p>`}`)}
 function tuSuccess(r){sfx('rare');const p=tuSku(r.sku);
+ if(r.bun){modal(`<div class="tuok"><div class="rays"></div><h3>${T('Pembayaran Berhasil!')}</h3><img class="ix" src="${ICON.gift}" style="width:64px;height:64px"><b class="ot tugot">${T(p.n)}</b>
+  ${p.fund?`<p class="sub">${T('Dana Pertumbuhan aktif! Klaim permata di Toko › Paket setiap naik level.')}</p>`:bunChips(p.rw,true)}${p.rw&&p.rw.pickHero?`<p class="sub">${T('Hero ★{n} pilihanmu menunggu di Kotak Surat.',{n:p.rw.pickHero})}</p>`:''}
+  <div class="mrow"><button class="btn" data-act="tuBack">${T('Mantap!')}</button></div></div>`);$('#modal .mbox').classList.add('tuokbox');render();return}
  modal(`<div class="tuok"><div class="rays"></div><h3>${T('Pembayaran Berhasil!')}</h3>${tuGemPile(p.card?3:Math.min(6,TOPUP_CFG.packs.indexOf(p)+1),44)}
  <b class="ot tugot">+${fmt(r.rw.gems)}</b><small>${T('Permata')}</small>
  ${r.first?`<span class="tufirst big">${T('Bonus pembelian pertama ×2!')}</span>`:''}
  ${r.card?`<p class="sub">${T('Kartu Bulanan aktif, sisa {n} hari. Permata harian dikirim ke Kotak Surat setiap hari.',{n:tuCardLeft()})}</p>`:''}
  <div class="mrow"><button class="btn" data-act="tuBack">${T('Mantap!')}</button></div></div>`);$('#modal .mbox').classList.add('tuokbox');render()}
 // pembayaran masuk otomatis (bisa terjadi di layar mana pun)
-function tuAuto(r){if(B){toast(T('Top up berhasil! +{n} Permata',{n:fmt(r.rw.gems)}));sfx('rare');return}tuSuccess(r)}
+function tuAuto(r){if(B){toast(r.bun?T('{n} berhasil dibeli!',{n:tuName(r.sku)}):T('Top up berhasil! +{n} Permata',{n:fmt(r.rw.gems)}));sfx('rare');return}tuSuccess(r)}
 function tuCopyText(t){const done=()=>toast(T('Disalin!'));try{navigator.clipboard.writeText(t).then(done,()=>fb())}catch(e){fb()}
  function fb(){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');done()}catch(e){toast(t)}a.remove()}}
 
 Object.assign(ACT,{
  tuBuy:sku=>{const r=tuOrder(sku);if(!r)return;if(r.err){toast(r.err,1);return}sfx('tap');tuOpen(r.id);tuListen()},
  tuOpen:id=>tuOpen(id),
- tuBack:()=>{shopTab='tu';openShop()},
+ tuBack:()=>{shopTab=TU.lastBun?'bun':'tu';openShop()},
  tuHist:()=>tuHist(),
  tuCopy:id=>tuCopyText(tuCommand(id)),
  tuRedeem:id=>{const v=($('#tuCode')||{}).value;const r=tuRedeem(v,id||null);if(r.err){toast(r.err,1);sfx('deny');return}tuSuccess(r)},

@@ -224,7 +224,7 @@ HINDARI (bikin kelihatan palsu/cringe)
 - Tanda seru berlebihan, emoji, huruf kapital teriak, nasihat yang sama diulang ("pake tiket dulu aja").
 
 PRIVASI (wajib): tiap penulis hanya tahu data PRIBADI dirinya sendiri (SEDANG, pity, permata, top up, tabungan, hoki/apes, berapa hari main). Data pribadi orang lain (termasuk pemain asli) TIDAK diketahui kecuali orang itu sendiri sudah menyebutnya di obrolan. Yang bisa dilihat semua orang hanya: nama, level, CP, peringkat, lencana VIP, tim & hero di profil, tahap terjauh, liga Arena, dan pengumuman ★3.
-FAKTA: semua fakta game harus benar sesuai pengetahuan di bawah; jangan mengarang fitur (guild & guild war BELUM ada). Pakai istilah game ini: ★3 / bintang 3 (bukan SSR/UR), permata, tiket, tahap 3-4; bos hanya di tahap x-5. Tanpa emoji, tanpa tautan, ramah keluarga, tidak menyebut orang nyata/merek/politik, tidak pernah mengaku AI/bot. Hanya penulis dari daftar yang boleh bicara. Balas HANYA JSON.`;
+FAKTA: semua fakta game harus benar sesuai pengetahuan di bawah; jangan mengarang fitur (guild & guild war BELUM ada). Pakai istilah game ini: ★3 / bintang 3 (bukan SSR/UR), permata, tiket, tahap 3-4; bos hanya di tahap x-5. Tanpa emoji, tanpa tautan, ramah keluarga, tidak menyebut orang nyata/merek/politik. Jangan menyebut diri AI/bot tanpa alasan, tapi kalau ada yang bertanya dengan serius apakah ia sedang ngobrol dengan bot/AI, jangan menyangkal dan jangan mengaku manusia: jawab jujur singkat (pemain AI di game ini) lalu lanjut santai. Candaan "bot lu" setelah main jelek cukup dibalas candaan tanpa mengaku manusia. Hanya penulis dari daftar yang boleh bicara. Balas HANYA JSON.`;
 // rival abadi: momen persaingan antara bot rival {r} dan pemain {p} (dikirim game saat si rival sedang online)
 const RV_EVS = {
   new: '{r} baru sadar di peringkat ada {p} yang CP-nya kejar-kejaran dengan dia beberapa hari ini. {r} nyeletuk soal itu: setengah bercanda, sok cuek, atau ngajak saingan sehat. Jangan pakai kata "rival" secara kaku.',
@@ -385,7 +385,7 @@ const byKey = (env, q) => /^\d{8}$/.test(q) ? env.DB.prepare('SELECT * FROM play
 async function friendRow(env, x, y) { const [a, b] = pair(x, y); return env.DB.prepare('SELECT * FROM friends WHERE a=? AND b=?').bind(a, b).first() }
 async function counts(env, uid) {
   const [dm, fr] = await Promise.all([
-    env.DB.prepare('SELECT COUNT(*) n FROM dms WHERE too=? AND rd=0').bind(uid).first(),
+    env.DB.prepare('SELECT COUNT(*) n FROM dms WHERE too=? AND rd=0 AND ts<=?').bind(uid, now()).first(),
     env.DB.prepare("SELECT COUNT(*) n FROM friends WHERE (a=? OR b=?) AND st='req' AND frm<>?").bind(uid, uid, uid).first(),
   ]);
   return { dm: dm.n, fr: fr.n };
@@ -552,21 +552,32 @@ export async function gameRoute(req, env, url, json) {
   if (p.startsWith('/api/dm/')) {
     const [u, f] = await me(); if (f) return f;
     const act = p.slice(8);
-    if (act === 'threads') {
-      const { results } = await env.DB.prepare(`SELECT d.*, p.uname, p.bot, p.bw, p.srv, p.lv, p.cp, p.prof, p.ov, p.last plast, p.uid puid FROM dms d JOIN (SELECT MAX(id) m FROM dms WHERE frm=? OR too=? GROUP BY CASE WHEN frm=? THEN too ELSE frm END) x ON x.m=d.id
-        JOIN players p ON p.uid = CASE WHEN d.frm=? THEN d.too ELSE d.frm END ORDER BY d.id DESC LIMIT 50`).bind(u.uid, u.uid, u.uid, u.uid).all();
-      const un = (await env.DB.prepare('SELECT frm, COUNT(*) n FROM dms WHERE too=? AND rd=0 GROUP BY frm').bind(u.uid).all()).results;
+    if (act === 'threads') {   // pesan terakhir (yang sudah terkirim, ts <= sekarang) per lawan bicara
+      const t = now();
+      const { results } = await env.DB.prepare(`SELECT d.*, p.uname, p.bot, p.bw, p.srv, p.lv, p.cp, p.prof, p.ov, p.last plast, p.uid puid FROM dms d JOIN (SELECT CASE WHEN frm=? THEN too ELSE frm END pr, MAX(ts) mt FROM dms WHERE (frm=? OR too=?) AND ts<=? GROUP BY pr) x
+        ON x.pr = CASE WHEN d.frm=? THEN d.too ELSE d.frm END AND d.ts=x.mt JOIN players p ON p.uid=x.pr WHERE (d.frm=? OR d.too=?) ORDER BY d.ts DESC, d.id DESC LIMIT 60`).bind(u.uid, u.uid, u.uid, t, u.uid, u.uid, u.uid).all();
+      const seen = new Set(), rows = results.filter(r => !seen.has(r.puid) && seen.add(r.puid)).slice(0, 50);
+      const un = (await env.DB.prepare('SELECT frm, COUNT(*) n FROM dms WHERE too=? AND rd=0 AND ts<=? GROUP BY frm').bind(u.uid, t).all()).results;
       const U = Object.fromEntries(un.map(r => [r.frm, r.n]));
-      return json({ ok: true, list: results.map(r => ({ ...card({ ...r, uid: r.puid, last: r.plast }), msg: { txt: r.txt, ts: r.ts, me: r.frm === u.uid }, unread: U[r.puid] || 0 })) });
+      return json({ ok: true, list: rows.map(r => ({ ...card({ ...r, uid: r.puid, last: r.plast }), msg: { txt: r.txt, ts: r.ts, me: r.frm === u.uid }, unread: U[r.puid] || 0 })) });
     }
     const w = String(b.uid || '');
-    if (act === 'get') {
-      const after = Math.max(0, +b.after || 0);
-      const { results } = await env.DB.prepare('SELECT * FROM (SELECT * FROM dms WHERE ((frm=? AND too=?) OR (frm=? AND too=?)) AND id>? ORDER BY id DESC LIMIT 80) ORDER BY id').bind(u.uid, w, w, u.uid, after).all();
-      if (results.some(r => r.too === u.uid && !r.rd)) await env.DB.prepare('UPDATE dms SET rd=1 WHERE frm=? AND too=? AND rd=0').bind(w, u.uid).run();
-      const rd = await env.DB.prepare('SELECT COALESCE(MAX(id),0) m FROM dms WHERE frm=? AND too=? AND rd=1').bind(u.uid, w).first();
-      return json({ ok: true, list: results.map(r => ({ id: r.id, me: r.frm === u.uid, txt: r.txt, ts: r.ts })), seen: rd.m });
+    if (act === 'get') {   // after = ts terakhir yang sudah dilihat; pesan bot yang masih "diketik" (ts di masa depan) belum dikirim
+      const after = Math.max(0, +b.after || 0), t = now();
+      const { results } = await env.DB.prepare('SELECT * FROM (SELECT * FROM dms WHERE ((frm=? AND too=?) OR (frm=? AND too=?)) AND ts>? AND ts<=? ORDER BY ts DESC, id DESC LIMIT 80) ORDER BY ts, id').bind(u.uid, w, w, u.uid, after, t).all();
+      if (results.some(r => r.too === u.uid && !r.rd)) await env.DB.prepare('UPDATE dms SET rd=? WHERE frm=? AND too=? AND rd=0 AND ts<=?').bind(t, w, u.uid, t).run();
+      // rd = waktu dibaca (bot membaca pada waktunya sendiri; 1 = data lama)
+      const rd = await env.DB.prepare('SELECT COALESCE(MAX(id),0) m FROM dms WHERE frm=? AND too=? AND rd>0 AND rd<=?').bind(u.uid, w, t).first();
+      // "sedang mengetik": balasan berikutnya tinggal <15 dtk lagi DAN pesan terakhirmu sudah dibaca
+      const ty = await env.DB.prepare('SELECT MIN(ts) m FROM dms WHERE frm=? AND too=? AND ts>?').bind(w, u.uid, t).first();
+      const lm = ty && ty.m && ty.m - t < 15e3 ? await env.DB.prepare('SELECT rd FROM dms WHERE frm=? AND too=? ORDER BY ts DESC, id DESC LIMIT 1').bind(u.uid, w).first() : null;
+      return json({ ok: true, list: results.map(r => ({ id: r.id, me: r.frm === u.uid, txt: r.txt, ts: r.ts })), seen: rd.m, typing: !!(ty && ty.m && ty.m - t < 15e3 && (!lm || (lm.rd > 0 && lm.rd <= t))) });
     }
+    if (act === 'pending') {   // teman bot yang belum membaca pesanmu (game memutuskan kapan si bot online untuk membacanya)
+      const { results } = await env.DB.prepare('SELECT d.too uid, MIN(d.ts) t0, MAX(d.ts) t1, COUNT(*) n FROM dms d JOIN players p ON p.uid=d.too WHERE d.frm=? AND d.rd=0 AND p.bot IS NOT NULL GROUP BY d.too LIMIT 20').bind(u.uid).all();
+      return json({ ok: true, list: results });
+    }
+    if (act === 'bot') return json(await dmBot(env, u, w, b));
     if (act === 'send') {
       const txt = clean(b.txt, 300); if (!txt) return fail('empty');
       const row = await friendRow(env, u.uid, w); if (!row || row.st !== 'ok') return fail('notfriend', 403);
@@ -762,6 +773,66 @@ async function whaleApply(env, chat, send, id, v) {
   for (const s of L) await whaleSet(env, s, v);
   if (!id) await kvSet(env, 'whale', v);
   return whaleCard(env, chat, send, `✅ ${id ? `S${id}` : 'Semua server'}: whaler <b>${pctS(v)}</b>. Pemain yang bergabung mulai sekarang mengikuti persen ini; game memuat pengaturan baru dalam ±30 detik.`);
+}
+/* ---------------- Pesan pribadi (DM) dari teman bot ----------------
+   Game memutuskan KAPAN si bot membaca pesanmu (saat ia online menurut jadwal sesinya; boleh di masa lalu bila waktu itu
+   kamu tidak membuka game) dan seberapa suka ia membalas (wataknya). Server menandai pesan dibaca pada waktu itu (rd = waktu baca)
+   lalu menulis balasan (Claude Haiku) dengan jeda baca + mengetik → muncul saat waktunya, sama seperti pemain sungguhan.
+   kind 'hello' = sapaan pertama setelah berteman (jarang, sekali saja). Hemat token: hanya saat ada pesanmu / sapaan, maks 60 per pemain per hari. */
+const DM_ROLE = `Kamu menulis pesan pribadi (DM) di game mobile gacha Aster Chronicles atas nama SATU pemain di server: orang Indonesia biasa yang main sambil kerja, kuliah, rebahan. Ia berteman di game dengan lawan bicaranya.
+- Tulis seperti chat pribadi game sungguhan: pendek, santai, sesuai GAYA. Tidak harus antusias; boleh singkat ("wkwk iya", "lagi farming nih", "bentar lagi bos"). Kadang tanya balik, kadang tidak. Jangan berbasa-basi panjang, jangan seperti layanan pelanggan.
+- Konsisten dengan data diri (PUBLIK & PRIBADI) dan yang SEDANG dikerjakan. Boleh cerita data pribadinya sendiri (pity, apes, top up, nabung) kalau wajar — ini obrolan berdua. Jangan tahu data pribadi lawan bicara kecuali ia sendiri cerita.
+- Ingat isi percakapan sebelumnya; jangan mengulang kalimat yang sama.
+- Fakta game harus benar sesuai pengetahuan di bawah; jangan mengarang fitur (guild & guild war BELUM ada). Istilah game ini: ★3 / bintang 3, permata, tiket, tahap 3-4.
+- Tanpa emoji berlebihan, tanpa tautan, ramah keluarga, tidak menyebut orang nyata/merek/politik, tidak minta data pribadi di dunia nyata (nomor HP, alamat, akun sosmed), tidak mengajak bertemu.
+- Jangan menyebut diri AI/bot tanpa alasan. Tapi kalau lawan bicara bertanya dengan serius apakah ia sedang ngobrol dengan bot/AI atau manusia, jangan menyangkal dan jangan mengaku manusia: jawab jujur singkat (kamu pemain AI di game ini) lalu lanjut santai. Candaan "bot lu" cukup dibalas candaan tanpa mengaku manusia.
+- Balas HANYA JSON.`;
+const DM_Q = /\?|gimana|bagaimana|kenapa|knp|apa|siapa|berapa|brp|mana|kapan|bisa|boleh|mau/i;
+async function dmBot(env, u, w, b) {
+  const bot = await env.DB.prepare('SELECT uid,uname,bot,bw FROM players WHERE uid=? AND bot IS NOT NULL AND ban=0').bind(w).first(); if (!bot) return { ok: false, e: 'bot' };
+  const fr = await friendRow(env, u.uid, w); if (!fr || fr.st !== 'ok') return { ok: false, e: 'notfriend' };
+  const t = now(), kind = b.kind === 'hello' ? 'hello' : 'reply';
+  const at = Math.round(Math.min(t + 10 * 6e4, Math.max(t - 3 * DAY, +b.at || t)));
+  const unread = (await env.DB.prepare('SELECT * FROM dms WHERE frm=? AND too=? AND rd=0 ORDER BY ts, id').bind(u.uid, w).all()).results;
+  if (kind === 'reply' && !unread.length) return { ok: true, n: 0 };
+  if (kind === 'hello' && await env.DB.prepare('SELECT 1 FROM dms WHERE (frm=? AND too=?) OR (frm=? AND too=?) LIMIT 1').bind(u.uid, w, w, u.uid).first()) return { ok: true, n: 0, skip: 'has' };
+  // dibaca setelah pesan terakhirmu masuk
+  const rt = Math.max(at, unread.length ? unread[unread.length - 1].ts + 3000 : at);
+  if (unread.length) await env.DB.prepare('UPDATE dms SET rd=? WHERE frm=? AND too=? AND rd=0').bind(rt, u.uid, w).run();
+  // membalas atau cukup membaca: watak bot (p dari game); pertanyaan lebih sering dijawab
+  const p = Math.min(.97, Math.max(.03, +b.p || .6)), q = unread.some(m => DM_Q.test(m.txt));
+  if (kind === 'reply' && rnd01() > (q ? Math.min(.97, p + .25) : p)) return { ok: true, n: 0, read: rt };
+  const day = dayKey().slice(3), lk = 'dmai:' + u.uid, cur = String(await kvGet(env, lk) || ''), used = cur.startsWith(day + ':') ? +cur.split(':')[1] : 0;
+  if (used >= 60) return { ok: true, n: 0, read: rt, e: 'limit' };
+  if (!env.ANTHROPIC_API_KEY && !env.AI_FAKE) return { ok: true, n: 0, read: rt, e: 'nokey' };
+  if (await bump(env, dayKey()) > +(env.AI_DAILY || 2000)) return { ok: true, n: 0, read: rt, e: 'quota' };
+  await kvSet(env, lk, day + ':' + (used + 1));
+  const hist = (await env.DB.prepare('SELECT * FROM (SELECT * FROM dms WHERE ((frm=? AND too=?) OR (frm=? AND too=?)) AND ts<=? ORDER BY ts DESC, id DESC LIMIT 14) ORDER BY ts, id').bind(u.uid, w, w, u.uid, Math.max(t, rt)).all()).results;
+  const c = b.cand || {}, P = b.player || {}, HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'], d = new Date(rt + 7 * 36e5), pn = clip(P.name || u.uname, 16), bn = bot.uname;
+  let user = `WAKTU: ${HARI[d.getUTCDay()]} ${hhmm(rt)} WIB
+KAMU = ${bn}: PUBLIK[${clip(c.pub, 320)}] PRIBADI-hanya-kamu[${clip(c.priv, 300)}] GAYA[${clip(c.style, 320)}]
+LAWAN BICARA = ${pn} (data publik): ${clip(P.pub, 300)}
+HUBUNGAN: ${clip(b.rel, 220) || 'baru berteman di game'}
+PERCAKAPAN DM (lama -> baru):
+${hist.map(h => `${hhmm(h.ts)} ${h.frm === u.uid ? pn : bn}: ${clip(h.txt, 200)}`).join('\n') || '(belum ada)'}
+`;
+  user += kind === 'hello'
+    ? `\nKalian baru saja berteman. Tulis 1 pesan pertama yang pendek & wajar dari ${bn} (mis. sapaan singkat, "thx udah add", atau nyinggung sesuatu di profil ${pn} yang memang terlihat). JSON: {"out":[{"text":"...","delay":4}]}`
+    : `\nBalas pesan terbaru dari ${pn} sebagai ${bn}: 1-2 pesan pendek (3 bila memang perlu menjelaskan), sesuai GAYA & yang SEDANG kamu lakukan. Pertanyaan dijawab benar. Kalau tidak ada yang perlu dibalas, out boleh kosong. JSON: {"out":[{"text":"...","delay":4}]}`;
+  let out = [];
+  try {
+    if (env.AI_FAKE) out = [{ text: kind === 'hello' ? 'halo, salken ya' : 'wkwk iya, aku lagi farming nih', delay: 3 }];
+    else { const r = await callClaude(env, user, 220, DM_ROLE), m = String(r.text).match(/\{[\s\S]*\}/); let o = null; try { o = m ? JSON.parse(m[0]) : null } catch (e) { } out = (o && o.out) || [] }
+  } catch (e) { return { ok: true, n: 0, read: rt, e: 'ai' } }
+  const lower = !!c.lower; let tt = rt + (kind === 'hello' ? 2000 : 1500 + rnd01() * 6000); const st = [];
+  for (const x of out.slice(0, 3)) {
+    let txt = clip(x.text, 300).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/https?\S+/g, '').replace(/~+/g, '').replace(/\s{2,}/g, ' ').trim(); if (!txt) continue;
+    if (lower) txt = txt.toLowerCase();
+    tt += Math.max(1500, Math.min(15e3, (+x.delay || 3) * 1000)) + txt.length * 140;   // waktu mengetik
+    st.push(env.DB.prepare('INSERT INTO dms (frm,too,txt,ts) VALUES (?,?,?,?)').bind(w, u.uid, txt, Math.round(tt)));
+  }
+  if (st.length) await env.DB.batch(st);
+  return { ok: true, n: st.length, read: rt, at: Math.round(tt) };
 }
 // jam rilis berikutnya (WIB) untuk HH:MM
 function nextWib(hh, mm) { const off = BOTCFG.TZ * 36e5, t = now(), d = new Date(t + off); let x = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), hh, mm) - off; if (x <= t + 6e4) x += DAY; return x }

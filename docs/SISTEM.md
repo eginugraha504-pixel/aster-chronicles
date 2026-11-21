@@ -189,6 +189,13 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - Pesanmu: disimpan lokal (`aster_chat_me`). Balasan dari **Claude** bila tersedia (prompt berisi fakta game + keadaan asli calon penjawab + 16 pesan terakhir), selain itu **otak lokal** `brain.js` (pola kata kunci, ingat kota/hero favoritmu, bertanya balik). Bot yang kamu sebut saat offline membalas ketika online lagi. Tarikan ★3-mu diumumkan sistem dan diberi selamat; bot kadang memanggilmu saat kamu masuk 10 besar.
 - Kolam kalimat buatan Claude (`bots/chatlines`, maks 1.600) terus bertambah tiap 20 menit saat game terbuka di claude.ai dan ikut dipakai semua bot.
 
+## Paket & beli emas (21 Nov 2026)
+- Data `TOPUP_CFG.bundles / .fund / .gold / .offerHours` (data/topup.js), mesin `systems/bundle.js`, tampilan `ui/bundle.js` + `css/bundle.css`. Toko dibuka di tab **Paket** (lalu Top Up, Toko Emas, Lencana).
+- Pembayaran sama dengan Top Up: pesanan SKU paket → bot bank (katalog server = `BOTCFG.SHOP` dari data game, `tools/gen_botcfg.mjs`) → kode voucher → `tuDeliver` → `bunDeliver` (isi ke akun; `pickHero` lewat Kotak Surat). Batas: sekali / per minggu (Senin WIB) / per bulan / penawaran 48 jam setelah level tercapai (akun yang sudah melewati beberapa level sekaligus hanya mendapat penawaran level tertinggi).
+- Pita penawaran di beranda (`#bunPill`: hitung mundur / Dana Pertumbuhan siap klaim / Paket Pemula), pop-up penawaran baru & Paket Pemula (maks 1×/hari, 3 hari, jeda 10 menit antar pop-up).
+- Dana Pertumbuhan: klaim permata per level di tab Paket. Beli Emas: kartu di Toko Emas (`goldBuy`).
+- `S.iap.bun = {bought, offers, gf.claimed, gold, pop}`.
+
 ## Penjualan bot → bank Telegram
 - `js/systems/botsale.js`: tiap menit game melaporkan pembelian bot (sejak `BOT_CFG.SPEND.bankFrom`, maks 3 hari) ke `POST /api/botsale` (HMAC `TOPUP_CFG.secret`). Server (`bank-worker/`, tabel `botsales`, migrasi 0003) membuang duplikat per kunci lalu menambah saldo **HUN2 STUDIO** + mutasi `jual`.
 - Telegram: tombol **🏢 HUN2 STUDIO** / `/toko` (saldo, penjualan hari ini/7 hari/total, pembeli terbesar, 10 transaksi terakhir), `/notif on|off` (kabar pembelian ≥ Rp799rb, default mati).

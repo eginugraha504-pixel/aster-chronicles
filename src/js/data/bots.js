@@ -131,6 +131,23 @@ const BOT_CFG={
    {id:'swhale', w:.45,card:1, renew:1,  rate:.75, first:[.005,.2],packs:[['g4',2],['g5',4],['g6',6]],            banner:[5,9],bp:[['g5',2],['g6',6]],pf:['rajin','hardcore'],sk:['veteran','veteran','biasa'],speed:1,opt:.95,burn:.55},
    {id:'mwhale', w:.15,card:1, renew:1,  rate:1.3, first:[0,.06],packs:[['g5',2],['g6',8]],                     banner:[10,18],bp:[['g6',1]],pf:['hardcore'],sk:['veteran'],speed:1,opt:.985,burn:.28},
   ],
+  // PAKET (TOPUP_CFG.bundles): peluang membeli per tier. Kunci = id paket; 'lv' = penawaran naik level (tiap level yang punya penawaran);
+  // 'once' & penawaran sekali, mingguan/bulanan dicoba tiap periode. Isi paket ikut: permata + tiket → tarikan, bahan Kebangkitan → anggaran Kebangkitan bot.
+  bun:{card:{b1:.75,b2:.25,gf:.35,wk1:.25,lv:.12},
+       dolphin:{b1:.95,b2:.7,b3:.1,gf:.7,wk1:.5,wk2:.2,lv:.4},
+       // sultan (whale ke atas) memborong SEMUA paket — waktunya tetap alami (sesi masing-masing, gaya belanja masing-masing)
+       whale:{b1:1,b2:1,b3:1,gf:1,wk1:1,wk2:1,mo1:1,lv:1},
+       swhale:{b1:1,b2:1,b3:1,gf:1,wk1:1,wk2:1,mo1:1,lv:1},
+       mwhale:{b1:1,b2:1,b3:1,gf:1,wk1:1,wk2:1,mo1:1,lv:1}},
+  // GAYA SULTAN: tiap pembelanja besar punya ciri khas sendiri supaya para sultan tidak kembar (aliran acak bHash(i,61)).
+  //   daily/banner = pengali belanja harian & borongan banner · payday = pengali di tanggal gajian
+  //   kolektor: mengejar koleksi lengkap — sebagian bahan Kebangkitan dipakai hero cadangan (spread), Lencana ditukar hero yang belum punya
+  //   setia: satu hero kesayangan selalu di tim, dibangkitkan paling dulu, jadi avatar · meta: tim terkuat & rata
+  //   banner: borong besar tiap banner baru, belanja harian jarang · gajian: belanja menumpuk di tanggal gajian
+  WSTYLE:{tiers:['dolphin','whale','swhale','mwhale'],
+   list:[{id:'kolektor',w:24,daily:1,banner:1.2,spread:.3},{id:'setia',w:20,daily:1,banner:.8,fav:1},{id:'meta',w:22,daily:1,banner:1},
+         {id:'banner',w:20,daily:.45,banner:2.2},{id:'gajian',w:14,daily:.7,banner:1,payday:4}],
+   wallet:[.65,1.6]},                 // kekuatan dompet acak per sultan (pengali paket harian & borongan)
   firstDay:[.3,4],                 // hari sebelum pembelian pertama (bawaan); tiap tier bisa punya `first` sendiri: whale langsung beli di hari pertama
   payday:{dates:[25,26,27,28,1],mul:2.2}, // tanggal gajian: peluang beli ×mul
   churnMul:.55,                    // pemain yang top up lebih jarang berhenti
@@ -166,7 +183,12 @@ const BOT_CFG={
   `ATURAN: maksimal 40 karakter, tanpa emoji, tanpa tautan, tanpa @, tanpa info pribadi, sopan dan ramah keluarga, jangan sebut orang nyata atau merek. `+
   `Beri tiap status satu tag dari: umum, santai, kompetitif, pemula, sial, hoki, raika, sakuya, farming (raika/sakuya = sudah punya hero itu; sial = gacha apes; hoki = gacha beruntung). `+
   `Balas HANYA array JSON berisi objek {"t":"teks","tag":"tag"}.`,
- BIO_LOCAL:[['umum','Santai aja yang penting konsisten'],['santai','Login harian doang hehe'],['kompetitif','Target top 10 CP'],['pemula','Baru mulai, mohon bimbingannya'],['sial','Pity terus, kapan hoki'],['hoki','Sekali tarik langsung dapet'],['raika','Raika main, Raika istri'],['sakuya','Sakuya terbaik, no debat'],['farming','Farming dungeon tiap malam'],['umum','Ganbatte minna'],['santai','Main pas istirahat kerja'],['kompetitif','CP dulu, tidur nanti']],
+ BIO_LOCAL:[['umum','Santai aja yang penting konsisten'],['santai','Login harian doang hehe'],['kompetitif','Target top 10 CP'],['pemula','Baru mulai, mohon bimbingannya'],['sial','Pity terus, kapan hoki'],['hoki','Sekali tarik langsung dapet'],['raika','Raika main, Raika istri'],['sakuya','Sakuya terbaik, no debat'],['farming','Farming dungeon tiap malam'],['umum','Ganbatte minna'],['santai','Main pas istirahat kerja'],['kompetitif','CP dulu, tidur nanti'],
+  ['kolektor','Koleksi harus lengkap, titik'],['kolektor','Semua hero wajib punya'],['kolektor','Kurang dikit lagi full koleksi'],
+  ['setia','Satu hero, satu cinta'],['setia','Main cuma demi dia'],['setia','Bukan meta? bodo amat'],
+  ['meta','Tim terkuat atau tidak sama sekali'],['meta','Ikut meta biar cepet'],['meta','Build rapi, CP naik'],
+  ['banner','Banner baru = gesek'],['banner','Rate up? sikat'],['banner','Nabung? apa itu'],
+  ['gajian','Tunggu gajian dulu'],['gajian','Tanggal tua mode hemat'],['gajian','Gajian = gacha']],
  NAME_RE:/^[A-Za-z0-9]{3,14}$/,
  NAME_BATCH:100,
  NAME_PROMPT:n=>`Buat ${n} nickname pemain game mobile gacha fantasi yang unik dan berbeda-beda, seperti yang dipakai pemain sungguhan. `+

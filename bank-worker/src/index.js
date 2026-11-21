@@ -13,10 +13,11 @@
    ===================================================================== */
 import { aiRoute } from './ai.js';
 import { gameRoute, adminMessage, adminCallback } from './game.js';
+import { BOTCFG } from './botcfg.js';
 const BANK = 'Bank Central Universe';
 const MERCHANT = { key: 'hun2studio', name: 'HUN2 STUDIO' };
-// harus sama dengan TOPUP_CFG di game (src/js/data/topup.js)
-const CATALOG = {
+// sama dengan TOPUP_CFG di game (src/js/data/topup.js): dibuat otomatis ke botcfg.js (BOTCFG.SHOP) oleh tools/gen_botcfg.mjs
+const CATALOG = BOTCFG.SHOP || {
   g1: ['120 Permata', 16000], g2: ['600 Permata', 79000], g3: ['1.960 Permata', 249000],
   g4: ['3.960 Permata', 479000], g5: ['6.560 Permata', 799000], g6: ['12.960 Permata', 1599000],
   mc: ['Kartu Bulanan (30 hari)', 79000],
@@ -100,7 +101,7 @@ async function cardMutasi(env) {
   const rows = results.map(t => `${wib(t.ts, { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })}  ${t.too === 'egi' ? '+' : '-'}${rp(t.amount)}\n      ${what(t)}`);
   return `📜 <b>Mutasi rekening</b> (12 terakhir)\n\n<code>${esc(rows.join('\n'))}</code>\n\n💰 Saldo: <b>${rp((await acc(env, 'egi')).balance)}</b>`;
 }
-const HELP = `🏦 <b>${BANK}</b>\n\nPakai tombol di bawah, atau ketik:\n• /saldo\n• /mutasi\n• /setor 5jt\n• /tarik 500rb\n• /toko — pemasukan HUN2 STUDIO dari pemain\n• /notif on|off — kabar pembelian besar\n• /admin — cek & ubah akun pemain/bot Aster (UID atau username)\n\n🎮 <b>Top Up Aster Chronicles</b>: buka Toko › Top Up di game, pilih paket, lalu tekan <i>Bayar di Telegram</i>. Permata masuk otomatis setelah kamu menekan ✅ Bayar.\n\nNominal boleh ditulis 250000, 250.000, 250rb, 1,5jt.`;
+const HELP = `🏦 <b>${BANK}</b>\n\nPakai tombol di bawah, atau ketik:\n• /saldo\n• /mutasi\n• /setor 5jt\n• /tarik 500rb\n• /toko — pemasukan HUN2 STUDIO dari pemain\n• /notif on|off — kabar pembelian besar\n• /admin — cek & ubah akun pemain/bot Aster (UID atau username)\n\n🎮 <b>Top Up Aster Chronicles</b>: buka Toko › Paket / Top Up di game, pilih paket, lalu tekan <i>Bayar di Telegram</i>. Permata masuk otomatis setelah kamu menekan ✅ Bayar.\n\nNominal boleh ditulis 250000, 250.000, 250rb, 1,5jt.`;
 
 /* ---------------- rekening HUN2 STUDIO (penjualan pemain bot) ---------------- */
 const dayStartWIB = ms => { const d = new Date(ms + 7 * 36e5); d.setUTCHours(0, 0, 0, 0); return d.getTime() - 7 * 36e5 };
@@ -158,7 +159,7 @@ async function pay(env, chat, o) {
   r.st.push(env.DB.prepare('INSERT INTO orders (id,sku,price,ref,code,ts) VALUES (?,?,?,?,?,?)').bind(o.id, o.sku, o.price, r.ref, code, r.ts));
   try { await env.DB.batch(r.st) } catch (e) { return invoice(env, chat, o) }  // pesanan sudah ada = dibayar bersamaan
   const bal = (await acc(env, 'egi')).balance;
-  return send(env, chat, `✅ <b>Pembayaran berhasil</b>\n\n🛒 ${CATALOG[o.sku][0]}\n🏷️ ${o.id}\n💳 ${rp(o.price)} ke ${MERCHANT.name}\n🧾 Ref: <code>${r.ref}</code>\n🕒 ${when(r.ts)}\n\n⚡ Permata masuk otomatis ke game dalam beberapa detik.\n🎟️ Kode cadangan: <code>${code}</code>\n\n💰 Sisa saldo: <b>${rp(bal)}</b>`);
+  return send(env, chat, `✅ <b>Pembayaran berhasil</b>\n\n🛒 ${CATALOG[o.sku][0]}\n🏷️ ${o.id}\n💳 ${rp(o.price)} ke ${MERCHANT.name}\n🧾 Ref: <code>${r.ref}</code>\n🕒 ${when(r.ts)}\n\n⚡ ${/^g\d$/.test(o.sku) ? 'Permata' : o.sku === 'mc' ? 'Kartu Bulanan' : 'Isi paket'} masuk otomatis ke game dalam beberapa detik.\n🎟️ Kode cadangan: <code>${code}</code>\n\n💰 Sisa saldo: <b>${rp(bal)}</b>`);
 }
 
 /* ---------------- percakapan ---------------- */

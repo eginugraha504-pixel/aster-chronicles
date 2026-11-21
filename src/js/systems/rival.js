@@ -50,8 +50,8 @@ function rvEnd(why,now){const R=rvS(),i=R.i,C=RIVAL_CFG;if(i==null)return;
  R.hist.unshift({i,name:botName(i),since:R.since,until:now,why,me:R.sc.me,him:R.sc.him,gen:R.gen});R.hist=R.hist.slice(0,C.hist);
  R.cool[i]=now+C.cool;for(const k in R.cool)if(R.cool[k]<now)delete R.cool[k];
  const nm=botName(i);R.i=null;R.cand=null;R.gs=R.bs=null;R.next=now+(C.nextGap[0]+Math.random()*(C.nextGap[1]-C.nextGap[0]))*36e5;
- if(why==='giveup'){rvChat('giveup',i,now);toast('⚔ '+T('{n} menyerah mengejarmu. Kamu menang!',{n:nm}))}
- else if(why==='bored'){rvChat('bored',i,now);toast('⚔ '+T('{n} sudah melesat jauh dan berhenti melirikmu.',{n:nm}))}
+ if(why==='giveup'){rvChat('giveup',i,now);toast('⚔ '+T('Kamu meninggalkan rivalmu {n} jauh di belakang. Kamu menang!',{n:nm}))}
+ else if(why==='bored'){rvChat('bored',i,now);toast('⚔ '+T('{n} melesat jauh di depanmu. Rival baru akan dicarikan.',{n:nm}))}
  else if(why==='gone')toast('⚔ '+T('Rivalmu {n} sudah lama tidak bermain.',{n:nm}));
  save();BOTS.onChange&&BOTS.onChange()}
 // ---- detak utama (tiap 20 detik) ----
@@ -61,7 +61,7 @@ function rvTick(now=Date.now()){if(!S||!S.welcomed||!BOTS.warmAt||!BOTS.ready||!
  if(S.lv<C.minLv)return;if(!R.first){R.first=now;save();return}if(now-R.first<C.firstAfter)return;
  if(R.i==null){if(now<(R.next||0))return;const e=rvPick(now);if(!e){R.next=now+36e5;return}
   R.i=e.i;R.since=now;R.sc={me:0,him:0};R.lead=rvMe()>=e.cp?'me':'him';R.cand=null;R.gs=R.bs=null;rvChat('new',e.i,now);
-  toast('⚔ '+T('Rival baru: {n} mulai mengejarmu di peringkat!',{n:botName(e.i)}));save();BOTS.onChange&&BOTS.onChange();return}
+  toast('⚔ '+T('Rival baru: {n} — CP kalian bersaing ketat di peringkat!',{n:botName(e.i)}));save();BOTS.onChange&&BOTS.onChange();return}
  const i=R.i;if(!botIn(i,now)||botHidden(i)){rvEnd('gone',now);return}
  const b=botBase(i),pr=botPresence(i,now);if(b.endT<now||now-pr.last>C.gone){rvEnd('gone',now);return}
  const me=rvMe(),his=botSum(i,now,true).cp;if(!me||!his)return;
@@ -80,7 +80,7 @@ function rvArenaEvents(from,now){const out=[];if(!RIVAL_CFG.arena||!rvOn())retur
  for(let d=wibDay(from);d<=wibDay(now);d++){const ss=botSessions(b,d);if(!ss.length)continue;const[s0,s1]=ss[0],t=Math.round(s0+(bHash(i,d*13+5)%1000)/1000*(s1-s0)*.7);
   if(t>from&&t<=now&&t>=S.rv.since)out.push([t,0,i])}return out}
 // ---- teks untuk tampilan ----
-function rvWhy(w){return{giveup:T('menyerah'),bored:T('melesat jauh'),gone:T('berhenti main')}[w]||w}
+function rvWhy(w){return{giveup:T('tertinggal jauh'),bored:T('melesat jauh'),gone:T('berhenti main')}[w]||w}
 function rvBarHTML(){if(!rvOn())return'';const R=S.rv,i=R.i,now=Date.now(),s=botSum(i,now),me=rvMe(),d=s.cp-me,pr=botPresence(i,now),days=Math.floor((now-R.since)/864e5)+1;
  return`<button class="rvbar" data-act="botView" data-arg="${i}"><span class="rvic">⚔</span><span class="rvnm"><small>${T('Rivalmu')} · ${T('hari ke-{n}',{n:days})} · ${T('Salip')} ${R.sc.me}–${R.sc.him}</small><b>${esc(botName(i))}</b><small>${pr.online?`<em class="ok">${T('Online')}</em>`:T('Aktif {t}',{t:agoMs(now-pr.last)})}</small></span>
   <span class="rvgap ${d>0?'dn':'up'}"><b>${d>0?'+':'−'}${fmt(Math.abs(d))}</b><small>${d>0?T('di depanmu'):T('di belakangmu')}</small></span></button>`}

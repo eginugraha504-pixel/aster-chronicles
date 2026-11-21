@@ -109,15 +109,22 @@ const frState=uid=>isFriend(uid)?'ok':NET.friends.out.some(f=>f.uid===uid)?'out'
 // keputusan bot: menerima permintaanku (±70%, lebih mudah bila CP-ku mendekati CP-nya) saat ia online
 function botAccepts(i){const s=botState(i),me=teamPow(),r=bHash(i,7700+(+NET.acct.uid%100000))%100;const near=me>=s.cp*.5?12:me>=s.cp*.2?0:-15;return r<62+near}
 const BFR_KEY='aster_botfr';
+function botFrNear(now){const me=teamPow(),L=botsList(now).filter(e=>!e.me&&typeof e.i==='number'&&!botHidden(e.i));
+ const arena=[...new Set((S.arena&&S.arena.log||[]).filter(e=>e.i!=null&&now-e.t<3*BDAY).map(e=>e.i))].filter(i=>botIn(i,now));
+ const cp=L.filter(e=>e.cp>=me*.6&&e.cp<=me*1.7&&Math.abs(e.lv-S.lv)<=15).map(e=>e.i).sort((a,b)=>a-b);
+ return{arena,cp}}
 async function netBotFriends(){if(!loggedIn()||!botsWarmOk()||!BOTS.uids)return;const now=Date.now();let changed=false;
  // 1) jawab permintaanku yang menunggu, hanya saat bot itu sudah online setelah permintaan dikirim
  for(const f of NET.friends.out){if(f.bot==null)continue;const i=f.bot;if(!botIn(i)||botHidden(i))continue;const pr=botPresence(i,now);
   if(!(pr.online||pr.last>f.ts+6e4))continue;const ok=botAccepts(i);
-  const o=await api('/api/fr/bot',{tok:netTok(),uid:f.uid,act:ok?'ok':'no'});if(o.ok){changed=true;if(o.st==='ok')toast(T('{n} menerima permintaan pertemananmu!',{n:botName(i)}))}}
+  const o=await api('/api/fr/bot',{tok:netTok(),uid:f.uid,act:ok?'ok':'no'});if(o.ok){changed=true;if(o.st==='ok'){toast(T('{n} menerima permintaan pertemananmu!',{n:botName(i)}));if(typeof dmBotFriended==='function')dmBotFriended(f.uid,i,false)}}}
  // 2) bot mengajak berteman: 0–2 bot per hari (acak per pemain), dikirim saat sesi pertama bot itu hari ini dimulai
  let done={};try{done=JSON.parse(localStorage.getItem(BFR_KEY)||'{}')}catch(e){}const d=wibDay(now),seed=+NET.acct.uid%1000003,ids=botsIds(now),n=ids.length;
  if(n>5){const k=[0,0,1,1,1,2][bHash(seed,8800+d)%6];
-  for(let j=0;j<k;j++){const i=ids[bHash(seed,8900+d*7+j)%n],key=NET.wsig+':'+d+':'+i;if(done[key]||botHidden(i))continue;const ss=botSessions(botBase(i),d);if(!ss.length){done[key]=1;continue}
+  // yang mengajak berteman biasanya orang yang pernah "bertemu": lawan Arena, saingan peringkat, atau pemain dengan kekuatan mirip
+  const near=botFrNear(now);
+  for(let j=0;j<k;j++){const h=bHash(seed,8900+d*7+j),pick=(h>>>8)%100,A=near.arena,B=near.cp;
+   const i=A.length&&pick<35?A[h%A.length]:B.length&&pick<85?B[h%B.length]:ids[h%n],key=NET.wsig+':'+d+':'+i;if(done[key]||botHidden(i))continue;const ss=botSessions(botBase(i),d);if(!ss.length){done[key]=1;continue}
    if(ss[0][0]>now)continue;done[key]=1;const uid=botUid(i);if(!uid||frState(uid))continue;
    const o=await api('/api/fr/bot',{tok:netTok(),uid,act:'req'});if(o.ok&&o.st==='req'){changed=true;toast(T('{n} ingin berteman denganmu',{n:botName(i)}))}}
   for(const x in done)if(+x.split(':')[1]<d-3)delete done[x];try{localStorage.setItem(BFR_KEY,JSON.stringify(done))}catch(e){}}

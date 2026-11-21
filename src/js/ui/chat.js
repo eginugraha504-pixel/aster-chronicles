@@ -20,7 +20,7 @@ async function wcFetch(){if(WC.busy)return;WC.busy=true;WC.at=Date.now();
 // bot pengirim pesan (akun bot di server) -> VIP & potret dari simulasi bot
 function wcBot(m){const i=typeof botIdxOf==='function'?botIdxOf(m.uid):-1;return i>=0&&botIn(i)?i:-1}
 function wcVip(m){const i=wcBot(m);return i>=0?botState(i).stats.vip:m.vip}
-function wcTop(m){const i=wcBot(m);if(i>=0){const s=botState(i);return s.fav||s.team[0]}return m.top}
+function wcTop(m){const i=wcBot(m);if(i>=0){const s=botState(i);return s.av||s.fav||s.team[0]}return m.top}
 // gaya mengetik tiap bot (dari persona chat) -> dikirim ke AI supaya tiap orang terasa beda
 /* Persona Mode AI (dibuat deterministik per bot, aliran acak sendiri): orang Indonesia biasa yang main game ini.
    Tanpa gaya wibu / emotikon imut berlebihan; ciri khas dipakai SESEKALI, bukan di tiap pesan. */

@@ -27,17 +27,18 @@ function tuState(){if(!S.iap||typeof S.iap!=='object')S.iap={orders:{},first:{},
  const now=Date.now();for(const[id,o]of Object.entries(I.orders)){if(o.st==='wait'&&now-o.t>TOPUP_CFG.ttl)o.st='exp'}
  const ids=Object.keys(I.orders).sort((a,b)=>I.orders[b].t-I.orders[a].t);for(const id of ids.slice(30))delete I.orders[id];  // simpan 30 terakhir
  return I}
-const tuSku=sku=>sku===TOPUP_CFG.card.id?Object.assign({card:1},TOPUP_CFG.card):TOPUP_CFG.packs.find(p=>p.id===sku);
+const tuSku=sku=>{if(sku===TOPUP_CFG.card.id)return Object.assign({card:1},TOPUP_CFG.card);const p=TOPUP_CFG.packs.find(p=>p.id===sku);if(p)return p;const b=(TOPUP_CFG.bundles||[]).find(b=>b.id===sku);return b?Object.assign({bun:1},b):undefined};
 const tuRp=n=>'Rp'+Math.round(n).toLocaleString('id-ID');
-function tuName(sku){const p=tuSku(sku);if(!p)return sku;return p.card?T('Kartu Bulanan'):T('{n} Permata',{n:fmt(p.gems)})}
+function tuName(sku){const p=tuSku(sku);if(!p)return sku;return p.bun?T(p.n):p.card?T('Kartu Bulanan'):T('{n} Permata',{n:fmt(p.gems)})}
 // permata yang didapat dari paket (memperhitungkan bonus pertama)
-function tuGemsFor(sku){const p=tuSku(sku),I=tuState();if(p.card)return p.now;return p.gems+(I.first[sku]?p.bonus:p.gems)}
+function tuGemsFor(sku){const p=tuSku(sku),I=tuState();if(p.bun)return p.rw&&p.rw.gems||0;if(p.card)return p.now;return p.gems+(I.first[sku]?p.bonus:p.gems)}
 const tuCardLeft=()=>{const I=tuState(),d=wibDay();return I.card.until>=d?I.card.until-d+1:0};
 
 /* ---------------- pesanan ---------------- */
 function tuNewId(){const r=new Uint8Array(6);(crypto.getRandomValues?crypto.getRandomValues(r):r.forEach((_,i)=>r[i]=Math.random()*256|0));return TOPUP_CFG.prefix+b32(r,8)}
 function tuOrder(sku){const p=tuSku(sku);if(!p)return null;const I=tuState();
  if(p.card&&tuCardLeft()+p.days>p.maxDays)return{err:T('Kartu Bulanan sudah maksimal ({n} hari).',{n:p.maxDays})}
+ if(p.bun&&!bunAvail(bunDef(sku)))return{err:p.minLv&&S.lv<p.minLv?T('Paket ini terbuka di Lv {n}.',{n:p.minLv}):T('Paket ini sudah dibeli atau sudah tidak tersedia.')}
  // pakai lagi pesanan yang masih menunggu untuk paket yang sama
  const old=Object.entries(I.orders).find(([,o])=>o.sku===sku&&o.st==='wait');if(old)return{id:old[0]};
  const id=tuNewId();I.orders[id]={sku,price:p.price,t:Date.now(),st:'wait'};save();return{id}}
@@ -51,7 +52,8 @@ function tuRedeem(code,onlyId){const I=tuState(),c=tuNorm(code);if(c.length!==10
   if(o.st==='paid')return{err:T('Kode ini sudah dipakai.')};
   return tuDeliver(id)}
  return{err:T('Kode tidak cocok dengan pesanan mana pun. Pastikan kode dari pesanan yang benar dan belum kedaluwarsa.')}}
-function tuDeliver(id){const I=tuState(),o=I.orders[id],p=tuSku(o.sku),rw={};let first=false;
+function tuDeliver(id){const I=tuState(),o=I.orders[id],p=tuSku(o.sku);let rw={},first=false;
+ if(p.bun){rw=bunDeliver(o.sku).rw||{};o.st='paid';o.paidT=Date.now();o.gems=rw.gems||0;I.spent=(I.spent||0)+o.price;save();return{ok:1,id,sku:o.sku,rw,bun:1}}
  if(p.card){rw.gems=p.now;const d=wibDay();I.card.until=Math.max(I.card.until,d-1)+p.days;
   // permata hari ini langsung masuk juga (lewat surat)
  }else{first=!I.first[o.sku];rw.gems=p.gems+(first?p.gems:p.bonus);I.first[o.sku]=1}

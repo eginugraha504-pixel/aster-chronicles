@@ -11,6 +11,7 @@ css/collection.css
 css/adventure.css
 css/summon.css
 css/missions.css
+css/bundle.css
 css/battle.css
 css/arena.css
 css/chat.css
@@ -97,6 +98,7 @@ js/systems/dash.js
 js/systems/battle.js
 js/systems/arena.js
 js/systems/topup.js
+js/systems/bundle.js
 js/systems/chat.js
 js/systems/botsale.js
 js/systems/net.js
@@ -123,6 +125,7 @@ js/ui/actions.js
 js/ui/leaderboard.js
 js/ui/arena.js
 js/ui/topup.js
+js/ui/bundle.js
 js/ui/chat.js
 js/ui/social.js
 js/ui/smelt.js
