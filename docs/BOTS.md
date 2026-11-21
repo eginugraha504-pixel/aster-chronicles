@@ -164,6 +164,8 @@ Selalu ada satu bot yang menjadikanmu sasaran. "Abadi" = posisinya, bukan orangn
 | Dunia bot di-reset | rival & riwayatnya dibuang, server menghapus `rvb` |
 | Pemain sudah #1 jauh | tidak ada calon dalam rentang lebar → rival baru dicoba lagi tiap jam (wajar: tidak ada yang mengejar) |
 
+- **Batas ulang tahap (21 Nov 2026)**: pemain asli & bot sama-sama hanya bisa mengulang/menyapu tahap cerita yang sudah dimenangkan 5× per tahap per hari (bos 3×, `STAGE_REPLAY`). `sim2.js` memilih tahap tertinggi yang masih punya jatah; pembelanja memakai Tambah Batas (permata) untuk tahap teratas 1/2/3× sehari (whale/swhale/mwhale, `TIERS.srr`). Kurva disimulasikan ulang dengan aturan ini.
+
 ## 9. Performa & skala
 
 - `botSum(i,t,sync)`: ringkasan (cp, lv, vip, top, stage, nh = jumlah hero, ms = ★ tertinggi). Bot berhenti main → disimpan di localStorage `aster_botsum` (maks ±900rb karakter, dibuang dulu bila kuota penuh — save pemain selalu menang, `lsPut`). Bot aktif → `BSUMA` per kunci `botKey` (progres per 15 menit efektif + level), **ikut disimpan bersama kuncinya** (21 Nov 2026) → buka game lagi hanya menghitung bot yang sudah main sejak terakhir (server 10rb hari 30: ±0,5 dtk, bukan ±5 dtk). Titik mulai Kebangkitan per bot: `aster_botpu`.
@@ -183,6 +185,7 @@ Selalu ada satu bot yang menjadikanmu sasaran. "Abadi" = posisinya, bukan orangn
 | Saat | Yang terlihat |
 |---|---|
 | _(tabel ini dunia uji lama 100rb bot, sebelum perbaikan CP 21 Nov 2026 — angka papan atas sekarang lihat §4 "CP tumbuh terus")_ | |
+| **Kurva level sejak batas ulang tahap (21 Nov 2026)** | F2P hardcore veteran: hari 1 Lv ±13, hari 7 ±45, hari 30 ±115 (dulu 47 / 113 / 234). Santai pemula hari 30 ±72. Whale hari 30 ±140–147, sultan besar (swhale) ±200–214, mega whale ±218 (dulu 572). Puncak CP hari 3 ±290rb (dulu ±670rb), hari 30 tetap ±1,56 jt |
 | Hari ke-1 | ±800 bot. Veteran F2P Lv20–26 sudah 5 besar; pemula santai Lv2–5 |
 | Hari ke-7 | ±4.100 bot. Mega whale veteran ±Lv110 / CP ±63rb; F2P veteran terbaik ±25rb |
 | Hari ke-30 | ±9.400 bot. Mega whale teratas ±630rb CP; rata-rata hardcore veteran ±59rb vs hardcore pemula ±22rb |
