@@ -13,7 +13,7 @@ Ubah/tambah teks di sini bila ada fitur baru yang perlu dijelaskan dengan kata-k
 
 ## Navigasi layar
 - Bar atas: avatar + level akun, Stamina (petir), Emas (koin), Permata (berlian, tombol + membuka Top Up).
-- Beranda: hero pilihan berdiri besar di tengah (geser ‹ › untuk ganti, ketuk = ia bereaksi dan bicara), banner gacha berputar di atas, tombol kiri (Event, Misi, Hadiah/Kotak Surat, Toko), kanan (CP Tim, Tim, Peringkat, Menu/Pengaturan), bawah (ARENA, PETUALANGAN, EVENT), strip Obrolan Dunia di atas tombol Arena.
+- Beranda: hero pilihan berdiri besar di tengah (geser ‹ › untuk ganti, ketuk = ia bereaksi dan bicara), banner gacha berputar di atas, tombol kiri (Event, Misi, Hadiah/Kotak Surat, Toko), kanan (CP Tim, Tim, Peringkat, Guild, Menu/Pengaturan), bawah (ARENA, PETUALANGAN, EVENT), strip Obrolan Dunia di atas tombol Arena.
 - Bilah bawah: Beranda, Petualangan, Tim, Hero, Summon, Misi.
 - Menu/Pengaturan: bahasa, efek suara, musik, suara karakter (dub Jepang), Mode AI obrolan, hapus progres, reset dunia bot.
 
@@ -62,11 +62,18 @@ Ubah/tambah teks di sini bila ada fitur baru yang perlu dijelaskan dengan kata-k
 
 ## Peringkat & dunia pemain
 - Server: game punya beberapa server (S1 Aster, S2 Lumina, S3 Bara, S4 Samudra, server baru dibuka berkala). Tiap server maks 10.000 pemain dengan peringkat, obrolan dunia, Bos Dunia, dan Arena sendiri. Akun terikat ke server yang dipilih saat daftar dan tidak bisa pindah. Server baru biasanya paling ramai pemain baru.
-- Peringkat: tab CP Tim, Level, Arena, Rekor. Ada label BARU (pemain baru) dan KEMBALI (kembali main), indikator online, naik/turun peringkat.
+- Peringkat: tab CP Tim, Level, Arena, Rekor, Guild. Ada label BARU (pemain baru) dan KEMBALI (kembali main), indikator online, naik/turun peringkat.
 - Rekor server (tab Rekor): siapa yang PERTAMA di server menamatkan tiap dunia, menembus CP 10.000 / 50.000 / 100.000 / 250.000 / 500.000 / 1.000.000 / 2.000.000, punya hero ★4 / ★5 / ★6, dan mengoleksi semua hero. Rekor tercatat selamanya sampai server dibuka ulang dan diumumkan sistem.
 - Tiap server berisi sampai 10.000 pemain lain yang bermain di jam masing-masing (ramai malam hari WIB), ada yang santai, reguler, rajin, hardcore; ada yang gratis, pakai Kartu Bulanan, belanja sedang, sampai sultan (sultan memborong semua paket & mengejar koleksi hero lengkap; gayanya beda-beda: kolektor, setia pada satu hero, ikut meta, borong tiap banner, belanja pas gajian). Ada yang menabung permata untuk banner tertentu, ada yang ganti nama, ada yang berhenti lalu kembali saat banner baru.
 - Profil pemain: favorit, tim utama, koleksi hero, total summon, ★3 didapat, hari login, waktu main, status hoki/apes gacha, bio, VIP, Kartu Bulanan.
 - Rival: di atas Peringkat ada bar ⚔ Rival — satu pemain yang CP-nya kejar-kejaran denganmu (selisih CP, skor salip-menyalip). Kalau kamu menyalipnya ia biasanya farming lebih keras di sesi berikutnya; kalau selisih sudah jauh ia bisa menyerah atau melesat, lalu muncul rival baru.
+
+## Guild (terbuka di Lv 12)
+- Tombol Guild di beranda (kanan). Belum punya guild: Cari Guild (yang cocok dengan kekuatanmu tampil paling atas, bisa dicari nama), Buat (300 permata; nama huruf & spasi 3–18 karakter, lambang warna × simbol, cara bergabung: Bebas masuk / Lewat lamaran / Tertutup, pengumuman), Peringkat guild, Undangan (dari teman yang mengajak & lamaranmu).
+- Di guild: Aula (info level & XP, total CP, peringkat CP & Level, pengumuman, Absen Harian = emas + koin guild + 10 XP guild sekali sehari, Donasi 3 tingkat: 20.000 emas / 50 permata / 150 permata masing-masing sekali sehari → XP guild & koin guild, Kabar Guild), Anggota (jabatan Ketua, Wakil Ketua maks 2, Elit maks 5, Anggota; kontribusi; lamaran masuk), Obrolan guild, Peringkat guild (Total CP / Level), Toko Koin Guild (stamina, emas, bahan Kebangkitan, bijih, tiket senjata/hero, permata ★3 — stok harian, sebagian butuh level guild tertentu).
+- Level guild 1–10 dari XP (absen & donasi anggota). Kapasitas 30 anggota di Lv 1, +2 per level (48 di Lv 10).
+- Politik: anggota bisa pindah guild, keluar, dikeluarkan ketua kalau lama tidak aktif; ketua yang berhenti main / lama menghilang diganti; anggota bisa mengajukan MOSI KUDETA (voting 3 jam; berhasil kalau setuju > tolak dan cukup banyak yang setuju) — penggagas yang gagal bisa dikeluarkan ketua. Pemain bisa membujuk pemain lain masuk guild-nya. Pemain kuat cenderung berkumpul di guild kuat. Guild yang sepi bisa bubar.
+- Guild War BELUM ada.
 
 ## Obrolan Dunia
 - Chat global semua pemain. Ketuk nama untuk melihat profil. Sebut nama dengan @nama.

@@ -71,18 +71,18 @@ function dmBotSeeAt(i,t0,now){const b=botBase(i);if(b.endT<t0)return null;
  for(let d=wibDay(t0);d<=wibDay(now)&&d<=wibDay(t0)+4;d++)for(const[s0,s1]of botSessions(b,d)){if(s1<t0)continue;const st=Math.max(s0,t0);if(st>now)return null;
   const at=st+(20+bRng(bHash(i,(st/6e4)|0))()*220)*1e3;return Math.min(at,Math.max(st+5e3,s1-2e4))}
  return null}
-function dmBotRel(i){const L=[];if(typeof rvIs==='function'&&rvIs(i))L.push('CP kalian saling kejar di peringkat (saingan)');
+function dmBotRel(i){const L=[];if(typeof relEff==='function'){const v=relEff(botUid(i));L.push(`rasa sukamu ke ${NET.acct.u}: ${relTier(v)} (${v>0?'+':''}${v})`)}if(typeof rvIs==='function'&&rvIs(i))L.push('CP kalian saling kejar di peringkat (saingan)');
  const A=(S.arena&&S.arena.log||[]).filter(e=>e.i===i&&Date.now()-e.t<3*BDAY);if(A.length)L.push(`baru-baru ini bertemu di Arena (${A.map(e=>e.k==='atk'?(e.win?'dia kalah diserangnya':'dia menang diserangnya'):(e.held?'serangannya ke tim bertahan lawan bicara gagal':'serangannya ke tim bertahan lawan bicara berhasil')).slice(0,2).join(', ')})`);
  return['berteman di game'].concat(L).join('; ')}
 function dmBotBody(i,uid,kind,at){const D=wcDesc(i,Date.now());
- return{tok:netTok(),uid,kind,at:Math.round(at),p:dmBotP(i),rel:dmBotRel(i),cand:{pub:D.pub,priv:D.priv,style:wcStyle(i),lower:wcPersona(i).lower},player:{name:NET.acct.u,pub:wcMePub()}}}
+ return{tok:netTok(),uid,kind,at:Math.round(at),p:dmBotP(i),rel:dmBotRel(i),g:typeof gDmCtx==='function'?gDmCtx(i):{},cand:{pub:D.pub,priv:D.priv,style:wcStyle(i),lower:wcPersona(i).lower},player:{name:NET.acct.u,pub:wcMePub()}}}
 function dmBotKick(){DMB.kick=true;setTimeout(dmBotTick,2500)}
 async function dmBotTick(){if(!loggedIn()||(typeof watchMode==='function'&&watchMode())||DMB.busy||!botsWarmOk()||!BOTS.uids||document.hidden)return;const now=Date.now();if(!DMB.kick&&now-DMB.at<45e3)return;
  DMB.at=now;DMB.kick=false;DMB.busy=true;
  try{const o=await api('/api/dm/pending',{tok:netTok()});
   for(const x of(o.ok&&o.list)||[]){const i=botIdxOf(x.uid);if(i<0||!botIn(i,now)||botHidden(i)||(DMB.cool[x.uid]||0)>now)continue;
    const at=dmBotSeeAt(i,x.t0,now);if(at==null)continue;DMB.cool[x.uid]=now+6e4;
-   const r=await api('/api/dm/bot',dmBotBody(i,x.uid,'reply',at));if(r&&r.ok&&dmOpenWith===x.uid)dmPoll(true)}
+   const r=await api('/api/dm/bot',dmBotBody(i,x.uid,'reply',at));if(r&&r.ok&&dmOpenWith===x.uid)dmPoll(true);if(r&&(r.moved||r.voted)&&typeof gDmResult==='function')gDmResult(i,r)}
   // sapaan pertama setelah berteman (diputuskan saat berteman, dikirim saat si bot online)
   const H=S.dmHi||[];for(const h of H.slice()){const i=botIdxOf(h.uid);if(i<0||!botIn(i,now)||!isFriend(h.uid)||now-h.t>3*BDAY){S.dmHi=H.filter(x=>x!==h);continue}
    const at=dmBotSeeAt(i,h.t,now);if(at==null)continue;S.dmHi=(S.dmHi||[]).filter(x=>x!==h);save();await api('/api/dm/bot',dmBotBody(i,h.uid,'hello',at+3e4))}

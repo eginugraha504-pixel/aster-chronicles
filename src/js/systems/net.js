@@ -150,7 +150,10 @@ async function netPing(){if(!loggedIn())return;NET.pingAt=Date.now();const o=awa
  if(o.srv&&+o.srv!==+NET.acct.srv){NET.acct.srv=+o.srv;acctSave();try{if(S.rv)S.rv={};if(S.arena){S.arena.opps=[];S.arena.log=[]}save();toast(T('Servermu digabung dengan server lain. Selamat datang di dunia baru!'))}catch(e){}netWorld(true)}
  else if(NET.wsig!=null&&o.wsig&&o.wsig!==NET.wsig)netWorld(true);
  const frUp=o.fr>NET.fr,dmUp=o.dm>NET.dm;if(frUp){toast(T('Ada permintaan pertemanan baru'));netFriends()}if(dmUp&&!(typeof dmOpenWith!=='undefined'&&dmOpenWith))toast(T('Pesan baru masuk'));
- NET.fr=o.fr;NET.dm=o.dm;NET.wc=o.wc;NET.ai=!!o.ai;refreshBadges()}
+ NET.fr=o.fr;NET.dm=o.dm;NET.wc=o.wc;NET.ai=!!o.ai;NET.aig=!!o.aig;NET.gtk=o.gtk||0;NET.gcm=o.gcm||0;
+ // guild: keadaan berubah (gv) → muat ulang bila layar guild terbuka / dibutuhkan simulasi
+ if(o.gv!=null&&o.gv!==NET.gv){NET.gv=o.gv;if(typeof gLoad==='function'&&(typeof GS!=='undefined'&&GS.at))gLoad(true).then(()=>{if(typeof guildRefresh==='function')guildRefresh()})}
+ refreshBadges()}
 function refreshBadges(){try{const b=document.getElementById('frBadge');if(b){const n=NET.fr+NET.dm;b.textContent=n>99?'99+':n;b.style.display=n?'':'none'}}catch(e){}}
 let netLoopOn=false;
 function netStart(){if(netLoopOn)return;netLoopOn=true;netWorldCache();netWorld();

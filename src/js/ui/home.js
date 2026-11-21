@@ -4,7 +4,7 @@ let LOBBY_SCALE=4,LOBBY_PX=176;
 function lobbyFit(){const h=($('#screen')&&$('#screen').clientHeight)||innerHeight;LOBBY_SCALE=h<600?3:4;LOBBY_PX=44*LOBBY_SCALE}
 /* =====================================================================
    BERANDA (rombak UI v2, 18 Nov 2026) — karakter besar di tengah, banner pick-up,
-   medali samping (kiri: Event/Misi/Hadiah/Toko · kanan: CP/Tim/Peringkat/Guild 🔒/Menu),
+   medali samping (kiri: Event/Misi/Hadiah/Toko · kanan: CP/Tim/Peringkat/Guild/Menu),
    papan nama hero, ticker obrolan, dok bawah (ubin Arena · medali Petualangan · ubin Event). Gaya: css/ui2.css
    ===================================================================== */
 const LINES=['Hari yang cerah untuk berpetualang!','Ayo selamatkan Aster dari kegelapan!','Aku siap bertarung, Kapten!','Sudah cek misi harian hari ini?','Konon ada hero bercahaya di portal summon...','Jangan lupa naikkan level kami, ya!','Elemen Api kuat melawan Tanah, lho.','Cahaya dan Gelap saling melemahkan!','Kotak Surat sudah dicek belum?'];
@@ -33,7 +33,7 @@ function homeHTML(){const ns=nextStage(),id=homeHero(),h=HD[id],mdot=missionClai
  <div id="wbPill">${typeof wbPillHTML==='function'?wbPillHTML():''}</div><div id="bunPill">${typeof bunPillHTML==='function'?bunPillHTML():''}</div>
  <div class="hbanw"><button class="harrs l" data-act="banStep" data-arg="-1" aria-label="‹"></button><button class="hban" id="hban" data-act="banGo">${banHTML()}</button><button class="harrs r" data-act="banStep" data-arg="1" aria-label="›"></button></div>
  <div class="rcol l">${md('goEvent','',ICON.event,T('Event'),LK('event')?lkB:edot?'<i class="dot"></i>':'',LK('event')?' lock':'')}${md('go','mission',ICON.mission,T('Misi'),LK('mission')?lkB:mdot?'<i class="dot"></i>':'',LK('mission')?' lock':'')}${md('mail','',ICON.gift,T('Hadiah'),mp?`<i class="dot n">${mp}</i>`:'')}${md('friends','',ICON.friend,T('Teman'),`<i class="dot n" id="frBadge"${NET.fr+NET.dm?'':' style="display:none"'}>${Math.min(99,NET.fr+NET.dm)}</i>`)}${md('shop','',ICON.shop,T('Toko'),LK('shop')?lkB:'',LK('shop')?' lock':'')}</div>
- <div class="rcol r"><button class="cpb" data-act="cpInfo"><span>${T('CP TIM')}</span><b>${fmt(teamPow())}</b></button>${md('go','team',ICON.team,T('Tim'),'')}${md('rank','',ICON.rank,T('Peringkat'),LK('rank')?lkB:'',LK('rank')?' lock':'')}${md('guild','',ICON.guild||ICON.team,T('Guild'),`<span class="mdlk"><img class="ix" src="${ICON.lock}" alt=""></span><em class="mdsoon">${T('Segera')}</em>`,' lock')}${md('settings','',ICON.gear,T('Menu'),'')}</div>
+ <div class="rcol r"><button class="cpb" data-act="cpInfo"><span>${T('CP TIM')}</span><b>${fmt(teamPow())}</b></button>${md('go','team',ICON.team,T('Tim'),'')}${md('rank','',ICON.rank,T('Peringkat'),LK('rank')?lkB:'',LK('rank')?' lock':'')}${md('guild','',ICON.guild||ICON.team,T('Guild'),LK('guild')?lkB:(typeof gBadgeN==='function'&&gBadgeN()?'<i class="dot"></i>':''),LK('guild')?' lock':'')}${md('settings','',ICON.gear,T('Menu'),'')}</div>
  ${splash(id)?`<div class="hstage hsp" data-act="lobbyTap"><div class="hcircle"><i></i></div>${splashHTML(id,'hspl')}</div>`:`<div class="hstage"><div class="hcircle"><i></i></div><canvas id="lobbyc" width="${LOBBY_PX}" height="${LOBBY_PX}" data-act="lobbyTap"></canvas></div>`}
  <div class="hnp">${many?`<button class="hnpa l" data-act="homeStep" data-arg="-1" aria-label="‹"></button>`:''}<span class="hnpc"><i class="hnps">${stars(S.heroes[id]?heroStar(id):h.r)}</i><span class="hnpn">${eic(h.el,16)}<b>${h.name}</b></span></span>${many?`<button class="hnpa r" data-act="homeStep" data-arg="1" aria-label="›"></button>`:''}</div>
  <div class="hspeech${HB.hide>Date.now()&&HB.id===id?' on':''}"><p id="bubble">${HB.hide>Date.now()&&HB.id===id?HB.txt:''}</p></div>
@@ -90,9 +90,5 @@ function lobbyPlace(){const st=$('.hstage'),cv=$('#lobbyc'),np=$('.hnp'),sp=$('.
  // gelembung: di atas papan nama, sedikit ke kiri, ekor menunjuk ke karakter
  if(sp){const sw=Math.round(Math.min(rb.width-150,230));Object.assign(sp.style,{width:sw+'px',left:'74px',bottom:Math.round(rb.height-foot+40)+'px'})}}
 addEventListener('resize',()=>{if(lobby)lobbyPlace()});
-// Guild: masih terkunci (fitur berikutnya) — tombol sudah ada di beranda
-function openGuild(){sfx('deny');modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Guild')}</h3>
- <div class="guildsoon"><div class="gsart"><img class="px" src="${ICON.crest||ICON.guild||ICON.team}" alt=""><span class="gslk"><img class="ix" src="${ICON.lock}" alt=""></span></div>
- <b>${T('Segera Hadir')}</b><p>${T('Aula Guild sedang dibangun. Nanti kamu bisa bergabung dengan ksatria lain dan bertualang bersama.')}</p></div>
- <div class="mrow"><button class="btn blue" data-act="closeModal">${T('Oke')}</button></div>`)}
+// Guild: ui/guild.js (openGuild)
 

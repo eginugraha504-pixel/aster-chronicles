@@ -109,7 +109,7 @@ function arApply(win,meta){const A=arState(),C=ARENA_CFG,before=A.pts,lgB=arLeag
  if(win){A.wins++;A.wWins++;A.streak=(A.streak||0)+1}else{A.losses++;A.wLoss++;A.streak=0}
  const rw=Object.assign({},win?C.battle.win:C.battle.lose),ups=grant(rw);
  if(meta.rev!=null){const e=A.log.find(x=>x.id===meta.rev);if(e)e.rev=1}
- arLog({k:'atk',i:meta.opp,win,d,cp:meta.cp,pts:meta.pts});if(typeof chatArenaAtk==='function')chatArenaAtk({t:Date.now(),i:meta.opp,win});
+ arLog({k:'atk',i:meta.opp,win,d,cp:meta.cp,pts:meta.pts});if(win&&typeof relBump==='function'&&typeof botUid==='function'&&botUid(meta.opp))relBump(botUid(meta.opp),-1);   // dikalahkan di Arena: sedikit kesalif(typeof chatArenaAtk==='function')chatArenaAtk({t:Date.now(),i:meta.opp,win});
  S.daily.c.arena=(S.daily.c.arena||0)+1;A.seed++;A.opps=[];AR.at=0;save();try{arFindOpps()}catch(e){}
  return{win,d,before,after:A.pts,lgB,lgA:arLeague(A.pts),rw,ups,meta}}
 function arLog(e){const A=S.arena;e.t=e.t||Date.now();e.id=(A.lid=(A.lid||0)+1);A.log.unshift(e);A.log.sort((a,b)=>b.t-a.t);A.log.length=Math.min(A.log.length,30)}

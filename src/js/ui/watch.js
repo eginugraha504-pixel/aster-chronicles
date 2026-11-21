@@ -8,7 +8,7 @@
    ===================================================================== */
 const WT={sv:'all',tab:'cp',list:[],at:0,n:100,loading:false,mark:false,top:{},raid:null,rb:null,rload:false,timer:0,sig:''};
 const watchMode=()=>!!(typeof NET!=='undefined'&&NET.acct&&NET.acct.tok&&NET.acct.watch);
-const WT_TABS=[['cp','CP Tim'],['lv','Level'],['ar','Arena'],['wb','Raid Bos']];
+const WT_TABS=[['cp','CP Tim'],['lv','Level'],['ar','Arena'],['gd','Guild'],['wb','Raid Bos']];
 
 async function watchOpen(){
  const L=document.getElementById('login');try{cancelAnimationFrame(loginRAF)}catch(e){}
@@ -34,7 +34,7 @@ async function watchPick(id){if(id!=='all')id=+id;if(WT.sv===id&&!WT.loading){wa
  WT.loading=true;watchRender();
  const ok=await netWorld(true);if(WT.sv!==id)return;
  if(!ok||!BOTS.W||!BOTS.W.length){WT.loading=false;watchRender();toast(T('Gagal memuat server. Coba lagi.'),1);return}
- if(typeof BLM!=='undefined')BLM.L=null;await netPlayers(true);if(WT.sv!==id)return;
+ if(typeof BLM!=='undefined')BLM.L=null;await netPlayers(true);if(WT.sv!==id)return;if(typeof gLoad==='function')await gLoad(true);if(WT.sv!==id)return;
  botsWarm(()=>{if(WT.sv!==id)return;WT.loading=false;WT.sig=botsSig();watchTopSave(id);watchRender()})}
 function watchTopSave(id){try{const L=botsList().filter(e=>!e.me).sort((a,b)=>b.cp-a.cp);WT.top[id]={at:Date.now(),n:L.length,on:L.filter(e=>e.online).length,cp:L.slice(0,3).map(e=>({name:e.name,cp:e.cp,lv:e.lv,top:e.top}))}}catch(e){}}
 
@@ -77,6 +77,10 @@ async function watchRaidOpen(t0){t0=+t0;WT.raid=t0;WT.rload=true;const R=$('#wtR
  await wbPull(t0,true);await sleep(30);if(WT.raid!==t0)return;
  try{WT.rb={t0,b:wbBoard(t0,Date.now()),at:Date.now()}}catch(e){WT.rb=null;console.error(e)}WT.rload=false;watchRender()}
 
+/* ---------- peringkat guild server ini ---------- */
+function watchGuildHTML(x){if(WT.loading||!botsWarmOk()||typeof gReady!=='function'||!gReady())return`<p class="wvload">${T('Memuat guild {s}...',{s:'S'+x.id+' · '+esc(x.name)})}</p>`;
+ return`<div class="mtabs gsub"><button class="btn sm ${gRankBy==='cp'?'':'blue'}" data-act="wtGBy" data-arg="cp">${T('Total CP')}</button><button class="btn sm ${gRankBy==='lv'?'':'blue'}" data-act="wtGBy" data-arg="lv">${T('Level')}</button></div>
+ <div class="rkinfo"><span><em class="rksrv">S${x.id} · ${esc(x.name)}</em> <b>${GS.G.size}</b> ${T('guild')}</span><span><b>${fmt(GS.mem.size)}</b> ${T('anggota')}</span></div><div class="wvlist">${gRankRows(gRankBy,100,'')}</div>`}
 /* ---------- ringkasan semua server ---------- */
 function watchAllHTML(){if(!WT.list.length)return`<p class="wvload">${WT.at?T('Belum ada server.'):T('Memuat daftar server...')}</p>`;
  return`<div class="wvall">${WT.list.map(x=>{const s=wtSt(x),tp=WT.top[x.id];
@@ -92,7 +96,7 @@ function watchRender(){const el=document.getElementById('watch');if(!el||!el.cla
  <nav class="wvsrv"><button class="${WT.sv==='all'?'on':''}" data-act="wtSrv" data-arg="all">${T('Semua Server')}</button>${WT.list.map(y=>`<button class="${WT.sv===y.id?'on':''} s-${wtSt(y)}" data-act="wtSrv" data-arg="${y.id}">S${y.id}<small>${esc(y.name)}</small></button>`).join('')}</nav>
  ${x&&s==='open'?`<nav class="wvtab">${WT_TABS.map(([k,l])=>`<button class="${WT.tab===k?'on':''}" data-act="wtTab" data-arg="${k}">${T(l)}</button>`).join('')}</nav>`:''}
  <main id="wtMain">${!x?watchAllHTML():s!=='open'?`<div class="srvdeny"><div class="sdic">${s==='soon'?'⏰':'📋'}</div><h3>S${x.id} · ${esc(x.name)}</h3><p>${s==='soon'?T('Dibuka {t}. Papan peringkat muncul setelah server buka.',{t:'<b>'+wtWhen(x.opened)+'</b>'}):T('Server ini baru terdaftar dan belum dirilis.')}</p></div>`
-  :WT.tab==='wb'?watchRaidListHTML(x):watchBoardHTML(x)}</main>`;
+  :WT.tab==='wb'?watchRaidListHTML(x):WT.tab==='gd'?watchGuildHTML(x):watchBoardHTML(x)}</main>`;
  const m=$('#wtMain');if(m&&top)m.scrollTop=top}
 
 // segarkan berkala: daftar server (ringkasan), papan (online/CP berubah), raid yang sedang berlangsung
@@ -109,5 +113,6 @@ Object.assign(ACT,{
  wtMore:()=>{WT.n+=100;watchRender()},
  wtRaid:t0=>{sfx('tap');watchRaidOpen(+t0)},
  wtMark:()=>{WT.mark=!WT.mark;sfx('tab');watchRender()},
+ wtGBy:k=>{gRankBy=k;sfx('tab');watchRender()},
  wtOut:()=>confirmBox(T('Keluar dari akun penonton?'),()=>{watchClose();netLogout()},T('Keluar')),
 });

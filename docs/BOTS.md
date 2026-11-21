@@ -218,3 +218,7 @@ Selalu ada satu bot yang menjadikanmu sasaran. "Abadi" = posisinya, bukan orangn
 - **Rival bertingkat**: rival dari pemain asli lain (bila nanti ramai), rival guild.
 - **Batas level akun** (keputusan desain game, berlaku juga untuk pemain asli).
 - Guild & perang wilayah 20.00–21.00 (bot ikut).
+
+## Guild & relasi (22 Nov 2026)
+Bot ber-guild seperti pemain: politik dihitung game tiap 20 menit (`gSim`, src/js/systems/guild.js) dan dicatat server. Sifat politik tetap per bot (`gTrait`: ambisi, kesetiaan, sosial, tegas, 7% penyendiri; kompetitif/whale lebih ambisius, suka bantu lebih setia) dan afinitas bot↔bot (`gAff`) menentukan berdiri/gabung/pindah/ikut teman/memisahkan diri/kudeta. Rincian & angka: docs/SISTEM.md §Guild.
+

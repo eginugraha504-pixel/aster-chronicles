@@ -13,7 +13,8 @@ const FEAT={
  rank:{lv:5,icon:'rank',n:['Peringkat','Rankings','ランキング'],d:['Bandingkan kekuatanmu dengan kapten lain.','Compare your power with other captains.','他のキャプテンと戦力を比べよう。']},
  smelt:{lv:8,icon:'smelt',n:['Peleburan','Smelting','精錬'],d:['Lebur salinan senjata & perlengkapan jadi material.','Smelt spare weapons and gear into materials.','余った武器や装備を素材に変えよう。']},
  wb:{lv:8,icon:'wb',n:['Bos Dunia','World Boss','ワールドボス'],d:['Naga raksasa muncul 4× sehari. Serang bersama semua pemain, rebut peringkat damage!','A giant dragon appears 4 times a day. Attack it with everyone and climb the damage ranking!','巨大な竜が1日4回出現。全員で挑み、ダメージランキング上位を目指せ！']},
- arena:{lv:10,icon:'arena',n:['Arena','Arena','アリーナ'],d:['Adu tim melawan kapten lain dan naik liga!','Battle other captains\' teams and climb the leagues!','他のキャプテンと対戦してリーグを駆け上がれ！']}
+ arena:{lv:10,icon:'arena',n:['Arena','Arena','アリーナ'],d:['Adu tim melawan kapten lain dan naik liga!','Battle other captains\' teams and climb the leagues!','他のキャプテンと対戦してリーグを駆け上がれ！']},
+ guild:{lv:12,icon:'guild',n:['Guild','Guild','ギルド'],d:['Bergabung atau dirikan guild: absen harian, donasi, toko koin guild, peringkat guild — dan politiknya!','Join or found a guild: daily check-in, donations, guild coin shop, guild rankings — and its politics!','ギルドに加入・設立：毎日の出席、寄付、ギルドショップ、ギルドランキング、そして政治も！']}
 };
 const featOK=k=>{const f=FEAT[k];if(!f)return true;if(typeof gmOpt==='function'&&gmOpt('unl'))return true;if(f.st&&!S.stages[f.st])return false;if(f.lv&&S.lv<f.lv)return false;return true};
 const featName=k=>FEAT[k].n[typeof SL==='function'?SL():0];
@@ -23,7 +24,7 @@ function featInit(){if(!Array.isArray(S.unl))S.unl=Object.keys(FEAT).filter(feat
 const featNew=()=>Object.keys(FEAT).filter(k=>featOK(k)&&!S.unl.includes(k));
 // aksi tombol -> fitur (dipakai pengecek klik global di actions.js)
 function featOfAct(a,arg){if(a==='go')return arg==='summon'?'summon':arg==='mission'?'mission':arg==='arena'?'arena':null;
- return{goEvent:'event',shop:'shop',goDg:'dungeon',advDg:'dungeon',arena:'arena',rank:'rank',smelt:'smelt',goSummon:'summon',goWpnBanner:'summon'}[a]||(a==='advMode'&&arg==='dg'?'dungeon':null)}
+ return{goEvent:'event',shop:'shop',goDg:'dungeon',advDg:'dungeon',arena:'arena',rank:'rank',smelt:'smelt',goSummon:'summon',goWpnBanner:'summon',guild:'guild'}[a]||(a==='advMode'&&arg==='dg'?'dungeon':null)}
 function featDeny(k){if(typeof sfx==='function')sfx('deny');toast(`${ic('lock',14)} ${esc(featName(k))}: ${esc(featReq(k))}`,0,true)}
 // popup fitur baru (antre bila sedang bertarung / cerita / modal terbuka)
 function featCheck(){if(!S||!Array.isArray(S.unl))return;if(B||(typeof SP!=='undefined'&&SP)||document.getElementById('login').classList.contains('on')||$('#modal').classList.contains('on')||(typeof TUT_BUSY==='function'&&TUT_BUSY()))return;
