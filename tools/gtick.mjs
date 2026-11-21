@@ -4,6 +4,7 @@
 // menjalankan gSim, dan mengirim tick ke /api/g/tick dengan kunci GTICK_KEY = sha256('gtick:' + BOT_TOKEN).
 //
 // Pakai: GTICK_KEY=... node tools/gtick.mjs [index.html] [--api URL] [--srv 1,2]
+//   --dry: hanya hitung (tidak dikirim), untuk uji
 //   CHROME=/path/ke/chrome (bawaan: Chrome sistem lewat channel 'chrome')
 import { chromium } from 'playwright-core';
 import http from 'node:http';
@@ -12,7 +13,7 @@ import path from 'node:path';
 
 const args = process.argv.slice(2), opt = n => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : null };
 const FILE = path.resolve(args.find(a => /\.html$/.test(a)) || 'index.html');
-const API = opt('--api'), ONLY = (opt('--srv') || '').split(',').filter(Boolean).map(Number), KEY = process.env.GTICK_KEY || '';
+const DRY = args.includes('--dry'), API = opt('--api'), ONLY = (opt('--srv') || '').split(',').filter(Boolean).map(Number), KEY = process.env.GTICK_KEY || '';
 if (!KEY) { console.error('GTICK_KEY kosong'); process.exit(1) }
 if (!fs.existsSync(FILE)) { console.error('tidak ada ' + FILE); process.exit(1) }
 
@@ -37,16 +38,17 @@ try {
   const open = list.filter(x => x.st !== 'list' && !(x.opened > Date.now()) && (!ONLY.length || ONLY.includes(x.id)));
   log('server buka:', open.map(x => 'S' + x.id).join(' ') || '-');
   for (const x of open) {
-    const r = await pg.evaluate(async ({ id, key }) => {
+    const r = await pg.evaluate(async ({ id, key, dry }) => {
       const t = performance.now();
       NET.acct.srv = id; NET.players = []; NET.plAt = 0; GS.srv = 0; GS.tk = 0; GS.at = 0;
       if (!(await netWorld(true)) || !BOTS.W || !BOTS.W.length) return { e: 'world' };
       await netPlayers(true); await gLoad(true); if (!gReady()) return { e: 'guild' };
-      const k = Math.floor(Date.now() / G_CFG.tick); if (GS.tk >= k) return { skip: 'sudah dihitung', tk: GS.tk, g: GS.G.size };
+      const k = Math.floor(Date.now() / G_CFG.tick); if (GS.tk >= k && !dry) return { skip: 'sudah dihitung', tk: GS.tk, g: GS.G.size };
       await new Promise(r => botsWarm(r));
+      if (dry) { GS.tk = Math.min(GS.tk, k - 1); const ops = gSim(Date.now(), k), c = {}; for (const o of ops) c[o[0]] = (c[o[0]] || 0) + 1; return { dry: 1, g: GS.G.size, mem: GS.mem.size, ops: c, joins: ops.filter(o => o[0] === 'j').reduce((a, o) => a + o[2].length, 0) } }
       const o = await gTickRun({ key, srv: id });
       return Object.assign({ g: GS.G.size, mem: GS.mem.size, ms: Math.round(performance.now() - t) }, o);
-    }, { id: x.id, key: KEY });
+    }, { id: x.id, key: KEY, dry: DRY });
     log('S' + x.id, JSON.stringify(r).slice(0, 300));
     if (r && r.e && r.e !== 'old') console.log(`::warning::S${x.id}: ${r.e}`);
   }

@@ -8537,13 +8537,15 @@ function gSim(now,k){
   leave(x.uid,dead?'guild sepi':'pindah');join(x.uid,tg);hops++;
   for(const u of [...w.M]){const f=B.get(u);if(!f||!f.act||u===w.lead||!room(tg))continue;if(gAff(x.i,f.i)>.95&&R()<.45){leave(u,'ikut '+botName(x.i));join(u,tg);hops++}}}
  // 4) guild baru berdiri (jumlah guild mengikuti populasi; saat fitur baru dibuka: banyak sekaligus)
+ // server yang baru dihitung lagi (reset / lama tanpa penghitung): anggota guild masih jauh di bawah populasi → bentuk guild & rekrut seperti saat fitur dibuka
+ const boost=launch||GS.mem.size<elig.length*.3;
  const alive=[...W.values()].filter(w=>w.act>=3).length,want=Math.ceil(elig.length/SIM.per)-alive;
  const nless=elig.filter(x=>!memOf.has(x.uid)&&!x.tr.lone).length;
- if(want>0){const cap=launch?40:Math.max(1,Math.min(25,Math.ceil(nless/150),Math.ceil(gapD*72)*4));
+ if(want>0){const cap=boost?40:Math.max(1,Math.min(25,Math.ceil(nless/150),Math.ceil(gapD*72)*4));
   const cand=elig.filter(x=>!memOf.has(x.uid)&&!x.tr.lone&&x.lv>=C.minLv+3).map(x=>[x,x.tr.amb*.55+(1-x.pct)*.35+R()*.35]).sort((a,b)=>b[1]-a[1]);
   const n0=nF;for(const[x]of cand){if(nF-n0>=Math.min(want,cap))break;found(x,'baru')}}
  // 5) bot tanpa guild mencari guild (yang lebih kuat cenderung ke guild kuat)
- rankW();const look=launch?.9:hz(SIM.lookDay);let nj=0;const lim=launch?2400:900;
+ rankW();const look=boost?.9:hz(SIM.lookDay);let nj=0;const lim=boost?2400:900;
  for(const x of elig){if(nj>=lim)break;if(memOf.has(x.uid)||x.tr.lone||R()>=look)continue;const tg=best(x,null);if(!tg)continue;
   if(tg.real&&tg.mode===1){ops.push(['a',tg.id,[x.uid],at()]);continue}
   join(x.uid,tg);nj++}
