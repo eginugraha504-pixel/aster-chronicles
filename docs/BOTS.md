@@ -88,8 +88,10 @@ Setiap bot punya sifat tetap, diambil dari aliran acak masing-masing:
 - **CP tumbuh terus & hampir tidak pernah turun (21 Nov 2026)** — dulu level hero = pecahan acak tetap dari batasnya (langsung mentok sejak hari 1), acak satu aliran berurutan (hero baru mengacak ulang semuanya), dan anggaran Kebangkitan dihitung dari CP saat itu (CP turun sedikit → kebangkitan hilang → CP anjlok). Sekarang:
   - **Level hero naik bertahap sejak hero itu didapat**: f = f1 − (f1 − f0)·e^(−hari main sejak didapat / τ) × batas level (`HLV` per kelangkaan, pemain rapi lebih cepat & lebih penuh), tetap dibatasi emas (2 + 3×level akun) & level akun di awal.
   - **Acak stabil per hero/slot** (`bHash` + id hero), bukan satu aliran → hero baru tidak menggeser keputusan lama (senjata yang "lupa" dipasang, perlengkapan, hero favorit).
-  - **Tim dipilih dulu, barang menyusul**: kekuatan "kalau dipakai" (hero + senjata terbaik kelasnya, dibagi berurutan dari hero terkuat + bintang Kebangkitan yang terjangkau + sinergi) → 3 calon tim teratas dicoba dengan barang sungguhan, diambil CP tertinggi. Senjata & perlengkapan terbaik untuk anggota tim lebih dulu; perlengkapan per posisi tim pindah ke hero pengganti.
-  - **Kebangkitan mulai saat CP tim (sebelum kebangkitan) pertama kali ≥ `ASC.minCP` 26.000 (≈ tamat 5-5)**. Titik mulai itu dicari mundur sekali per bot dari hasil gacha sekarang (isi akun masa lalu = awalan urutan tarikan, `botCp0At` + `botAscStart`), disimpan di memori & localStorage `aster_botpu`. Bahan = (hari main − titik mulai) × `perDay` × tier × pengalaman × opt → tidak pernah berkurang, dan tidak macet di dinding 5-5 seperti rumus lama. Urutan belanja tetap: semua ★4 (hero → senjata → perlengkapan), lalu ★5, ★6; hero tim diurut bintang lalu lama dimiliki.
+  - **Tim dipilih dulu, barang menyusul** (diperbarui 22 Nov 2026): kekuatan "kalau dipakai" tiap hero = hero + senjata terbaiknya (diurut menurut kekuatan nyata untuk hero itu, senjata khas dinilai plus bonus timnya) + bintang Kebangkitan yang SUDAH menempel padanya. `botBestTeams` mencari 8 calon tim dari SEMUA hero (branch & bound, senjata dibagi per kombinasi; sultan setia: + 4 calon terbaik yang memuat kesayangannya), lalu tiap calon dipasangi barang sungguhan (`apply`) dan diambil CP tertinggi (seri → calon lebih awal).
+    - Senjata anggota tim: pembagian terbaik (dari 3 pilihan teratas tiap anggota), senjata khas disisihkan untuk pemiliknya. Hero *careless* tetap memakai senjata terbaiknya, hanya levelnya lebih rendah.
+    - Perlengkapan: tiap posisi tim memberi satu jatah barang (ada/tidak & batas kelangkaan diundi tetap per posisi, naik seiring progres); jatah dibagi optimal ke anggota mana pun menurut tambahan kekuatan nyata. Level barang = persen yang sama dari batas level tiap barang.
+  - **Kebangkitan menempel per hero** (22 Nov 2026): urutan belanja per bintang tetap 4 hero → 4 senjata → 8 perlengkapan. Penerima tiap langkah hero ditentukan SAAT bahan itu terbeli (`botAscRecips` → `botAscPick`): akun bot pada waktu itu disusun lengkap, lalu dipilih anggota tim yang paling bertambah kuat (kesayangan sultan setia dulu). Senjata & perlengkapan bintang itu ikut hero penerimanya. Penerima disimpan bersama titik mulai (`aster_botpu2` kolom `r`) dan tidak pernah pindah — hero yang kemudian dicadangkan tetap membawa bintangnya.
   - Hasil uji (dunia 2.000 cap, 117 bot × 45 hari, per jam): 5.494 kali naik vs 57 kali turun >0,5% (umumnya 1–5% saat ganti anggota tim). Papan atas tidak lagi diam berhari-hari: #1 22,7rb (hari 1,25) → 53rb (hari 3, mulai bangkit) → 182rb (hari 6); #10 16,1rb → 22,7rb; median aktif 8,6rb → 13,9rb. Selisih tahap (dari CP) terhadap kurva simulasi pemain asli: median 0 sampai +1 untuk hampir semua kelompok (dulu −1 s/d −4 di hari 21–30).
 - **Tahap cerita**: dari kolom 6 kurva (veteran skip cerita → cepat), dibatasi CP (`rec ≤ CP×1,12`); setelah kurva habis (hari 30) mengikuti CP.
 - **Admin** bisa menimpa lv/cp/vip/sembunyikan lewat Telegram (`ov`).
@@ -185,9 +187,9 @@ Selalu ada satu bot yang menjadikanmu sasaran. "Abadi" = posisinya, bukan orangn
 
 ## 9. Performa & skala
 
-- `botSum(i,t,sync)`: ringkasan (cp, lv, vip, top, stage, nh = jumlah hero, ms = ★ tertinggi). Bot berhenti main → disimpan di localStorage `aster_botsum` (maks ±900rb karakter, dibuang dulu bila kuota penuh — save pemain selalu menang, `lsPut`). Bot aktif → `BSUMA` per kunci `botKey` (progres per 15 menit efektif + level), **ikut disimpan bersama kuncinya** (21 Nov 2026) → buka game lagi hanya menghitung bot yang sudah main sejak terakhir (server 10rb hari 30: ±0,5 dtk, bukan ±5 dtk). Titik mulai Kebangkitan per bot: `aster_botpu`.
+- `botSum(i,t,sync)`: ringkasan (cp, lv, vip, top, stage, nh = jumlah hero, ms = ★ tertinggi). Bot berhenti main → disimpan di localStorage `aster_botsum` (maks ±900rb karakter, dibuang dulu bila kuota penuh — save pemain selalu menang, `lsPut`). Bot aktif → `BSUMA` per kunci `botKey` (progres per 15 menit efektif + level), **ikut disimpan bersama kuncinya** (21 Nov 2026) → buka game lagi hanya menghitung bot yang sudah main sejak terakhir (server 10rb hari 30: ±0,5 dtk, bukan ±5 dtk). Titik mulai Kebangkitan & penerima bahannya per bot: `aster_botpu2`.
 - **Realtime**: ringkasan basi dipakai sebentar, bot dimasukkan antrean `BSQ`, `botsFresh` menghitung ulang di latar tiap 8 dtk (potongan 8 ms) lalu peringkat/profil yang terbuka diperbarui (refresh 5 dtk, memo daftar 6 dtk).
-- `botsWarm`: semua bot dihitung bertahap tiap 2 menit (yang kuncinya sama tidak dihitung ulang). Pertama kali di perangkat: server 10rb hari 3 (5,2rb bot) ±2,5 dtk, hari 30 (9,4rb bot) ±9,5 dtk di latar (`botState` ±0,8 ms, ±40% di gacha).
+- `botsWarm`: semua bot dihitung bertahap tiap 2 menit (yang kuncinya sama tidak dihitung ulang). Pertama kali di perangkat: server 10rb hari 3 (5,2rb bot) ±2,5 dtk, hari 30 (9,4rb bot) ±9,5 dtk di latar (`botState` ±0,8 ms, ±40% di gacha). 22 Nov 2026: pemilihan tim lengkap (semua hero, senjata & perlengkapan optimal) membuat `botState` ±1,8× lebih lama (uji 1.500 bot: 0,23 → 0,42 ms dingin, 0,17 → 0,31 ms hangat); pemangkasan `botBestTeams` memakai batas bonus yang masih mungkin (`bub`, termasuk hanya hero yang senjata khasnya dimiliki) dan perkiraan tanpa Set/objek baru per kombinasi.
 - Cache: `botState` LRU 15rb, sesi 60rb, hari progres 80rb, belanja 20rb. Semua dibersihkan saat dunia di-reset (`botsApplyWorld`).
 
 ## 10. Simulator & kurva (`tools/botsim`)
@@ -241,12 +243,13 @@ Dunia bot adalah fungsi murni dari (gen dunia, i, t) + data bersama server. Peru
 3. Ubah kode → `python3 tools/build.py` → `fp` lagi ke `sesudah.json` → `node tools/botfp.mjs diff sebelum.json sesudah.json`.
    Hasil "SAMA" = aman. Kalau ada beda, laporan per bagian (`state`, `sum`, `pres`, `wb`, `gsim` …) menunjukkan apa yang bergeser; ukur besarnya dengan skrip `run` (contoh: CP semua bot sebelum vs sesudah).
 4. **Pemeriksa aturan**: `node tools/botfp.mjs run dist/index.html --dir /tmp/botfp --srv 1,2 --js tools/botcheck.js` — nama sah & unik, bot punya UID server, tim/hero/senjata sah, statistik tidak negatif, CP/level/hero/tarikan/VIP tidak turun, `botSum` = `botState`, bot yang sudah berhenti tidak berubah lagi, kehadiran wajar, data guild sah (satu ketua, kapasitas, tidak di dua guild). Tambahkan `--live` (dengan `--dir` lain) untuk memeriksa data produksi langsung.
-5. **Kode mati**: `python3 tools/deadcode.py [file]` mendaftar fungsi/konstanta yang tidak pernah dipanggil.
+5. **CP tidak pernah turun**: `--js tools/botmono.js` (lihat bagian di bawah). Jalankan setiap kali mengubah pemilihan tim, senjata, perlengkapan atau Kebangkitan.
+6. **Kode mati**: `python3 tools/deadcode.py [file]` mendaftar fungsi/konstanta yang tidak pernah dipanggil.
 
 Aturan yang sering terlupa:
 - **Tidak ada `Math.random()` / `Date.now()` tersembunyi** di fungsi dunia bot — teruskan waktu `t`. Acak baru = `bHash(i, nomorBaru)`; jangan menyisipkan tarikan di tengah aliran lama.
 - **Tidak ada isi dunia yang berasal dari localStorage perangkat** (itu membuat dunia beda antar perangkat). localStorage hanya untuk cache yang bisa dihitung ulang (`aster_botsum`, `aster_botpu2`).
-- **Ubah keseimbangan CP → naikkan `SUM_VER`** (ringkasan lama dibuang). Ubah cara titik mulai Kebangkitan dihitung → ganti nama kunci `aster_botpu*`.
+- **Ubah keseimbangan CP → naikkan `SUM_VER`** (ringkasan lama dibuang). Ubah cara titik mulai atau penerima Kebangkitan dihitung → ganti nama kunci `aster_botpu*`.
 - **Kunci cache `botKey`** harus memuat SEMUA masukan `botState` (progres, level, era, pembelian permata & paket, tabungan). Masukan baru → tambahkan ke kunci.
 - Kurva bergabung hanya diubah di `systems/bots.js` (server ikut lewat `botjoin.js`). Mengubahnya menggeser kapan bot masuk di semua server → umumnya hanya untuk dunia baru (`w.v`).
 
@@ -259,5 +262,24 @@ Aturan yang sering terlupa:
 - `chCtx(i,t)` memakai keadaan bot pada waktu t (dulu selalu "sekarang"); pemain teratas di ringkasan server diambil dari daftar peringkat (dulu dari isi cache perangkat).
 - Komentar di arena.js yang tanpa sengaja "menelan" pemanggilan kode diperbaiki.
 
+### CP bot tidak turun lagi (22 Nov 2026, `SUM_VER` 13)
+Uji: 4 server produksi (data diputar ulang), ±300 bot per server dipindai tiap 3 jam (sekarang), tiap 8 jam s.d. 10 Des, dan tiap 12 jam s.d. 20 Jan 2027 → **0 kali CP turun, 0 kali tahap mundur**. Penyebab yang dibereskan, satu per satu:
+- Calon tim hanya dari 7 hero terkuat → sekarang semua hero (branch & bound).
+- Hero favorit disisipkan paksa ke tim → hanya sultan setia, dan hanya bila tim yang memuatnya tidak lebih lemah.
+- Bahan Kebangkitan mengikuti anggota tim sekarang → menempel per hero (lihat §4).
+- Hero careless memakai senjata pilihan kedua → mendapat senjata baru yang lebih lemah membuatnya pindah. Sekarang senjata terbaik, level lebih rendah.
+- Senjata bertukar saat urutan kekuatan dua anggota bersilangan → pembagian terbaik & urutan posisi tetap (yang paling lama dimiliki dulu).
+- Perlengkapan diundi per barang & berebut, dan terikat posisi di urutan tim → jatah per posisi dibagi optimal ke anggota mana pun.
+- Nilai aksesori dihitung sebelum bintang hero terpasang → bintang hero & senjata dipasang dulu.
+- Perkiraan calon tim tidak memperhitungkan level senjata hero careless & bintang senjata → ikut dihitung.
+- Senjata khas dinilai ×1,08 kekuatan pemiliknya → hero terkuat pindah ke senjata khasnya yang lebih lemah. Sekarang pembagian senjata dinilai dengan rumus CP tim (bonus senjata khas = 2% dari jumlah kekuatan tim).
+- Senjata baru yang "sama kuat" (selisih <0,1%) bisa berbalik lebih lemah setelah aksesori terpasang → senjata yang lebih lama dimiliki diutamakan 0,5% per urutan dapat di kelasnya.
+- Penerima Kebangkitan pertama kali ditentukan dari tim versi ringan (tanpa senjata) & mendahulukan hero ★3 → banyak bahan "salah alamat" (CP turun hingga −30% saat pasang). Sekarang dari tim lengkap saat itu, anggota yang paling bertambah kuat.
+
+Saat versi ini terpasang, CP bot dihitung ulang sekali: ±45% bot naik (median +3%), ±1,5% turun (median −2%, terburuk −14%, umumnya bot yang dulu "menikmati" bahan Kebangkitan pindah ke hero ★2 yang masuk tim belakangan).
+
+Alat ujinya: `node tools/botfp.mjs run dist/index.html --dir /tmp/botfp --srv 1,2,3,4 --t <waktu> --js tools/botmono.js` — memindai bot sampel per selang waktu dan melaporkan CP turun / tahap mundur beserta tim sebelum & sesudah (cara menelusuri contohnya ada di kepala file).
+
 ### Batasan yang diketahui
-- ±1% bot sesekali turun CP sedikit (median ±3%) saat timnya berganti: pemilih tim mencoba 6 calon terbaik menurut perkiraan kekuatan, bukan semua kombinasi; dan bahan Kebangkitan mengikuti anggota tim (diurutkan dari yang paling lama dimiliki), jadi bisa "pindah" bila hero lama masuk tim lagi. Bahan yang benar-benar menempel per hero perlu riwayat per bot (belum dibuat).
+- Waktu beli bahan dicari dengan progres + usaha rival (`botPe`, sama dengan `botKey`); usaha rival lokal yang belum tercatat server bisa membuat penerima satu langkah berbeda di perangkat pemain itu (jarang, hanya rivalnya sendiri).
+- Pemilihan tim masih mengandalkan perkiraan (tanpa perlengkapan) untuk memilih 8 calon yang dinilai lengkap; dengan perlengkapan yang kini dibagi ke anggota yang paling diuntungkan, selisih perkiraan antar calon kecil, tapi tidak dijamin nol.
