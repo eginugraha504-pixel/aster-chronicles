@@ -182,6 +182,7 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 - Bot yang kamu kalahkan bisa **membalas dendam** di sesi online berikutnya (peluang per gaya main `ARENA_CFG.revenge`, ×1,15 bila sedang apes). Log Arena memberi label "DENDAM"; bot sering menyebutmu di chat setelahnya.
 
 ## Obrolan Dunia (world chat)
+> **22 Nov 2026**: mesin obrolan LOKAL yang dijelaskan di bagian ini (kalimat bot per menit, otak balasan lokal, kolam kalimat Claude, `chatAct`) sudah DIHAPUS — obrolan dunia sekarang dari server (lihat "Mode AI Obrolan Dunia" di §Akun 18 Nov). Yang tersisa di `systems/chat.js`: persona, konteks bot, `botActivity`, `chOnline`, `chWorldTxt`. Bagian ini disimpan sebagai sejarah.
 - File: data `js/data/chat/` — `style.js` (cara menulis: persona, singkatan, tawa, emotikon, salah ketik), `lines.js` (kalimat per suasana & kejadian), `threads.js` (utas tanya-jawab), `brain.js` (menanggapi pesanmu); mesin `js/systems/chat.js`; tampilan `js/ui/chat.js` + `css/chat.css`. **Tambah kalimat cukup di file data**, mesin tidak perlu diubah.
 - Strip 2 pesan terakhir di beranda (di atas tombol Arena) → panel obrolan penuh (ketuk nama/avatar = profil pemain).
 - Obrolan bot **deterministik per menit** (seed menit + generasi dunia) → semua pemain melihat percakapan yang sama. Hanya bot yang online yang bicara; keramaian ≈ 0,085 × √online pesan/menit. ±50% bot hanya membaca.
@@ -207,9 +208,10 @@ Hero generik dibuat dengan `gen:{hair,hat,weapon,pal}` di `data/heroes.js` (tanp
 ## Penjualan bot → bank Telegram
 - `js/systems/botsale.js`: tiap menit game melaporkan pembelian bot (sejak `BOT_CFG.SPEND.bankFrom`, maks 3 hari) ke `POST /api/botsale` (HMAC `TOPUP_CFG.secret`). Server (`bank-worker/`, tabel `botsales`, migrasi 0003) membuang duplikat per kunci lalu menambah saldo **HUN2 STUDIO** + mutasi `jual`.
 - Telegram: tombol **🏢 HUN2 STUDIO** / `/toko` (saldo, penjualan hari ini/7 hari/total, pembeli terbesar, 10 transaksi terakhir), `/notif on|off` (kabar pembelian ≥ Rp799rb, default mati).
-- Catatan: di GitHub Pages nama bot dibuat lokal (tanpa Claude), di claude.ai dari Claude — nama pembeli di bank mengikuti perangkat yang melapor pertama.
+- Nama pembeli = username akun bot di server (sama di semua perangkat).
 
 ## Mode AI obrolan (Claude Haiku 5.5)
+> Sejarah (versi pertama, game memanggil `/api/ai`). Versi sekarang: §"Mode AI Obrolan Dunia" (server yang memutuskan adegan, `/api/wc`).
 - Menu > Pengaturan > **Mode AI Obrolan** (ON default, `S.aiMode`). Saat ON, pemain lain di Obrolan Dunia ditulis langsung oleh Claude Haiku 5.5: membalas pesanmu dan, tiap 70–140 detik saat panel chat terbuka (4–7 menit saat di layar lain), menulis "adegan" obrolan 3–8 pesan di antara bot yang sedang online. Maks 36 panggilan/jam per perangkat. Obrolan deterministik biasa tetap jalan di sela-selanya.
 - Konteks yang dikirim: jam & hari WIB, keadaan server (banner, hero terbaru, CP #1, event), keadaan akunmu (level, CP, peringkat, tim, koleksi ★3, tahap, Arena, permata, pity, VIP, kota/hero favorit yang pernah kamu sebut), **jejak aktivitasmu** 6 jam terakhir (`chatAct`: summon & hasilnya, menang/kalah tahap & dungeon, Arena, balas dendam, top up), layar yang sedang dibuka, 22 pesan terakhir, dan data asli 7 bot calon penulis (persona, favorit, CP, liga, pity, tabungan, VIP, bio, nama lama).
 - Server: `bank-worker/src/ai.js` (`POST /api/ai`, `GET /api/ai/status`). Token = **GitHub secret `ANTHROPIC_API_KEY`** → dipasang workflow sebagai secret Cloudflare (tidak pernah ada di kode game). Instruksi peran ditulis di server; game hanya mengirim data berukuran terbatas. Batas: `AI_DAILY` (2.000 panggilan/hari, semua pemain) dan 20/menit per IP. Model: `AI_MODEL` di `wrangler.toml`.

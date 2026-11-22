@@ -1,4 +1,4 @@
-# Pemain Bot — Buku Pegangan (per 21 Nov 2026)
+# Pemain Bot — Buku Pegangan (per 22 Nov 2026)
 
 Dokumen induk semua perilaku bot di Aster Chronicles. Baca ini dulu sebelum mengubah bot. Tujuan desainnya: **pemain asli tidak bisa membedakan dunia bot dari server yang benar-benar ramai**. Setiap fitur bot harus (1) masuk akal dilihat dari luar, (2) sama untuk semua penonton, (3) murah dihitung di HP.
 
@@ -23,15 +23,23 @@ Rincian per fitur yang lebih lama ada di `docs/SISTEM.md`; dokumen ini merangkum
 | `src/js/data/bots.js` | `BOT_CFG`: semua angka penyetel (jumlah & pertumbuhan, profil, pengalaman, tier belanja, kurva, jam main, berhenti/kembali main, era banner, bio, emosi, hidup berubah, kebangkitan) |
 | `src/js/systems/bots.js` | Mesin: bergabung, sesi, progres, gacha, belanja, keadaan, ringkasan, cache, daftar peringkat, pemanasan, penyegaran realtime |
 | `src/js/data/rival.js`, `systems/rival.js` | Rival abadi |
-| `src/js/systems/chat.js`, `ui/chat.js`, `data/chat/*` | Aktivitas bot (`botActivity`), obrolan dunia lokal, deskripsi bot untuk AI (`wcDesc`, `wcPersona`, `wcStyle`) |
+| `src/js/systems/chat.js`, `data/chat/style.js` | Konteks bot untuk obrolan: persona menulis (`chPersona`), keadaan (`chCtx`), aktivitas saat online (`botActivity`), siapa yang online (`chOnline`), ringkasan server untuk AI (`chWorldTxt`) |
+| `src/js/ui/chat.js` | Obrolan dunia (server `/api/wc`): pesan pemain asli + adegan bot Mode AI / stiker; deskripsi bot untuk AI (`wcDesc`, `WCP`) |
+| `src/js/data/guild.js`, `systems/guild.js`, `ui/guild.js` | Guild & relasi tersembunyi: politik bot (`gSim`), tick ke server (`gTickRun`), obrolan guild (`gVirt`), DM bujukan |
+| `src/js/systems/fame.js` | Ketenaran: bot sadar peringkat CP, menghubungi pemain top 20/10/3/1 |
 | `src/js/systems/arena.js`, `data/arena.js` | Bot di Arena: poin, serangan ke Tim Bertahan, balas dendam |
 | `src/js/systems/worldboss.js` | Bot ikut Bos Dunia (`wbAttend`, `wbRaid`) |
 | `src/js/systems/botsale.js` | Laporan pembelian bot ke bank Telegram |
 | `src/js/systems/net.js` | Dunia dari server (`/api/world`: UID, nama, `ov`, `rv`), teman bot, potret bot untuk admin |
 | `src/js/ui/leaderboard.js` | Peringkat, profil bot, bar rival |
 | `bank-worker/src/game.js` | Server: akun bot, dunia (`epoch`, `gen`), reset, AI obrolan (`ROLE`, `TOPIK`, `WB_EVS`, `RV_EVS`), `/api/rv/boost`, `/api/wb` |
-| `bank-worker/src/botcfg.js` | Salinan angka bergabung untuk server (dibuat `tools/gen_botcfg.mjs`) |
+| `bank-worker/src/botcfg.js` | Salinan angka bergabung untuk server (dibuat `tools/gen_botcfg.mjs` saat build) |
+| `bank-worker/src/botjoin.js` | **Dibuat otomatis** dari `systems/bots.js` (`tools/gen_botjoin.py` saat build): kurva bergabung bot (`bRng`, `wEff`, `wRng`, `wDyn`, `wE2`, `wJoinN`, `botJoinDaysW`, `botJoinWarp`). Ubah di game, jangan di sini |
+| `bank-worker/src/guild.js` | Server guild: buku besar, validasi tick politik, voting, AI guild |
 | `tools/botsim/` | Simulator pemain + pembuat kurva |
+| `tools/botfp.mjs`, `tools/botcheck.js` | **Uji regresi dunia bot** (lihat §14) |
+| `tools/gtick.mjs`, `.github/workflows/guild-tick.yml` | Penjadwal politik guild semua server tiap 20 menit |
+| `tools/deadcode.py` | Pencari fungsi/konstanta yang tidak pernah dipakai |
 
 ---
 
@@ -48,7 +56,7 @@ Rincian per fitur yang lebih lama ada di `docs/SISTEM.md`; dokumen ini merangkum
     R = **serbuan rilis** (langsung main dalam hitungan jam; hype 1 ≈ 3% … hype 10 ≈ 76%), W = gelombang minggu pertama, G = pertumbuhan alami sampai penuh (`SRV.HYPE`).
     E = hari efektif bergelombang = Σ laju harian; laju = **popularitas server** (`POP` 0,8–1,22, server urutan awal sedikit lebih ramai `ORD`) × **naik-turun acak yang mulus** (AR(1) `AR`/`SD`) × **akhir pekan** (`WKD`, Minggu & Sabtu lebih ramai) × **lonjakan viral acak** (`BURST`, lebih sering saat hype tinggi, meluruh ±1,6 hari) × perlambatan ×0,45 tiap server lebih baru dibuka. Semua acak dari gen dunia (`wRng`) → sama persis di game & server, tapi tiap server punya irama sendiri.
     Perkiraan rata-rata per server (angka untuk cap 2.000; cap 10.000 → ×5): hype 1 ±110 hari 1 / ±445 hari 7; hype 5 ±580 / ±1.250; hype 7 ±980 / ±1.480; hype 10 ±1.600 / ±1.850 (±1.280 dalam 6 jam pertama). Contoh hype 6, pemain baru per hari di 4 server: 938·149·79·64… / 986·324·73·48… / 721·133·149·112·107·188… / 670·169·91·…·150 (lonjakan hari 8).
-  - Server & game memakai rumus yang sama (`wRng`, `wDyn`, `wE2`, `wJoinN`, `botJoinDaysW`; ekspor uji `__curve` di game.js). Setelah hari pertama, jam bergabung tetap ditekuk ke jam ramai WIB.
+  - Server & game memakai rumus yang sama: server mengimpor `bank-worker/src/botjoin.js`, salinan OTOMATIS dari `systems/bots.js` (build). Dulu ditulis dua kali. Setelah hari pertama, jam bergabung tetap ditekuk ke jam ramai WIB.
 - **Hype & rilis (Telegram)**: `/hype [1-10]` mengatur tingkat hype (kv `hype`, bawaan 5) untuk dunia berikutnya, lengkap dengan perkiraan jam 1 / 6 jam / hari 1 / 7 / 30. `/rilis` = **rilis serentak**: pilih jumlah server (server ditambah bila kurang) dan waktu (sekarang, 19:00/20:00/21:00, atau `/rilis 6 20:30`) → semua dunia bot dihapus, semua server aktif dibuka ulang bersamaan dengan epoch = waktu rilis (`releaseAll`). Terjadwal = server tampil sebagai pra-registrasi ("Buka 20:00" di layar pilih server), bot mulai berdatangan tepat saat jam buka. Pemain asli tetap. `/server` menampilkan hype tiap server, pertambahan sejam & 24 jam terakhir, atau hitung mundur rilis.
 - **Per server**: obrolan dunia (`wchat.srv`, kunci AI `ai_scene_at:<srv>` dst.), Bos Dunia (slot `"<srv>:<tgl>T<jam>"`), peringkat pemain asli (`/api/players?srv=`), pencarian, rival, Arena. Reset bot per server (`/resetbot <id>`); `/server` = daftar + tombol reset.
 - Penyimpanan ringkasan & tanda tangan dunia memakai `botsSig()` (gen@epoch tiap dunia). Dunia berubah (reset/gabung) → cache bot, lawan Arena, rival dibuang.
@@ -222,3 +230,34 @@ Selalu ada satu bot yang menjadikanmu sasaran. "Abadi" = posisinya, bukan orangn
 ## Guild & relasi (22 Nov 2026)
 Bot ber-guild seperti pemain: politik dihitung game tiap 20 menit (`gSim`, src/js/systems/guild.js) dan dicatat server. Sifat politik tetap per bot (`gTrait`: ambisi, kesetiaan, sosial, tegas, 7% penyendiri; kompetitif/whale lebih ambisius, suka bantu lebih setia) dan afinitas bot↔bot (`gAff`) menentukan berdiri/gabung/pindah/ikut teman/memisahkan diri/kudeta. Rincian & angka: docs/SISTEM.md §Guild.
 
+## 14. Merawat & mengubah bot (alur kerja, 22 Nov 2026)
+
+Dunia bot adalah fungsi murni dari (gen dunia, i, t) + data bersama server. Perubahan kode yang "cuma merapikan" tidak boleh mengubah satu angka pun; perubahan keseimbangan harus disengaja dan diukur. Alatnya:
+
+1. **Rekam data server sekali** (dunia bot, pemain, guild) ke folder fixture:
+   `node tools/botfp.mjs record dist/index.html --api https://aster-bank.valberryv.workers.dev --dir /tmp/botfp --srv 1,2`
+2. **Sidik jari sebelum mengubah** (data diputar ulang, waktu dibekukan → hasil selalu sama):
+   `node tools/botfp.mjs fp dist/index.html --dir /tmp/botfp --out /tmp/botfp/sebelum.json` (simpan juga salinan `dist/index.html` lama).
+3. Ubah kode → `python3 tools/build.py` → `fp` lagi ke `sesudah.json` → `node tools/botfp.mjs diff sebelum.json sesudah.json`.
+   Hasil "SAMA" = aman. Kalau ada beda, laporan per bagian (`state`, `sum`, `pres`, `wb`, `gsim` …) menunjukkan apa yang bergeser; ukur besarnya dengan skrip `run` (contoh: CP semua bot sebelum vs sesudah).
+4. **Pemeriksa aturan**: `node tools/botfp.mjs run dist/index.html --dir /tmp/botfp --srv 1,2 --js tools/botcheck.js` — nama sah & unik, bot punya UID server, tim/hero/senjata sah, statistik tidak negatif, CP/level/hero/tarikan/VIP tidak turun, `botSum` = `botState`, bot yang sudah berhenti tidak berubah lagi, kehadiran wajar, data guild sah (satu ketua, kapasitas, tidak di dua guild). Tambahkan `--live` (dengan `--dir` lain) untuk memeriksa data produksi langsung.
+5. **Kode mati**: `python3 tools/deadcode.py [file]` mendaftar fungsi/konstanta yang tidak pernah dipanggil.
+
+Aturan yang sering terlupa:
+- **Tidak ada `Math.random()` / `Date.now()` tersembunyi** di fungsi dunia bot — teruskan waktu `t`. Acak baru = `bHash(i, nomorBaru)`; jangan menyisipkan tarikan di tengah aliran lama.
+- **Tidak ada isi dunia yang berasal dari localStorage perangkat** (itu membuat dunia beda antar perangkat). localStorage hanya untuk cache yang bisa dihitung ulang (`aster_botsum`, `aster_botpu2`).
+- **Ubah keseimbangan CP → naikkan `SUM_VER`** (ringkasan lama dibuang). Ubah cara titik mulai Kebangkitan dihitung → ganti nama kunci `aster_botpu*`.
+- **Kunci cache `botKey`** harus memuat SEMUA masukan `botState` (progres, level, era, pembelian permata & paket, tabungan). Masukan baru → tambahkan ke kunci.
+- Kurva bergabung hanya diubah di `systems/bots.js` (server ikut lewat `botjoin.js`). Mengubahnya menggeser kapan bot masuk di semua server → umumnya hanya untuk dunia baru (`w.v`).
+
+### Perbaikan 22 Nov 2026
+- **Ringkasan bot berhenti**: bot berhenti di `endT` tapi sesi terakhirnya bisa masih berjalan (progres hari itu dibagi ke sesi hari itu). Ringkasan "beku" dulu diambil sejak `endT` → CP di peringkat beda dengan profil dan beda antar perangkat. Sekarang memakai `botEndF(b)` = saat progres benar-benar berhenti.
+- **Titik mulai Kebangkitan** (`botAscStart`) dulu dicari bagi-dua antara bergabung..sekarang → hasil tergantung kapan perangkat pertama menghitung. Sekarang kisi waktu tetap (per hari, lalu ±11 menit) → sama di semua perangkat. Kunci penyimpanan baru `aster_botpu2`, `SUM_VER` 12.
+- **Kunci cache** kini memuat jumlah pembelian paket (bahan Kebangkitan dari paket mengubah CP tanpa mengubah kunci lama).
+- **Pilih tim**: 6 calon tim (dulu 3) dicoba dengan barang sungguhan → ±6% bot mendapat tim sedikit lebih kuat (median +2,4%, tidak ada yang turun).
+- **Kode mati dibuang**: mesin obrolan dunia lokal lama (kalimat per menit, otak balasan, kolam kalimat & nama/bio/ganti nama lewat `window.claude`, `data/chat/lines|threads|brain.js`) — tidak dipanggil lagi sejak obrolan pindah ke server; sisa datanya di localStorage perangkat lama (bio/kalimat buatan) membuat tampilan beda antar perangkat. Bio kini selalu dari `BIO_LOCAL`.
+- `chCtx(i,t)` memakai keadaan bot pada waktu t (dulu selalu "sekarang"); pemain teratas di ringkasan server diambil dari daftar peringkat (dulu dari isi cache perangkat).
+- Komentar di arena.js yang tanpa sengaja "menelan" pemanggilan kode diperbaiki.
+
+### Batasan yang diketahui
+- ±1% bot sesekali turun CP sedikit (median ±3%) saat timnya berganti: pemilih tim mencoba 6 calon terbaik menurut perkiraan kekuatan, bukan semua kombinasi; dan bahan Kebangkitan mengikuti anggota tim (diurutkan dari yang paling lama dimiliki), jadi bisa "pindah" bila hero lama masuk tim lagi. Bahan yang benar-benar menempel per hero perlu riwayat per bot (belum dibuat).

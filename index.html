@@ -3021,8 +3021,7 @@ const BOT_CFG={
   saveCap:90},                     // tabungan (tarikan) maksimum sebelum tidak tahan lagi
  // ---- hidup yang berubah ----
  LIFE:{bioEvery:[2,9],             // bio diganti tiap N hari
-  loyal:.5,                        // tetap setia pada hero favorit pertama (sisanya pindah ke ★3 terbatas terbaru)
-  rename:{p:.12,days:[2,14],pool:600}}, // peluang ganti nama sekali, kapan (hari), ukuran kolam nama baru (dibuat Claude)
+  loyal:.5},                       // tetap setia pada hero favorit pertama (sisanya pindah ke ★3 terbatas terbaru)
  GEAR_FROM_DAY:2,             // mulai punya Pelindung/Aksesori
  BENCH_LV:[.35,.7],           // (lama) level hero cadangan relatif terhadap cap
  // level hero per kelangkaan (★1..★3): f = f1 − (f1 − f0)·e^(−hari sejak hero didapat / tau), dikali batas level hero.
@@ -3034,29 +3033,15 @@ const BOT_CFG={
  // ramp = bahan Kebangkitan dari paket dipakai bertahap selama sekian hari main (emas & level hero ikut membatasi) — CP naik mulus, bukan melompat
  ASC:{minCP:26000,perDay:28,ramp:1.2,tier:{f2p:1,low:1.05,card:1.15,mid:1.25,dolphin:1.4,whale:1.6,swhale:2.4,mwhale:3.6},
   cost:{h:{4:60,5:220,6:1200},w:{4:40,5:155,6:810},g:{4:30,5:114,6:570}}},
- // nama: dibuat Claude (integrasi sample) lalu disimpan bersama di db; hanya huruf & angka
- // bio/status profil: dibuat Claude, bertag supaya cocok dengan keadaan bot
- BIO_TAGS:['umum','santai','kompetitif','pemula','sial','hoki','raika','sakuya','farming'],
- BIO_MAX:240,BIO_BATCH:60,BIO_SHARE:.7,
- BIO_PROMPT:n=>`Buat ${n} status/bio profil pendek seperti yang ditulis pemain sungguhan di game mobile gacha fantasi pixel "Aster Chronicles". `+
-  `Konteks game: hero terbatas Raika (pemanah petir bercaping) dan Sakuya (miko rubah api), hero standar Celestine, Marisa, Hilde, Aurelia, Lilith, gacha dengan pity, dungeon untuk farming, stamina, peringkat CP. `+
-  `Gaya: mayoritas bahasa Indonesia santai/gaul, sebagian Inggris, sedikit romaji Jepang; boleh lucu, curhat gacha, ajakan santai, target pribadi. `+
-  `ATURAN: maksimal 40 karakter, tanpa emoji, tanpa tautan, tanpa @, tanpa info pribadi, sopan dan ramah keluarga, jangan sebut orang nyata atau merek. `+
-  `Beri tiap status satu tag dari: umum, santai, kompetitif, pemula, sial, hoki, raika, sakuya, farming (raika/sakuya = sudah punya hero itu; sial = gacha apes; hoki = gacha beruntung). `+
-  `Balas HANYA array JSON berisi objek {"t":"teks","tag":"tag"}.`,
+ // bio/status profil: kalimat lokal bertag (BIO_LOCAL) supaya cocok dengan keadaan bot (systems/bots.js botBio)
+ BIO_SHARE:.7,                // porsi bot yang memasang status (sisanya kosong)
  BIO_LOCAL:[['umum','Santai aja yang penting konsisten'],['santai','Login harian doang hehe'],['kompetitif','Target top 10 CP'],['pemula','Baru mulai, mohon bimbingannya'],['sial','Pity terus, kapan hoki'],['hoki','Sekali tarik langsung dapet'],['raika','Raika main, Raika istri'],['sakuya','Sakuya terbaik, no debat'],['farming','Farming dungeon tiap malam'],['umum','Ganbatte minna'],['santai','Main pas istirahat kerja'],['kompetitif','CP dulu, tidur nanti'],
   ['kolektor','Koleksi harus lengkap, titik'],['kolektor','Semua hero wajib punya'],['kolektor','Kurang dikit lagi full koleksi'],
   ['setia','Satu hero, satu cinta'],['setia','Main cuma demi dia'],['setia','Bukan meta? bodo amat'],
   ['meta','Tim terkuat atau tidak sama sekali'],['meta','Ikut meta biar cepet'],['meta','Build rapi, CP naik'],
   ['banner','Banner baru = gesek'],['banner','Rate up? sikat'],['banner','Nabung? apa itu'],
   ['gajian','Tunggu gajian dulu'],['gajian','Tanggal tua mode hemat'],['gajian','Gajian = gacha']],
- NAME_RE:/^[A-Za-z0-9]{3,14}$/,
- NAME_BATCH:100,
- NAME_PROMPT:n=>`Buat ${n} nickname pemain game mobile gacha fantasi yang unik dan berbeda-beda, seperti yang dipakai pemain sungguhan. `+
-  `Campur gaya: nama Indonesia, Inggris, nuansa Jepang, kata lucu, gamer tag, kadang diakhiri angka. `+
-  `ATURAN KERAS: hanya huruf A-Z a-z dan angka 0-9, tanpa spasi, tanpa simbol apa pun (tidak boleh / . - ! , : @ _ dll), panjang 3-14 karakter, sopan dan ramah keluarga, tidak memakai nama orang terkenal atau merek. `+
-  `Balas HANYA array JSON berisi string, tanpa teks lain.`,
- // cadangan bila Claude tidak tersedia (mis. dibuka sebagai file lokal): suku kata acak
+ // nama cadangan bila server tidak menjawab (botLocalName): suku kata acak
  SYL:['ra','ki','no','sa','ri','ta','ka','mi','yu','to','ze','lu','ar','en','ko','vi','ba','do','na','ha','shi','ren','dar','vel','mo','ji','ga','ru','ne','fa'],
 };
 
@@ -3291,316 +3276,6 @@ const CHAT_STYLE={
  keys:'qwertyuiop|asdfghjkl|zxcvbnm',
  // koreksi salah ketik dikirim sebagai pesan baru: "*kata"
  fixP:.45,
-};
-
-/* ==== js/data/chat/lines.js ==== */
-/* =====================================================================
-   OBROLAN DUNIA · LIBRARY KALIMAT — apa yang diucapkan bot (gaya tulis diatur chat/style.js)
-   ---------------------------------------------------------------------
-   CARA MENAMBAH: tambahkan string ke daftar yang cocok. Tidak perlu menyentuh mesin.
-   - Tulis dalam bahasa normal; singkatan/huruf kecil/salah ketik ditambahkan otomatis sesuai persona bot.
-   - [a|b|c] = pilih acak satu.  [a|] = kadang ada kadang tidak.
-   - " // " = dipecah jadi beberapa pesan beruntun (seperti orang mengetik sepotong-sepotong).
-   - Objek {t:'...', if:c=>..., w:2} = hanya dipakai bila syarat terpenuhi; w = bobot (default 1).
-   SLOT (diisi mesin dari keadaan bot yang SEBENARNYA):
-     {hero} hero favorit   {rh} hero acak miliknya   {got} yang barusan didapat   {lim} hero rate-up banner sekarang
-     {limw} senjata rate-up   {newh} hero terbaru di game   {n} angka konteks   {pity} pity hero sekarang
-     {stage} tahap terjauh   {cp} CP tim   {lv} level   {league} liga Arena   {held} tarikan yang ditabung
-     {to} nama lawan bicara   {me} nama pemain (kamu)   {top} pemain CP #1   {old} nama lama
-     {call} panggilan (kak/bang/bro..)   {laugh} tawa   {emo} emotikon   {sad} emotikon sedih   {happy} emotikon senang
-     {city} kota   {food} makanan   {el} elemen acak   {weak} elemen yang dikalahkan {el}   {days} hari main   {hour} jam
-     {online} jumlah online   {pitymax} hard pity   {soft} soft pity mulai
-   ===================================================================== */
-const CHAT_LINES={
- /* ---------- obrolan biasa (dipilih sesuai jam, hari & keadaan bot) ---------- */
- amb:{
-  pagi:['pagi semua','pagi [guys|gaes|semuanya|para petualang]','met pagi {call}','pagi2 udah gacha {laugh}','ohayou minna','login dulu sebelum berangkat','pagi, misi harian dulu baru mandi',
-   'absen pagi','pagi yang cerah buat narik {lim}','bangun tidur langsung buka game {laugh}','ngopi dulu sambil farming','pagi, hari ini harus dapet {lim}','klaim hadiah login dulu',
-   'pagi gaes, ada yang udah sarapan?','mata masih sepet tapi stamina udah penuh'],
-  siang:['siang semua','istirahat kantor main bentar','lagi makan siang sambil auto battle','siang2 panas mending main','jam istirahat = jam gacha','siang, ada yang online?',
-   'abis makan ngantuk banget','kerja dulu ya nanti lanjut','numpang absen siang','lagi nunggu meeting, farming dulu','siang gini enaknya tidur {sad}'],
-  sore:['sore semua','pulang kerja langsung login','sore2 gacha biar hoki','macet parah, main dulu di jalan','sore, stamina udah penuh lagi','abis hujan, adem banget main game',
-   'sore gaes, ada event apa hari ini?','baru pulang, siapa yang masih online','ngopi sore sambil push stage'],
-  malam:['malam semua','met malam {call}','malam, waktunya push stage','abis makan malam langsung gas','malem2 enaknya gacha','malam gaes, rame juga ya',
-   'malam, hari ini udah dapet apa aja?','yang begadang absen','udah malem tapi masih semangat','malam ini harus tembus {stage}','abis kerja capek tapi tetep login'],
-  dini:['siapa yang masih bangun jam segini','begadang lagi {laugh}','jam {hour} masih gacha, sehat?','insomnia, mending farming','besok kerja tapi masih main {sad}',
-   'yang online jam segini pasti pejuang','mata udah 5 watt','satu tarikan lagi abis itu tidur // katanya','ga bisa tidur, ada yang mau ngobrol?','begadang buat Arena reset'],
-  senin:['senin lagi {sad}','senin, semangat kerja','musim Arena baru, gas','senin pagi udah ngantuk','i hate monday','reset mingguan, ayo push liga'],
-  jumat:['jumat, besok libur','tgif','jumat sore paling enak','besok weekend, malam ini begadang'],
-  weekend:['weekend gas full','libur, seharian main','sabtu santai','minggu malem galau besok kerja','weekend waktunya farming dungeon','hari libur hp ga lepas dari tangan',
-   'weekend gini pada ke mana?','rebahan sambil gacha, nikmat'],
-  gajian:['gajian! waktunya khilaf','tanggal tua lewat, tanggal muda datang','gajian, kartu bulanan dulu','udah gajian? mau topup ga',{t:'abis gajian langsung topup {laugh}',if:c=>c.paid},
-   'gaji numpang lewat // ke game','tahan, tahan, jangan topup','dompet aman, belum gajian {sad}'],
-  makan:['lagi makan {food}','laper, makan {food} dulu','abis makan {food} langsung login','enaknya {food} sambil main','ada yang udah makan?','afk bentar, makan {food}',
-   'makan dulu ya, stamina manusia juga perlu','{food} plus gacha = bahagia'],
-  cuaca:['hujan deres di {city}','panas banget hari ini','{city} mendung','hujan, enak buat tidur sama gacha','mati lampu, sisa baterai 20% tapi masih main','dingin, pake jaket sambil main'],
-  ngantuk:['ngantuk parah','mata berat','tidur dulu ya','udah ga kuat, oyasumi','off dulu, besok lanjut','tidur gaes, semoga besok hoki','pamit, jangan lupa misi harian'],
-  gabut:['gabut','sepi ya','ada yang mau ngobrol','bosen nunggu stamina','pada ke mana nih','chat sepi banget','lagi nganggur, ada yang butuh tips?','rame juga ya hari ini',
-   'baru {online} orang online','game ini nagih juga ya','random thought: {hero} kalau jadi nyata pasti lucu'],
-  kerja:['lagi di kantor main diem2','bos lewat, sembunyiin hp','kerja sambil auto battle','shift malam, ditemenin game','lembur lagi {sad}','abis meeting langsung cek hadiah'],
-  kuliah:['abis kuliah langsung login','tugas numpuk tapi gacha dulu','dosen telat, main dulu','skripsi? nanti dulu, ada banner baru'],
-  harap:['bismillah hoki','semoga dapet {lim} hari ini','doain dapet {lim} gaes','tarik 10x, tutup mata','firasat hari ini hoki','pity {pity}, mudah2an bentar lagi',
-   {t:'pity udah {pity}, deg2an',if:c=>c.pity>=55},'bulan ini harus dapet {lim}','cuma butuh 1 {lim} lagi','semoga rate on'],
-  apes:['gacha ga pernah hoki','rate off terus {sad}','{n} tarikan cuma dapet sampah','game ini benci aku','kapan aku hoki','pity lagi pity lagi','ampas banget hari ini',
-   'liat orang dapet {lim} sakit hati','udah pasrah sama gacha','berhenti aja kali ya {sad}','sabar, sabar, sabar','lucky gw kayaknya kepake buat hal lain'],
-  hoki:['hari ini hoki banget','gacha lagi bersahabat','ga nyangka dapet 2 bintang 3 sekaligus','hoki gw lagi tinggi, mau dipake beli undian','rate on terus {laugh}','dewi gacha lagi sayang gw'],
-  pityTinggi:[{t:'pity {pity} masih belum keluar bintang 3',if:c=>c.pity>=60},{t:'udah {pity} tarikan, soft pity mana',if:c=>c.pity>=66},{t:'pity {pity} // tinggal dikit lagi // semoga rate on',if:c=>c.pity>=70}],
-  nabung:[{t:'lagi nabung buat banner depan',if:c=>c.held>0},{t:'nabung {held} tarikan, tahan godaan',if:c=>c.held>0},{t:'skip {lim} dulu, nabung',if:c=>c.held>0},
-   {t:'banner ini skip, nunggu yang lebih bagus',if:c=>c.held>0},{t:'tahan, tahan, tabungan udah {held} tarikan',if:c=>c.held>=20}],
-  farming:['farming dungeon terus','butuh bijih tempa banyak','emas habis buat naikin level','stamina cepet banget abis','grinding sampai pagi','dungeon level tinggi susah juga ya',
-   'naikin senjata mahal banget','gold kurang terus','farming material buat limit break'],
-  stuck:['stuck di {stage}','{stage} susah banget','bosnya {stage} kuat banget','ada tips buat {stage}?','udah 5x kalah di {stage}','{stage} bikin emosi',
-   'tim gw kurang kuat buat {stage}','harus naikin CP dulu kayaknya'],
-  arena:['arena hari ini kejam','liga {league} isinya monster semua','tiket arena abis','naik ke {league}!','turun liga {sad}','tim bertahan gw dihajar terus',
-   'siapa yang nyerang gw tadi','arena pas jam rame susah menang','pertahanan gw lumayan juga ternyata','reset musim, mulai dari awal lagi'],
-  cp:[{t:'CP gw baru {cp}',if:c=>c.cp<8000},{t:'akhirnya CP tembus {cp}',if:c=>c.cp>=10000},'CP segini cukup ga buat arena?','naikin CP susah banget','CP {cp}, masih jauh dari top',
-   {t:'{top} CP nya gila, gimana caranya',if:c=>c.top&&c.top!==c.name}],
-  pemula:['newbie disini, salam kenal','baru main hari ini','ada tips buat pemula?','hero awal pakai siapa ya','baru level {lv} hehe','game ini seru juga ternyata',
-   'masih bingung sama sistem senjata','mau tanya, permata paling baik dipake buat apa?'],
-  veteran:['main dari hari pertama rilis','udah {days} hari main tiap hari','dulu awal rilis susah banget','sekarang udah santai, tinggal farming','yang baru main semangat ya'],
-  favorit:['{hero} best girl','{hero} paling lucu','{hero} carry terus','tim gw tanpa {hero} ga jalan','{hero} = istri','siapa lagi pakai {hero}?','udah limit break {hero}, worth',
-   '{hero} jangan di-nerf','ngeliatin {hero} di beranda aja udah seneng','kalau {hero} ngomong suaranya lucu banget'],
-  opini:['{rh} underrated menurut gw','{rh} overrated ga sih','support itu penting, jangan cuma damage','tank bikin tim awet','elemen {el} kuat lawan {weak}','tim campur elemen lebih aman',
-   'senjata signature beda banget efeknya','limit break lebih penting dari level','jangan lupa pasang pelindung sama aksesori'],
-  baru:[{t:'{newh} lucu banget',if:c=>c.newRecent},{t:'ada yang udah dapet {newh}?',if:c=>c.newRecent},{t:'{newh} enak buat heal',if:c=>c.newRecent&&c.newHeal},
-   {t:'splash art {newh} gerak2 cantik',if:c=>c.newRecent},{t:'hero baru {newh} worth ga?',if:c=>c.newRecent},{t:'{newh} tanduknya imut',if:c=>c.newId==='marisa'&&c.newRecent},{t:'{newh} kuping serigalanya lucu bgt',if:c=>c.newId==='hilde'&&c.newRecent},{t:'kapak batu {newh} gede bgt anjir',if:c=>c.newId==='hilde'&&c.newRecent},{t:'akhirnya ada ★3 tanah, {newh} 🐺',if:c=>c.newId==='hilde'&&c.newRecent},{t:'{newh} kayak biarawati beneran, adem liatnya',if:c=>c.newId==='celestine'&&c.newRecent},{t:'tank ★3 {newh} worth gak sih?',if:c=>c.newId==='celestine'&&c.newRecent},{t:'{newh} panahnya jadi burung api anjir keren',if:c=>c.newId==='aurelia'&&c.newRecent},{t:'rambut {newh} gradasi api cakep bgt',if:c=>c.newId==='aurelia'&&c.newRecent},{t:'{newh} idol gothic, langsung waifu',if:c=>c.newId==='lilith'&&c.newRecent},{t:'buff {newh} mirip vela tp lebih gede ga?',if:c=>c.newId==='lilith'&&c.newRecent},{t:'{newh} boneka jam beneran?? ada kuncinya di punggung wkwk',if:c=>c.newId==='coppelia'&&c.newRecent},{t:'dps single {newh} gede bgt, netral pula aman lawan siapa aja',if:c=>c.newId==='coppelia'&&c.newRecent}],
-  banner:['banner {lim} masih lama ga?','{lim} worth ga sih','rate up {lim}, gas','{limw} perlu ga buat {lim}?','banner senjata bikin bangkrut','{lim} vs {rh}, pilih mana',
-   'banner sekarang bagus','nunggu rerun aja deh'],
-  topup:[{t:'topup dikit buat kartu bulanan',if:c=>c.paid},{t:'kartu bulanan paling worth sih',if:c=>c.card},'topup ga ya // tahan dulu','yang topup pasti CP nya tinggi',
-   'f2p juga bisa kok','sultan mah bebas','f2p bangga','paket pertama dapet bonus dobel lho',{t:'dompet menangis bulan ini',if:c=>c.vip>=3},{t:'VIP {vip} tapi masih apes {laugh}',if:c=>c.vip>=2}],
-  live2d:['splash art di game ini gerak2 ya','suka banget animasi splash nya','pas kedip lucu banget','beranda nya cantik, ganti2 hero','lagu menu nya enak','suaranya jepang semua, mantap'],
-  meta:['ini chat isinya bot semua ya',{t:'kadang gw curiga {to} itu bot {laugh}',w:.5},'kalian manusia kan?','gw bukan bot ya',{t:'yang bales cepet pasti bot',w:.5}],
-  pamit:['off dulu','cabut dulu','bye semua','duluan ya','mau tidur, jaa ne','sampai besok','pamit, hp lowbat','afk bentar'],
-  motivasi:['semangat semua','gas terus','jangan menyerah sama gacha','hoki itu soal waktu','semoga kalian semua rate on','ingat istirahat juga ya'],
-  rehat:['kayaknya mau rehat dulu dari game ini','lagi males main','udah bosen sama gacha','mungkin berhenti dulu','game nya seru tapi gw capek','sibuk di dunia nyata, jarang login'],
- },
- /* ---------- reaksi kejadian NYATA bot (tarikan, top up, bergabung, dst.) ---------- */
- ev:{
-  pullLim:['AKHIRNYA {got}!!','{got} pulang ke rumah','dapet {got} // {laugh} // ga nyangka','yatta {got}','{got} rate on!','{got} dateng juga {happy}','alhamdulillah {got}',
-   'tarik 10x langsung {got}','gila dapet {got}','{got}!!! // aku teriak','makasih dewi gacha, {got} dapet','{got} punyaku sekarang','{got} keluar di pity {n}'],
-  pullEarly:['tarikan ke {n} langsung {got} {laugh}','{n} tarikan doang dapet {got}','early {got}!!','baru {n} pull udah {got}, maaf ya','hoki parah, {got} di pity {n}'],
-  pullOff:['rate off dapet {got} {sad}','yah {got} lagi','kalah 50/50 // {sad}','niatnya {lim} malah {got}','{got} lagi? udah punya','rate off di pity {n}, sakit',
-   'kok {got} sih','{got} bagus juga sih, tapi bukan yang dicari','next pasti {lim} // guaranteed'],
-  pullStd:['dapet {got} lumayan','{got} keluar','bintang 3 {got}, oke lah','{got} buat tim gw','yey {got}'],
-  pullDupe:['{got} dupe, limit break naik','{got} lagi, makin kuat','dapet {got} lagi, +1 limit break'],
-  pullWpn:['dapet {got}','senjata {got} keluar!','{got} akhirnya','banner senjata ramah hari ini, {got}'],
-  buyCard:['beli kartu bulanan','perpanjang kartu bulanan dulu','kartu bulanan aktif, permata harian aman','topup kartu bulanan, worth'],
-  buySmall:['topup dikit','topup buat 10x','khilaf topup dikit','topup recehan dulu'],
-  buyBig:['khilaf topup lagi','dompet menangis','sultan mode on','topup gede buat {lim}','yang penting {lim} dapet','tabungan bulan ini lari ke game {laugh}','mode sultan aktif'],
-  buyBanner:['banner baru, topup dulu','gas banner baru','{lim} harus dapet, topup','pre-order nangis {laugh}'],
-  join:['halo semua','salam kenal, baru main','newbie disini','halo, aku baru download','hai hai','baru gabung nih, salken','halo kak, mohon bimbingannya','first day, mohon arahan'],
-  welcome:['welcome {to}','salken {to}','selamat datang {to}','halo {to}','welcome {call}','selamat datang di dunia gacha {laugh}','welcome, semoga hoki','halo {to}, semangat',
-   'selamat bergabung','welcome! ikutin misi pemula dulu','salken, aku juga baru minggu ini'],
-  comeback:['balik lagi gara2 {lim}','halo, lama ga login','comeback nih','kangen game ini','balik main, banyak yang baru ya','rindu {hero}'],
-  rename:['aku ganti nama ya, dulu {old}','yang kenal {old}, itu aku','nama baru, orang yang sama','ganti nama biar hoki {laugh}'],
-  rehat:['lagi males main akhir2 ini','kayaknya mau berhenti dulu','gacha bikin capek','sibuk, jarang login nanti'],
-  eraStart:['BANNER BARU!','{lim} rilis!!','gas {lim}','udah nunggu {lim} dari kemarin','tarik {lim} siapa yang udah?','banner {lim} keluar, gasss','{lim} cantik banget'],
-  newHero:['{newh} keluar!','hero baru {newh}','{newh} lucu banget','siapa yang udah liat {newh}?'],
-  // Arena melawan KAMU (pemain). {me} = nama pemain
-  revWin:['@{me} impas ya {laugh}','@{me} balas dendam sukses','@{me} gantian dong','@{me} hehe maaf','@{me} jangan dendam ya','@{me} 1-1 ya','@{me} poin ku balik {laugh}','@{me} sekarang kita seri','tadi diserang {me}, udah gw bales','@{me} kirain ga bakal gw bales?','@{me} gg, lain kali lagi','@{me} dendam terbalaskan'],
-  revLose:['@{me} tim bertahan mu kuat banget','@{me} ga tembus {sad}','@{me} pertahanan apaan itu','@{me} ampun, gw nyerah','@{me} mau bales malah kalah lagi','@{me} nanti gw coba lagi','niat bales {me} malah turun poin {sad}','@{me} tim bertahan mu siapa aja sih'],
-  hitWin:['@{me} maaf ya kena tim gw','@{me} numpang poin {laugh}','@{me} gg','@{me} random match, jangan marah','@{me} tim bertahan mu lumayan kok','makasih poinnya {me} {laugh}'],
-  beatenBy:['@{me} kok kuat banget','@{me} ampun bang','@{me} tunggu pembalasanku','siapa sih {me} nyerang gw mulu','@{me} gg, tim mu bagus','@{me} santai dong {laugh}','{me} curang ya {laugh}'],
-  // bot lain memberi selamat atas ★3 yang diumumkan sistem
-  grats:['gg {to}','hoki bgt {to}','{to} bagi hokinya','selamat {to}','iri sama {to}','wih {to}','gg gg','sultan {to}?'],
-  // reaksi ke tarikan pemain yang diumumkan sistem
-  gratsMe:['gg @{me}','hoki banget @{me}','@{me} bagi hokinya dong','selamat @{me}','iri sama @{me}','@{me} sultan?','wih @{me} dapet {got}','@{me} congrats'],
- },
- /* ---------- Inggris (persona inggris memakainya bila ada) ---------- */
- en:{
-  pagi:['morning all','gm everyone','good morning, daily missions first'],malam:['evening guys','gn everyone','night grind time'],dini:['who is still up','3am gacha is the best gacha','cant sleep lol'],
-  harap:['pls rate up','praying for {lim}','10 pull lets go','one more pull then sleep'],apes:['lost the 50/50 again','my luck is cursed','this gacha hates me','rip my gems'],
-  hoki:['gacha luck today is insane','double gold lets go'],favorit:['{hero} is the best','{hero} carries hard','{hero} best girl no debate'],gabut:['chat is quiet today','anyone online?','bored waiting for stamina'],
-  pamit:['gtg','brb','gn all','cya'],arena:['arena is brutal today','who hit my defense lol'],stuck:['stuck at {stage}','any tips for {stage}?'],
-  pullLim:['FINALLY {got}!!','{got} came home','got {got} lets gooo'],pullOff:['lost the 50/50 to {got}','{got} again? bruh'],welcome:['welcome {to}','hi {to}, have fun'],
-  join:['hi everyone, new here','hello, just started'],gratsMe:['gg @{me}','congrats @{me}','@{me} share the luck pls'],beatenBy:['@{me} gg your team is strong','@{me} chill lol'],
- },
- /* ---------- isian slot ---------- */
- city:['Jakarta','Bandung','Surabaya','Medan','Jogja','Semarang','Makassar','Bekasi','Depok','Bogor','Malang','Palembang','Bali','Pontianak','Balikpapan','Solo','Tangerang','Padang','Manado','Lampung'],
- food:['mie instan','nasi goreng','bakso','seblak','martabak','indomie telor','soto','sate','gorengan','nasi padang','pecel lele','ayam geprek','roti bakar','bubur ayam','kopi susu','es teh'],
- // kata Jepang/romaji yang boleh muncul di kalimat bot wibu: lihat CHAT_STYLE.jp
-};
-
-/* ==== js/data/chat/threads.js ==== */
-/* =====================================================================
-   OBROLAN DUNIA · UTAS PERCAKAPAN — satu bot bertanya/memancing, bot lain yang ONLINE menjawab
-   ---------------------------------------------------------------------
-   Alur: ask (pembuka) -> 1..n ans (jawaban dari bot lain, jeda mengetik realistis)
-         -> fix (bila jawaban salah {x:1}, bot lain bisa mengoreksi) -> thx (penanya menanggapi) -> extra (celetukan)
-   Jawaban boleh berupa FUNGSI (c,w)=>teks: c = keadaan bot yang menjawab (data ASLI miliknya),
-   w = dunia (banner, hero terbaru, pemain teratas, dst.) -> bot menjawab sesuai kenyataan,
-   misalnya "liga kalian apa?" dijawab dengan liga Arena masing-masing yang sebenarnya.
-   Mengembalikan null = bot itu memilih tidak menjawab.
-   Format kalimat & slot sama dengan chat/lines.js. Tambah utas baru cukup menambah objek di sini.
-   if  = syarat utas boleh muncul (c = penanya)   w = bobot kemunculan
-   n   = jumlah penjawab [min,maks]
-   ===================================================================== */
-const CHAT_THREADS=[
- {id:'pity',w:3,n:[1,3],ask:['pity di game ini berapa sih?','hard pity berapa ya','soft pity mulai tarikan ke berapa?','mau tanya, pity kebawa ke banner berikutnya ga?'],
-  ans:[{t:'hard pity {pitymax}, soft pity mulai sekitar {soft}',w:3},{t:'{pitymax} tarikan pasti bintang 3',w:2},'soft pity {soft}an udah naik peluangnya','pity kebawa kok, ga reset ganti banner',
-   {t:'100 kalo ga salah',x:1},{t:'90 deh kayaknya',x:1},'kalah 50/50 berikutnya pasti rate up'],
-  fix:['bukan, {pitymax} {call}','salah, hard pity {pitymax}','{pitymax} woy {laugh}','itu game sebelah, disini {pitymax}'],
-  thx:['oh gitu makasih','oke makasih {to}','sip thx','ooh pantes','noted']},
- {id:'tarikAtauTidak',w:3,n:[1,3],ask:['{lim} worth ditarik ga?','tarik {lim} atau nabung ya?','{lim} bagus ga buat f2p?','permata gw cukup buat 1x pity, tarik {lim}?'],
-  ans:['tarik! {lim} kuat banget','kalau suka tarik aja, jangan nyesel','{lim} worth, apalagi buat arena','nabung aja, banner depan lebih bagus kayaknya',
-   'gw udah tarik, ga nyesel','tergantung tim kamu','{lim} bagus tapi jangan maksa','waifu over meta, tarik {laugh}',(c,w)=>c.has(w.limId)?'gw punya {lim}, mantap kok':'gw belum punya, tapi pengen'],
-  thx:['oke gas tarik','hmm nabung dulu deh','makasih sarannya','bismillah tarik','oke deh pikir2 dulu']},
- {id:'healer',w:2,n:[1,3],ask:['healer terbaik siapa?','butuh support, pakai siapa ya','tim gw cepet mati, harus pakai healer?'],
-  ans:['{newh} heal nya gede',(c,w)=>w.heals.length?'pakai '+w.heals[0]+' atau '+(w.heals[1]||w.heals[0]):null,'Lumi juga oke buat awal','healer wajib buat stage atas','Noa lumayan buat f2p',
-   'mending tank dulu baru healer','gw pakai {hero}, aman'],
-  thx:['oke coba','makasih','sip']},
- {id:'elemen',w:2,n:[1,2],ask:['elemen apa yang kuat lawan {el}?','api kalah sama apa ya?','cahaya sama gelap gimana sih?'],
-  ans:['api > tanah > air > api','cahaya sama gelap saling kuat','{weak} kalah sama {el}','liat ikon elemen musuh dulu sebelum masuk','kalau unggul elemen damage +30%','salah elemen damage berkurang lho'],
-  thx:['oh gitu','makasih penjelasannya','noted']},
- {id:'permata',w:2,n:[1,3],ask:['cara dapet permata cepet gimana?','permata dari mana aja ya','f2p dapet permata dari mana'],
-  ans:['misi harian sama event','kemenangan pertama tiap stage dapet permata','arena juga ngasih permata tiap hari','kotak surat sering ada hadiah','login harian jangan lupa',
-   'topup {laugh}','kartu bulanan murah, 180 permata tiap hari','event pemula banyak hadiahnya'],
-  thx:['oke makasih','sip','oke rajin2 misi deh']},
- {id:'stuck',w:3,n:[1,3],if:c=>c.stageN>2,ask:['stuck di {stage}, tips dong','{stage} gimana caranya?','bos {stage} kuat banget, saran?'],
-  ans:['naikin level senjata dulu','pakai elemen yang unggul','farming dungeon dulu biar kuat','limit break hero utama','pasang aksesori sama pelindung','coba ganti formasi, tank di depan',
-   (c)=>c.stageN>0?'gw lewat {stage} pake CP {cp}':null,'naikin CP sampai aman dulu','pakai healer'],
-  thx:['oke coba lagi','makasih {to}','sip nanti dicoba','oke farming dulu']},
- {id:'arenaTips',w:2,n:[1,3],ask:['tim bertahan arena enaknya siapa?','arena susah, tips dong','gimana biar ga turun liga'],
-  ans:['tank sama healer di bertahan','bertahan pakai tim terkuat','jangan nyerang yang CP nya jauh di atas','serang pas lawan offline {laugh}','tiket dipake tiap hari biar dapet hadiah',
-   (c)=>c.league?'gw di {league} pake tim biasa aja':null,'arena tergantung hoki juga'],
-  thx:['oke makasih','noted','sip']},
- {id:'kartu',w:2,n:[1,3],ask:['kartu bulanan worth ga?','mau topup tapi bingung paket apa','topup paling hemat apa?'],
-  ans:['kartu bulanan paling worth','kartu bulanan, asal login tiap hari','paket pertama dobel, beli yang murah dulu','f2p aja, sabar',
-   (c)=>c.card?'gw pakai kartu bulanan, lumayan banget':null,(c)=>c.vip>=3?'gw sih langsung paket gede {laugh}':null,(c)=>c.paid?null:'gw f2p, masih bisa kok'],
-  thx:['oke beli kartu bulanan','makasih','oke deh']},
- {id:'limitBreak',w:1,n:[1,2],ask:['limit break itu apa?','dupe buat apa ya?','senjata dobel buat apa'],
-  ans:['dupe hero buat limit break, stat naik','limit break naikin batas level','senjata dobel buat tempa, stat naik 10%','maksimal limit break {dupe}'],
-  thx:['oh gitu','makasih']},
- {id:'asal',w:2,n:[2,4],ask:['kalian dari mana aja?','ada yang dari {city}?','absen kota dong'],
-  ans:['{city}','{city} hadir','dari {city}','{city} sini','gw {city}','{city}, panas banget','{city} {call}'],
-  thx:['wah rame','{city} juga ada ternyata','mantap','tos dulu {to}']},
- {id:'lama',w:2,n:[1,3],ask:['kalian main dari kapan?','udah lama main?','yang main dari rilis absen'],
-  ans:[(c)=>c.days<=1?'baru hari ini':c.days<=3?'baru {days} hari':'udah {days} hari','dari rilis','baru minggu ini',(c)=>c.days>=3?'dari awal, tiap hari login':null],
-  thx:['wah lama juga','sama, baru juga','mantap']},
- {id:'favorit',w:3,n:[2,4],ask:['hero favorit kalian siapa?','best girl siapa?','tim kalian isinya siapa aja?'],
-  ans:['{hero}','{hero} dong','{hero} jelas','{hero} no debat','{hero}, carry terus','{hero} paling lucu'],
-  thx:['{hero} juga bagus','semua punya {hero} ya','selera bagus'],extra:['ga ada yang suka {rh}? kasian','{rh} juga lucu']},
- {id:'cp',w:2,n:[2,4],ask:['CP kalian berapa?','absen CP dong','CP segini normal ga?'],
-  ans:['{cp}','{cp} masih kecil','baru {cp}',(c)=>c.cp>15000?'{cp}, lumayan':null,'{cp} hehe'],
-  thx:['gila tinggi semua','gw paling kecil {sad}','mantap']},
- {id:'punyaLim',w:2,n:[2,4],ask:['siapa yang udah punya {lim}?','{lim} udah pada dapet?'],
-  ans:[(c,w)=>c.has(w.limId)?'aku udah':null,(c,w)=>c.has(w.limId)?'udah dong {laugh}':null,(c,w)=>c.has(w.limId)?null:'belum {sad}',(c,w)=>c.has(w.limId)?null:'belum, pity {pity}'],
-  thx:['iri','semoga cepet dapet','gg']},
- {id:'liga',w:2,n:[1,3],ask:['liga arena kalian apa?','udah ada yang Legenda?'],
-  ans:[(c)=>c.league?'{league}':null,(c)=>c.league?'masih {league}':null,(c)=>c.league?'{league} {sad}':'belum main arena'],
-  thx:['mantap','Legenda isinya monster','semangat naik liga']},
- {id:'f2p',w:2,n:[2,4],ask:['ada yang full f2p?','yang topup absen {laugh}','game ini p2w ga?'],
-  ans:[(c)=>c.paid?null:'f2p bangga','f2p sejak lahir',(c)=>c.paid?'topup dikit doang':null,(c)=>c.vip>=4?'aku sih sultan {laugh}':null,'ga terlalu p2w kok','yang topup ya lebih cepet aja',(c)=>c.card?'kartu bulanan doang':null],
-  fix:['ah itu bukan f2p namanya {laugh}'],thx:['f2p kuat juga','sama','hormat sama sultan']},
- {id:'pityKalian',w:2,n:[2,4],ask:['pity kalian sekarang berapa?','ada yang pity tinggi?'],
-  ans:['{pity}','pity {pity}',(c)=>c.pity>=60?'{pity} // deg2an':null,(c)=>c.pity<10?'baru {pity}, abis dapet':null],
-  thx:['semoga hoki semua','gw lebih parah','semangat']},
- {id:'dungeon',w:1,n:[1,2],ask:['dungeon mana yang duluan?','dungeon buat apa aja ya?'],
-  ans:['tambang buat bijih tempa','dungeon sesuai senjata yang mau dinaikin','farming bijih dulu, senjata ngaruh banget','buka dungeon level tinggi dapetnya banyak'],
-  thx:['oke makasih']},
- {id:'stamina',w:1,n:[1,2],ask:['stamina cepet habis, solusinya?','stamina ngisi berapa lama?'],
-  ans:['+1 tiap 2 menit','sabar {laugh}','tidur aja, bangun penuh','pakai buat dungeon yang penting dulu'],
-  thx:['oke','duh lama']},
- {id:'makan',w:2,n:[2,3],ask:['lagi pada makan apa?','laper, enaknya makan apa ya','udah pada makan belum?'],
-  ans:['{food}','lagi makan {food}','belum makan {sad}','{food} enak','udah, {food}','diet {laugh}'],
-  thx:['jadi laper','{food} mantap','sama']},
- {id:'begadang',w:2,if:c=>c.night,n:[1,3],ask:['kok pada belum tidur?','jam segini masih rame ya','yang masih bangun kenapa?'],
-  ans:['nunggu stamina','insomnia','kerja shift malam','farming mumpung sepi','nunggu reset arena','ga bisa tidur','abis nonton, lanjut main'],
-  thx:['sama','tidur gaes','pejuang semua']},
- {id:'p2w',w:1,n:[2,3],ask:['menurut kalian game ini adil ga?','gacha gini adil ga sih'],
-  ans:['adil kok, pity jelas','yang penting pity ga reset','lumayan adil','sultan tetep menang {laugh}','f2p masih bisa top 100'],
-  thx:['setuju','iya sih']},
- {id:'heroBaru',w:2,if:c=>c.newRecent,n:[1,3],ask:['{newh} bagus ga?','siapa yang udah tarik {newh}?','{newh} worth buat f2p?'],
-  ans:['{newh} heal nya kerasa','{newh} lucu banget',(c,w)=>c.has(w.newId)?'udah punya, enak':null,'belum dapet {sad}','nunggu review dulu','splash art {newh} cantik'],
-  thx:['oke','makasih','iya lucu']},
- {id:'event',w:1,n:[1,2],ask:['event apa yang lagi jalan?','ada event apa aja?'],
-  ans:[(c,w)=>w.events.length?'ada '+w.events.slice(0,2).join(' sama '):null,'cek menu event','event login lumayan hadiahnya'],
-  thx:['oke makasih']},
- {id:'terkuat',w:2,n:[1,3],ask:['siapa yang paling kuat di server?','top 1 CP siapa ya?','rank 1 siapa sih'],
-  ans:['{top}','{top} kayaknya','{top} gila CP nya',(c,w)=>w.meTop?'@{me} kayaknya':null,'liat di peringkat aja'],
-  thx:['monster','gimana caranya sekuat itu','sultan pasti']},
- {id:'gear',w:1,n:[1,2],ask:['pelindung sama aksesori penting ga?','gear dapet dari mana?'],
-  ans:['penting, CP naik lumayan','dari dungeon','pasang di hero utama dulu'],thx:['oke']},
- {id:'lagu',w:1,n:[1,2],ask:['lagu di game ini enak ga sih','suka lagu menu nya'],
-  ans:['enak, sering gw dengerin','lagu menu paling enak','pas login lagunya bagus','gw mute {laugh}'],thx:['sama','iya']},
- {id:'teman',w:1,n:[1,3],ask:['cari teman ngobrol','ada yang mau temenan?','sepi, ada yang mau ngobrol?'],
-  ans:['sini ngobrol','halo {to}','boleh','gw temenin','ngobrol apa nih'],thx:['yey','makasih {to}']},
- {id:'nama',w:1,n:[1,2],ask:['nama kalian artinya apa?','{to} namanya lucu, artinya apa?'],
-  ans:['random aja','nama kucing gw {laugh}','singkatan nama gw','dari game lama','ga ada arti'],thx:['oh gitu','lucu']},
- {id:'curhatGacha',w:2,if:c=>c.luck==='sial',n:[1,3],ask:['rate off 3x berturut2 masih wajar?','ada yang lebih apes dari gw?','udah {n} tarikan belum dapet bintang 3 terbatas'],
-  ans:['sabar, pasti dapet','sama {sad}','gw lebih parah','next guaranteed','peluk dulu','gacha emang kejam','istirahat dulu, besok coba lagi'],thx:['makasih semangatnya','huhu','oke sabar']},
- {id:'botRumor',w:.6,n:[1,3],ask:['jangan2 kita semua bot','kalian ngerasa ga chat ini kayak ada yang ngatur?','gw curiga {to} bot'],
-  ans:['lu yang bot {laugh}','beep boop','bukan, gw manusia','yang ngomong bot biasanya bot','tenang, gw asli','bot ga mungkin apes kayak gw'],thx:['{laugh}','oke oke percaya','mencurigakan']},
-];
-
-/* ==== js/data/chat/brain.js ==== */
-/* =====================================================================
-   OBROLAN DUNIA · OTAK BALASAN — bot menanggapi pesan KAMU di chat dunia
-   ---------------------------------------------------------------------
-   Urutan: 1) Claude (bila tersedia di claude.ai): balasan bebas sesuai persona & keadaan bot.
-           2) Otak lokal di file ini (GitHub Pages / offline): pola kata kunci -> balasan.
-   Setiap intent: re = pola (regex, huruf kecil), n = jumlah bot yang menanggapi [min,maks],
-   p = peluang ada yang menanggapi, rep = balasan (string/fungsi, format sama dengan chat/lines.js),
-   learn = (m,txt)=>simpan fakta tentangmu di m (diingat bot, dipakai di obrolan berikutnya).
-   Slot tambahan khusus balasan: {me} namamu, {x} kata yang ditangkap pola, {pfav} hero favoritmu,
-   {pcity} kotamu (bila pernah kamu sebut), {pcp} CP-mu, {prank} peringkatmu.
-   Intent pertama yang cocok dipakai, jadi taruh yang paling spesifik di atas.
-   ===================================================================== */
-const CHAT_BRAIN={
- intents:[
-  {id:'kasar',re:/\b(anjing|bangsat|goblok|tolol|bego|kontol|memek|babi|kampret|bodoh|idiot|stupid|fuck|shit)\b/,n:[1,2],p:.9,
-   rep:['santai {call}','jangan toxic {me}','wah kasar','ga usah marah2 {laugh}','sabar bro','kenapa sih {me}','tarik napas dulu'],mood:-1},
-  {id:'bot',re:/\b(bot|robot|ai|npc)\b/,n:[1,3],p:.9,
-   rep:['bot? gw manusia kali','lu yang bot {laugh}','beep boop {laugh}','enak aja dibilang bot','bot ga mungkin apes kayak gw','kalau gw bot udah gw setting hoki {laugh}','{me} curigaan amat']},
-  {id:'dapatLim',re:/(dapet|dapat|dpt|got|keluar|rate on).*(HERO3)|(HERO3).*(keluar|dapet|dapat|rate on)/,n:[1,3],p:.95,
-   rep:['gg {me}!','hoki banget {me}','bagi hokinya {me}','selamat {me}','iri bgt','{x} mantap','wih {x}','aku belum dapet {x} {sad}','gg, {x} kuat'],learn:(m,t,x)=>{m.got=x}},
-  {id:'rateOff',re:/(rate ?off|kalah 50|apes|sial|zonk|ampas|ga dapet|gak dapet|gk dpt|blm dapet|belum dapet|pity lagi)/,n:[1,3],p:.9,
-   rep:['sabar {me}','sama {sad}','next pasti dapet','peluk {me}','gacha emang jahat','rate off itu biasa, next guaranteed','gw juga {sad}','semangat {me}','istirahat dulu']},
-  {id:'pity',re:/pity/,n:[1,2],p:.9,rep:['hard pity {pitymax}, soft mulai {soft}','{pitymax} pasti bintang 3','pity kebawa kok','pity gw {pity} {laugh}','soft pity {soft} {call}']},
-  {id:'heroTerbaik',re:/(siapa|hero|best|meta|bagus|kuat|terbaik).*(hero|bagus|kuat|terbaik|meta|tarik)/,n:[1,3],p:.8,
-   rep:['{hero} sih menurut gw','{lim} kuat','tergantung tim {me}','{newh} enak buat heal','semua bagus kalau dinaikin','Celestine aman buat semua','waifu over meta {laugh}']},
-  {id:'tarik',re:/(tarik|narik|pull|gacha|summon).*(ga|gak|nggak|tidak|\?|atau)|worth/,n:[1,3],p:.85,
-   rep:['tarik aja {me}','nabung dulu','kalau suka tarik','{lim} worth','jangan maksa {me}','gas!','tergantung permata kamu']},
-  {id:'elemen',re:/(elemen|api|air|tanah|cahaya|gelap).*(kuat|lemah|kalah|menang|lawan)/,n:[1,2],p:.85,rep:['api > tanah > air > api','cahaya sama gelap saling kuat','unggul elemen damage +30%']},
-  {id:'permata',re:/(permata|gems?|diamond|dm)\b/,n:[1,2],p:.8,rep:['misi harian {me}','event sama arena','stage pertama kali dapet permata','kartu bulanan worth','topup {laugh}']},
-  {id:'stage',re:/(stuck|nyangkut|susah|ga bisa lewat|gabisa).*(stage|tahap|bos|boss|\d-\d)|\b\d-\d\b/,n:[1,3],p:.85,
-   rep:['naikin senjata dulu','farming dungeon','pakai elemen yang unggul','limit break hero utama','CP kamu berapa {me}?','pakai healer {me}','gw dulu juga stuck disitu']},
-  {id:'arena',re:/arena|liga|tiket|bertahan|nyerang|serang/,n:[1,3],p:.8,
-   rep:['arena kejam','tim bertahan pakai tank','{me} liga apa?','gw di {league}',(c,w,P)=>P.arWin?'@{me} kamu yang nyerang gw tadi ya {laugh}':null,'jangan serang gw ya {me} {laugh}']},
-  {id:'topup',re:/(topup|top up|top-up|beli|sultan|kartu bulanan|vip|bayar)/,n:[1,3],p:.8,
-   rep:['kartu bulanan paling worth','sultan {me}?','topup dikit gpp','f2p aja {me}',(c)=>c.paid?'gw kemarin topup juga {laugh}':'gw f2p','paket pertama bonus dobel']},
-  {id:'cp',re:/\bcp\b|power|kekuatan/,n:[1,3],p:.8,rep:['CP gw {cp}','CP {me} berapa?','{pcp}? lumayan {me}','naikin CP lewat senjata','{top} CP nya gila']},
-  {id:'level',re:/\b(level|lv|lvl)\b/,n:[1,2],p:.7,rep:['gw lv {lv}','farming exp di stage terakhir','level naik sendiri kok']},
-  {id:'asal',re:/(asal|dari mana|kota|tinggal di|domisili)/,n:[1,3],p:.85,rep:['{city}','gw {city}','{city}, kamu {me}?','dari {city} {call}']},
-  {id:'kotaSaya',re:/(aku|gw|gue|saya|w) (dari|di|tinggal di) ([a-z]+)/,n:[1,2],p:.85,rep:['wah {x}!','{x} deket sama gw','{x} panas ga?','salam dari {city} {me}','aku pernah ke {x}'],
-   learn:(m,t,x)=>{m.city=x}},
-  {id:'favSaya',re:/(favorit|fav|bini|istri|waifu|best girl).*(HERO)|(HERO).*(favorit|fav|bini|istri|waifu|best)/,n:[1,3],p:.9,
-   rep:['{x} pilihan bagus','{x} juga favorit gw','selera {me} oke','{x} lucu sih','{x}? hmm {hero} lebih bagus {laugh}'],learn:(m,t,x)=>{m.fav=x}},
-  {id:'kabar',re:/(apa kabar|gimana kabar|how are you|kabarnya|lagi apa|lagi ngapain|ngapain)/,n:[1,3],p:.85,
-   rep:['baik {me}','lagi farming','lagi gacha {laugh}','baik, kamu?','lagi rebahan','lagi makan {food}','lagi nunggu stamina']},
-  {id:'makasih',re:/(makasih|terima kasih|thanks|thx|tq|mksh|arigato)/,n:[1,2],p:.75,rep:['sama2 {me}','sip','santai {call}','yoi','np']},
-  {id:'pamit',re:/(bye|dadah|off dulu|tidur dulu|cabut|pamit|duluan|oyasumi|gn\b)/,n:[1,3],p:.8,rep:['bye {me}','dadah {me}','met tidur','hati2 {me}','sampai besok','oyasumi {me}']},
-  {id:'salam',re:/^(halo+|hai+|hi+|hello|hey|hy|p|pagi|siang|sore|malam|malem|ohayou|konbanwa|assalamualaikum|permisi|misi)\b/,n:[1,3],p:.9,
-   rep:['halo {me}','hai {me}','{greet} {me}','halo, baru on?','yo {me}','hai {call}',(c,w,P)=>P.n>3?'{me} lagi on {laugh}':null,(c,w,P)=>P.city?'halo {me} dari {pcity}':null]},
-  {id:'sedih',re:/(sedih|capek|cape|lelah|stres|stress|galau|bete|kesel|kecewa)/,n:[1,2],p:.85,rep:['semangat {me}','istirahat dulu {me}','kenapa {me}?','peluk dulu','main santai aja biar ga stres','semoga besok lebih baik']},
-  {id:'senang',re:/(senang|seneng|bahagia|yeay|yey|asik|mantap|mantul|gg)\b/,n:[1,2],p:.6,rep:['mantap {me}','ikut seneng','gg','asik','{laugh}']},
-  {id:'pacar',re:/(pacar|jomblo|gebetan|crush|nikah)/,n:[1,2],p:.7,rep:['pacar gw {hero} {laugh}','jomblo, ditemenin gacha','ga usah bahas itu {laugh}','game dulu, pacar nanti']},
-  {id:'umur',re:/(umur|usia|berapa tahun|kelas berapa)/,n:[1,1],p:.5,rep:['rahasia {laugh}','udah tua {laugh}','kenapa nanya {me}']},
-  {id:'ketawa',re:/(wk|haha|hehe|xixi|lol|lmao|awok|kwk)/,n:[0,2],p:.5,rep:['{laugh}','{laugh}','kenapa ketawa {me}','{laugh} sama']},
-  {id:'ya',re:/^(iya|ya|yap|yup|ok|oke|sip|yoi|bener|betul|setuju)\b/,n:[0,1],p:.35,rep:['sip','oke','{laugh}']},
-  {id:'tanya',re:/\?$|^(apa|siapa|kapan|kenapa|gimana|bagaimana|dimana|berapa|ada yang|ada yg)\b/,n:[1,2],p:.75,
-   rep:['gatau juga {me}','hmm coba tanya yang lain','kurang tau {call}','kayaknya iya','kayaknya ga deh','coba cek di menu','bentar gw cek','pertanyaan bagus {laugh}']},
- ],
- fallback:['{laugh}','iya {me}','hmm','oh gitu','bener juga','lah','terus?','sama','oke','aku juga','wkwk iya','ngomong apa {me} {laugh}','iya kah?','masa sih','hmm bisa jadi','{emo}','nah itu','betul'],
- // pertanyaan balik ke pemain (bot penasaran). k = kunci jawaban yang dicatat
- ask:[{t:'kamu main dari kapan {me}?',k:'lama'},{t:'hero favorit kamu siapa {me}?',k:'fav',if:P=>!P.fav},{t:'CP kamu berapa {me}?',k:'cp'},{t:'udah dapet {lim} {me}?',k:'lim'},
-  {t:'asal mana {me}?',k:'city',if:P=>!P.city},{t:'liga arena kamu apa {me}?',k:'liga'},{t:'f2p atau sultan {me}? {laugh}',k:'f2p'}],
- // tanggapan setelah kamu menjawab pertanyaan bot
- ack:{lama:['wah lumayan','sama kayak gw','semangat terus'],fav:['{x} bagus','pilihan oke','{x} lucu'],cp:['lumayan {me}','wih gede','bisa lah naik lagi'],
-  lim:['gg','semoga cepet dapet','iri'],city:['{x}! deket','wah {x}','pernah ke {x}'],liga:['mantap','semangat naik'],f2p:['hormat','sama','{laugh}'],any:['oh gitu','oke','sip','{laugh}']},
- // bot memanggilmu duluan (jarang): saat kamu masuk 10 besar, menyerang mereka di Arena, dsb.
- callout:{top:['{me} siapa sih, tiba2 top {prank}','@{me} top {prank}, sultan ya?','{me} CP nya ngeri','@{me} bagi tips dong'],
-  newbie:['@{me} baru main ya? semangat','welcome @{me}','@{me} kalau butuh tips tanya aja']},
 };
 
 /* ==== js/data/stickers.js ==== */
@@ -6279,7 +5954,7 @@ function migrate(){
  if(!S.team.some(Boolean))S.team=defState().team;
  if(!S.mail||typeof S.mail!=='object')S.mail={};if(!S.shop)S.shop={date:'',bought:{}};if(!S.ev||typeof S.ev!=='object')S.ev={};S.tixH=S.tixH||0;S.tixW=S.tixW||0;S.loginDays=Math.max(1,S.loginDays||0);
  if(S.banner>=BANNERS.length)S.banner=0;if(S.world>=WORLDS.length)S.world=0}
-function lsPut(k,v){try{localStorage.setItem(k,v);return true}catch(e){try{localStorage.removeItem('aster_botsum');localStorage.removeItem('aster_botpu');localStorage.setItem(k,v);return true}catch(e2){return false}}}
+function lsPut(k,v){try{localStorage.setItem(k,v);return true}catch(e){try{localStorage.removeItem('aster_botsum');localStorage.removeItem('aster_botpu2');localStorage.setItem(k,v);return true}catch(e2){return false}}}
 function save(){lsPut(SAVE_KEY,JSON.stringify(S));if(typeof netMarkDirty==='function')netMarkDirty()}
 function checkDaily(){const d=today();if(S.daily.date!==d){S.daily={date:d,c:{summon:0,clear:0,lvup:0,boss:0,dg:0},claimed:{}};S.loginDays=(S.loginDays||0)+1}}
 function regen(){const now=Date.now();if(S.stam>=stamMax()){S.stamTs=now;return}const n=Math.floor((now-S.stamTs)/STAM_MS);if(n>0){S.stam=Math.min(stamMax(),S.stam+n);S.stamTs+=n*STAM_MS;if(S.stam>=stamMax())S.stamTs=now}}
@@ -6444,10 +6119,15 @@ function equipGear(hid,gid){const slot=GDD[gid].slot,k=gKey(slot);for(const h in
      sehingga roster hanya bertambah seiring waktu (tidak berubah acak).
    - Level hero, senjata, perlengkapan & CP dihitung lewat fungsi game asli dengan menukar
      state sementara (S) -> otomatis ikut perubahan balance.
-   - Nama: dibuat Claude (capability `sample`), disimpan bersama di db `bots/names`;
-     cadangan: generator suku kata lokal. Hanya huruf & angka.
+   - Nama: username akun bot di SERVER (bank-worker membuat akun bot; admin bisa mengganti lewat Telegram).
+     Cadangan bila server tidak menjawab: generator suku kata lokal (botLocalName). Hanya huruf & angka.
+   PETA FILE: lihat docs/BOTS.md (bagian "Peta kode"). Uji regresi: tools/botfp.mjs + tools/botcheck.js.
    ===================================================================== */
-const BOTS={cacheN:0,gen:0,names:[],ready:false,db:null,dbWrite:true,busy:false,failAt:0,base:{},cache:{},seen:0,init:false,onChange:null};
+/* BOTS — keadaan bersama mesin bot:
+   W: dunia-dunia server ini · gen: gen dunia utama · names/uids/srvNames: dari server (systems/net.js)
+   base/cache: botBase & botState per bot · ov/rv/rvAll: koreksi & usaha rival dari server · warming/warmAt: pemanasan
+   ready/busy/again: pengisian nama cadangan lokal · onChange: dipanggil saat daftar bot berubah */
+const BOTS={cacheN:0,gen:0,names:[],ready:false,busy:false,base:{},cache:{},seen:0,init:false,onChange:null};
 const BDAY=864e5;
 function bRng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
 // seed: indeks LOKAL bot di dunianya + gen dunianya (bot gabungan server tetap sama dengan aslinya); seed lain memakai dunia utama
@@ -6541,23 +6221,20 @@ function botBase(i){if(BOTS.base[i])return BOTS.base[i];const C=BOT_CFG,r=bRng(b
  const cvS=pf.id+'_'+sk,cvT=cvS+'_'+tier.id;
  const B=BOTS.base[i]={i,pf:pf.id,pfo:pf,sk,cv:C.CURVES[cvT]?cvT:cvS,cvS,a,quit,join,chaser:chaser2,chrono,opt:opt2,segs,seed:bHash(i,2),endT:segs[segs.length-1][1],back:segs.length>2,
   tier,mood,saver:!tier.pf&&chaser2&&Q[4]<EM.saver,spend0:join+((tier.first||SP.firstDay)[0]+Q[5]*((tier.first||SP.firstDay)[1]-(tier.first||SP.firstDay)[0]))*BDAY,cardP:Q[6]<(tier.card||0),
-  bioEvery:LF.bioEvery[0]+Q[7]*(LF.bioEvery[1]-LF.bioEvery[0]),loyal:Q[8]<LF.loyal,rn:null};
+  bioEvery:LF.bioEvery[0]+Q[7]*(LF.bioEvery[1]-LF.bioEvery[0]),loyal:Q[8]<LF.loyal};
  // gaya sultan (aliran acak sendiri): pembelanja besar punya ciri khas belanja, koleksi, tim & avatar
  // hero kesayangan karena selera (bukan meta): avatar & hero "setia" — membuat para sultan berbeda satu sama lain
  {const lr=bRng(bHash(i,62))();B.love=bWeighted(HEROES.map(h=>[h.id,h.r===3?3:h.r===2?1.6:.7]),lr)}
  const WS=C.SPEND.WSTYLE;if(WS&&WS.tiers.includes(tier.id)){const wr=bRng(bHash(i,61));B.ws=bWeighted(WS.list.map(x=>[x,x.w]),wr());B.wal=WS.wallet[0]+wr()*(WS.wallet[1]-WS.wallet[0]);if(B.ws.fav)B.loyal=true}
- if(Q[9]<LF.rename.p){const t=join+(LF.rename.days[0]+Q[10]*(LF.rename.days[1]-LF.rename.days[0]))*BDAY;if(t<B.endT)B.rn={t:botSnap(B,t),k:Math.floor(Q[11]*LF.rename.pool)}}
+ // Q[9..10] dulu untuk ganti nama otomatis (dimatikan sejak nama = akun server); tetap ditarik supaya sifat lain tidak bergeser
  return B}
 /* suasana hati awal: ulang 60 tarikan hero pertama (aliran acak yang sama dengan gacha bot) -> hoki / normal / sial */
 function botEarlyMood(seed,chaser){const N=BOT_CFG.EMO.early,rng=bRng(seed);let pity=0,g=false,n3=0;
  for(let k=0;k<N;k++){pity++;const x=rng()*100,p3=rate3At(pity),r=x<p3?3:x<p3+RATES[2]?2:1;
   if(r===3){n3++;pity=0;if(chaser){const on=g||rng()<RATE_UP.hero;g=!on;if(!on)rng()}else rng()}else rng()}
  const e=N*RATES[3]/100*1.05,z=(n3-e)/Math.sqrt(e);return z>1?'hoki':z<-1?'sial':'normal'}
-/* nama saat waktu t (bisa sudah ganti nama) */
-BOTS.renames=[];
-// nama = username akun bot di server (admin bisa menggantinya lewat Telegram). Ganti-nama otomatis dimatikan sejak akun bot disimpan di server.
+// nama = username akun bot di server (admin bisa menggantinya lewat Telegram)
 function botName(i,t=Date.now()){return BOTS.names[i]||botLocalName(i)}
-const botOldName=()=>null;
 
 /* ================= TOP UP BOT =================
    Pembelian ditentukan per hari (seed per bot+hari) -> semua penonton melihat pembelian yang sama.
@@ -6721,7 +6398,7 @@ function botFit(b,i,F,P,lv,opt,fav,full,pu,bx){const C=BOT_CFG,heroes=F.heroes,w
   const us=new Set();for(const id of ids){const h=heroes[id],L=byC[HD[id].wcls];lv0[id]=h.lv;h.wpn=null;
    if(L){const sg=L.find(w=>WD[w].owner===id&&!us.has(w)),cd=sg?[sg]:[];for(const w of L){if(cd.length>1)break;if(w!==sg&&!us.has(w))cd.push(w)}const w=cd.length>1&&hu(id,2)>opt+.15?cd[1]:cd[0];if(w){us.add(w);h.wpn=w}}
    if(St>HD[id].r){h.asc=St;h.lv=Math.max(1,Math.round(maxLv(id)*lvF[id]))}sel[id]=heroPow(id)}
-  cands=botBestTeams(ids,sel,3);
+  cands=botBestTeams(ids,sel,6);
   for(const id of own){const h=heroes[id];h.wpn=null;if(h.asc){delete h.asc;h.lv=lv0[id]}}for(const w in weapons){const o=weapons[w];o.lv=sv[w][0];o.lb=sv[w][1]}
   // tidak semua pemain memakai tim optimal: sebagian tetap membawa hero favoritnya (asal tidak jauh lebih lemah)
   const lock=b.ws&&b.ws.fav&&fav&&heroes[fav];   // sultan setia: hero kesayangan SELALU di tim
@@ -6757,15 +6434,20 @@ function botFit(b,i,F,P,lv,opt,fav,full,pu,bx){const C=BOT_CFG,heroes=F.heroes,w
    Dicari mundur dari hasil gacha sekarang (urutan tarikan tetap -> isi akun di masa lalu = awalannya), sekali per bot, lalu disimpan.
    Karena titik mulai tetap, bahan terus bertambah setiap hari main: CP tidak macet di dinding 5-5 dan tidak anjlok saat tim berganti. */
 const BPU={k:'',d:{},dirty:0,at:0};
-function bpuLoad(){const k=bsumKey();if(BPU.k===k)return;BPU.k=k;BPU.d={};try{const o=JSON.parse(localStorage.getItem('aster_botpu')||'null');if(o&&o.k===k&&o.d)BPU.d=o.d}catch(e){}}
+function bpuLoad(){const k=bsumKey();if(BPU.k===k)return;BPU.k=k;BPU.d={};try{localStorage.removeItem('aster_botpu');const o=JSON.parse(localStorage.getItem('aster_botpu2')||'null');if(o&&o.k===k&&o.d)BPU.d=o.d}catch(e){}}
 function bpuSave(){if(!BPU.dirty||Date.now()-BPU.at<3e4)return;BPU.at=Date.now();BPU.dirty=0;const j=JSON.stringify({k:BPU.k,d:BPU.d});
- try{if(j.length<5e5)localStorage.setItem('aster_botpu',j);else localStorage.removeItem('aster_botpu')}catch(e){}}
+ try{if(j.length<5e5)localStorage.setItem('aster_botpu2',j);else localStorage.removeItem('aster_botpu2')}catch(e){}}
 function botCp0At(b,i,G,t){const P=botProg(b,t),lv=botLv(b.cv,P),H={},W={};
  for(const id in G.heroes){const h=G.heroes[id];if(h.at>t)continue;let lb=0;if(h.dt)for(const x of h.dt)if(x<=t)lb++;H[id]={lv:1,lb,wpn:null,at:h.at}}
  for(const id in G.weapons){const w=G.weapons[id];if((w.at||0)>t)continue;let rf=0;if(w.rt)for(const x of w.rt)if(x<=t)rf++;W[id]={ref:rf,lv:1,exp:0,lb:0,at:w.at}}
  const F={lv,exp:0,heroes:H,weapons:W,gear:{},team:[],mats:{}},keep=S;S=F;try{return teamCP(botFit(b,i,F,P,lv,b.opt,null,false,null).team).total}finally{S=keep}}
 function botAscGet(i){bpuLoad();const v=BPU.d[i];return v==null?null:v}
-function botAscStart(b,i,G,now){const A=BOT_CFG.ASC;let lo=b.join,hi=now;for(let k=0;k<9;k++){const m=(lo+hi)/2;if(botCp0At(b,i,G,m)>=A.minCP)hi=m;else lo=m}
+// Titik mulai dicari di kisi waktu TETAP sejak bergabung (per hari, lalu ±11 menit di hari itu) → hasilnya sama di semua perangkat,
+// tidak bergantung kapan perangkat itu pertama kali menghitung (dulu: bagi dua antara join..sekarang → beda tipis antar perangkat).
+function botAscStart(b,i,G,now){const A=BOT_CFG.ASC,ok=t=>botCp0At(b,i,G,t)>=A.minCP;let d=1;
+ while(b.join+d*BDAY<now&&!ok(b.join+d*BDAY))d++;
+ let hi=Math.min(now,b.join+d*BDAY),lo=Math.max(b.join,hi-BDAY);if(hi>=now&&!ok(now))lo=hi=now;
+ for(let k=0;k<7&&hi>lo;k++){const m=(lo+hi)/2;if(ok(m))hi=m;else lo=m}
  BPU.dirty++;return BPU.d[i]=Math.round(botProg(b,hi)*100)/100}
 
 /* ---- Kebangkitan bot: anggaran bahan sejak (perkiraan) menembus 5-5, dibelanjakan berurutan ★4 → ★5 → ★6 ---- */
@@ -6784,9 +6466,9 @@ function botAscend(B,core,heroes,weapons,gear,lvF){const A=BOT_CFG.ASC,C4=core.s
   else{const o=gear[key];if(!o)continue;const cap0=gearMax(key),fr=cap0?Math.min(1,o.lv/cap0):0;o.asc=Math.max(GDD[key].r,s);o.lv=Math.round(gearMax(key)*fr)}}}
 
 /* ---- keadaan bot pada waktu now ---- */
-// kunci cache: berubah hanya saat progres/level/era/top up/tabungan berubah
+// kunci cache: berubah hanya saat progres/level/era/top up (permata & paket, termasuk bahan Kebangkitan)/tabungan berubah
 // Pe = progres + usaha ekstra rival (systems/rival.js botBoost); gacha tetap memakai P (usaha tidak menambah tarikan)
-function botKey(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now),E=typeof botBoost==='function'?botBoost(i,now):0,Pe=P+E,lv=botLv(b.cv,Pe),sp0=botSpend(b,now);return{b,P,Pe,lv,key:Math.floor(Pe*96)+':'+lv+':'+C.ERAS.length+':'+sp0.gems.length+':'+(b.saver?Math.floor(now/36e5):0)}}
+function botKey(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now),E=typeof botBoost==='function'?botBoost(i,now):0,Pe=P+E,lv=botLv(b.cv,Pe),sp0=botSpend(b,now);return{b,P,Pe,lv,key:Math.floor(Pe*96)+':'+lv+':'+C.ERAS.length+':'+sp0.gems.length+'.'+sp0.buys.length+':'+(b.saver?Math.floor(now/36e5):0)}}
 function botState(i,now=Date.now()){const C=BOT_CFG,{b,P:P0,Pe:P,lv,key}=botKey(i,now);const c=BOTS.cache[i];if(c&&c.key===key)return c;
  let G=botGacha(b,P0,now),heroes=G.heroes,weapons=G.weapons;
  const F={lv,exp:0,heroes,weapons,gear:{},team:[],mats:{}};const keep=S;S=F;let out;
@@ -6846,7 +6528,7 @@ function botSnap(b,t){for(let d=wibDay(t);d<=wibDay(t)+3;d++){for(const[s0,s1]of
 /* ---- ringkasan bot (CP, level, VIP, hero) — skala sampai 100rb bot ----
    Bot yang sudah berhenti (endT lewat) tidak berubah lagi → ringkasannya disimpan di localStorage dan tidak dihitung ulang.
    Bot aktif: dari botState (cache penuh dibatasi ±5000 objek). Ganti SUM_VER bila keseimbangan CP berubah. */
-const SUM_VER=11,BSUM={d:{},key:'',dirty:0,at:0};
+const SUM_VER=12,BSUM={d:{},key:'',dirty:0,at:0};
 const bsumKey=()=>botsSig()+':'+SUM_VER+':'+BOT_CFG.ERAS.length+':'+HEROES.length;
 function bsumLoad(){const k=bsumKey();if(BSUM.key===k)return;BSUM.key=k;BSUM.d={};for(const q in BSUMA)delete BSUMA[q];try{const o=JSON.parse(localStorage.getItem('aster_botsum')||'null');if(o&&o.k===k){const D=o.d||{};for(const i in D){const x=D[i];BSUM.d[i]=Array.isArray(x)?{cp:x[0],lv:x[1],vip:x[2],top:x[3],st:x[4],nh:x[5],ms:x[6]}:x}
   const A=o.a||{};for(const i in A){const x=A[i];BSUMA[i]={k:x[0],o:{cp:x[1],lv:x[2],vip:x[3],top:x[4],st:x[5],nh:x[6],ms:x[7]}}}}}catch(e){}}
@@ -6855,7 +6537,11 @@ function bsumSave(){bpuSave();if(!BSUM.dirty||Date.now()-BSUM.at<3e4)return;BSUM
  for(const i in BSUMA){if(BSUM.d[i])continue;const x=BSUMA[i],o=x.o;a[i]=[x.k,o.cp,o.lv,o.vip,o.top,o.st,o.nh,o.ms]}
  let j=JSON.stringify({k:BSUM.key,d,a});if(j.length>9e5)j=JSON.stringify({k:BSUM.key,d});if(j.length>9e5){localStorage.removeItem('aster_botsum');return}
  try{localStorage.setItem('aster_botsum',j)}catch(e){try{localStorage.removeItem('aster_botsum')}catch(e2){}}}
-const botFrozen=(i,now=Date.now())=>{const b=botBase(i);return b.endT<now-6e4};
+/* Bot berhenti di endT, tapi sesi main terakhirnya bisa masih berjalan sebentar (progres hari itu habis dibagi ke sesi hari itu).
+   botEndF = saat progresnya BENAR-BENAR berhenti → sejak itu keadaannya tidak berubah lagi (aman disimpan sebagai ringkasan beku).
+   (Dulu memakai endT → ringkasan beku bisa diambil di tengah sesi terakhir: CP di peringkat beda dengan profil & beda antar perangkat.) */
+function botEndF(b){if(b.endF!=null)return b.endF;if(!isFinite(b.endT))return b.endF=Infinity;const S=botPlay(b,pDay(b.endT)),L=S.L[S.L.length-1];return b.endF=Math.max(b.endT,L?L[1]:b.endT)}
+const botFrozen=(i,now=Date.now())=>botEndF(botBase(i))<now-6e4;
 const BSUMA={};   // ringkasan bot aktif di memori, berlaku selama kunci botKey sama
 // sync=false: boleh memakai ringkasan lama sebentar; bot itu masuk antrean penyegaran latar (BSQ) -> daftar tetap ringan & angka naik sendiri
 const BSQ=new Set();
@@ -6863,7 +6549,7 @@ function botSum(i,now=Date.now(),sync=false){bsumLoad();const fz=botFrozen(i,now
  if(!o&&!fz){const k=botKey(i,now).key,a=BSUMA[i];if(a&&a.k===k)o=a.o;else if(a&&!sync){o=a.o;BSQ.add(i)}}
  if(!o){const s=botState(i,now),hs=Object.keys(s.heroes);o={cp:s.cp,lv:s.lv,vip:s.stats.vip,top:s.av||s.fav||s.team[0],st:s.stage,nh:hs.length,ms:Math.max(0,...hs.map(id=>s.heroes[id].asc||HD[id].r))};if(fz){BSUM.d[i]=o}else BSUMA[i]={k:s.key,o};BSUM.dirty++}
  const ov=typeof botOv==='function'&&botOv(i);if(ov&&(ov.lv!=null||ov.cp!=null||ov.vip!=null))o=Object.assign({},o,ov.lv!=null?{lv:ov.lv}:{},ov.cp!=null?{cp:ov.cp}:{},ov.vip!=null?{vip:ov.vip}:{});return o}
-const botPres=(i,now)=>botFrozen(i,now)?{online:false,last:botBase(i).endT}:botPresence(i,now);
+const botPres=(i,now)=>botFrozen(i,now)?{online:false,last:botEndF(botBase(i))}:botPresence(i,now);
 /* ---- daftar semua bot yang tampil (+ pemain sendiri) ---- */
 const BLM={t:0,n:-1,L:null};
 function botsList(now=Date.now()){const ids=botsIds(now),n=ids.length;let L;if(BLM.L&&BLM.n===n&&Math.abs(now-BLM.t)<6e3&&!BOTS.warming){L=BLM.L.map(e=>Object.assign({},e))}else{L=[];for(const i of ids){if(typeof botHidden==='function'&&botHidden(i))continue;const s=botSum(i,now),p=botPres(i,now),b=botBase(i);L.push({i,name:botName(i,now),vip:s.vip,lv:s.lv,cp:s.cp,top:s.top,online:p.online,last:p.last,isNew:now-b.join<BDAY,back:b.back&&now>=b.segs[2][0]})}
@@ -6902,60 +6588,25 @@ function botsApplyWorld(w){if(!w||!w.epoch)return;if(BOTS.W&&BOTS.W.length&&BOTS
  botsSetWorlds([{g:w.gen||0,e:w.epoch,cap:BOT_CFG.SRV.cap,newer:[]}]);try{localStorage.setItem(BW_KEY,JSON.stringify({epoch:w.epoch,gen:w.gen||0}))}catch(e){}botsEnsure()}
 // reset dunia bot HANYA lewat Telegram (/resetbot). Game menerima {epoch, gen} baru dari server (systems/net.js).
 
-/* ================= NAMA (integrasi Claude) ================= */
+/* ================= NAMA ================= */
+// cadangan lokal (server tidak menjawab): suku kata acak per bot — hanya huruf & angka
 function botLocalName(i){const r=bRng(bHash(i,9)),Y=BOT_CFG.SYL;let n='';const k=2+Math.floor(r()*2);for(let j=0;j<k;j++)n+=Y[Math.floor(r()*Y.length)];n=n[0].toUpperCase()+n.slice(1);if(r()<.45)n+=Math.floor(r()*(r()<.5?100:2000));return n.slice(0,14)}
 const HERO_NAMES=()=>new Set(HEROES.map(h=>h.name.toLowerCase()));
-function botCleanName(s){s=String(s==null?'':s).trim();return BOT_CFG.NAME_RE.test(s)&&!HERO_NAMES().has(s.toLowerCase())?s:null}  // nama hero game tidak dipakai bot  // ada simbol/spasi -> ditolak, bukan dipotong
-function botsSaveLocal(){try{localStorage.setItem('aster_botnames',JSON.stringify({list:BOTS.names}))}catch(e){}}
-function botsSetNames(list){const seen=new Set(),out=[];for(const s of list){const c=botCleanName(s);if(!c)continue;const k=c.toLowerCase();if(seen.has(k))continue;seen.add(k);out.push(c)}
- if(out.length>=BOTS.names.length){BOTS.names=out;botsSaveLocal();BOTS.onChange&&BOTS.onChange()}}
-// nama disimpan di db per potongan 2000 nama: bots/names, bots/names_1, bots/names_2, ... (dokumen tetap kecil walau bot 10.000)
-const NAME_SHARD=2000,shardDoc=k=>k?'bots/names_'+k:'bots/names';
-async function botsPersist(){botsSaveLocal();return;BOTS.saved=BOTS.saved||[];
- for(let k=0;k*NAME_SHARD<BOTS.names.length;k++){const part=BOTS.names.slice(k*NAME_SHARD,(k+1)*NAME_SHARD);if(BOTS.saved[k]===part.length)continue;
-  try{await BOTS.db.doc(shardDoc(k)).set({list:part,updated:Date.now()});BOTS.saved[k]=part.length}catch(e){if(e&&e.code==='invalid_argument')BOTS.dbWrite=false;return}}}
 async function botsInit(){if(BOTS.init)return;BOTS.init=true;
  try{botsApplyWorld(JSON.parse(localStorage.getItem(BW_KEY)||'null'))}catch(e){}
  if(typeof netStart==='function')netStart();
- // server belum menjawab dalam 8 dtk -> pakai generator nama lokal (algoritmanya sama persis dengan server)
+ // server belum menjawab dalam 8 dtk -> pakai generator nama lokal
  setTimeout(()=>{if(!BOTS.ready){BOTS.ready=true;botsEnsure()}},8000)}
-// pastikan nama cukup untuk bot yang sudah bergabung (+ cadangan)
+// pastikan nama cukup untuk bot yang sudah bergabung (+ cadangan). Normalnya nama datang dari server (akun bot), jadi ini hanya cadangan.
 async function botsEnsure(){if(!BOTS.ready||BOTS.busy)return;if(!BOTS.W||!BOTS.W.length)botsApplyWorld({epoch:BOT_CFG.epoch,gen:BOTS.gen||0});const need=Math.min(BOT_CFG.SRV.cap,botsJoined()+10);if(BOTS.names.length>=need)return;
  if(typeof NET!=='undefined'&&NET.worldOk){if(Date.now()-NET.worldAt>3e4)netWorld();return}  // akun bot dibuat server
  BOTS.busy=true;
- try{let got=[],allowLocal=true;const cl=null;
-  if(cl&&typeof cl.use==='function'){let sample=null;try{sample=await cl.use('sample')}catch(e){}
-   if(sample&&!BOTS.noClaude){allowLocal=false;if(Date.now()-BOTS.failAt<60e3)return;const n=Math.min(150,Math.max(BOT_CFG.NAME_BATCH,need-BOTS.names.length+20));
-    try{let arr=null;const p=BOT_CFG.NAME_PROMPT(n);
-     if(typeof sample.json==='function'){try{arr=await sample.json(p,{modelTier:'quick'})}catch(e){if(e&&(e.code==='not_granted'||e.code==='rate_limited'))throw e}}
-     if(arr&&!Array.isArray(arr))arr=arr.names||arr.list||Object.values(arr).find(Array.isArray)||null;
-     if(!Array.isArray(arr)){const res=await sample(p,{modelTier:'quick'});const m=String(res&&res.text||'').match(/\[[\s\S]*\]/);arr=m?JSON.parse(m[0]):[]}
-     got=arr}catch(e){BOTS.failAt=Date.now();if(e&&e.code==='not_granted'){BOTS.noClaude=true;allowLocal=true}}}}
-  const have=new Set(BOTS.names.map(s=>s.toLowerCase()));if(S&&S.name)have.add(String(S.name).toLowerCase());const add=[];
-  for(const s of got){const c=botCleanName(s);if(c&&!have.has(c.toLowerCase())){have.add(c.toLowerCase());add.push(c)}}
-  // Claude tidak tersedia sama sekali (file lokal / izin ditolak): isi sisanya dengan nama lokal agar bot yang sudah bergabung tetap tampil
-  let i=BOTS.names.length+add.length;const HN=HERO_NAMES();while(allowLocal&&BOTS.names.length+add.length<need){const c=botLocalName(i++);if(!have.has(c.toLowerCase())&&!HN.has(c.toLowerCase())){have.add(c.toLowerCase());add.push(c)}}
-  if(add.length){BOTS.names=BOTS.names.concat(add).slice(0,BOT_CFG.SRV.cap);if(BOTS.W&&BOTS.W[0])BOTS.W[0].nn=BOTS.names.length;await botsPersist();BOTS.onChange&&BOTS.onChange()}
-  if(add.length&&BOTS.names.length<need)BOTS.again=(BOTS.again||0)+1;else BOTS.again=0;
- }finally{BOTS.busy=false}
- if(BOTS.again&&BOTS.again<5)setTimeout(botsEnsure,300)}
+ try{const have=new Set(BOTS.names.map(s=>s.toLowerCase()));if(S&&S.name)have.add(String(S.name).toLowerCase());const add=[];
+  let i=BOTS.names.length;const HN=HERO_NAMES();while(BOTS.names.length+add.length<need){const c=botLocalName(i++);if(!have.has(c.toLowerCase())&&!HN.has(c.toLowerCase())){have.add(c.toLowerCase());add.push(c)}}
+  if(add.length){BOTS.names=BOTS.names.concat(add).slice(0,BOT_CFG.SRV.cap);if(BOTS.W&&BOTS.W[0])BOTS.W[0].nn=BOTS.names.length;BOTS.onChange&&BOTS.onChange()}
+ }finally{BOTS.busy=false}}
 
-/* ================= BIO / STATUS (integrasi Claude) ================= */
-BOTS.bios=[];BOTS.bioBusy=false;BOTS.bioFail=0;
-function botCleanBio(o){if(!o)return null;let t=String(o.t||o.text||'').replace(/[^A-Za-z0-9\u00C0-\u024F .,!?'"~()\-:]/g,'').replace(/\s+/g,' ').trim();const tag=BOT_CFG.BIO_TAGS.includes(o.tag)?o.tag:'umum';
- if(t.length<3||t.length>44||/https?|www|@|\.(com|net|id|org)\b/i.test(t))return null;return{t,tag}}
-function botsSetBios(L){const seen=new Set(),out=[];for(const o of L){const c=botCleanBio(o);if(!c||seen.has(c.t.toLowerCase()))continue;seen.add(c.t.toLowerCase());out.push(c)}if(out.length>=BOTS.bios.length)BOTS.bios=out}
-async function botsBiosInit(){if(BOTS.bioInit)return;BOTS.bioInit=true;try{const ls=JSON.parse(localStorage.getItem('aster_botbios')||'null');if(ls&&Array.isArray(ls.list))botsSetBios(ls.list)}catch(e){}
- if(BOTS.db)BOTS.db.doc('bots/bios').onSnapshot(s=>{const d=s.exists?s.data():null;if(d&&Array.isArray(d.list))botsSetBios(d.list)},()=>{})}
-async function botsEnsureBios(){botsBiosInit();const C=BOT_CFG;if(BOTS.bioBusy||BOTS.bios.length>=Math.min(C.BIO_MAX,Math.max(C.BIO_BATCH,botsVisible()*.5)))return;
- const cl=null;if(!cl)return;BOTS.bioBusy=true;
- try{const sample=await cl.use('sample');if(!sample)return;let arr=null;const p=C.BIO_PROMPT(C.BIO_BATCH);
-  if(typeof sample.json==='function'){try{arr=await sample.json(p,{modelTier:'quick'})}catch(e){if(e&&(e.code==='not_granted'||e.code==='rate_limited'))throw e}}
-  if(arr&&!Array.isArray(arr))arr=Object.values(arr).find(Array.isArray)||null;
-  if(!Array.isArray(arr)){const res=await sample(p,{modelTier:'quick'});const m=String(res&&res.text||'').match(/\[[\s\S]*\]/);arr=m?JSON.parse(m[0]):[]}
-  const before=BOTS.bios.length;botsSetBios(BOTS.bios.concat(arr));if(BOTS.bios.length>before){try{localStorage.setItem('aster_botbios',JSON.stringify({list:BOTS.bios}))}catch(e){}
-   if(BOTS.db&&BOTS.dbWrite){try{await BOTS.db.doc('bots/bios').set({list:BOTS.bios,updated:Date.now()})}catch(e){}}}
- }catch(e){BOTS.bioFail=Date.now()}finally{BOTS.bioBusy=false}}
+/* ================= BIO / STATUS ================= */
 // status yang cocok dengan keadaan bot (bot yang belum punya Raika tidak akan pamer Raika)
 function botBio(i,s,rank,now=Date.now()){const C=BOT_CFG,b=botBase(i),per=Math.max(0,Math.floor((now-b.join)/(b.bioEvery*BDAY)));
  // bio berganti tiap bioEvery hari; kadang dikosongkan dulu
@@ -6963,24 +6614,8 @@ function botBio(i,s,rank,now=Date.now()){const C=BOT_CFG,b=botBase(i),per=Math.m
  if(b.pf==='santai')tags.add('santai');if(b.pf==='rajin'||b.pf==='hardcore')tags.add('farming');if(s.lv<15)tags.add('pemula');if((rank&&rank<=20)||b.pf==='hardcore')tags.add('kompetitif');
  if(s.stats.luck==='hoki')tags.add('hoki');if(s.stats.luck==='sial')tags.add('sial');if(s.heroes.raika)tags.add('raika');if(s.heroes.sakuya)tags.add('sakuya');
  if(b.ws&&bHash(i,79+per*31)%100<60){const W=C.BIO_LOCAL.filter(([t])=>t===b.ws.id);if(W.length)return W[bHash(i,78+per*31)%W.length][1]}
- let pool=BOTS.bios.filter(o=>tags.has(o.tag));if(!pool.length)pool=C.BIO_LOCAL.filter(([t])=>tags.has(t)).map(([tag,t])=>({tag,t}));if(!pool.length)return'';
+ const pool=C.BIO_LOCAL.filter(([t])=>tags.has(t)).map(([tag,t])=>({tag,t}));if(!pool.length)return'';
  return pool[bHash(i,78+per*31)%pool.length].t}
-
-/* ================= NAMA BARU (bot yang ganti nama) =================
-   Kolam nama terpisah 'bots/renames' (dibuat Claude, sama aturannya dengan nama bot). Bot ke-i memakai renames[rn.k]. */
-const RN_KEY='aster_botrenames';
-function botsSetRenames(L){const seen=new Set(),out=[];for(const x of L){const c=botCleanName(x);if(c&&!seen.has(c.toLowerCase())){seen.add(c.toLowerCase());out.push(c)}}if(out.length>BOTS.renames.length){BOTS.renames=out;try{localStorage.setItem(RN_KEY,JSON.stringify(out))}catch(e){}}}
-async function botsEnsureRenames(){return;if(!BOTS.rnInit){BOTS.rnInit=1;try{botsSetRenames(JSON.parse(localStorage.getItem(RN_KEY)||'[]'))}catch(e){}
-  if(BOTS.db)BOTS.db.doc('bots/renames').onSnapshot(s=>{const d=s.exists?s.data():null;if(d&&Array.isArray(d.list))botsSetRenames(d.list)},()=>{})}
- const now=Date.now();let need=0;for(const i of botsIds(now)){const b=botBase(i);if(b.rn&&b.rn.t<=now+BDAY)need=Math.max(need,b.rn.k+1)}
- if(BOTS.renames.length>=need||BOTS.rnBusy||Date.now()-(BOTS.rnFail||0)<60e3)return;BOTS.rnBusy=true;
- try{let arr=[];const cl=window.claude,sample=cl&&typeof cl.use==='function'&&!BOTS.noClaude?await cl.use('sample').catch(()=>null):null;
-  if(sample){const p=BOT_CFG.NAME_PROMPT(100);try{arr=typeof sample.json==='function'?await sample.json(p,{modelTier:'quick'}):null}catch(e){}
-   if(arr&&!Array.isArray(arr))arr=Object.values(arr).find(Array.isArray)||[];if(!Array.isArray(arr)||!arr.length){const res=await sample(p,{modelTier:'quick'});const m=String(res&&res.text||'').match(/\[[\s\S]*\]/);arr=m?JSON.parse(m[0]):[]}}
-  else{let k=BOTS.renames.length;while(arr.length<100)arr.push(botLocalName(50000+k++))}
-  const have=new Set(BOTS.names.map(x=>x.toLowerCase()));botsSetRenames(BOTS.renames.concat(arr.filter(x=>!have.has(String(x).toLowerCase()))));
-  if(BOTS.db&&BOTS.dbWrite)try{await BOTS.db.doc('bots/renames').set({list:BOTS.renames,updated:Date.now()})}catch(e){}
- }catch(e){BOTS.rnFail=Date.now()}finally{BOTS.rnBusy=false}}
 
 /* ==== js/systems/dungeons.js ==== */
 /* =====================================================================
@@ -7670,7 +7305,7 @@ function arApply(win,meta){const A=arState(),C=ARENA_CFG,before=A.pts,lgB=arLeag
  if(win){A.wins++;A.wWins++;A.streak=(A.streak||0)+1}else{A.losses++;A.wLoss++;A.streak=0}
  const rw=Object.assign({},win?C.battle.win:C.battle.lose),ups=grant(rw);
  if(meta.rev!=null){const e=A.log.find(x=>x.id===meta.rev);if(e)e.rev=1}
- arLog({k:'atk',i:meta.opp,win,d,cp:meta.cp,pts:meta.pts});if(win&&typeof relBump==='function'&&typeof botUid==='function'&&botUid(meta.opp))relBump(botUid(meta.opp),-1);   // dikalahkan di Arena: sedikit kesalif(typeof chatArenaAtk==='function')chatArenaAtk({t:Date.now(),i:meta.opp,win});
+ arLog({k:'atk',i:meta.opp,win,d,cp:meta.cp,pts:meta.pts});if(win&&typeof relBump==='function'&&typeof botUid==='function'&&botUid(meta.opp))relBump(botUid(meta.opp),-1);   // dikalahkan di Arena: sedikit kesal
  S.daily.c.arena=(S.daily.c.arena||0)+1;A.seed++;A.opps=[];AR.at=0;save();try{arFindOpps()}catch(e){}
  return{win,d,before,after:A.pts,lgB,lgA:arLeague(A.pts),rw,ups,meta}}
 function arLog(e){const A=S.arena;e.t=e.t||Date.now();e.id=(A.lid=(A.lid||0)+1);A.log.unshift(e);A.log.sort((a,b)=>b.t-a.t);A.log.length=Math.min(A.log.length,30)}
@@ -7703,8 +7338,7 @@ function arDefTick(now=Date.now()){const A=arState(),C=ARENA_CFG;if(!A.reg||!bot
   const st=botState(e.i),atk=arUnits(st,st.team);if(!atk.length)continue;
   const b=arSim(arMakeB(atk,def,{sim:true,auto:true,speed:1})),held=!b.result;
   const E=1/(1+Math.pow(10,(e.pts-A.pts)/400)),d=held?Math.max(2,Math.round(C.kDef*(1-E))):-Math.max(C.minLose,Math.round(C.kDef*E));
-  A.pts=Math.max(0,A.pts+d);arLog({k:'def',t,i:e.i,win:held,d,cp:st.cp,pts:e.pts,bRev:ri!=null?1:0});n++;
-  if(typeof chatArenaHit==='function')chatArenaHit({t,i:e.i,held,rev:ri!=null})}
+  A.pts=Math.max(0,A.pts+d);arLog({k:'def',t,i:e.i,win:held,d,cp:st.cp,pts:e.pts,bRev:ri!=null?1:0});n++;}
  A.unseen=(A.unseen||0)+n;AR.at=0;save();return n}
 
 /* ==== js/systems/topup.js ==== */
@@ -7819,7 +7453,7 @@ function bunDeliver(sku){const b=bunDef(sku),B=bunState(),now=Date.now();(B.boug
  if(b.fund){save();return{fund:1,rw:{}}}
  const rw=Object.assign({},b.rw),pick=rw.pickHero;delete rw.pickHero;bunGrant(rw);
  if(pick)sendMail({id:'bun_'+sku+'_'+now,from:TOPUP_CFG.merchant,title:T('{n}: pilih 1 hero ★{s}',{n:T(b.n),s:pick}),body:T('Bagian dari {n}. Pilih hero ★{s} yang kamu mau.',{n:T(b.n),s:pick}),rw:{pickHero:pick}});
- if(typeof chatAct==='function')chatAct(T('membeli {n}',{n:T(b.n)}));save();return{rw:b.rw}}
+ save();return{rw:b.rw}}
 // Dana Pertumbuhan
 const bunFundOwned=()=>(bunState().bought.gf||[]).length>0;
 const bunFundList=()=>{const F=TOPUP_CFG.fund,B=bunState();return F.lv.map((lv,k)=>({lv,gems:F.gems[k],got:!!B.gf.claimed[lv],ok:S.lv>=lv}))};
@@ -7834,40 +7468,24 @@ function goldBuy(){const G=TOPUP_CFG.gold,i=goldInfo();if(i.left<=0)return{err:T
 
 /* ==== js/systems/chat.js ==== */
 /* =====================================================================
-   OBROLAN DUNIA — mesin (isi kalimat: data/chat/*.js, tampilan: ui/chat.js + css/chat.css)
+   KONTEKS BOT UNTUK OBROLAN — persona menulis, keadaan, aktivitas, siapa yang online
    ---------------------------------------------------------------------
-   - Obrolan bot DETERMINISTIK per menit (seed = menit + generasi dunia bot) -> semua pemain
-     melihat percakapan bot yang sama, seperti server sungguhan.
-   - Hanya bot yang sedang ONLINE (jam main WIB-nya) yang bicara. Ramai/sepinya chat mengikuti
-     jumlah yang online. Kebanyakan bot hanya membaca; tiap bot punya persona menulis tetap.
-   - Isi obrolan berasal dari keadaan ASLI bot: hero favorit, pity, CP, tahap, liga, top up,
-     tabungan, hoki/apes, baru gabung, kembali main, ganti nama, mau berhenti, dst.
-   - Kejadian nyata memicu reaksi: dapat ★3 (diumumkan sistem), rate off, top up, banner baru,
-     hero baru, pemain baru (disambut), balas dendam Arena terhadapmu.
-   - Pesanmu & balasan bot untukmu disimpan lokal (CH_ME). Balasan: Claude bila tersedia,
-     selain itu otak lokal (data/chat/brain.js). Bot yang kamu sebut saat offline membalas
-     ketika ia online lagi.
-   - Kolam kalimat buatan Claude ('bots/chatlines') ikut dipakai dan terus bertambah.
+   Obrolan dunia sekarang ada di SERVER (ui/chat.js ↔ bank-worker /api/wc): pesan pemain asli + adegan bot
+   yang ditulis Claude Haiku (Mode AI) atau stiker tanpa AI. File ini hanya menyediakan bahan yang deterministik
+   (sama di semua perangkat) untuk itu dan untuk profil bot:
+   - chPersona(i)   gaya menulis tetap per bot (data/chat/style.js) — .chat = seberapa sering ia bicara
+   - chCtx(i,t)     keadaan ASLI bot (hero favorit, CP, tahap, pity, VIP, liga, ...)
+   - botActivity()  apa yang sedang ia mainkan saat online (tahap, dungeon, arena, raid, gacha, ...)
+   - chOnline(t)    bot yang sedang online (indeks sesi per hari WIB)
+   - chWorldTxt()   ringkasan keadaan server (banner, hero baru, pemain teratas, event) untuk AI
+   (22 Nov 2026: mesin obrolan lokal lama — kalimat per menit, otak balasan lokal, kolam kalimat Claude
+    lewat window.claude — dihapus karena sudah tidak dipanggil sejak obrolan pindah ke server.)
    ===================================================================== */
-const CHAT_CFG={
- rate:1,              // pengali keramaian chat
- win:90*6e4,          // riwayat yang dibuat saat chat dibuka (ms)
- keep:450,            // pesan maksimum di memori
- meKeep:220,          // pesanmu + balasan untukmu yang disimpan
- thread:.24,          // peluang pesan pembuka jadi utas tanya-jawab
- sysLim:.45,          // peluang ★3 terbatas bot diumumkan sistem
- linesMax:1600,linesBatch:50,linesEvery:20*6e4,   // kolam kalimat Claude
-};
-const CHAT={all:[],ids:new Set(),mins:new Set(),evTo:0,me:[],mem:{},pers:{},idx:{},w:null,wAt:0,lines:[],unread:0,mention:0,seenT:0,inited:false};
-const CH_ME='aster_chat_me',CH_MEM='aster_chat_mem',CH_LINES='aster_chatlines';
+const CHAT={pers:{},idx:{},w:null,wAt:0};
 /* ---------- util ---------- */
 const chR=(a,b)=>bRng(bHash(a,b));
 const chPick=(r,L)=>L[Math.floor(r()*L.length)];
-function chWPick(r,L){let tot=0;for(const x of L)tot+=x.w==null?1:x.w;let y=r()*tot;for(const x of L){y-=x.w==null?1:x.w;if(y<0)return x}return L[L.length-1]}
-function chPois(r,l){let k=0,p=Math.exp(-l),s=p;const u=r();while(u>s&&k<12){k++;p*=l/k;s+=p}return k}
-const chHashS=s=>{let h=2166136261;for(let k=0;k<s.length;k++)h=Math.imul(h^s.charCodeAt(k),16777619);return h>>>0};
 const wibHour=t=>new Date(t+BOT_CFG.TZ*36e5).getUTCHours(),wibDow=t=>new Date(t+BOT_CFG.TZ*36e5).getUTCDay(),wibDate=t=>new Date(t+BOT_CFG.TZ*36e5).getUTCDate();
-const EL_ADV={api:'tanah',tanah:'air',air:'api',cahaya:'gelap',gelap:'cahaya'};
 
 /* ---------- persona menulis (tetap per bot) ---------- */
 function chPersona(i){if(CHAT.pers[i])return CHAT.pers[i];const r=chR(i,555),CS=CHAT_STYLE,R=CS.regs,keys=Object.keys(R);
@@ -7880,11 +7498,12 @@ function chPersona(i){if(CHAT.pers[i])return CHAT.pers[i];const r=chR(i,555),CS=
 /* ---------- dunia saat ini (banner, hero baru, pemain teratas...) ---------- */
 function chWorld(now=Date.now()){if(CHAT.w&&now-CHAT.wAt<3e4)return CHAT.w;const E=BOT_CFG.ERAS[eraIdx(now)];
  let newId=null,newAt=0;for(const[id,t]of Object.entries(BOT_CFG.HERO_SINCE))if(t<=now&&t>newAt&&HD[id]){newAt=t;newId=id}
- let top=null,tcp=0;for(const k in BOTS.cache){const c=BOTS.cache[k];if(c&&c.cp>tcp&&botIn(+k,now)){tcp=c.cp;top=+k}}
+ // pemain teratas dari daftar peringkat (dulu: isi cache perangkat → bisa beda antar perangkat)
+ let top=null,tcp=0;try{for(const e of botsList(now))if(!e.me&&e.cp>tcp){tcp=e.cp;top=e}}catch(e){}
  const lims=(E.limited.length?E.limited:E.hero).filter(id=>HD[id]),wp=(E.wpn||[]).find(Boolean);
  CHAT.wAt=now;return CHAT.w={lims:lims.length?lims:['celestine'],limId:lims[0]||'celestine',limw:wp&&WD[wp]?WD[wp].name:'senjata terbatas',newId:newId||'celestine',newRecent:newId&&now-newAt<5*BDAY,
   newHeal:newId&&HD[newId].skill==='heal',heals:HEROES.filter(h=>h.skill==='heal'&&h.r>=2).map(h=>h.name),events:(typeof EVENTS!=='undefined'?EVENTS.filter(evActive).map(e=>e.n):[]),
-  top:top!=null?botName(top,now):'',topCP:tcp,meTop:typeof teamPow==='function'&&teamPow()>tcp,online:chOnline(now).length}}
+  top:top?top.name:'',topCP:tcp,meTop:typeof teamPow==='function'&&teamPow()>tcp,online:chOnline(now).length}}
 
 /* ---------- siapa yang online (indeks sesi per hari WIB) ---------- */
 // sesi diurutkan menurut mulai -> cari dengan biner, cukup periksa sesi yang mulai ≤ 60 menit sebelum t
@@ -7897,13 +7516,12 @@ function chOnline(t){const d=wibDay(t),out=[],seen=new Set();
  return out.sort((a,b)=>a-b)}
 
 /* ---------- konteks bot (keadaan ASLI) ---------- */
-function chCtx(i,t){const s=botState(i),b=botBase(i),st=s.stats,p=chPersona(i),fav=s.fav||s.team[0]||Object.keys(s.heroes)[0];
+function chCtx(i,t=Date.now()){const s=botState(i,t),b=botBase(i),st=s.stats,p=chPersona(i),fav=s.fav||s.team[0]||Object.keys(s.heroes)[0];
  const si=SLIST.findIndex(x=>x.key===s.stage);
  return{i,t,name:botName(i,t),heroId:fav,hero:HD[fav]?HD[fav].name:'Celestine',ids:Object.keys(s.heroes),has:id=>!!s.heroes[id],cp:s.cp,lv:s.lv,stage:s.stage,stageN:si,
   pity:st.pity||0,held:st.held||0,paid:st.spent>0,card:!!st.card,vip:st.vip||0,luck:st.luck,mood:b.mood,pf:b.pf,sk:b.sk,days:st.days,
   fading:b.quit<Infinity&&t>=b.segs[1][0]&&t<b.endT,night:wibHour(t)>=23||wibHour(t)<4,newRecent:chWorld().newRecent,newId:chWorld().newId,top:chWorld().top,
   get league(){if(typeof arBotPtsNow!=='function')return'';const v=arBotPtsNow(i);return v==null?'':T(arLg(v).n)},p}}
-
 
 /* ---------- aktivitas bot saat ini (bot benar-benar "memainkan" fitur yang sudah terbuka untuknya) ----------
    Deterministik per sesi & per slot 6 menit: awal sesi ambil hadiah/misi, lalu push tahap (macet bila CP < rekomendasi),
@@ -7925,270 +7543,10 @@ function botActivity(i,now=Date.now()){const p=botPresence(i,now);if(!p.online)r
  if(s.stats.held>0)L.push([.8,()=>({k:'save',t:'nabung permata buat banner berikutnya, nahan diri gak narik'})]);
  L.push([.5,()=>({k:'ev',t:'ngecek event & misi'})]);
  let x=r()*L.reduce((a,v)=>a+v[0],0);for(const[w,f]of L){if(x<w)return f();x-=w}return L[0][1]()}
-/* ---------- isi slot & variasi ---------- */
-function chLaugh(p,r){let l=chPick(r,p.laugh);if(/^wk/i.test(l)){const up=l===l.toUpperCase();l=(up?'WK':'wk').repeat(1+Math.floor(r()*4))+(r()<.3?(up?'W':'w'):'')}return l}
-function chFill(tpl,c,r,ex={}){const W=chWorld();if(typeof tpl==='function')tpl=tpl(c,W,CHAT.mem);if(!tpl)return null;if(typeof tpl==='object')tpl=tpl.t;
- let s=String(tpl).replace(/\[([^\[\]]*)\]/g,(m,a)=>chPick(r,a.split('|')));
- const limId=ex.limId||chPick(r,W.lims),els=Object.keys(EL_ADV),el=ex.el||chPick(r,els),P=CHAT.mem,p=c.p||{},h=wibHour(c.t||Date.now());
- const V={hero:c.hero,rh:()=>HD[chPick(r,c.ids&&c.ids.length?c.ids:['celestine'])].name,got:ex.got,lim:HD[limId].name,limw:W.limw,newh:HD[W.newId].name,pity:c.pity,stage:c.stage,
-  cp:()=>p.cpK&&c.cp>=1000?(c.cp/1000).toFixed(c.cp>=1e4?0:1).replace('.',',')+'k':String(c.cp),lv:c.lv,league:()=>c.league||T('Perunggu'),held:c.held,days:c.days,vip:c.vip,
-  n:ex.n!=null?ex.n:20+Math.floor(r()*130),to:ex.to||'',me:(typeof S!=='undefined'&&S.name)||'kamu',top:W.top||'yang top 1',call:p.call||'kak',laugh:()=>chLaugh(p,r),emo:()=>chPick(r,p.emo||CHAT_STYLE.emos),
-  sad:()=>chPick(r,CHAT_STYLE.emoSad),happy:()=>chPick(r,CHAT_STYLE.emoHappy),city:()=>chPick(r,CHAT_LINES.city),food:()=>chPick(r,CHAT_LINES.food),
-  el:EL[el].n,weak:EL[EL_ADV[el]].n,hour:h,online:W.online,pitymax:PITY,soft:SOFT_PITY.at,dupe:DUPE_MAX,old:ex.old||'',x:ex.x||'',
-  pfav:P.fav||'',pcity:P.city||'',pcp:typeof teamPow==='function'?fmt(teamPow()):'',prank:ex.prank||'',greet:h<11?'pagi':h<15?'siang':h<18?'sore':'malam'};
- s=s.replace(/\{(\w+)\}/g,(m,k)=>{let v=V[k];if(typeof v==='function')v=v();return v==null||v===''?(k==='to'?'':m):String(v)});
- return/\{\w+\}/.test(s)?null:s.replace(/\s+/g,' ').trim()}
 
-/* ---------- gaya menulis: singkatan, huruf kecil, tawa, salah ketik, pecah pesan ---------- */
-function chTypo(w,r){const K=CHAT_STYLE.keys.split('|'),pos=1+Math.floor(r()*(w.length-2)),op=Math.floor(r()*4),c=w[pos].toLowerCase();
- if(op===0)return w.slice(0,pos)+w[pos+1]+w[pos]+w.slice(pos+2);if(op===1)return w.slice(0,pos)+w.slice(pos+1);if(op===2)return w.slice(0,pos)+w[pos]+w.slice(pos);
- for(const row of K){const k=row.indexOf(c);if(k>=0){const n=row[k+(r()<.5?-1:1)]||row[k-1];return w.slice(0,pos)+n+w.slice(pos+1)}}return w}
-function chStyle(text,p,r,o={}){const CS=CHAT_STYLE;let fix=null;
- let parts=text.split(/\s*\/\/\s*/).filter(Boolean).map(seg=>{let W=seg.split(' ');
-  W=W.map(w=>{if(w[0]==='@')return w;const low=w.toLowerCase().replace(/[^a-z]/g,''),A=CS.abbr[low];if(A&&low.length>1&&r()<p.abbr){const alt=A[bHash(p.seed,chHashS(low))%A.length];return w.replace(new RegExp(low,'i'),alt)}return w});
-  if(p.jp&&r()<p.jp*.3)(r()<.5?W.unshift(chPick(r,CS.jp.pre)):W.push(chPick(r,CS.jp.post)));
-  if(r()<p.g.elong*.45){for(let k=W.length-1;k>=0;k--)if(/[aiueoh]$/i.test(W[k])&&W[k][0]!=='@'){W[k]+=W[k].slice(-1).repeat(1+Math.floor(r()*3));break}}
-  let s=W.join(' ');
-  if(p.typo&&!fix&&r()<p.typo*W.length){const cand=W.map((w,k)=>[w,k]).filter(([w])=>w.length>=4&&w[0]!=='@'&&/^[a-z]+$/i.test(w));if(cand.length){const[w,k]=chPick(r,cand),bad=chTypo(w,r);if(bad!==w){W[k]=bad;s=W.join(' ');if(r()<CS.fixP)fix='*'+w}}}
-  if(p.lower)s=s.split(' ').map(w=>w[0]==='@'?w:w.toLowerCase()).join(' ');else if(r()<.75)s=s.charAt(0).toUpperCase()+s.slice(1);
-  if(o.hype&&r()<.22)s=s.toUpperCase();
-  const q=/\?$/.test(s);if(q&&r()<.3)s=s.replace(/\?$/,chPick(r,['??','???','',' ?']));
-  if(!q&&!/[.!?)(:;^]$/.test(s)&&r()<p.g.punct)s+=chPick(r,['.','!','..','...','!!']);
-  if(r()<p.g.emo*.28&&!/[\^:;)(]$/.test(s))s+=' '+chPick(r,p.emo);
-  return s});
- if(parts.length===1&&parts[0].length>32&&r()<p.g.split*.4){const s=parts[0],k=s.indexOf(' ',Math.floor(s.length*.45));if(k>0)parts=[s.slice(0,k),s.slice(k+1)]}
- return{parts,fix}}
-
-/* ---------- membuat & menyimpan pesan ---------- */
-function chMk(out,t,i,tpl,c,r,ex={},o={}){const txt=chFill(tpl,c,r,ex);if(!txt)return t;const{parts,fix}=chStyle(txt,c.p,r,o);let tt=t;
- parts.forEach((s,k)=>{if(k)tt+=2e3+Math.floor(r()*5e3);out.push({id:(o.k||'b')+':'+i+':'+tt+':'+k,t:tt,i,text:s.slice(0,140),k:o.k||'b',me:!!o.me,ment:/@/.test(s)})});
- if(fix){tt+=3e3+Math.floor(r()*6e3);out.push({id:'fx:'+i+':'+tt,t:tt,i,text:fix,k:'fx',me:!!o.me})}return tt}
-function chAdd(L){let add=0;for(const m of L){if(CHAT.ids.has(m.id))continue;CHAT.ids.add(m.id);CHAT.all.push(m);add++}
- if(add){CHAT.all.sort((a,b)=>a.t-b.t);if(CHAT.all.length>CHAT_CFG.keep*1.3){const cut=CHAT.all.length-CHAT_CFG.keep;CHAT.all.splice(0,cut)}}}
-function chLine(src,key,c,r){let L=(CHAT_LINES[src]||{})[key]||[];if(c.p&&c.p.en&&CHAT_LINES.en[key]&&r()<.85)L=CHAT_LINES.en[key];
- L=L.filter(x=>!(x&&typeof x==='object'&&x.if&&!x.if(c)));const ex=CHAT.lines.filter(x=>x.tag===key&&x.at<=(c.t||Date.now()));
- if(ex.length&&(!L.length||r()<ex.length/(ex.length+L.length*1.5)))return chPick(r,ex).t;return L.length?chWPick(r,L.map(x=>typeof x==='object'?x:{t:x})).t:null}
-
-/* ---------- obrolan biasa ---------- */
-function chAmbKey(c,t,r){const h=wibHour(t),dow=wibDow(t),date=wibDate(t),K=[],add=(k,w)=>K.push({k,w});
- if(h>=5&&h<10)add('pagi',3);if(h>=11&&h<14)add('siang',2);if(h>=15&&h<18)add('sore',2);if(h>=18&&h<23)add('malam',2.2);if(h>=23||h<4)add('dini',3);
- if(dow===1&&h<14)add('senin',1.5);if(dow===5)add('jumat',1);if(dow===6||dow===0)add('weekend',1.5);if(BOT_CFG.SPEND.payday.dates.includes(date))add('gajian',1.1);
- if((h>=11&&h<14)||(h>=18&&h<21))add('makan',1);add('cuaca',.4);if(h>=22||h<2)add('ngantuk',1.2);add('gabut',1.5);if(h>=8&&h<17&&dow>=1&&dow<=5)add('kerja',1);add('kuliah',.3);
- add('harap',1.5);add('apes',c.luck==='sial'||c.mood==='sial'?2.2:.6);if(c.luck==='hoki')add('hoki',1.5);if(c.pity>=60)add('pityTinggi',2);if(c.held>0)add('nabung',1.6);
- add('farming',c.pf==='rajin'||c.pf==='hardcore'?1.4:.5);add('stuck',1.2);add('arena',1.1);add('cp',.8);if(c.lv<15||c.days<=1)add('pemula',2.5);if(c.days>=3)add('veteran',.6);
- add('favorit',1.6);add('opini',1.2);if(c.newRecent)add('baru',1.5);add('banner',1.2);add('topup',c.paid?1.2:.5);add('live2d',.5);add('meta',.07);add('motivasi',.5);if(c.fading)add('rehat',2.5);
- return chWPick(r,K).k}
-function chAmb(out,i,t,r){const c=chCtx(i,t),b=botBase(i);
- // hampir selesai sesi -> pamit
- const ses=botSessions(b,wibDay(t)).find(([a,z])=>a<=t&&t<z);const key=ses&&ses[1]-t<4*6e4&&r()<.55?'pamit':chAmbKey(c,t,r);
- const tpl=chLine('amb',key,c,r);if(tpl)chMk(out,t,i,tpl,c,r,{to:chOther(i,t,r)})}
-// nama bot lain yang online (untuk {to})
-function chOther(i,t,r,on){on=on||chOnline(t);const o=on.filter(x=>x!==i);return o.length?botName(chPick(r,o),t):''}
-function chSpeaker(r,L){if(!L||!L.length)return null;let best=null,bw=-1;for(let k=0;k<5;k++){const i=chPick(r,L),w=chPersona(i).chat*(.5+r());if(w>bw){bw=w;best=i}}return best}
-
-/* ---------- utas tanya-jawab ---------- */
-function chThread(out,i,t,r,talk){const c=chCtx(i,t),TH=CHAT_THREADS.filter(x=>!x.if||x.if(c));if(!TH.length)return chAmb(out,i,t,r);const th=chWPick(r,TH);
- const others=talk.filter(x=>x!==i);if(!others.length)return chAmb(out,i,t,r);const to=botName(chPick(r,others),t);
- let tt=chMk(out,t,i,chPick(r,th.ask),c,r,{to});const n=th.n[0]+Math.floor(r()*(th.n[1]-th.n[0]+1)),used=new Set([i]);let wrong=null,last=i;
- for(let k=0;k<n;k++){const j=chSpeaker(r,others.filter(x=>!used.has(x)));if(j==null)break;used.add(j);const cj=chCtx(j,tt);
-  let a=null,tries=0;while(!a&&tries++<6){const pick=chWPick(r,th.ans.map(x=>typeof x==='object'&&typeof x!=='function'?x:{t:x}));const txt=typeof pick.t==='function'?pick.t(cj,chWorld(),CHAT.mem):pick.t;if(txt){a={t:txt,x:pick.x}}}
-  if(!a)continue;tt+=1.5e4+Math.floor(r()*(k?9e4:6e4));tt=chMk(out,tt,j,a.t,cj,r,{to:botName(i,tt)});last=j;if(a.x)wrong=j}
- if(wrong!=null&&th.fix&&r()<.75){const j=chSpeaker(r,others.filter(x=>x!==wrong));if(j!=null){tt+=8e3+Math.floor(r()*3e4);tt=chMk(out,tt,j,chPick(r,th.fix),chCtx(j,tt),r,{to:botName(wrong,tt)})}}
- if(last!==i&&th.thx&&r()<.65){tt+=1e4+Math.floor(r()*5e4);tt=chMk(out,tt,i,chPick(r,th.thx),c,r,{to:botName(last,tt)})}
- if(th.extra&&r()<.35){const j=chSpeaker(r,others);if(j!=null){tt+=1e4+Math.floor(r()*4e4);chMk(out,tt,j,chPick(r,th.extra),chCtx(j,tt),r,{})}}}
-
-/* ---------- satu menit obrolan (deterministik) ---------- */
-function chGenMinute(m){if(CHAT.mins.has(m))return;CHAT.mins.add(m);const t0=m*6e4,r=chR(m%2147483,61+BOTS.gen),on=chOnline(t0+3e4),out=[];
- const talk=on.filter(i=>chPersona(i).chat>0);const lam=Math.min(2.4,.085*Math.sqrt(on.length))*CHAT_CFG.rate;let k=chPois(r,lam);
- for(let j=0;j<k&&talk.length;j++){const i=chSpeaker(r,talk),t=t0+Math.floor(r()*6e4);try{if(r()<CHAT_CFG.thread&&talk.length>=3)chThread(out,i,t,r,talk);else chAmb(out,i,t,r)}catch(e){}}
- chAdd(out)}
-
-/* ---------- kejadian nyata bot -> reaksi ---------- */
-const chSnap=(b,t)=>{const s=botSnap(b,t);return botActive(b,s)?s:null};
-function chEvents(from,to){if(!botsWarmOk()||to<=from)return;const ids=botsIds(to),n=ids.length,out=[],W=chWorld(to),EV=CHAT_LINES.ev;
- for(const i of ids){const b=botBase(i);if(b.join>=to||b.endT<from)continue;const p=chPersona(i),talkW=Math.min(1,.35+p.chat*.4);
-  const say=(t,key,ex,o,prob,now)=>{const r=chR(i,chHashS(key+':'+Math.floor(t))%1e6);if(r()>=prob*talkW)return;const tt=now?t+Math.floor(r()*6e4):chSnap(b,t+4e3+Math.floor(r()*8e4));if(tt==null)return;
-   const c=chCtx(i,tt),tpl=chLine('ev',key,c,r);if(tpl)chMk(out,tt,i,tpl,c,r,ex,o)};
-  if(b.join>=from&&b.join<to){say(b.join+6e4,'join',{},{},.16,1);const r=chR(i,881);if(r()<.22){const on=chOnline(b.join+2e5).filter(x=>x!==i&&chPersona(x).chat>0);
-   for(let k=0,m=1+Math.floor(r()*r()*3);k<m&&on.length;k++){const j=chPick(r,on),tt=b.join+9e4+k*2.5e4+Math.floor(r()*6e4),cj=chCtx(j,tt);const tpl=chLine('ev','welcome',cj,r);if(tpl)chMk(out,tt,j,tpl,cj,r,{to:botName(i,tt)})}}}
-  const s=BOTS.cache[i];if(s&&s.ev)for(let k=s.ev.length-1;k>=0;k--){const e=s.ev[k];if(e.t<from)break;if(e.t>=to)continue;const nm=e.w?WD[e.id].name:HD[e.id].name;
-   if(e.lim&&!e.w){const rs=chR(i,chHashS('sys'+e.t));if(rs()<CHAT_CFG.sysLim){out.push({id:'sys:'+i+':'+e.t,t:e.t+1500,i,sys:1,k:'sys',hero:e.id,text:T('{n} mendapatkan ★3 {h}!',{n:botName(i,e.t),h:nm})});
-    // yang lain kadang memberi selamat
-    if(rs()<.3){const on=chOnline(e.t).filter(x=>x!==i&&chPersona(x).chat>0);if(on.length){const j=chPick(rs,on),tt=e.t+8e3+Math.floor(rs()*4e4),cj=chCtx(j,tt),tpl=chLine('ev','grats',cj,rs);if(tpl)chMk(out,tt,j,tpl,cj,rs,{to:botName(i,e.t)})}}}}
-   const key=e.w?'pullWpn':e.dupe&&!e.lim?'pullDupe':e.lim&&e.n<=20?'pullEarly':e.lim?'pullLim':e.up&&!e.on?'pullOff':'pullStd';
-   say(e.t,key,{got:nm,n:e.n},{hype:key==='pullLim'||key==='pullEarly'},e.lim?.6:key==='pullOff'?.5:.22)}
-  if(b.tier.id!=='f2p'){const sp=botSpend(b,to);for(let k=sp.buys.length-1;k>=0;k--){const o=sp.buys[k];if(o.t<from)break;if(o.t>=to)continue;
-   const era=BOT_CFG.ERAS.some(E=>o.t-E.at>0&&o.t-E.at<2*BDAY),big=o.id==='g5'||o.id==='g6';
-   say(o.t,o.id==='mc'?'buyCard':era&&o.id!=='g1'?'buyBanner':big?'buyBig':'buySmall',{},{},o.id==='mc'?.16:big?.35:era?.3:.1)}}
-  if(b.back&&b.segs[2][0]>=from&&b.segs[2][0]<to)say(b.segs[2][0],'comeback',{},{},.55);
-  if(b.rn&&b.rn.t>=from&&b.rn.t<to&&b.rn.k<BOTS.renames.length)say(b.rn.t+3e4,'rename',{old:BOTS.names[i]},{},.6);
-  if(b.quit<Infinity&&b.segs[1]&&b.segs[1][0]>=from&&b.segs[1][0]<to)say(b.segs[1][0],'rehat',{},{},.35)}
- // banner / hero baru: serbuan obrolan dari yang online
- const burst=(t0,key,salt)=>{if(t0<from||t0>=to)return;const r=chR(salt,77),on=chOnline(t0+6e5).filter(x=>chPersona(x).chat>0);for(let k=0,m=4+Math.floor(r()*8);k<m&&on.length;k++){const j=chPick(r,on),tt=t0+Math.floor(r()*30*6e4),c=chCtx(j,tt);const tpl=chLine('ev',key,c,r);if(tpl)chMk(out,tt,j,tpl,c,r,{},{hype:true})}};
- BOT_CFG.ERAS.forEach((E,k)=>k&&burst(E.at,'eraStart',9100+k));Object.entries(BOT_CFG.HERO_SINCE).forEach(([id,t],k)=>burst(t,'newHero',9300+k));
- chAdd(out)}
-
-/* ---------- jalankan: buat menit yang belum, tampilkan yang sudah lewat ---------- */
-function chatPump(now=Date.now()){if(!botsWarmOk()||!BOTS.names.length)return;chatInit();
- const m1=Math.floor(now/6e4),m0=Math.floor((now-CHAT_CFG.win)/6e4)-12;for(let m=Math.max(m0,m1-140);m<=m1+1;m++)chGenMinute(m);
- const from=Math.max(CHAT.evTo||now-CHAT_CFG.win,now-CHAT_CFG.win);chEvents(from,now);CHAT.evTo=now;chLinesEnsure()}
-function chatVisible(now=Date.now()){const L=CHAT.all.filter(m=>m.t<=now&&m.t>=now-CHAT_CFG.win*1.5).concat(CHAT.me.filter(m=>m.t<=now));return L.sort((a,b)=>a.t-b.t).slice(-CHAT_CFG.keep)}
-function chatTyping(now=Date.now()){const L=CHAT.all.concat(CHAT.me).filter(m=>!m.me&&!m.sys&&m.i!=null&&m.t>now&&m.t-now<Math.min(12e3,2500+m.text.length*260));return[...new Set(L.map(m=>m.i))].slice(0,3)}
-// nama tampil
-const chName=m=>m.me?(S.name||'Kamu'):m.i!=null&&BOTS.names[m.i]!=null?botName(m.i,m.t):'???';
-
-/* ---------- penyimpanan lokal ---------- */
-function chatInit(){if(CHAT.inited)return;CHAT.inited=true;try{CHAT.me=JSON.parse(localStorage.getItem(CH_ME)||'[]').filter(m=>m&&m.t)}catch(e){CHAT.me=[]}
- try{CHAT.mem=JSON.parse(localStorage.getItem(CH_MEM)||'{}')||{}}catch(e){CHAT.mem={}}try{CHAT.lines=JSON.parse(localStorage.getItem(CH_LINES)||'[]')}catch(e){CHAT.lines=[]}
- CHAT.seenT=CHAT.mem.seenT||Date.now()-5*6e4;
- if(BOTS.db)BOTS.db.doc('bots/chatlines').onSnapshot(s=>{const d=s.exists?s.data():null;if(d&&Array.isArray(d.list))chLinesSet(d.list)},()=>{})}
-function chatSaveMe(){try{CHAT.me=CHAT.me.sort((a,b)=>a.t-b.t).slice(-CHAT_CFG.meKeep);localStorage.setItem(CH_ME,JSON.stringify(CHAT.me));localStorage.setItem(CH_MEM,JSON.stringify(CHAT.mem))}catch(e){}}
-
-/* ---------- kamu mengirim pesan -> bot menanggapi ---------- */
-function chNameMap(){const m=new Map();for(const i of botsIds()){m.set(BOTS.names[i].toLowerCase(),i);const b=botBase(i);if(b.rn&&b.rn.k<BOTS.renames.length)m.set(botName(i).toLowerCase(),i)}return m}
-function chBrainRe(re){const all=HEROES.map(h=>h.name.toLowerCase()).join('|'),s3=HEROES.filter(h=>h.r===3).map(h=>h.name.toLowerCase()).join('|');return new RegExp(re.source.replace(/HERO3/g,'('+s3+')').replace(/HERO/g,'('+all+')'),re.flags)}
-function chMatch(txt){const low=txt.toLowerCase();for(const it of CHAT_BRAIN.intents){const re=it._re||(it._re=chBrainRe(it.re)),m=low.match(re);if(m){const x=(m.slice(1).filter(Boolean).find(g=>HEROES.some(h=>h.name.toLowerCase()===g))||m[3]||m[1]||'');
-  return{it,x:x?x.charAt(0).toUpperCase()+x.slice(1):''}}}return null}
-function chatSend(raw){chatInit();const txt=String(raw||'').replace(/\s+/g,' ').trim().slice(0,100);if(!txt)return false;const now=Date.now();
- if(now-(CHAT.lastSend||0)<1500){toast(T('Pelan-pelan, tunggu sebentar.'),1);return false}CHAT.lastSend=now;
- CHAT.me.push({id:'me:'+now,t:now,me:true,text:txt,k:'me'});const P=CHAT.mem;P.n=(P.n||0)+1;chatSaveMe();chatRespond(txt,now);return true}
-async function chatRespond(txt,now){const P=CHAT.mem,low=txt.toLowerCase(),r=bRng((now^chHashS(txt))>>>0),out=[];
- const on=chOnline(now),talk=on.map(i=>[i,(chPersona(i).chat+.15)*r()]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
- // bot yang disebut namanya
- const NM=chNameMap(),ment=[];for(const tok of low.replace(/[^a-z0-9@ ]/g,' ').split(' ')){const k=tok.replace(/^@/,'');if(k.length>=3&&NM.has(k)&&!ment.includes(NM.get(k)))ment.push(NM.get(k))}
- // yang tadi ikut ngobrol lebih mungkin menanggapi
- const recent=[...new Set(chatVisible(now).filter(m=>m.i!=null&&!m.sys&&now-m.t<12*6e4).map(m=>m.i))].filter(i=>on.includes(i));
- const cands=[...new Set([...ment.filter(i=>on.includes(i)),...recent.slice(-3),...talk.slice(0,8)])].slice(0,9);
- // 1) Mode AI (Haiku lewat server) -> 2) Claude di claude.ai -> 3) otak lokal
- let done=false;try{let res=aiOn()?await chAI('reply',cands,{msg:txt}):null;if(res){if(res.length)chAIPost(res,now,'reply');res=null;done=true}else if(!aiOn()||CHAT.aiErr)res=await chClaude(txt,cands,ment,now);if(res&&res.length){let tt=now;res.forEach((x,k)=>{tt=Math.max(tt,now)+((x.delay||3+k*4)*1e3)+Math.floor(x.text.length*120);const c=chCtx(x.i,tt);
-   const{parts}=chStyle(x.text,Object.assign({},c.p,{abbr:c.p.abbr*.25,typo:c.p.typo*.5}),r);parts.forEach((s,q)=>out.push({id:'cr:'+x.i+':'+tt+':'+q,t:tt+q*2500,i:x.i,text:s.slice(0,140),k:'re',ment:/@/.test(s)}))});done=true}}catch(e){}
- // 2) otak lokal
- if(!done){const M=chMatch(txt),ask=P.lastAsk&&now-P.lastAsk.t<4*6e4&&on.includes(P.lastAsk.i)?P.lastAsk:null;let tt=now+2500+Math.floor(r()*4e3);
-  if(M&&M.it.learn)M.it.learn(P,low,M.x||(low.match(chBrainRe(M.it.re))||[])[3]);
-  const usedT=new Set(),reply=(i,tpl,ex={})=>{usedT.add(tpl);const c=chCtx(i,tt);tt=chMk(out,tt,i,tpl,c,r,Object.assign({x:M&&M.x,prank:chMyRank()},ex),{k:'re'})+4e3+Math.floor(r()*9e3)};
-  // jawaban atas pertanyaan bot: hanya bila pesannya pendek / memang jawaban (bukan topik baru yang jelas)
-  if(ask&&!/\?$/.test(txt)&&(!M||['favSaya','kotaSaya','ya','ketawa','senang'].includes(M.it.id)||txt.length<22)){const A=CHAT_BRAIN.ack[ask.k]||CHAT_BRAIN.ack.any;if(ask.k==='city')P.city=txt.split(' ').pop();if(ask.k==='fav'){const h=HEROES.find(h=>low.includes(h.name.toLowerCase()));if(h)P.fav=h.name}
-   reply(ask.i,chPick(r,A),{x:ask.k==='city'?P.city:(M&&M.x)||txt.split(' ').pop()});P.lastAsk=null}
-  else{const it=M?M.it:null,p=it?it.p:(ment.length?.95:/\?$/.test(txt)?.75:.45);
-   if(r()<p){const nMin=it?it.n[0]:1,nMax=it?it.n[1]:2,n=Math.max(ment.length?1:0,nMin+Math.floor(r()*(nMax-nMin+1)));
-    // yang disebut dulu, sisanya diundi (yang barusan ikut ngobrol sedikit lebih mungkin)
-    const pool=cands.filter(i=>!ment.includes(i)).map(i=>[i,(recent.includes(i)?1.6:1)*(chPersona(i).chat+.3)*r()]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
-    const who=[...ment.filter(i=>on.includes(i)),...pool].filter((v,k,a)=>a.indexOf(v)===k).slice(0,n);
-    who.forEach(i=>{const L=(it?it.rep:CHAT_BRAIN.fallback);let tpl=null,k=0;while(!tpl&&k++<8){const x=chPick(r,L);const v=typeof x==='function'?x(chCtx(i,tt),chWorld(),P):x;if(v&&!usedT.has(v))tpl=v}if(tpl)reply(i,tpl)});
-    // kadang bot balik bertanya
-    if(who.length&&r()<.22&&!(P.lastAsk&&now-P.lastAsk.t<6*6e4)){const Q=CHAT_BRAIN.ask.filter(q=>!q.if||q.if(P));if(Q.length){const q=chPick(r,Q),i=chPick(r,who);reply(i,q.t);P.lastAsk={i,k:q.k,t:tt}}}}}
-  // yang disebut tapi sedang offline: membalas saat online lagi
-  for(const i of ment)if(!on.includes(i)){const b=botBase(i),t2=chSnap(b,now+3e5);if(t2==null||t2-now>2*BDAY)continue;const c=chCtx(i,t2),L=M?M.it.rep:CHAT_BRAIN.fallback;const x=chPick(r,L),tpl=typeof x==='function'?x(c,chWorld(),P):x;
-   if(tpl)chMk(out,t2+2e4,i,chPick(r,['sori baru on {me}, ','eh baru liat, ','@{me} ','maaf telat bales, '])+tpl,c,r,{x:M&&M.x},{k:'re'})}}
- CHAT.me.push(...out);chatSaveMe()}
+/* ---------- peringkat CP-ku & ringkasan server untuk AI ---------- */
 function chMyRank(){try{const L=botsList().sort((a,b)=>b.cp-a.cp);return L.findIndex(e=>e.me)+1}catch(e){return 0}}
-
-/* ---------- Claude: balasan bebas sesuai persona & keadaan asli bot ---------- */
-function chDescribe(i,now){const c=chCtx(i,now),p=c.p,REG={gaul:'gaul, huruf kecil, banyak singkatan (yg, ga, bgt), suka ketawa '+p.laugh[0],santai:'santai, kadang singkatan',sopan:'sopan, kalimat rapi',inggris:'campur bahasa Inggris',wibu:'wibu, suka selip kata Jepang (yatta, sugoi)',singkat:'super singkat 1-4 kata'};
- return`- ${c.name}: gaya ${REG[p.reg]}; hero favorit ${c.hero}; Lv ${c.lv}; CP ${c.cp}; tahap ${c.stage}; ${c.league?'liga Arena '+c.league+'; ':''}gacha ${c.luck==='sial'?'lagi apes':c.luck==='hoki'?'lagi hoki':'biasa'}, pity ${c.pity}; ${c.vip>=4?'sultan VIP '+c.vip:c.paid?'kadang top up'+(c.card?', pakai kartu bulanan':''):'f2p'}${c.held?'; lagi nabung '+c.held+' tarikan':''}; main ${c.days} hari${c.fading?'; mulai bosan sama game':''}`}
-async function chClaude(txt,cands,ment,now){const cl=window.claude;if(!cl||typeof cl.use!=='function'||CHAT.noClaude||!cands.length)return null;if(now-(CHAT.clFail||0)<6e4)return null;
- let sample=null;try{sample=await cl.use('sample')}catch(e){}if(!sample){CHAT.noClaude=true;return null}const W=chWorld(now),P=CHAT.mem;
- const hist=chatVisible(now).slice(-16).map(m=>`${m.sys?'[SISTEM]':chName(m)+(m.me?' (pemain yang sedang kamu tanggapi)':'')}: ${m.text}`).join('\n');
- const prompt=`Kamu menulis balasan obrolan dunia (world chat) game mobile gacha pixel "Aster Chronicles". Para penulis di bawah adalah pemain sungguhan di server, BUKAN asisten.
-FAKTA GAME: hard pity ${PITY}, soft pity mulai ${SOFT_PITY.at}, rate off 50/50 lalu berikutnya pasti rate up. Banner sekarang: ${W.lims.map(id=>HD[id].name).join(', ')} (terbatas). Hero terbaru: ${HD[W.newId].name}. Hero: ${HEROES.map(h=>h.name+'(★'+h.r+' '+EL[h.el].n+' '+ROLE[h.role].n+')').join(', ')}. Elemen: api>tanah>air>api, cahaya dan gelap saling kuat. Permata dari misi harian, event, Arena, tahap pertama kali, top up; Kartu Bulanan 180 permata/hari. Arena: liga Perunggu-Perak-Emas-Platinum-Berlian-Legenda. Pemain CP tertinggi: ${W.top||'-'}.
-PEMAIN YANG MENGIRIM PESAN: ${S.name}, Lv ${S.lv}, CP ${teamPow()}, peringkat CP #${chMyRank()}${P.city?', dari '+P.city:''}${P.fav?', hero favorit '+P.fav:''}.
-CALON PENJAWAB (keadaan asli mereka, pakai bila relevan):
-${cands.map(i=>chDescribe(i,now)).join('\n')}
-${ment.length?'Pemain menyebut: '+ment.map(i=>botName(i,now)).join(', ')+' (yang disebut dan sedang online sebaiknya menjawab).':''}
-OBROLAN TERAKHIR:
-${hist}
-
-Tulis 0-3 balasan untuk pesan terakhir ${S.name} ("${txt}"). Pilih penjawab yang paling wajar dari calon; tidak harus semua. Boleh 0 bila pesannya memang tidak perlu ditanggapi.
-ATURAN: tiap balasan maks 90 karakter, bahasa & gaya sesuai persona masing-masing, alami seperti chat sungguhan (boleh bercanda, menggoda ringan, beda pendapat, bertanya balik), tanpa emoji, tanpa tautan, ramah keluarga, jangan sebut orang nyata atau merek, jangan pernah mengaku AI/bot/asisten, jangan mengulang kalimat orang lain. Fakta game harus benar. Panggil ${S.name} pakai @${S.name} bila perlu.
-Balas HANYA JSON: {"replies":[{"who":"nama penjawab","text":"...","delay":detik_mengetik_2_sampai_15}]}`;
- try{let o=null;if(typeof sample.json==='function')o=await sample.json(prompt,{modelTier:'quick'});else{const res=await sample(prompt,{modelTier:'quick'});const m=String(res&&res.text||'').match(/\{[\s\S]*\}/);o=m?JSON.parse(m[0]):null}
-  const L=(o&&(o.replies||(Array.isArray(o)?o:null)))||[],byName=new Map(cands.map(i=>[botName(i,now).toLowerCase(),i]));
-  return L.map(x=>({i:byName.get(String(x.who||'').toLowerCase()),text:String(x.text||'').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').replace(/https?\S+/g,'').trim().slice(0,110),delay:Math.max(2,Math.min(15,+x.delay||4))}))
-   .filter(x=>x.i!=null&&x.text.length>0).slice(0,3)}catch(e){CHAT.clFail=Date.now();if(e&&e.code==='not_granted')CHAT.noClaude=true;return null}}
-
-/* ---------- kolam kalimat buatan Claude (terus bertambah, dibagi lewat db) ---------- */
-function chLinesSet(L){const keys=new Set([...Object.keys(CHAT_LINES.amb),...Object.keys(CHAT_LINES.ev)]),seen=new Set(CHAT.lines.map(x=>x.t.toLowerCase())),add=[];
- for(const x of L){if(!x||typeof x.t!=='string'||!keys.has(x.tag))continue;const t=x.t.replace(/[^A-Za-z0-9À-ɏ .,!?'"~()\-:{}*^_/]/g,'').replace(/\s+/g,' ').trim();
-  if(t.length<2||t.length>90||/https?|www|@/.test(t)||seen.has(t.toLowerCase()))continue;seen.add(t.toLowerCase());add.push({t,tag:x.tag,at:+x.at||0})}
- if(add.length){CHAT.lines=CHAT.lines.concat(add).slice(-CHAT_CFG.linesMax);try{localStorage.setItem(CH_LINES,JSON.stringify(CHAT.lines))}catch(e){}}return add.length}
-async function chLinesEnsure(){const cl=window.claude,now=Date.now();if(!cl||typeof cl.use!=='function'||CHAT.noClaude||CHAT.linesBusy||now-(CHAT.linesAt||0)<CHAT_CFG.linesEvery||CHAT.lines.length>=CHAT_CFG.linesMax)return;
- CHAT.linesBusy=true;CHAT.linesAt=now;try{const sample=await cl.use('sample');if(!sample)return;const keys=Object.keys(CHAT_LINES.amb).concat(['pullLim','pullOff','pullEarly','buyBig','welcome','join','comeback']);
-  const pick=keys.sort(()=>Math.random()-.5).slice(0,10);
-  const prompt=`Buat ${CHAT_CFG.linesBatch} pesan obrolan dunia (world chat) yang ditulis pemain sungguhan di game mobile gacha pixel "Aster Chronicles" (hero: ${HEROES.map(h=>h.name).join(', ')}; ada Arena, dungeon, stamina, pity ${PITY}, top up & Kartu Bulanan). `+
-   `Tag yang dipakai (maknanya dari nama tag): ${pick.join(', ')}. Gaya beragam & natural: bahasa Indonesia santai/gaul, kadang Inggris, sedikit romaji. Boleh pakai slot {hero} (hero favorit penulis), {lim} (hero banner terbatas), {got} (yang barusan didapat, hanya untuk tag pull*), {stage}, {cp}, {laugh}, {food}, {city}. `+
-   `ATURAN: maks 70 karakter, tanpa emoji, tanpa tautan, tanpa @, ramah keluarga, jangan sebut orang nyata/merek, jangan mengulang pola yang sama. Balas HANYA array JSON [{"t":"teks","tag":"tag"}].`;
-  let arr=null;if(typeof sample.json==='function')arr=await sample.json(prompt,{modelTier:'quick'});if(arr&&!Array.isArray(arr))arr=Object.values(arr).find(Array.isArray)||null;
-  if(!Array.isArray(arr)){const res=await sample(prompt,{modelTier:'quick'});const m=String(res&&res.text||'').match(/\[[\s\S]*\]/);arr=m?JSON.parse(m[0]):[]}
-  if(chLinesSet(arr.map(x=>Object.assign({},x,{at:now})))&&BOTS.db&&BOTS.dbWrite)try{await BOTS.db.doc('bots/chatlines').set({list:CHAT.lines,updated:now})}catch(e){}
- }catch(e){if(e&&e.code==='not_granted')CHAT.noClaude=true}finally{CHAT.linesBusy=false}}
-
-/* ---------- hal yang melibatkanmu (lokal) ---------- */
-function chatLater(i,t,key,ex={},prob=1){const b=botBase(i),r=chR(i,chHashS(key+t));if(r()>=prob)return;const tt=chSnap(b,t+2e4+Math.floor(r()*12e4));if(tt==null)return;
- const c=chCtx(i,tt),tpl=chLine('ev',key,c,r);if(!tpl)return;const out=[];chMk(out,tt,i,tpl,c,r,ex,{k:'re'});chatInit();CHAT.me.push(...out);chatSaveMe()}
-// kamu menyerang bot i di Arena
-function chatArenaAtk(e){chatAct(`${e.win?'menang':'kalah'} menyerang ${botName(e.i)} di Arena`);if(e.win)chatLater(e.i,e.t,'beatenBy',{},botBase(e.i).mood==='sial'?.45:.3);CHAT.mem.arWin=e.win?botName(e.i):CHAT.mem.arWin}
-// bot menyerang tim bertahanmu (rev = balas dendam)
-function chatArenaHit(e){chatAct(`tim bertahannya ${e.held?'menahan':'dikalahkan'} ${e.rev?'balas dendam ':'serangan '}${botName(e.i)} di Arena`);if(e.rev)chatLater(e.i,e.t,e.held?'revLose':'revWin',{},e.held?.5:.6);else if(!e.held)chatLater(e.i,e.t,'hitWin',{},.15)}
-// tarikanmu: ★3 diumumkan sistem, bot yang online memberi selamat
-function chatPlayerPull(b,res){try{chatInit();const now=Date.now(),hit=res.filter(it=>itemR(it)===3);
- chatAct(`summon ${res.length}x di ${b.n}: ${hit.length?'dapat ★3 '+hit.map(it=>it.wid?WD[it.wid].name:HD[it.id].name).join(', '):'tidak dapat ★3'} (pity sekarang ${b.weapon?S.wpity:S.pity})`);if(!hit.length)return;const on=chOnline(now).filter(i=>chPersona(i).chat>0),r=bRng(now>>>0);
- hit.forEach((it,k)=>{const nm=it.wid?WD[it.wid].name:HD[it.id].name;CHAT.me.push({id:'msys:'+now+':'+k,t:now+1500+k*500,sys:1,k:'sys',hero:it.id||null,text:T('{n} mendapatkan ★3 {h}!',{n:S.name,h:nm})});
-  const lim=!!b.limited&&(it.id===b.rateUp||it.wid===b.rateUp);if(r()<(lim?.85:.5)){let tt=now+5e3;for(let j=0,m=1+Math.floor(r()*(lim?3:2));j<m&&on.length;j++){const i=chPick(r,on),c=chCtx(i,tt),tpl=chLine('ev','gratsMe',c,r);if(tpl)tt=chMk(CHAT.me,tt+3e3+Math.floor(r()*9e3),i,tpl,c,r,{got:nm},{k:'re'})}}});chatSaveMe()}catch(e){}}
-// panggilan dari bot: kamu masuk 10 besar / pemain baru (maks sekali sehari)
-function chatCallouts(now=Date.now()){const P=CHAT.mem,d=wibDay(now);if(P.callDay===d)return;const rk=chMyRank(),on=chOnline(now).filter(i=>chPersona(i).chat>0);if(!on.length)return;
- const r=bRng((d*7919)>>>0);let key=null;if(rk&&rk<=10)key='top';else if(S.lv<8)key='newbie';P.callDay=d;if(!key||r()>.7){chatSaveMe();return}
- const i=chPick(r,on),c=chCtx(i,now);chMk(CHAT.me,now+2e4+Math.floor(r()*9e4),i,chPick(r,CHAT_BRAIN.callout[key]),c,r,{prank:rk},{k:'re'});chatSaveMe()}
-// pasang kait ke tarikan pemain
-if(typeof pullItems==='function'){const _pull=pullItems;pullItems=function(b,n){const res=_pull(b,n);setTimeout(()=>chatPlayerPull(b,res),900);return res}}
-
-/* =====================================================================
-   MODE AI (Claude Haiku 5.5 lewat server bank-worker: POST /api/ai)
-   - Balasan untuk pesanmu + "adegan" obrolan berkala yang ditulis AI dari keadaan ASLI para bot
-     yang sedang online, obrolan terakhir, dan keadaanmu (akun, tim, aktivitas terbaru, layar yang dibuka).
-   - Token tidak ada di game: server yang menyimpannya. Pengetahuan game lengkap ada di server
-     (dibuat otomatis dari data game: tools/gen_knowledge.mjs).
-   - Nyala/mati di Menu > Pengaturan (S.aiMode, default nyala). Gagal/kuota habis -> kembali ke Claude/otak lokal.
-   ===================================================================== */
-CHAT_CFG.ai={scene:[70e3,140e3],idle:[240e3,420e3],hourMax:36,cands:7};
-const aiOn=()=>typeof S!=='undefined'&&S.aiMode!==false&&!!TOPUP_CFG.api;
-// jejak aktivitasmu (dipakai sebagai konteks AI, disimpan lokal)
-function chatAct(s){try{chatInit();const A=CHAT.mem.acts=CHAT.mem.acts||[];A.push({t:Date.now(),s:String(s).slice(0,140)});if(A.length>15)A.splice(0,A.length-15);chatSaveMe()}catch(e){}}
-const SCR_N={home:'Beranda',heroes:'Hero',adv:'Petualangan',summon:'Summon',mission:'Misi',team:'Tim',arena:'Arena'};
-function chPlayerInfo(){const team=S.team.filter(Boolean).map(id=>{const h=S.heroes[id],w=h.wpn&&WD[h.wpn];return`${HD[id].name}★${HD[id].r} Lv${h.lv}${h.lb?'+'+h.lb:''}${w?' ('+w.name+')':''}`}).join(', ');
- const own=Object.keys(S.heroes),s3=own.filter(id=>HD[id].r===3).map(id=>HD[id].name),cl=SLIST.filter(x=>S.stages[x.key]).pop(),A=S.arena||{},P=CHAT.mem;let lg='';try{if(A.reg)lg=`, Arena liga ${T(arLg(A.pts).n)} ${A.pts} poin (${A.wins||0} menang/${A.losses||0} kalah)`}catch(e){}
- return`Lv ${S.lv}, CP tim ${teamPow()}, peringkat CP #${chMyRank()} dari ${botsVisible()+1}, ${vipOf(S.iap&&S.iap.spent||0)?'VIP '+vipOf(S.iap.spent)+' (pernah top up)':'belum pernah top up'}; tim: ${team||'-'}; punya ${own.length}/${HEROES.length} hero${s3.length?' (★3: '+s3.join(', ')+')':''}; tahap terjauh ${cl?cl.key:'belum ada'}${lg}; permata ${S.gems}, emas ${S.gold}, stamina ${S.stam}; pity hero ${S.pity||0}${S.hg?' (★3 berikutnya dijamin rate up)':''}${P.city?'; tinggal di '+P.city:''}${P.fav?'; hero favorit '+P.fav:''}`}
 function chWorldTxt(now){const W=chWorld(now);return`banner terbatas ${W.lims.map(id=>HD[id].name).join(' & ')}${W.limw?', senjata rate-up '+W.limw:''}; hero terbaru ${HD[W.newId].name}${W.newRecent?' (baru rilis)':''}; ${typeof fameWorldTxt==='function'&&fameWorldTxt(now)||`CP #1 ${W.top} (${W.topCP})`}; event aktif: ${W.events.join(', ')||'-'}`}
-function chHist(now,n=22){return chatVisible(now).slice(-n).map(m=>`${chTime(m.t)} ${m.sys?'[SISTEM]':chName(m)+(m.me?' (PEMAIN)':'')}: ${m.text}`)}
-function chCandsDesc(L,now){return L.map(i=>{const s=botState(i),b=botBase(i),bio=botBio(i,s,0,now);return{name:botName(i,now),desc:chDescribe(i,now).replace(/^- [^:]+: /,'')+(s.stats.vip?'; VIP '+s.stats.vip:'')+(bio?`; bio "${bio}"`:'')+(b.rn&&now>=b.rn.t&&botOldName(i,now)?'; dulu bernama '+botOldName(i,now):'')}})}
-async function chAI(kind,cands,extra={}){if(!aiOn()||!cands.length)return null;const now=Date.now();if(now<(CHAT.aiBlock||0))return null;
- const d=new Date(now+BOT_CFG.TZ*36e5),HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
- const body={kind,when:`${HARI[d.getUTCDay()]} ${d.getUTCDate()}/${d.getUTCMonth()+1} ${chTime(now)}`,online:chWorld(now).online,world:chWorldTxt(now),
-  player:{name:S.name,info:chPlayerInfo(),acts:(CHAT.mem.acts||[]).filter(a=>now-a.t<6*36e5).map(a=>`${chTime(a.t)} ${a.s}`),screen:chatOpen?'Obrolan Dunia (membaca chat)':SCR_N[typeof tab!=='undefined'?tab:'home']||''},
-  cands:chCandsDesc(cands,now),hist:chHist(now),...extra};
- try{const r=await fetch(TOPUP_CFG.api.replace(/\/$/,'')+'/api/ai',{method:'POST',headers:{'content-type':'text/plain'},body:JSON.stringify(body)});const j=await r.json().catch(()=>null);
-  if(!r.ok||!j||!j.ok){CHAT.aiErr=(j&&j.e)||('http '+r.status);if(r.status===429||r.status===503)CHAT.aiBlock=now+(j&&j.e==='quota'?36e5:6e4);return null}
-  CHAT.aiErr=null;const byName=new Map(cands.map(i=>[botName(i,now).toLowerCase(),i]));return j.out.map(x=>({i:byName.get(String(x.who).toLowerCase()),text:x.text,delay:x.delay})).filter(x=>x.i!=null)}
- catch(e){CHAT.aiErr='jaringan';return null}}
-// tulis hasil AI ke obrolan: gaya ringan (huruf kecil persona, kadang salah ketik) supaya tetap konsisten dengan bot lain
-// pesan panjang dipecah di batas kalimat/koma jadi beberapa gelembung (tidak pernah dipotong di tengah kata)
-function chChunks(s,max=95){const out=[];s=s.trim();while(s.length>max){let k=-1;for(const re of[/[.!?]\s/g,/[,;]\s/g,/\s/g]){let m;re.lastIndex=0;while((m=re.exec(s))&&m.index<max)k=m.index+1;if(k>20)break}if(k<=0)k=max;out.push(s.slice(0,k).trim());s=s.slice(k).trim()}if(s)out.push(s);return out}
-function chAIPost(L,start,kind){L=L.flatMap(x=>chChunks(x.text).map((t,k)=>Object.assign({},x,{text:t,delay:k?2+t.length/12:x.delay})));const out=[];let tt=start;const r=bRng((start^0x9e37)>>>0);
- L.forEach((x,k)=>{tt+=(kind==='scene'?x.delay:x.delay+k*2)*1e3+Math.floor(x.text.length*90);const p=chPersona(x.i),{parts,fix}=chStyle(x.text,Object.assign({},p,{abbr:p.abbr*.2,typo:p.typo*.6,g:Object.assign({},p.g,{emo:p.g.emo*.3,punct:0,split:p.g.split*.5})}),r);
-  parts.forEach((s,q)=>out.push({id:'ai:'+x.i+':'+tt+':'+q,t:tt+q*2200,i:x.i,text:s.slice(0,140),k:'ai',ment:/@/.test(s)}));if(fix)out.push({id:'aifx:'+x.i+':'+tt,t:tt+4e3,i:x.i,text:fix,k:'fx'})});
- CHAT.me.push(...out);chatSaveMe();return out.length}
-// adegan obrolan AI berkala (lebih sering saat panel chat terbuka)
-async function chatAiScene(now=Date.now()){if(!aiOn()||CHAT.aiBusy||document.visibilityState==='hidden')return;const C=CHAT_CFG.ai;
- if(!CHAT.aiNext){CHAT.aiNext=now+(chatOpen?8e3:6e4);return}if(now<CHAT.aiNext)return;
- const H=(CHAT.aiHour=(CHAT.aiHour||[]).filter(t=>now-t<36e5));if(H.length>=C.hourMax){CHAT.aiNext=now+6e4;return}
- const on=chOnline(now),talk=on.filter(i=>chPersona(i).chat>0);if(talk.length<3){CHAT.aiNext=now+3e5;return}
- const recent=[...new Set(chatVisible(now).filter(m=>m.i!=null&&!m.sys&&now-m.t<15*6e4).map(m=>m.i))].filter(i=>on.includes(i)).slice(-3);
- const r=bRng(now>>>0),pool=talk.map(i=>[i,(chPersona(i).chat+.2)*r()]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
- const cands=[...new Set([...recent,...pool])].slice(0,C.cands);CHAT.aiBusy=true;H.push(now);
- try{const L=await chAI('scene',cands,{n:chatOpen?'4-8':'3-5'});if(L&&L.length)chAIPost(L,Date.now()+2e3,'scene')}
- finally{CHAT.aiBusy=false;const R=chatOpen?C.scene:C.idle;CHAT.aiNext=Date.now()+R[0]+Math.random()*(R[1]-R[0])}}
-// kait aktivitas: hasil tahap/dungeon, top up
-if(typeof endBattle==='function'){const _eb=endBattle;endBattle=function(win){const st=B&&B.st;const r=_eb(win);try{if(st&&!st.arena)chatAct(st.dg?`${win?'menyelesaikan':'gagal di'} dungeon ${(DGD[st.dg]||{}).n||st.dg}`:`${win?'menang':'kalah'} di tahap ${st.key}${st.boss?' (bos)':''}${win?' dengan '+(S.stages[st.key]||0)+' bintang':''}`)}catch(e){}return r}}
-if(typeof tuDeliver==='function'){const _td=tuDeliver;tuDeliver=function(id){const o=tuState().orders[id];const r=_td(id);try{const p=tuSku(o.sku);chatAct(`top up ${p.card?'Kartu Bulanan':p.gems+' permata'} (Rp${o.price.toLocaleString('id-ID')})`)}catch(e){}return r}}
 
 /* ==== js/systems/botsale.js ==== */
 /* =====================================================================
@@ -8833,7 +8191,6 @@ function ascCan(kind,k){const c=ascCost(kind,k);if(!c)return{err:T('Sudah ★6, 
 function doAscend(kind,k){const r=ascCan(kind,k);if(r.err)return r;const o=ascObj(kind,k),from=ascStar(kind,k);
  for(const id in r.c){if(id==='gold')S.gold-=r.c[id];else if(id==='badge')S.badge-=r.c[id];else S.mats[id]-=r.c[id]}
  o.asc=from+1;S.ascLog=(S.ascLog||0)+1;if(typeof evCount==='function')evCount('ascend');
- if(typeof chatAct==='function')chatAct(T('membangkitkan {n} ke ★{s}',{n:kind==='hero'?HD[k].name:kind==='wpn'?WD[k].name:GDD[k].name,s:o.asc}));
  if(typeof teamPow==='function')S.bestCP=Math.max(S.bestCP||0,teamPow());save();return{ok:1,from,to:o.asc}}
 // titik merah: ada sesuatu di tim yang bisa dibangkitkan sekarang
 function ascReadyAny(){for(const id of S.team.filter(Boolean)){if(ascCan('hero',id).ok)return true;const h=S.heroes[id];
@@ -10049,7 +9406,7 @@ function rankListHTML(){if(rankTab==='rec'&&typeof annRecPanelHTML==='function')
  if(!n)return`<p class="sub" style="text-align:center;padding:30px 0">${BOTS.ready?T('Memanggil para petualang...'):T('Memuat pemain...')}</p>`;
  return`<div class="rkinfo"><span>${typeof NET!=='undefined'&&NET.srvName?`<em class="rksrv">S${netSrv()} · ${esc(NET.srvName)}</em> `:''}<b>${n}</b> ${rankTab==='ar'?T('peserta'):T('pemain')}</span><span><i class="on"></i><b>${on}</b> ${T('online')}</span></div>
  ${rankTab!=='ar'&&typeof rvBarHTML==='function'?rvBarHTML():''}<div class="rklist" id="rkScroll">${L.slice(0,100).map(rankRow).join('')}</div>${me>=100?`<div class="rkme">${rankRow(L[me],me)}</div>`:''}`}
-function openRank(){botsInit();botsEnsure();botsEnsureBios();rankBot=null;netPlayers();
+function openRank(){botsInit();botsEnsure();rankBot=null;netPlayers();
  if(!botsWarmOk()){modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Peringkat')}</h3><p class="sub" style="text-align:center;padding:30px 0">${T('Memuat peringkat...')}</p>`);botsWarm(()=>{if($('#modal').classList.contains('on')&&!rankBot)openRank()});return}if(!RANK_PREV||!openRank.done){rankSnapUpdate();openRank.done=1}
  modal(`<button class="btn red mclose" data-act="closeModal">✕</button><h3>${T('Peringkat')}</h3>
  <div class="mtabs"><button class="btn ${rankTab==='cp'?'':'blue'}" data-act="rankTab" data-arg="cp">${T('CP Tim')}</button><button class="btn ${rankTab==='lv'?'':'blue'}" data-act="rankTab" data-arg="lv">${T('Level')}</button><button class="btn ${rankTab==='ar'?'':'blue'}" data-act="rankTab" data-arg="ar">${T('Arena')}</button><button class="btn ${rankTab==='rec'?'':'blue'}" data-act="rankTab" data-arg="rec">${T('Rekor')}</button><button class="btn ${rankTab==='gd'?'':'blue'}" data-act="rankTab" data-arg="gd">${T('Guild')}</button></div>
@@ -10068,9 +9425,9 @@ function botHeroCard(s,id,big){const h=s.heroes[id],w=h.wpn&&WD[h.wpn],o=w&&s.we
  ${big?`<div class="eqr">${w?`<span title="${w.name}"><img class="px" src="${weaponIcon(h.wpn).url}"><i>${o.lv}</i></span>`:''}${h.ar?`<span><img class="px" src="${gearIcon(h.ar).url}"><i>+${s.gear[h.ar].lv}</i></span>`:''}${h.ac?`<span><img class="px" src="${gearIcon(h.ac).url}"><i>+${s.gear[h.ac].lv}</i></span>`:''}</div>`:''}</div>`}
 function botBodyHTML(i){const s=botState(i),p=botPresence(i),b=botBase(i),now=Date.now();
  const ids=Object.keys(s.heroes).sort((x,y)=>(y===s.fav)-(x===s.fav)||HD[y].r-HD[x].r||s.heroes[y].lv-s.heroes[x].lv);const L=rankSorted(),rk=L.findIndex(e=>e.i===i)+1;
- const bio=botBio(i,s,rk,now),st=s.stats,LUCK={hoki:T('Hoki'),normal:T('Normal'),sial:T('Apes')},old=botOldName(i,now);
+ const bio=botBio(i,s,rk,now),st=s.stats,LUCK={hoki:T('Hoki'),normal:T('Normal'),sial:T('Apes')};
  return`<div class="bprof"><div class="bpav">${(s.av||s.fav)?`<img class="px" src="${portrait(s.av||s.fav)}">`:''}${p.online?'<i class="on"></i>':''}</div>
-  <div class="bpinf"><b>${st.vip?`<i class="vip v${Math.min(7,st.vip)}">VIP${st.vip}</i>`:''}${esc(botName(i,now))}</b>${botUid(i)?`<small class="bold">UID ${botUid(i)}</small>`:''}${old?`<small class="bold">${T('Sebelumnya: {n}',{n:esc(old)})}</small>`:''}<span>${p.online?`<em class="ok">${T('Online')}</em>${botWhere(i,now)}`:T('Aktif {t}',{t:agoMs(now-p.last)})}${b.back&&now>=b.segs[2][0]?` · <em class="ok">${T('Kembali bermain!')}</em>`:''}</span><span>${T('Bergabung {t}',{t:agoMs(now-b.join)})}</span></div></div>
+  <div class="bpinf"><b>${st.vip?`<i class="vip v${Math.min(7,st.vip)}">VIP${st.vip}</i>`:''}${esc(botName(i,now))}</b>${botUid(i)?`<small class="bold">UID ${botUid(i)}</small>`:''}<span>${p.online?`<em class="ok">${T('Online')}</em>${botWhere(i,now)}`:T('Aktif {t}',{t:agoMs(now-p.last)})}${b.back&&now>=b.segs[2][0]?` · <em class="ok">${T('Kembali bermain!')}</em>`:''}</span><span>${T('Bergabung {t}',{t:agoMs(now-b.join)})}</span></div></div>
  ${st.card?`<div class="bbadges"><span class="bb card">${T('Kartu Bulanan')}</span></div>`:''}
  ${typeof gProfLine==='function'?gProfLine(i):''}${typeof rvProfHTML==='function'?rvProfHTML(i):''}${bio?`<div class="bbio">“${esc(bio)}”</div>`:''}
  <div class="stats"><div><span>${T('Level')}</span><b>${s.lv}</b></div><div><span>CP</span><b>${fmt(s.cp)}</b></div><div><span>${T('Peringkat')}</span><b>#${rk}</b></div><div><span>${T('Tahap')}</span><b>${s.stage}</b></div></div>
@@ -10078,13 +9435,13 @@ function botBodyHTML(i){const s=botState(i),p=botPresence(i),b=botBase(i),now=Da
  <div class="sec">${T('Tim Utama')}</div><div class="bteam">${s.team.map(id=>botHeroCard(s,id,true)).join('')}</div>
  <div class="sec">${T('Koleksi Hero')} · ${ids.length}/${HEROES.length}</div><div class="broster">${ids.map(id=>botHeroCard(s,id,false)).join('')}</div>
  <p class="sub" style="text-align:center;margin-top:6px">${T('Senjata dimiliki: {n}',{n:Object.keys(s.weapons).length})} · ${T('Perlengkapan: {n}',{n:Object.keys(s.gear).length})}</p>`}
-function openBot(i,back){i=+i;if(!botIn(i)||botHidden(i))return;rankBot=i;botsEnsureBios();if(typeof annFreshBot==='function')annFreshBot(i);const uid=botUid(i);
+function openBot(i,back){i=+i;if(!botIn(i)||botHidden(i))return;rankBot=i;if(typeof annFreshBot==='function')annFreshBot(i);const uid=botUid(i);
  modal(`<button class="btn red mclose" data-act="${back||'rank'}">‹</button><h3>${T('Profil Pemain')}</h3><div id="botBody">${botBodyHTML(i)}</div>${uid?profActions(uid):''}`);rankStartTimer();
  if(uid&&loggedIn()&&Date.now()-NET.frAt>15e3)netFriends().then(()=>{const pa=$('#modal .pfact');if(pa&&rankBot===i)pa.outerHTML=profActions(uid)})}
 
 Object.assign(ACT,{rank:()=>openRank(),rankTab:a=>{rankTab=a;if(a==='rec'&&typeof ANN!=='undefined'){ANN.stWant=1;if(typeof wcFetch==='function')wcFetch().then(()=>{if(rankTab==='rec')rankRefresh()})}openRank()},botView:i=>openBot(i)});
 // mulai dunia bot sesaat setelah game siap (nama dibuat Claude bila tersedia)
-setTimeout(()=>{botsInit();botsWarm();setInterval(()=>{botsEnsure();botsEnsureRenames()},30e3);setInterval(()=>botsWarm(),120e3)},2500);
+setTimeout(()=>{botsInit();botsWarm();setInterval(botsEnsure,30e3);setInterval(()=>botsWarm(),120e3)},2500);
 
 // awal ulang dunia bot: potret peringkat lama tidak berlaku lagi
 function rankReset(){RANK_PREV=null}
@@ -10428,7 +9785,7 @@ function wcAiBody(kind,reTo){const now=Date.now();
  const humans=NET.players.filter(p=>p.on&&!(NET.acct&&p.uid===NET.acct.uid)).map(p=>`${p.u} (Lv ${p.lv})`).join(', ');
  return{tok:netTok(),srv:netSrv(),kind,watch:chatOpen&&!!$('#chList'),online:wcOnline(),world:chWorldTxt(now),humans,cands,player:loggedIn()?{name:NET.acct.u,pub:wcMePub()}:null,n:chatOpen?'2-5':'2-4',wb:kind==='tick'&&typeof WB!=='undefined'&&WB.ev?WB.ev:null,rv:rv?{ev:rv.ev,who:botUid(rv.i),k:rv.k}:null}}
 async function wcAi(kind,reTo){if(!NET.ai||WC.aiBusy||!botsWarmOk()||document.hidden)return;WC.aiBusy=true;
- try{chatInit();const b=wcAiBody(kind,reTo);if(!b.cands.length){WC.aiNext=Date.now()+6e4;return}const o=await api('/api/wc/ai',b);
+ try{const b=wcAiBody(kind,reTo);if(!b.cands.length){WC.aiNext=Date.now()+6e4;return}const o=await api('/api/wc/ai',b);
   if(kind==='tick'&&b.wb&&WB.ev===b.wb)WB.ev=null;if(b.rv&&o.rv)rvChatDone(b.rv.k);if(kind==='tick')WC.aiNext=Date.now()+Math.min(9e4,Math.max(3e4,o.next||0))+Math.random()*1e4;if(o.ok)setTimeout(wcFetch,2500)}catch(e){WC.aiNext=Date.now()+6e4}finally{WC.aiBusy=false}}
 const wcMine=m=>loggedIn()&&m.uid===NET.acct.uid;
 const chAt=m=>!wcMine(m)&&loggedIn()&&m.txt.toLowerCase().includes('@'+NET.acct.u.toLowerCase());

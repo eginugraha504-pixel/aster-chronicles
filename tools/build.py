@@ -86,3 +86,5 @@ if shutil.which('node'):
     except Exception as e:print('gen_knowledge gagal:',e)
     try:subprocess.run(['node',os.path.join(ROOT,'tools','gen_botcfg.mjs')],check=True)
     except Exception as e:print('gen_botcfg gagal:',e)
+# kurva bergabung bot untuk server (satu sumber: systems/bots.js) -> bank-worker/src/botjoin.js
+subprocess.run([sys.executable,os.path.join(ROOT,'tools','gen_botjoin.py')],check=True)

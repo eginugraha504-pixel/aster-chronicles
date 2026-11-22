@@ -9,10 +9,15 @@
      sehingga roster hanya bertambah seiring waktu (tidak berubah acak).
    - Level hero, senjata, perlengkapan & CP dihitung lewat fungsi game asli dengan menukar
      state sementara (S) -> otomatis ikut perubahan balance.
-   - Nama: dibuat Claude (capability `sample`), disimpan bersama di db `bots/names`;
-     cadangan: generator suku kata lokal. Hanya huruf & angka.
+   - Nama: username akun bot di SERVER (bank-worker membuat akun bot; admin bisa mengganti lewat Telegram).
+     Cadangan bila server tidak menjawab: generator suku kata lokal (botLocalName). Hanya huruf & angka.
+   PETA FILE: lihat docs/BOTS.md (bagian "Peta kode"). Uji regresi: tools/botfp.mjs + tools/botcheck.js.
    ===================================================================== */
-const BOTS={cacheN:0,gen:0,names:[],ready:false,db:null,dbWrite:true,busy:false,failAt:0,base:{},cache:{},seen:0,init:false,onChange:null};
+/* BOTS — keadaan bersama mesin bot:
+   W: dunia-dunia server ini · gen: gen dunia utama · names/uids/srvNames: dari server (systems/net.js)
+   base/cache: botBase & botState per bot · ov/rv/rvAll: koreksi & usaha rival dari server · warming/warmAt: pemanasan
+   ready/busy/again: pengisian nama cadangan lokal · onChange: dipanggil saat daftar bot berubah */
+const BOTS={cacheN:0,gen:0,names:[],ready:false,busy:false,base:{},cache:{},seen:0,init:false,onChange:null};
 const BDAY=864e5;
 function bRng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
 // seed: indeks LOKAL bot di dunianya + gen dunianya (bot gabungan server tetap sama dengan aslinya); seed lain memakai dunia utama
@@ -106,23 +111,20 @@ function botBase(i){if(BOTS.base[i])return BOTS.base[i];const C=BOT_CFG,r=bRng(b
  const cvS=pf.id+'_'+sk,cvT=cvS+'_'+tier.id;
  const B=BOTS.base[i]={i,pf:pf.id,pfo:pf,sk,cv:C.CURVES[cvT]?cvT:cvS,cvS,a,quit,join,chaser:chaser2,chrono,opt:opt2,segs,seed:bHash(i,2),endT:segs[segs.length-1][1],back:segs.length>2,
   tier,mood,saver:!tier.pf&&chaser2&&Q[4]<EM.saver,spend0:join+((tier.first||SP.firstDay)[0]+Q[5]*((tier.first||SP.firstDay)[1]-(tier.first||SP.firstDay)[0]))*BDAY,cardP:Q[6]<(tier.card||0),
-  bioEvery:LF.bioEvery[0]+Q[7]*(LF.bioEvery[1]-LF.bioEvery[0]),loyal:Q[8]<LF.loyal,rn:null};
+  bioEvery:LF.bioEvery[0]+Q[7]*(LF.bioEvery[1]-LF.bioEvery[0]),loyal:Q[8]<LF.loyal};
  // gaya sultan (aliran acak sendiri): pembelanja besar punya ciri khas belanja, koleksi, tim & avatar
  // hero kesayangan karena selera (bukan meta): avatar & hero "setia" — membuat para sultan berbeda satu sama lain
  {const lr=bRng(bHash(i,62))();B.love=bWeighted(HEROES.map(h=>[h.id,h.r===3?3:h.r===2?1.6:.7]),lr)}
  const WS=C.SPEND.WSTYLE;if(WS&&WS.tiers.includes(tier.id)){const wr=bRng(bHash(i,61));B.ws=bWeighted(WS.list.map(x=>[x,x.w]),wr());B.wal=WS.wallet[0]+wr()*(WS.wallet[1]-WS.wallet[0]);if(B.ws.fav)B.loyal=true}
- if(Q[9]<LF.rename.p){const t=join+(LF.rename.days[0]+Q[10]*(LF.rename.days[1]-LF.rename.days[0]))*BDAY;if(t<B.endT)B.rn={t:botSnap(B,t),k:Math.floor(Q[11]*LF.rename.pool)}}
+ // Q[9..10] dulu untuk ganti nama otomatis (dimatikan sejak nama = akun server); tetap ditarik supaya sifat lain tidak bergeser
  return B}
 /* suasana hati awal: ulang 60 tarikan hero pertama (aliran acak yang sama dengan gacha bot) -> hoki / normal / sial */
 function botEarlyMood(seed,chaser){const N=BOT_CFG.EMO.early,rng=bRng(seed);let pity=0,g=false,n3=0;
  for(let k=0;k<N;k++){pity++;const x=rng()*100,p3=rate3At(pity),r=x<p3?3:x<p3+RATES[2]?2:1;
   if(r===3){n3++;pity=0;if(chaser){const on=g||rng()<RATE_UP.hero;g=!on;if(!on)rng()}else rng()}else rng()}
  const e=N*RATES[3]/100*1.05,z=(n3-e)/Math.sqrt(e);return z>1?'hoki':z<-1?'sial':'normal'}
-/* nama saat waktu t (bisa sudah ganti nama) */
-BOTS.renames=[];
-// nama = username akun bot di server (admin bisa menggantinya lewat Telegram). Ganti-nama otomatis dimatikan sejak akun bot disimpan di server.
+// nama = username akun bot di server (admin bisa menggantinya lewat Telegram)
 function botName(i,t=Date.now()){return BOTS.names[i]||botLocalName(i)}
-const botOldName=()=>null;
 
 /* ================= TOP UP BOT =================
    Pembelian ditentukan per hari (seed per bot+hari) -> semua penonton melihat pembelian yang sama.
@@ -286,7 +288,7 @@ function botFit(b,i,F,P,lv,opt,fav,full,pu,bx){const C=BOT_CFG,heroes=F.heroes,w
   const us=new Set();for(const id of ids){const h=heroes[id],L=byC[HD[id].wcls];lv0[id]=h.lv;h.wpn=null;
    if(L){const sg=L.find(w=>WD[w].owner===id&&!us.has(w)),cd=sg?[sg]:[];for(const w of L){if(cd.length>1)break;if(w!==sg&&!us.has(w))cd.push(w)}const w=cd.length>1&&hu(id,2)>opt+.15?cd[1]:cd[0];if(w){us.add(w);h.wpn=w}}
    if(St>HD[id].r){h.asc=St;h.lv=Math.max(1,Math.round(maxLv(id)*lvF[id]))}sel[id]=heroPow(id)}
-  cands=botBestTeams(ids,sel,3);
+  cands=botBestTeams(ids,sel,6);
   for(const id of own){const h=heroes[id];h.wpn=null;if(h.asc){delete h.asc;h.lv=lv0[id]}}for(const w in weapons){const o=weapons[w];o.lv=sv[w][0];o.lb=sv[w][1]}
   // tidak semua pemain memakai tim optimal: sebagian tetap membawa hero favoritnya (asal tidak jauh lebih lemah)
   const lock=b.ws&&b.ws.fav&&fav&&heroes[fav];   // sultan setia: hero kesayangan SELALU di tim
@@ -322,15 +324,20 @@ function botFit(b,i,F,P,lv,opt,fav,full,pu,bx){const C=BOT_CFG,heroes=F.heroes,w
    Dicari mundur dari hasil gacha sekarang (urutan tarikan tetap -> isi akun di masa lalu = awalannya), sekali per bot, lalu disimpan.
    Karena titik mulai tetap, bahan terus bertambah setiap hari main: CP tidak macet di dinding 5-5 dan tidak anjlok saat tim berganti. */
 const BPU={k:'',d:{},dirty:0,at:0};
-function bpuLoad(){const k=bsumKey();if(BPU.k===k)return;BPU.k=k;BPU.d={};try{const o=JSON.parse(localStorage.getItem('aster_botpu')||'null');if(o&&o.k===k&&o.d)BPU.d=o.d}catch(e){}}
+function bpuLoad(){const k=bsumKey();if(BPU.k===k)return;BPU.k=k;BPU.d={};try{localStorage.removeItem('aster_botpu');const o=JSON.parse(localStorage.getItem('aster_botpu2')||'null');if(o&&o.k===k&&o.d)BPU.d=o.d}catch(e){}}
 function bpuSave(){if(!BPU.dirty||Date.now()-BPU.at<3e4)return;BPU.at=Date.now();BPU.dirty=0;const j=JSON.stringify({k:BPU.k,d:BPU.d});
- try{if(j.length<5e5)localStorage.setItem('aster_botpu',j);else localStorage.removeItem('aster_botpu')}catch(e){}}
+ try{if(j.length<5e5)localStorage.setItem('aster_botpu2',j);else localStorage.removeItem('aster_botpu2')}catch(e){}}
 function botCp0At(b,i,G,t){const P=botProg(b,t),lv=botLv(b.cv,P),H={},W={};
  for(const id in G.heroes){const h=G.heroes[id];if(h.at>t)continue;let lb=0;if(h.dt)for(const x of h.dt)if(x<=t)lb++;H[id]={lv:1,lb,wpn:null,at:h.at}}
  for(const id in G.weapons){const w=G.weapons[id];if((w.at||0)>t)continue;let rf=0;if(w.rt)for(const x of w.rt)if(x<=t)rf++;W[id]={ref:rf,lv:1,exp:0,lb:0,at:w.at}}
  const F={lv,exp:0,heroes:H,weapons:W,gear:{},team:[],mats:{}},keep=S;S=F;try{return teamCP(botFit(b,i,F,P,lv,b.opt,null,false,null).team).total}finally{S=keep}}
 function botAscGet(i){bpuLoad();const v=BPU.d[i];return v==null?null:v}
-function botAscStart(b,i,G,now){const A=BOT_CFG.ASC;let lo=b.join,hi=now;for(let k=0;k<9;k++){const m=(lo+hi)/2;if(botCp0At(b,i,G,m)>=A.minCP)hi=m;else lo=m}
+// Titik mulai dicari di kisi waktu TETAP sejak bergabung (per hari, lalu ±11 menit di hari itu) → hasilnya sama di semua perangkat,
+// tidak bergantung kapan perangkat itu pertama kali menghitung (dulu: bagi dua antara join..sekarang → beda tipis antar perangkat).
+function botAscStart(b,i,G,now){const A=BOT_CFG.ASC,ok=t=>botCp0At(b,i,G,t)>=A.minCP;let d=1;
+ while(b.join+d*BDAY<now&&!ok(b.join+d*BDAY))d++;
+ let hi=Math.min(now,b.join+d*BDAY),lo=Math.max(b.join,hi-BDAY);if(hi>=now&&!ok(now))lo=hi=now;
+ for(let k=0;k<7&&hi>lo;k++){const m=(lo+hi)/2;if(ok(m))hi=m;else lo=m}
  BPU.dirty++;return BPU.d[i]=Math.round(botProg(b,hi)*100)/100}
 
 /* ---- Kebangkitan bot: anggaran bahan sejak (perkiraan) menembus 5-5, dibelanjakan berurutan ★4 → ★5 → ★6 ---- */
@@ -349,9 +356,9 @@ function botAscend(B,core,heroes,weapons,gear,lvF){const A=BOT_CFG.ASC,C4=core.s
   else{const o=gear[key];if(!o)continue;const cap0=gearMax(key),fr=cap0?Math.min(1,o.lv/cap0):0;o.asc=Math.max(GDD[key].r,s);o.lv=Math.round(gearMax(key)*fr)}}}
 
 /* ---- keadaan bot pada waktu now ---- */
-// kunci cache: berubah hanya saat progres/level/era/top up/tabungan berubah
+// kunci cache: berubah hanya saat progres/level/era/top up (permata & paket, termasuk bahan Kebangkitan)/tabungan berubah
 // Pe = progres + usaha ekstra rival (systems/rival.js botBoost); gacha tetap memakai P (usaha tidak menambah tarikan)
-function botKey(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now),E=typeof botBoost==='function'?botBoost(i,now):0,Pe=P+E,lv=botLv(b.cv,Pe),sp0=botSpend(b,now);return{b,P,Pe,lv,key:Math.floor(Pe*96)+':'+lv+':'+C.ERAS.length+':'+sp0.gems.length+':'+(b.saver?Math.floor(now/36e5):0)}}
+function botKey(i,now=Date.now()){const b=botBase(i),C=BOT_CFG,P=botProg(b,now),E=typeof botBoost==='function'?botBoost(i,now):0,Pe=P+E,lv=botLv(b.cv,Pe),sp0=botSpend(b,now);return{b,P,Pe,lv,key:Math.floor(Pe*96)+':'+lv+':'+C.ERAS.length+':'+sp0.gems.length+'.'+sp0.buys.length+':'+(b.saver?Math.floor(now/36e5):0)}}
 function botState(i,now=Date.now()){const C=BOT_CFG,{b,P:P0,Pe:P,lv,key}=botKey(i,now);const c=BOTS.cache[i];if(c&&c.key===key)return c;
  let G=botGacha(b,P0,now),heroes=G.heroes,weapons=G.weapons;
  const F={lv,exp:0,heroes,weapons,gear:{},team:[],mats:{}};const keep=S;S=F;let out;
@@ -411,7 +418,7 @@ function botSnap(b,t){for(let d=wibDay(t);d<=wibDay(t)+3;d++){for(const[s0,s1]of
 /* ---- ringkasan bot (CP, level, VIP, hero) — skala sampai 100rb bot ----
    Bot yang sudah berhenti (endT lewat) tidak berubah lagi → ringkasannya disimpan di localStorage dan tidak dihitung ulang.
    Bot aktif: dari botState (cache penuh dibatasi ±5000 objek). Ganti SUM_VER bila keseimbangan CP berubah. */
-const SUM_VER=11,BSUM={d:{},key:'',dirty:0,at:0};
+const SUM_VER=12,BSUM={d:{},key:'',dirty:0,at:0};
 const bsumKey=()=>botsSig()+':'+SUM_VER+':'+BOT_CFG.ERAS.length+':'+HEROES.length;
 function bsumLoad(){const k=bsumKey();if(BSUM.key===k)return;BSUM.key=k;BSUM.d={};for(const q in BSUMA)delete BSUMA[q];try{const o=JSON.parse(localStorage.getItem('aster_botsum')||'null');if(o&&o.k===k){const D=o.d||{};for(const i in D){const x=D[i];BSUM.d[i]=Array.isArray(x)?{cp:x[0],lv:x[1],vip:x[2],top:x[3],st:x[4],nh:x[5],ms:x[6]}:x}
   const A=o.a||{};for(const i in A){const x=A[i];BSUMA[i]={k:x[0],o:{cp:x[1],lv:x[2],vip:x[3],top:x[4],st:x[5],nh:x[6],ms:x[7]}}}}}catch(e){}}
@@ -420,7 +427,11 @@ function bsumSave(){bpuSave();if(!BSUM.dirty||Date.now()-BSUM.at<3e4)return;BSUM
  for(const i in BSUMA){if(BSUM.d[i])continue;const x=BSUMA[i],o=x.o;a[i]=[x.k,o.cp,o.lv,o.vip,o.top,o.st,o.nh,o.ms]}
  let j=JSON.stringify({k:BSUM.key,d,a});if(j.length>9e5)j=JSON.stringify({k:BSUM.key,d});if(j.length>9e5){localStorage.removeItem('aster_botsum');return}
  try{localStorage.setItem('aster_botsum',j)}catch(e){try{localStorage.removeItem('aster_botsum')}catch(e2){}}}
-const botFrozen=(i,now=Date.now())=>{const b=botBase(i);return b.endT<now-6e4};
+/* Bot berhenti di endT, tapi sesi main terakhirnya bisa masih berjalan sebentar (progres hari itu habis dibagi ke sesi hari itu).
+   botEndF = saat progresnya BENAR-BENAR berhenti → sejak itu keadaannya tidak berubah lagi (aman disimpan sebagai ringkasan beku).
+   (Dulu memakai endT → ringkasan beku bisa diambil di tengah sesi terakhir: CP di peringkat beda dengan profil & beda antar perangkat.) */
+function botEndF(b){if(b.endF!=null)return b.endF;if(!isFinite(b.endT))return b.endF=Infinity;const S=botPlay(b,pDay(b.endT)),L=S.L[S.L.length-1];return b.endF=Math.max(b.endT,L?L[1]:b.endT)}
+const botFrozen=(i,now=Date.now())=>botEndF(botBase(i))<now-6e4;
 const BSUMA={};   // ringkasan bot aktif di memori, berlaku selama kunci botKey sama
 // sync=false: boleh memakai ringkasan lama sebentar; bot itu masuk antrean penyegaran latar (BSQ) -> daftar tetap ringan & angka naik sendiri
 const BSQ=new Set();
@@ -428,7 +439,7 @@ function botSum(i,now=Date.now(),sync=false){bsumLoad();const fz=botFrozen(i,now
  if(!o&&!fz){const k=botKey(i,now).key,a=BSUMA[i];if(a&&a.k===k)o=a.o;else if(a&&!sync){o=a.o;BSQ.add(i)}}
  if(!o){const s=botState(i,now),hs=Object.keys(s.heroes);o={cp:s.cp,lv:s.lv,vip:s.stats.vip,top:s.av||s.fav||s.team[0],st:s.stage,nh:hs.length,ms:Math.max(0,...hs.map(id=>s.heroes[id].asc||HD[id].r))};if(fz){BSUM.d[i]=o}else BSUMA[i]={k:s.key,o};BSUM.dirty++}
  const ov=typeof botOv==='function'&&botOv(i);if(ov&&(ov.lv!=null||ov.cp!=null||ov.vip!=null))o=Object.assign({},o,ov.lv!=null?{lv:ov.lv}:{},ov.cp!=null?{cp:ov.cp}:{},ov.vip!=null?{vip:ov.vip}:{});return o}
-const botPres=(i,now)=>botFrozen(i,now)?{online:false,last:botBase(i).endT}:botPresence(i,now);
+const botPres=(i,now)=>botFrozen(i,now)?{online:false,last:botEndF(botBase(i))}:botPresence(i,now);
 /* ---- daftar semua bot yang tampil (+ pemain sendiri) ---- */
 const BLM={t:0,n:-1,L:null};
 function botsList(now=Date.now()){const ids=botsIds(now),n=ids.length;let L;if(BLM.L&&BLM.n===n&&Math.abs(now-BLM.t)<6e3&&!BOTS.warming){L=BLM.L.map(e=>Object.assign({},e))}else{L=[];for(const i of ids){if(typeof botHidden==='function'&&botHidden(i))continue;const s=botSum(i,now),p=botPres(i,now),b=botBase(i);L.push({i,name:botName(i,now),vip:s.vip,lv:s.lv,cp:s.cp,top:s.top,online:p.online,last:p.last,isNew:now-b.join<BDAY,back:b.back&&now>=b.segs[2][0]})}
@@ -467,60 +478,25 @@ function botsApplyWorld(w){if(!w||!w.epoch)return;if(BOTS.W&&BOTS.W.length&&BOTS
  botsSetWorlds([{g:w.gen||0,e:w.epoch,cap:BOT_CFG.SRV.cap,newer:[]}]);try{localStorage.setItem(BW_KEY,JSON.stringify({epoch:w.epoch,gen:w.gen||0}))}catch(e){}botsEnsure()}
 // reset dunia bot HANYA lewat Telegram (/resetbot). Game menerima {epoch, gen} baru dari server (systems/net.js).
 
-/* ================= NAMA (integrasi Claude) ================= */
+/* ================= NAMA ================= */
+// cadangan lokal (server tidak menjawab): suku kata acak per bot — hanya huruf & angka
 function botLocalName(i){const r=bRng(bHash(i,9)),Y=BOT_CFG.SYL;let n='';const k=2+Math.floor(r()*2);for(let j=0;j<k;j++)n+=Y[Math.floor(r()*Y.length)];n=n[0].toUpperCase()+n.slice(1);if(r()<.45)n+=Math.floor(r()*(r()<.5?100:2000));return n.slice(0,14)}
 const HERO_NAMES=()=>new Set(HEROES.map(h=>h.name.toLowerCase()));
-function botCleanName(s){s=String(s==null?'':s).trim();return BOT_CFG.NAME_RE.test(s)&&!HERO_NAMES().has(s.toLowerCase())?s:null}  // nama hero game tidak dipakai bot  // ada simbol/spasi -> ditolak, bukan dipotong
-function botsSaveLocal(){try{localStorage.setItem('aster_botnames',JSON.stringify({list:BOTS.names}))}catch(e){}}
-function botsSetNames(list){const seen=new Set(),out=[];for(const s of list){const c=botCleanName(s);if(!c)continue;const k=c.toLowerCase();if(seen.has(k))continue;seen.add(k);out.push(c)}
- if(out.length>=BOTS.names.length){BOTS.names=out;botsSaveLocal();BOTS.onChange&&BOTS.onChange()}}
-// nama disimpan di db per potongan 2000 nama: bots/names, bots/names_1, bots/names_2, ... (dokumen tetap kecil walau bot 10.000)
-const NAME_SHARD=2000,shardDoc=k=>k?'bots/names_'+k:'bots/names';
-async function botsPersist(){botsSaveLocal();return;BOTS.saved=BOTS.saved||[];
- for(let k=0;k*NAME_SHARD<BOTS.names.length;k++){const part=BOTS.names.slice(k*NAME_SHARD,(k+1)*NAME_SHARD);if(BOTS.saved[k]===part.length)continue;
-  try{await BOTS.db.doc(shardDoc(k)).set({list:part,updated:Date.now()});BOTS.saved[k]=part.length}catch(e){if(e&&e.code==='invalid_argument')BOTS.dbWrite=false;return}}}
 async function botsInit(){if(BOTS.init)return;BOTS.init=true;
  try{botsApplyWorld(JSON.parse(localStorage.getItem(BW_KEY)||'null'))}catch(e){}
  if(typeof netStart==='function')netStart();
- // server belum menjawab dalam 8 dtk -> pakai generator nama lokal (algoritmanya sama persis dengan server)
+ // server belum menjawab dalam 8 dtk -> pakai generator nama lokal
  setTimeout(()=>{if(!BOTS.ready){BOTS.ready=true;botsEnsure()}},8000)}
-// pastikan nama cukup untuk bot yang sudah bergabung (+ cadangan)
+// pastikan nama cukup untuk bot yang sudah bergabung (+ cadangan). Normalnya nama datang dari server (akun bot), jadi ini hanya cadangan.
 async function botsEnsure(){if(!BOTS.ready||BOTS.busy)return;if(!BOTS.W||!BOTS.W.length)botsApplyWorld({epoch:BOT_CFG.epoch,gen:BOTS.gen||0});const need=Math.min(BOT_CFG.SRV.cap,botsJoined()+10);if(BOTS.names.length>=need)return;
  if(typeof NET!=='undefined'&&NET.worldOk){if(Date.now()-NET.worldAt>3e4)netWorld();return}  // akun bot dibuat server
  BOTS.busy=true;
- try{let got=[],allowLocal=true;const cl=null;
-  if(cl&&typeof cl.use==='function'){let sample=null;try{sample=await cl.use('sample')}catch(e){}
-   if(sample&&!BOTS.noClaude){allowLocal=false;if(Date.now()-BOTS.failAt<60e3)return;const n=Math.min(150,Math.max(BOT_CFG.NAME_BATCH,need-BOTS.names.length+20));
-    try{let arr=null;const p=BOT_CFG.NAME_PROMPT(n);
-     if(typeof sample.json==='function'){try{arr=await sample.json(p,{modelTier:'quick'})}catch(e){if(e&&(e.code==='not_granted'||e.code==='rate_limited'))throw e}}
-     if(arr&&!Array.isArray(arr))arr=arr.names||arr.list||Object.values(arr).find(Array.isArray)||null;
-     if(!Array.isArray(arr)){const res=await sample(p,{modelTier:'quick'});const m=String(res&&res.text||'').match(/\[[\s\S]*\]/);arr=m?JSON.parse(m[0]):[]}
-     got=arr}catch(e){BOTS.failAt=Date.now();if(e&&e.code==='not_granted'){BOTS.noClaude=true;allowLocal=true}}}}
-  const have=new Set(BOTS.names.map(s=>s.toLowerCase()));if(S&&S.name)have.add(String(S.name).toLowerCase());const add=[];
-  for(const s of got){const c=botCleanName(s);if(c&&!have.has(c.toLowerCase())){have.add(c.toLowerCase());add.push(c)}}
-  // Claude tidak tersedia sama sekali (file lokal / izin ditolak): isi sisanya dengan nama lokal agar bot yang sudah bergabung tetap tampil
-  let i=BOTS.names.length+add.length;const HN=HERO_NAMES();while(allowLocal&&BOTS.names.length+add.length<need){const c=botLocalName(i++);if(!have.has(c.toLowerCase())&&!HN.has(c.toLowerCase())){have.add(c.toLowerCase());add.push(c)}}
-  if(add.length){BOTS.names=BOTS.names.concat(add).slice(0,BOT_CFG.SRV.cap);if(BOTS.W&&BOTS.W[0])BOTS.W[0].nn=BOTS.names.length;await botsPersist();BOTS.onChange&&BOTS.onChange()}
-  if(add.length&&BOTS.names.length<need)BOTS.again=(BOTS.again||0)+1;else BOTS.again=0;
- }finally{BOTS.busy=false}
- if(BOTS.again&&BOTS.again<5)setTimeout(botsEnsure,300)}
+ try{const have=new Set(BOTS.names.map(s=>s.toLowerCase()));if(S&&S.name)have.add(String(S.name).toLowerCase());const add=[];
+  let i=BOTS.names.length;const HN=HERO_NAMES();while(BOTS.names.length+add.length<need){const c=botLocalName(i++);if(!have.has(c.toLowerCase())&&!HN.has(c.toLowerCase())){have.add(c.toLowerCase());add.push(c)}}
+  if(add.length){BOTS.names=BOTS.names.concat(add).slice(0,BOT_CFG.SRV.cap);if(BOTS.W&&BOTS.W[0])BOTS.W[0].nn=BOTS.names.length;BOTS.onChange&&BOTS.onChange()}
+ }finally{BOTS.busy=false}}
 
-/* ================= BIO / STATUS (integrasi Claude) ================= */
-BOTS.bios=[];BOTS.bioBusy=false;BOTS.bioFail=0;
-function botCleanBio(o){if(!o)return null;let t=String(o.t||o.text||'').replace(/[^A-Za-z0-9\u00C0-\u024F .,!?'"~()\-:]/g,'').replace(/\s+/g,' ').trim();const tag=BOT_CFG.BIO_TAGS.includes(o.tag)?o.tag:'umum';
- if(t.length<3||t.length>44||/https?|www|@|\.(com|net|id|org)\b/i.test(t))return null;return{t,tag}}
-function botsSetBios(L){const seen=new Set(),out=[];for(const o of L){const c=botCleanBio(o);if(!c||seen.has(c.t.toLowerCase()))continue;seen.add(c.t.toLowerCase());out.push(c)}if(out.length>=BOTS.bios.length)BOTS.bios=out}
-async function botsBiosInit(){if(BOTS.bioInit)return;BOTS.bioInit=true;try{const ls=JSON.parse(localStorage.getItem('aster_botbios')||'null');if(ls&&Array.isArray(ls.list))botsSetBios(ls.list)}catch(e){}
- if(BOTS.db)BOTS.db.doc('bots/bios').onSnapshot(s=>{const d=s.exists?s.data():null;if(d&&Array.isArray(d.list))botsSetBios(d.list)},()=>{})}
-async function botsEnsureBios(){botsBiosInit();const C=BOT_CFG;if(BOTS.bioBusy||BOTS.bios.length>=Math.min(C.BIO_MAX,Math.max(C.BIO_BATCH,botsVisible()*.5)))return;
- const cl=null;if(!cl)return;BOTS.bioBusy=true;
- try{const sample=await cl.use('sample');if(!sample)return;let arr=null;const p=C.BIO_PROMPT(C.BIO_BATCH);
-  if(typeof sample.json==='function'){try{arr=await sample.json(p,{modelTier:'quick'})}catch(e){if(e&&(e.code==='not_granted'||e.code==='rate_limited'))throw e}}
-  if(arr&&!Array.isArray(arr))arr=Object.values(arr).find(Array.isArray)||null;
-  if(!Array.isArray(arr)){const res=await sample(p,{modelTier:'quick'});const m=String(res&&res.text||'').match(/\[[\s\S]*\]/);arr=m?JSON.parse(m[0]):[]}
-  const before=BOTS.bios.length;botsSetBios(BOTS.bios.concat(arr));if(BOTS.bios.length>before){try{localStorage.setItem('aster_botbios',JSON.stringify({list:BOTS.bios}))}catch(e){}
-   if(BOTS.db&&BOTS.dbWrite){try{await BOTS.db.doc('bots/bios').set({list:BOTS.bios,updated:Date.now()})}catch(e){}}}
- }catch(e){BOTS.bioFail=Date.now()}finally{BOTS.bioBusy=false}}
+/* ================= BIO / STATUS ================= */
 // status yang cocok dengan keadaan bot (bot yang belum punya Raika tidak akan pamer Raika)
 function botBio(i,s,rank,now=Date.now()){const C=BOT_CFG,b=botBase(i),per=Math.max(0,Math.floor((now-b.join)/(b.bioEvery*BDAY)));
  // bio berganti tiap bioEvery hari; kadang dikosongkan dulu
@@ -528,21 +504,5 @@ function botBio(i,s,rank,now=Date.now()){const C=BOT_CFG,b=botBase(i),per=Math.m
  if(b.pf==='santai')tags.add('santai');if(b.pf==='rajin'||b.pf==='hardcore')tags.add('farming');if(s.lv<15)tags.add('pemula');if((rank&&rank<=20)||b.pf==='hardcore')tags.add('kompetitif');
  if(s.stats.luck==='hoki')tags.add('hoki');if(s.stats.luck==='sial')tags.add('sial');if(s.heroes.raika)tags.add('raika');if(s.heroes.sakuya)tags.add('sakuya');
  if(b.ws&&bHash(i,79+per*31)%100<60){const W=C.BIO_LOCAL.filter(([t])=>t===b.ws.id);if(W.length)return W[bHash(i,78+per*31)%W.length][1]}
- let pool=BOTS.bios.filter(o=>tags.has(o.tag));if(!pool.length)pool=C.BIO_LOCAL.filter(([t])=>tags.has(t)).map(([tag,t])=>({tag,t}));if(!pool.length)return'';
+ const pool=C.BIO_LOCAL.filter(([t])=>tags.has(t)).map(([tag,t])=>({tag,t}));if(!pool.length)return'';
  return pool[bHash(i,78+per*31)%pool.length].t}
-
-/* ================= NAMA BARU (bot yang ganti nama) =================
-   Kolam nama terpisah 'bots/renames' (dibuat Claude, sama aturannya dengan nama bot). Bot ke-i memakai renames[rn.k]. */
-const RN_KEY='aster_botrenames';
-function botsSetRenames(L){const seen=new Set(),out=[];for(const x of L){const c=botCleanName(x);if(c&&!seen.has(c.toLowerCase())){seen.add(c.toLowerCase());out.push(c)}}if(out.length>BOTS.renames.length){BOTS.renames=out;try{localStorage.setItem(RN_KEY,JSON.stringify(out))}catch(e){}}}
-async function botsEnsureRenames(){return;if(!BOTS.rnInit){BOTS.rnInit=1;try{botsSetRenames(JSON.parse(localStorage.getItem(RN_KEY)||'[]'))}catch(e){}
-  if(BOTS.db)BOTS.db.doc('bots/renames').onSnapshot(s=>{const d=s.exists?s.data():null;if(d&&Array.isArray(d.list))botsSetRenames(d.list)},()=>{})}
- const now=Date.now();let need=0;for(const i of botsIds(now)){const b=botBase(i);if(b.rn&&b.rn.t<=now+BDAY)need=Math.max(need,b.rn.k+1)}
- if(BOTS.renames.length>=need||BOTS.rnBusy||Date.now()-(BOTS.rnFail||0)<60e3)return;BOTS.rnBusy=true;
- try{let arr=[];const cl=window.claude,sample=cl&&typeof cl.use==='function'&&!BOTS.noClaude?await cl.use('sample').catch(()=>null):null;
-  if(sample){const p=BOT_CFG.NAME_PROMPT(100);try{arr=typeof sample.json==='function'?await sample.json(p,{modelTier:'quick'}):null}catch(e){}
-   if(arr&&!Array.isArray(arr))arr=Object.values(arr).find(Array.isArray)||[];if(!Array.isArray(arr)||!arr.length){const res=await sample(p,{modelTier:'quick'});const m=String(res&&res.text||'').match(/\[[\s\S]*\]/);arr=m?JSON.parse(m[0]):[]}}
-  else{let k=BOTS.renames.length;while(arr.length<100)arr.push(botLocalName(50000+k++))}
-  const have=new Set(BOTS.names.map(x=>x.toLowerCase()));botsSetRenames(BOTS.renames.concat(arr.filter(x=>!have.has(String(x).toLowerCase()))));
-  if(BOTS.db&&BOTS.dbWrite)try{await BOTS.db.doc('bots/renames').set({list:BOTS.renames,updated:Date.now()})}catch(e){}
- }catch(e){BOTS.rnFail=Date.now()}finally{BOTS.rnBusy=false}}

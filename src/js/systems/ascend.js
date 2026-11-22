@@ -21,7 +21,6 @@ function ascCan(kind,k){const c=ascCost(kind,k);if(!c)return{err:T('Sudah ★6, 
 function doAscend(kind,k){const r=ascCan(kind,k);if(r.err)return r;const o=ascObj(kind,k),from=ascStar(kind,k);
  for(const id in r.c){if(id==='gold')S.gold-=r.c[id];else if(id==='badge')S.badge-=r.c[id];else S.mats[id]-=r.c[id]}
  o.asc=from+1;S.ascLog=(S.ascLog||0)+1;if(typeof evCount==='function')evCount('ascend');
- if(typeof chatAct==='function')chatAct(T('membangkitkan {n} ke ★{s}',{n:kind==='hero'?HD[k].name:kind==='wpn'?WD[k].name:GDD[k].name,s:o.asc}));
  if(typeof teamPow==='function')S.bestCP=Math.max(S.bestCP||0,teamPow());save();return{ok:1,from,to:o.asc}}
 // titik merah: ada sesuatu di tim yang bisa dibangkitkan sekarang
 function ascReadyAny(){for(const id of S.team.filter(Boolean)){if(ascCan('hero',id).ok)return true;const h=S.heroes[id];

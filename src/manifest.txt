@@ -44,9 +44,6 @@ js/data/rival.js
 js/data/ascend.js
 js/data/topup.js
 js/data/chat/style.js
-js/data/chat/lines.js
-js/data/chat/threads.js
-js/data/chat/brain.js
 js/data/stickers.js
 js/data/enemies.js
 js/data/worldboss.js

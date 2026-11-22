@@ -29,7 +29,7 @@ function bunDeliver(sku){const b=bunDef(sku),B=bunState(),now=Date.now();(B.boug
  if(b.fund){save();return{fund:1,rw:{}}}
  const rw=Object.assign({},b.rw),pick=rw.pickHero;delete rw.pickHero;bunGrant(rw);
  if(pick)sendMail({id:'bun_'+sku+'_'+now,from:TOPUP_CFG.merchant,title:T('{n}: pilih 1 hero ★{s}',{n:T(b.n),s:pick}),body:T('Bagian dari {n}. Pilih hero ★{s} yang kamu mau.',{n:T(b.n),s:pick}),rw:{pickHero:pick}});
- if(typeof chatAct==='function')chatAct(T('membeli {n}',{n:T(b.n)}));save();return{rw:b.rw}}
+ save();return{rw:b.rw}}
 // Dana Pertumbuhan
 const bunFundOwned=()=>(bunState().bought.gf||[]).length>0;
 const bunFundList=()=>{const F=TOPUP_CFG.fund,B=bunState();return F.lv.map((lv,k)=>({lv,gems:F.gems[k],got:!!B.gf.claimed[lv],ok:S.lv>=lv}))};

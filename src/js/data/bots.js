@@ -170,8 +170,7 @@ const BOT_CFG={
   saveCap:90},                     // tabungan (tarikan) maksimum sebelum tidak tahan lagi
  // ---- hidup yang berubah ----
  LIFE:{bioEvery:[2,9],             // bio diganti tiap N hari
-  loyal:.5,                        // tetap setia pada hero favorit pertama (sisanya pindah ke ★3 terbatas terbaru)
-  rename:{p:.12,days:[2,14],pool:600}}, // peluang ganti nama sekali, kapan (hari), ukuran kolam nama baru (dibuat Claude)
+  loyal:.5},                       // tetap setia pada hero favorit pertama (sisanya pindah ke ★3 terbatas terbaru)
  GEAR_FROM_DAY:2,             // mulai punya Pelindung/Aksesori
  BENCH_LV:[.35,.7],           // (lama) level hero cadangan relatif terhadap cap
  // level hero per kelangkaan (★1..★3): f = f1 − (f1 − f0)·e^(−hari sejak hero didapat / tau), dikali batas level hero.
@@ -183,28 +182,14 @@ const BOT_CFG={
  // ramp = bahan Kebangkitan dari paket dipakai bertahap selama sekian hari main (emas & level hero ikut membatasi) — CP naik mulus, bukan melompat
  ASC:{minCP:26000,perDay:28,ramp:1.2,tier:{f2p:1,low:1.05,card:1.15,mid:1.25,dolphin:1.4,whale:1.6,swhale:2.4,mwhale:3.6},
   cost:{h:{4:60,5:220,6:1200},w:{4:40,5:155,6:810},g:{4:30,5:114,6:570}}},
- // nama: dibuat Claude (integrasi sample) lalu disimpan bersama di db; hanya huruf & angka
- // bio/status profil: dibuat Claude, bertag supaya cocok dengan keadaan bot
- BIO_TAGS:['umum','santai','kompetitif','pemula','sial','hoki','raika','sakuya','farming'],
- BIO_MAX:240,BIO_BATCH:60,BIO_SHARE:.7,
- BIO_PROMPT:n=>`Buat ${n} status/bio profil pendek seperti yang ditulis pemain sungguhan di game mobile gacha fantasi pixel "Aster Chronicles". `+
-  `Konteks game: hero terbatas Raika (pemanah petir bercaping) dan Sakuya (miko rubah api), hero standar Celestine, Marisa, Hilde, Aurelia, Lilith, gacha dengan pity, dungeon untuk farming, stamina, peringkat CP. `+
-  `Gaya: mayoritas bahasa Indonesia santai/gaul, sebagian Inggris, sedikit romaji Jepang; boleh lucu, curhat gacha, ajakan santai, target pribadi. `+
-  `ATURAN: maksimal 40 karakter, tanpa emoji, tanpa tautan, tanpa @, tanpa info pribadi, sopan dan ramah keluarga, jangan sebut orang nyata atau merek. `+
-  `Beri tiap status satu tag dari: umum, santai, kompetitif, pemula, sial, hoki, raika, sakuya, farming (raika/sakuya = sudah punya hero itu; sial = gacha apes; hoki = gacha beruntung). `+
-  `Balas HANYA array JSON berisi objek {"t":"teks","tag":"tag"}.`,
+ // bio/status profil: kalimat lokal bertag (BIO_LOCAL) supaya cocok dengan keadaan bot (systems/bots.js botBio)
+ BIO_SHARE:.7,                // porsi bot yang memasang status (sisanya kosong)
  BIO_LOCAL:[['umum','Santai aja yang penting konsisten'],['santai','Login harian doang hehe'],['kompetitif','Target top 10 CP'],['pemula','Baru mulai, mohon bimbingannya'],['sial','Pity terus, kapan hoki'],['hoki','Sekali tarik langsung dapet'],['raika','Raika main, Raika istri'],['sakuya','Sakuya terbaik, no debat'],['farming','Farming dungeon tiap malam'],['umum','Ganbatte minna'],['santai','Main pas istirahat kerja'],['kompetitif','CP dulu, tidur nanti'],
   ['kolektor','Koleksi harus lengkap, titik'],['kolektor','Semua hero wajib punya'],['kolektor','Kurang dikit lagi full koleksi'],
   ['setia','Satu hero, satu cinta'],['setia','Main cuma demi dia'],['setia','Bukan meta? bodo amat'],
   ['meta','Tim terkuat atau tidak sama sekali'],['meta','Ikut meta biar cepet'],['meta','Build rapi, CP naik'],
   ['banner','Banner baru = gesek'],['banner','Rate up? sikat'],['banner','Nabung? apa itu'],
   ['gajian','Tunggu gajian dulu'],['gajian','Tanggal tua mode hemat'],['gajian','Gajian = gacha']],
- NAME_RE:/^[A-Za-z0-9]{3,14}$/,
- NAME_BATCH:100,
- NAME_PROMPT:n=>`Buat ${n} nickname pemain game mobile gacha fantasi yang unik dan berbeda-beda, seperti yang dipakai pemain sungguhan. `+
-  `Campur gaya: nama Indonesia, Inggris, nuansa Jepang, kata lucu, gamer tag, kadang diakhiri angka. `+
-  `ATURAN KERAS: hanya huruf A-Z a-z dan angka 0-9, tanpa spasi, tanpa simbol apa pun (tidak boleh / . - ! , : @ _ dll), panjang 3-14 karakter, sopan dan ramah keluarga, tidak memakai nama orang terkenal atau merek. `+
-  `Balas HANYA array JSON berisi string, tanpa teks lain.`,
- // cadangan bila Claude tidak tersedia (mis. dibuka sebagai file lokal): suku kata acak
+ // nama cadangan bila server tidak menjawab (botLocalName): suku kata acak
  SYL:['ra','ki','no','sa','ri','ta','ka','mi','yu','to','ze','lu','ar','en','ko','vi','ba','do','na','ha','shi','ren','dar','vel','mo','ji','ga','ru','ne','fa'],
 };
